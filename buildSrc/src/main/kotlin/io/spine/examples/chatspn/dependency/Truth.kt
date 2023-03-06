@@ -24,22 +24,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.examples.chatspn.dependency.Spine
+package io.spine.examples.chatspn.dependency
 
-/*
- * Add the Gradle plugin for bootstrapping projects built with Spine.
- * See: https://github.com/SpineEventEngine/bootstrap
- */
-plugins {
-    `kotlin-dsl`
-    id("io.spine.tools.gradle.bootstrap")
-}
+// https://truth.dev/
+object Truth {
+    const val version = "1.1.3"
+    const val lib = "com.google.truth:truth:$version"
 
-spine {
-    assembleModel()
-    enableJava()
-}
+    // https://truth.dev/extension
+    object Extensions {
+        object Java8 {
+            const val lib = "com.google.truth.extensions:truth-java8-extension:$version"
+        }
 
-dependencies {
-    implementation(Spine.Server.lib)
+        object Proto {
+            const val lib = "com.google.truth.extensions:truth-proto-extension:$version"
+        }
+    }
 }

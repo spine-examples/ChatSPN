@@ -24,22 +24,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.examples.chatspn.dependency.Spine
-
-/*
- * Add the Gradle plugin for bootstrapping projects built with Spine.
- * See: https://github.com/SpineEventEngine/bootstrap
- */
 plugins {
     `kotlin-dsl`
-    id("io.spine.tools.gradle.bootstrap")
 }
 
-spine {
-    assembleModel()
-    enableJava()
+repositories {
+    mavenLocal()
+    gradlePluginPortal()
+    mavenCentral()
 }
+
+/**
+ * The version of the ErrorProne Gradle plugin.
+ *
+ * Keep in sync with [io.spine.examples.chatspn.dependency.ErrorProne.GradlePlugin.version].
+ */
+val errorProneVersion = "2.0.2"
+
+/**
+ * The version of the Spine Gradle plugin.
+ *
+ * Keep in sync with [io.spine.examples.chatspn.dependency.Spine.version].
+ */
+val spineVersion = "1.8.2"
 
 dependencies {
-    implementation(Spine.Server.lib)
+    implementation("net.ltgt.gradle:gradle-errorprone-plugin:${errorProneVersion}")
+    implementation("io.spine.tools:spine-bootstrap:${spineVersion}")
 }
