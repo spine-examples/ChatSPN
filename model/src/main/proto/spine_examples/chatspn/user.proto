@@ -51,6 +51,6 @@ message User {
   string name = 2 [(required) = true];
 
   // A time of last user activity.
-  google.protobuf.Timestamp last_activity = 3;
+  google.protobuf.Timestamp when_last_active = 3;
 
 }
