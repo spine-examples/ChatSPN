@@ -29,7 +29,7 @@ package spine_examples.chatspn;
 
 import "spine/options.proto";
 
-option (type_url_prefix) = "type.spine.io";
+option (type_url_prefix) = "type.chatspn.spine.io";
 option java_package = "io.spine.examples.chatspn.command";
 option java_outer_classname = "CommandsProto";
 option java_multiple_files = true;
@@ -43,5 +43,5 @@ message CreateUser {
   UserId user = 1;
 
   // A name of the user to create.
-  string name = 2;
+  string name = 2 [(required) = true];
 }
