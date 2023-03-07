@@ -34,13 +34,13 @@ option java_package = "io.spine.examples.chatspn.command";
 option java_outer_classname = "CommandsProto";
 option java_multiple_files = true;
 
-import "spine_examples/chatspn/identifiers.proto";
+import "spine/core/user_id.proto";
 
 // A command to create a new user.
 message CreateUser {
 
   // The ID of the user to create.
-  UserId user = 1;
+  spine.core.UserId user = 1;
 
   // A name of the user to create.
   string name = 2 [(required) = true];

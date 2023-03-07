@@ -35,10 +35,9 @@ option java_outer_classname = "UserProto";
 option java_multiple_files = true;
 
 import "google/protobuf/timestamp.proto";
-import "spine_examples/chatspn/identifiers.proto";
+import "spine/core/user_id.proto";
 
 // A user in the chatting system.
-//
 message User {
   option (entity) = { kind: AGGREGATE };
 
@@ -46,7 +45,7 @@ message User {
   //
   // Once set it should never change.
   //
-  UserId id = 1 [(required) = true];
+  spine.core.UserId id = 1;
 
   // A name of a user.
   string name = 2 [(required) = true];
