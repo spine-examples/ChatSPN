@@ -36,9 +36,9 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 
-// A new user has been created.
-message UserCreated {
+// A new user has been registered.
+message UserRegistered {
 
-  // The ID of the created user.
+  // The ID of the registered user.
   spine.core.UserId user = 1;
 }

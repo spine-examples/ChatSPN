@@ -36,12 +36,12 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 
-// A command to create a new user.
-message CreateUser {
+// A command to register a new user.
+message RegisterUser {
 
-  // The ID of the user to create.
+  // The ID of the user to register.
   spine.core.UserId user = 1;
 
-  // A name of the user to create.
+  // A name of the user to register.
   string name = 2 [(required) = true];
 }
