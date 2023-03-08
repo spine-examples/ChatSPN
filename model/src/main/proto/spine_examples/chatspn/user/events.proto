@@ -41,4 +41,7 @@ message UserRegistered {
 
     // The ID of the registered user.
     spine.core.UserId user = 1;
+
+    // A name of the registered user.
+    string name = 2 [(required) = true];
 }

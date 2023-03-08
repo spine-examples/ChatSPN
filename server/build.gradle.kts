@@ -24,6 +24,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-rootProject.name = "ChatSPN"
-include("model")
-include("server")
+import io.spine.examples.chatspn.dependency.Spine
+
+/*
+ * Add the Gradle plugin for bootstrapping projects built with Spine.
+ * See: https://github.com/SpineEventEngine/bootstrap
+ */
+plugins {
+    `kotlin-dsl`
+    id("io.spine.tools.gradle.bootstrap")
+}
+
+spine {
+    /*
+     * Add and configure required dependencies for developing a Spine-based Java server.
+     * See: https://github.com/SpineEventEngine/bootstrap#java-projects
+     */
+    enableJava().server()
+    forceDependencies = true
+}
+
+dependencies {
+    implementation(project(":model"))
+}
