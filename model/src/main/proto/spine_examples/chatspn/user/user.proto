@@ -30,18 +30,26 @@ package spine_examples.chatspn;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.command";
-option java_outer_classname = "CommandsProto";
+option java_package = "io.spine.examples.chatspn.user";
+option java_outer_classname = "UserProto";
 option java_multiple_files = true;
 
+import "google/protobuf/timestamp.proto";
 import "spine/core/user_id.proto";
 
-// A command to register a new user.
-message RegisterUser {
+// A user in the chatting system.
+message User {
+    option (entity) = { kind: AGGREGATE };
 
-  // The ID of the user to register.
-  spine.core.UserId user = 1;
+    // The ID of the user.
+    //
+    // Once set it should never change.
+    //
+    spine.core.UserId id = 1;
 
-  // A name of the user to register.
-  string name = 2 [(required) = true];
+    // A name of a user.
+    string name = 2 [(required) = true];
+
+    // A time of last user activity.
+    google.protobuf.Timestamp when_last_active = 3;
 }
