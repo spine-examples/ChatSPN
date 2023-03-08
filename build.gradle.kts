@@ -24,53 +24,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.examples.chatspn.dependency.Grpc
-import io.spine.examples.chatspn.dependency.Guava
-import io.spine.examples.chatspn.dependency.JUnit
-import io.spine.examples.chatspn.dependency.Truth
-
 /**
- * Configures repositories, adds dependencies and forces transitive dependencies.
+ * Gradle configuration for the whole project.
  *
- * Dependencies are contained within dependency objects in the
- * [io.spine.examples.chatspn.dependency] package. These objects allow configuration of
- * dependency properties (e.g. version).
+ * The configuration is divided in multiple script plugins located in `buildSrc/src/kotlin`.
+ * Only a brief description is provided when applying a plugin. However, each of these
+ * plugins contains a more detailed description in their source file.
  */
 
-plugins {
-    java
+allprojects {
+    apply<IdeaPlugin>()
 }
 
-repositories {
-    mavenLocal()
-    gradlePluginPortal()
-    mavenCentral()
-    maven {
-        url = uri("https://spine.mycloudrepo.io/public/repositories/releases")
-        mavenContent {
-            releasesOnly()
-        }
-    }
-}
+subprojects {
+    apply<JavaPlugin>()
 
-dependencies {
-    implementation(Guava.lib)
-    runtimeOnly(Grpc.lib)
+    /*
+     * Configure the `Javac`. The main configuration is instructing the `Javac` that
+     * the project uses JDK 8.
+     */
+    apply<JavacConfigurationPlugin>()
 
-    testImplementation(JUnit.Params.lib)
-    testImplementation(JUnit.Api.lib)
-    testRuntimeOnly(JUnit.Runner.lib)
-}
+    /*
+     * Configure repositories, add dependencies and force transitive dependencies.
+     */
+    apply<DependencyManagementPlugin>()
 
-configurations {
-    all {
-        resolutionStrategy {
-            force(
-                Guava.lib,
-                Truth.lib,
-                Truth.Extensions.Java8.lib,
-                Truth.Extensions.Proto.lib
-            )
-        }
-    }
+    /*
+     * Apply the Error Prone plugin. This plugin also instructs the `Javac` to
+     * exclude the generated code from being analyzed and to deal with a few known
+     * issues of Error Prone.
+     */
+    apply<ErrorProneConfigurationPlugin>()
+
+    /*
+     * Configure test-running tasks.
+     */
+    apply<TestsConfigurationPlugin>()
 }
