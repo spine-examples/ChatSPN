@@ -46,7 +46,7 @@ class UserProfileProjectionTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("update the `UserProfileProjection` state on registration")
+    @DisplayName("display `UserProfile`, as soon as `User` registered")
     void reactOnRegistration() {
         RegisterUser command = RegisterUser
                 .newBuilder()
