@@ -27,7 +27,7 @@
 package io.spine.examples.chatspn.server.user;
 
 import io.spine.core.UserId;
-import io.spine.examples.chatspn.server.MessengerContext;
+import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.examples.chatspn.user.UserProfile;
 import io.spine.examples.chatspn.user.command.RegisterUser;
 import io.spine.server.BoundedContextBuilder;
@@ -42,24 +42,26 @@ class UserProfileProjectionTest extends ContextAwareTest {
 
     @Override
     protected BoundedContextBuilder contextBuilder() {
-        return MessengerContext.newBuilder();
+        return ChatsContext.newBuilder();
     }
 
     @Test
     @DisplayName("update the `UserProfileProjection` state on registration")
     void reactOnRegistration() {
-        RegisterUser command = RegisterUser.newBuilder()
-                                           .setUser(UserId.newBuilder()
-                                                          .setValue(randomString())
-                                                          .build())
-                                           .setName(randomString())
-                                           .vBuild();
+        RegisterUser command = RegisterUser
+                .newBuilder()
+                .setUser(UserId.newBuilder()
+                               .setValue(randomString())
+                               .build())
+                .setName(randomString())
+                .vBuild();
         context().receivesCommand(command);
 
-        UserProfile expected = UserProfile.newBuilder()
-                                          .setId(command.getUser())
-                                          .setName(command.getName())
-                                          .vBuild();
+        UserProfile expected = UserProfile
+                .newBuilder()
+                .setId(command.getUser())
+                .setName(command.getName())
+                .vBuild();
 
         context().assertState(command.getUser(), expected);
     }

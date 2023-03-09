@@ -33,20 +33,21 @@ import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
 
 /**
- * Configures Messenger Bounded Context with repositories.
+ * Configures Chats Bounded Context with repositories.
  */
-public final class MessengerContext {
-    static final String NAME = "Messenger";
+public final class ChatsContext {
+
+    static final String NAME = "Chats";
 
     /**
      * Prevents instantiation of this class.
      */
-    private MessengerContext() {
+    private ChatsContext() {
     }
 
     /**
-     * Creates {@code BoundedContextBuilder} for the Messenger context and fills it with
-     * repositories.
+     * Creates {@code BoundedContextBuilder} for the Chats context
+     * and fills it with repositories.
      */
     public static BoundedContextBuilder newBuilder() {
         return BoundedContext
