@@ -42,5 +42,4 @@ public final class UserProfileProjection extends Projection<UserId, UserProfile,
         builder().setId(e.getUser())
                  .setName(e.getName());
     }
-
 }

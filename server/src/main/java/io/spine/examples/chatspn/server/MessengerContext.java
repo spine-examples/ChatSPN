@@ -36,11 +36,10 @@ import io.spine.server.DefaultRepository;
  * Configures Messenger Bounded Context with repositories.
  */
 public final class MessengerContext {
-
     static final String NAME = "Messenger";
 
     /**
-     * Prevents instantiation of this utility class.
+     * Prevents instantiation of this class.
      */
     private MessengerContext() {
     }
@@ -55,5 +54,4 @@ public final class MessengerContext {
                 .add(DefaultRepository.of(UserAggregate.class))
                 .add(new UserProfileRepository());
     }
-
 }

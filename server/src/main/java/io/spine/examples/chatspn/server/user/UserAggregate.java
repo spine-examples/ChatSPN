@@ -56,5 +56,4 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
         builder().setId(e.getUser())
                  .setName(e.getName());
     }
-
 }

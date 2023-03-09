@@ -52,7 +52,6 @@ class UserTest extends ContextAwareTest {
     @Nested
     @DisplayName("register a user")
     class Registration {
-
         private RegisterUser command;
 
         @BeforeEach
