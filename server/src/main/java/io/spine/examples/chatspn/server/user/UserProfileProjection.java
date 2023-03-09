@@ -35,7 +35,7 @@ import io.spine.server.projection.Projection;
 /**
  * Builds display information for a user profile.
  */
-public class UserProfileProjection extends Projection<UserId, UserProfile, UserProfile.Builder> {
+public final class UserProfileProjection extends Projection<UserId, UserProfile, UserProfile.Builder> {
 
     @Subscribe
     void on(UserRegistered e) {

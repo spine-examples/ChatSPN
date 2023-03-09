@@ -37,7 +37,7 @@ import io.spine.server.command.Assign;
 /**
  * A User aggregate handles the logic of registration.
  */
-public class UserAggregate extends Aggregate<UserId, User, User.Builder> {
+public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
 
     /**
      * Handles the command to register a user.
