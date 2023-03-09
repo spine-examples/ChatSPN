@@ -24,36 +24,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server;
+package io.spine.examples.chatspn.server.user;
 
-import io.spine.examples.chatspn.server.user.UserAggregate;
-import io.spine.examples.chatspn.server.user.UserProfileProjection;
-import io.spine.server.BoundedContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
+import io.spine.core.Subscribe;
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.user.UserProfile;
+import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.server.projection.Projection;
 
 /**
- * Configures Messenger Bounded Context with repositories.
+ * Builds display information for a user profile.
  */
-public final class MessengerContext {
+public class UserProfileProjection extends Projection<UserId, UserProfile, UserProfile.Builder> {
 
-    static final String NAME = "Messenger";
-
-    /**
-     * Prevents instantiation of this utility class.
-     */
-    private MessengerContext() {
-    }
-
-    /**
-     * Creates {@code BoundedContextBuilder} for the Messenger context and fills it with
-     * repositories.
-     */
-    public static BoundedContextBuilder newBuilder() {
-        return BoundedContext
-                .singleTenant(NAME)
-                .add(DefaultRepository.of(UserAggregate.class))
-                .add(DefaultRepository.of(UserProfileProjection.class));
+    @Subscribe
+    void on(UserRegistered e) {
+        builder().setId(e.getUser())
+                 .setName(e.getName());
     }
 
 }
