@@ -35,7 +35,7 @@ import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 
 /**
- * A User aggregate handles the logic of registration.
+ * A registered user of ChatSPN.
  */
 public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
 

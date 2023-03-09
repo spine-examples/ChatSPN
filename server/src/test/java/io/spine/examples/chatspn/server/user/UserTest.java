@@ -26,15 +26,13 @@
 
 package io.spine.examples.chatspn.server.user;
 
-import io.spine.core.UserId;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.examples.chatspn.user.User;
 import io.spine.examples.chatspn.user.command.RegisterUser;
 import io.spine.examples.chatspn.user.event.UserRegistered;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.testing.server.EventSubject;
+import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -50,43 +48,32 @@ class UserTest extends ContextAwareTest {
     }
 
     @Nested
-    @DisplayName("register a user")
+    @DisplayName("allow registration")
     class Registration {
-
-        private RegisterUser command;
-
-        @BeforeEach
-        void sendCommand() {
-            command = RegisterUser
-                    .newBuilder()
-                    .setUser(UserId.newBuilder()
-                                   .setValue(randomString())
-                                   .build())
-                    .setName(randomString())
-                    .vBuild();
-            context().receivesCommand(command);
-        }
 
         @Test
         @DisplayName("emitting the `UserRegistered` event")
         void event() {
-            EventSubject assertEvents = context()
-                    .assertEvents()
-                    .withType(UserRegistered.class);
-
-            assertEvents.hasSize(1);
+            RegisterUser command = sendCommand();
 
             UserRegistered expected = UserRegistered
                     .newBuilder()
                     .setUser(command.getUser())
                     .setName(command.getName())
                     .build();
+
+            context().assertEvents()
+                     .withType(UserRegistered.class)
+                     .hasSize(1);
+
             context().assertEvent(expected);
         }
 
         @Test
         @DisplayName("as entity with the `User` state")
         void entity() {
+            RegisterUser command = sendCommand();
+
             User expected = User
                     .newBuilder()
                     .setId(command.getUser())
@@ -94,6 +81,17 @@ class UserTest extends ContextAwareTest {
                     .vBuild();
 
             context().assertState(command.getUser(), expected);
+        }
+
+        private RegisterUser sendCommand() {
+            RegisterUser command = RegisterUser
+                    .newBuilder()
+                    .setUser(GivenUserId.generated())
+                    .setName(randomString())
+                    .vBuild();
+            context().receivesCommand(command);
+
+            return command;
         }
     }
 }

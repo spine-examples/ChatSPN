@@ -26,11 +26,11 @@
 
 package io.spine.examples.chatspn.server.user;
 
-import io.spine.core.UserId;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.examples.chatspn.user.UserProfile;
 import io.spine.examples.chatspn.user.command.RegisterUser;
 import io.spine.server.BoundedContextBuilder;
+import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,9 +50,7 @@ class UserProfileProjectionTest extends ContextAwareTest {
     void reactOnRegistration() {
         RegisterUser command = RegisterUser
                 .newBuilder()
-                .setUser(UserId.newBuilder()
-                               .setValue(randomString())
-                               .build())
+                .setUser(GivenUserId.generated())
                 .setName(randomString())
                 .vBuild();
         context().receivesCommand(command);

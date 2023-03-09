@@ -33,7 +33,7 @@ import io.spine.examples.chatspn.user.event.UserRegistered;
 import io.spine.server.projection.Projection;
 
 /**
- * Builds display information for a user profile.
+ * Manages instances of {@code UserProfile} projections.
  */
 public final class UserProfileProjection extends Projection<UserId, UserProfile, UserProfile.Builder> {
 
