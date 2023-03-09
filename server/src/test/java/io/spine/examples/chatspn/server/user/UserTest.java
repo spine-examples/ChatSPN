@@ -34,7 +34,6 @@ import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static io.spine.testing.TestValues.randomString;
@@ -47,51 +46,32 @@ class UserTest extends ContextAwareTest {
         return ChatsContext.newBuilder();
     }
 
-    @Nested
-    @DisplayName("allow registration")
-    class Registration {
+    @Test
+    @DisplayName("allow registration and emit the `UserRegistered` event")
+    void registration() {
+        RegisterUser command = RegisterUser
+                .newBuilder()
+                .setUser(GivenUserId.generated())
+                .setName(randomString())
+                .vBuild();
 
-        @Test
-        @DisplayName("emitting the `UserRegistered` event")
-        void event() {
-            RegisterUser command = sendCommand();
+        context().receivesCommand(command);
 
-            UserRegistered expected = UserRegistered
-                    .newBuilder()
-                    .setUser(command.getUser())
-                    .setName(command.getName())
-                    .build();
+        UserRegistered expectedEvent = UserRegistered
+                .newBuilder()
+                .setUser(command.getUser())
+                .setName(command.getName())
+                .build();
+        User expectedState = User
+                .newBuilder()
+                .setId(command.getUser())
+                .setName(command.getName())
+                .vBuild();
 
-            context().assertEvents()
-                     .withType(UserRegistered.class)
-                     .hasSize(1);
-
-            context().assertEvent(expected);
-        }
-
-        @Test
-        @DisplayName("as entity with the `User` state")
-        void entity() {
-            RegisterUser command = sendCommand();
-
-            User expected = User
-                    .newBuilder()
-                    .setId(command.getUser())
-                    .setName(command.getName())
-                    .vBuild();
-
-            context().assertState(command.getUser(), expected);
-        }
-
-        private RegisterUser sendCommand() {
-            RegisterUser command = RegisterUser
-                    .newBuilder()
-                    .setUser(GivenUserId.generated())
-                    .setName(randomString())
-                    .vBuild();
-            context().receivesCommand(command);
-
-            return command;
-        }
+        context().assertEvents()
+                 .withType(UserRegistered.class)
+                 .hasSize(1);
+        context().assertEvent(expectedEvent);
+        context().assertState(command.getUser(), expectedState);
     }
 }
