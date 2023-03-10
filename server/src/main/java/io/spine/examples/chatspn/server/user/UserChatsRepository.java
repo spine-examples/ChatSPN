@@ -23,22 +23,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.user_chats;
+package io.spine.examples.chatspn.server.user;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.server.aggregate.AggregatePartRepository;
+import io.spine.server.route.EventRouting;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.userchats.event";
-option java_outer_classname = "EventsProto";
-option java_multiple_files = true;
+import static io.spine.server.route.EventRoute.withId;
 
-import "spine/core/user_id.proto";
+/**
+ * The repository for managing {@link UserChatsAggregate} instances.
+ */
+public final class UserChatsRepository
+        extends AggregatePartRepository<UserId, UserChatsAggregate, UserRoot> {
 
-// A new user chats has been created.
-message UserChatsCreated {
-
-    // The ID of the created user chats owner.
-    spine.core.UserId owner = 1;
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    protected void setupEventRouting(EventRouting<UserId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()));
+    }
 }

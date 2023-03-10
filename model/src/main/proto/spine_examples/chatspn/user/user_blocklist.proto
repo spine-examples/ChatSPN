@@ -23,28 +23,37 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+syntax = "proto3";
 
-package io.spine.examples.chatspn.server.user.chats;
+package spine_examples.chatspn.user;
 
-import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
-import io.spine.core.UserId;
-import io.spine.examples.chatspn.server.user.UserRoot;
-import io.spine.examples.chatspn.user.event.UserRegistered;
-import io.spine.server.aggregate.AggregatePartRepository;
-import io.spine.server.route.EventRouting;
+import "spine/options.proto";
 
-import static io.spine.server.route.EventRoute.withId;
+option (type_url_prefix) = "type.chatspn.spine.io";
+option java_package = "io.spine.examples.chatspn.user";
+option java_outer_classname = "UserProfileProto";
+option java_multiple_files = true;
 
-/**
- * The repository for managing {@link UserChatsAggregate} instances.
- */
-public final class UserChatsRepository
-        extends AggregatePartRepository<UserId, UserChatsAggregate, UserRoot> {
+import "google/protobuf/timestamp.proto";
+import "spine/core/user_id.proto";
 
-    @OverridingMethodsMustInvokeSuper
-    @Override
-    protected void setupEventRouting(EventRouting<UserId> routing) {
-        super.setupEventRouting(routing);
-        routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()));
+// A user profile view in the chatting system.
+message UserBlocklist {
+    option (entity) = { kind: PROJECTION };
+
+    // The ID of the user who owned blocklist.
+    spine.core.UserId id = 1;
+
+    // User's blocklist.
+    repeated BlockedUser blockedUser = 2;
+
+    // Represents a view of a blocked user.
+    message BlockedUser {
+
+        // The ID of the blocked user.
+        spine.core.UserId user = 1;
+
+        // The name of the blocked user.
+        string name = 2 [(required) = true];
     }
 }
