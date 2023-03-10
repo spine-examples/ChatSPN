@@ -29,13 +29,16 @@ package io.spine.examples.chatspn.server.user;
 import io.spine.core.Subscribe;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.user.UserBlocklist;
-import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.user.event.UserChatsCreated;
 import io.spine.server.projection.Projection;
 
-public class UserBlocklistProjection extends Projection<UserId, UserBlocklist, UserBlocklist.Builder> {
+/**
+ * Manages instances of {@code UserBlocklist} projections.
+ */
+public final class UserBlocklistProjection extends Projection<UserId, UserBlocklist, UserBlocklist.Builder> {
 
     @Subscribe
-    void on(UserRegistered e) {
-        builder().setId(e.getUser());
+    void on(UserChatsCreated e) {
+        builder().setId(e.getOwner());
     }
 }

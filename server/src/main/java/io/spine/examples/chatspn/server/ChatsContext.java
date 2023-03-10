@@ -28,8 +28,8 @@ package io.spine.examples.chatspn.server;
 
 import io.spine.examples.chatspn.server.user.UserAggregate;
 import io.spine.examples.chatspn.server.user.UserBlocklistRepository;
-import io.spine.examples.chatspn.server.user.UserProfileRepository;
 import io.spine.examples.chatspn.server.user.UserChatsRepository;
+import io.spine.examples.chatspn.server.user.UserProfileRepository;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
