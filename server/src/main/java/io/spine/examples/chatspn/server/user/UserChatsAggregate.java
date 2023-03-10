@@ -27,11 +27,10 @@
 package io.spine.examples.chatspn.server.user;
 
 import io.spine.core.UserId;
-import io.spine.examples.chatspn.server.user.UserRoot;
 import io.spine.examples.chatspn.user.event.UserRegistered;
-import io.spine.examples.chatspn.userchats.UserChats;
-import io.spine.examples.chatspn.userchats.event.UserChatsCreated;
-import io.spine.server.aggregate.AggregatePart;
+import io.spine.examples.chatspn.user.UserChats;
+import io.spine.examples.chatspn.user.event.UserChatsCreated;
+import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.event.React;
 
@@ -40,17 +39,7 @@ import io.spine.server.event.React;
  * and settings of chats in which the user is a member.
  */
 public final class UserChatsAggregate
-        extends AggregatePart<UserId, UserChats, UserChats.Builder, UserRoot> {
-
-    /**
-     * Creates a new instance of the aggregate part.
-     *
-     * @param root
-     *         a root of the aggregate to which this part belongs
-     */
-    private UserChatsAggregate(UserRoot root) {
-        super(root);
-    }
+        extends Aggregate<UserId, UserChats, UserChats.Builder> {
 
     @React
     UserChatsCreated on(UserRegistered e) {

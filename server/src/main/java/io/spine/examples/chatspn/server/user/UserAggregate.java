@@ -30,24 +30,14 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.user.User;
 import io.spine.examples.chatspn.user.command.RegisterUser;
 import io.spine.examples.chatspn.user.event.UserRegistered;
-import io.spine.server.aggregate.AggregatePart;
+import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 
 /**
  * A registered user of ChatSPN.
  */
-public final class UserAggregate extends AggregatePart<UserId, User, User.Builder, UserRoot> {
-
-    /**
-     * Creates a new instance of the aggregate part.
-     *
-     * @param root
-     *         a root of the aggregate to which this part belongs
-     */
-    private UserAggregate(UserRoot root) {
-        super(root);
-    }
+public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
 
     /**
      * Handles the command to register a user.

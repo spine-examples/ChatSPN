@@ -28,8 +28,8 @@ package io.spine.examples.chatspn.server.user;
 
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.examples.chatspn.user.command.RegisterUser;
-import io.spine.examples.chatspn.userchats.UserChats;
-import io.spine.examples.chatspn.userchats.event.UserChatsCreated;
+import io.spine.examples.chatspn.user.UserChats;
+import io.spine.examples.chatspn.user.event.UserChatsCreated;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
