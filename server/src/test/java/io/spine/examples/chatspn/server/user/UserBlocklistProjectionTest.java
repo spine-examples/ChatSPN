@@ -24,39 +24,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server;
+package io.spine.examples.chatspn.server.user;
 
-import io.spine.examples.chatspn.server.user.UserAggregate;
-import io.spine.examples.chatspn.server.user.UserBlocklistRepository;
-import io.spine.examples.chatspn.server.user.UserProfileRepository;
-import io.spine.examples.chatspn.server.user.UserChatsRepository;
-import io.spine.server.BoundedContext;
+import io.spine.examples.chatspn.server.ChatsContext;
+import io.spine.examples.chatspn.user.UserBlocklist;
+import io.spine.examples.chatspn.user.UserProfile;
+import io.spine.examples.chatspn.user.command.RegisterUser;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
+import io.spine.testing.core.given.GivenUserId;
+import io.spine.testing.server.blackbox.ContextAwareTest;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-/**
- * Configures Chats Bounded Context with repositories.
- */
-public final class ChatsContext {
+import static io.spine.testing.TestValues.randomString;
 
-    static final String NAME = "Chats";
+@DisplayName("`UserBlocklistProjection` should")
+class UserBlocklistProjectionTest extends ContextAwareTest {
 
-    /**
-     * Prevents instantiation of this class.
-     */
-    private ChatsContext() {
+    @Override
+    protected BoundedContextBuilder contextBuilder() {
+        return ChatsContext.newBuilder();
     }
 
-    /**
-     * Creates {@code BoundedContextBuilder} for the Chats context
-     * and fills it with repositories.
-     */
-    public static BoundedContextBuilder newBuilder() {
-        return BoundedContext
-                .singleTenant(NAME)
-                .add(DefaultRepository.of(UserAggregate.class))
-                .add(new UserProfileRepository())
-                .add(new UserChatsRepository())
-                .add(new UserBlocklistRepository());
+    @Test
+    @DisplayName("display `UserBlocklist`, as soon as `User` registered")
+    void reactOnRegistration() {
+        RegisterUser command = RegisterUser
+                .newBuilder()
+                .setUser(GivenUserId.generated())
+                .setName(randomString())
+                .vBuild();
+        context().receivesCommand(command);
+
+        UserBlocklist expected = UserBlocklist
+                .newBuilder()
+                .setId(command.getUser())
+                .vBuild();
+
+        context().assertState(command.getUser(), expected);
     }
 }

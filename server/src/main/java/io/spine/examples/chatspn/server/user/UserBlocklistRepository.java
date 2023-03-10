@@ -24,39 +24,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server;
+package io.spine.examples.chatspn.server.user;
 
-import io.spine.examples.chatspn.server.user.UserAggregate;
-import io.spine.examples.chatspn.server.user.UserBlocklistRepository;
-import io.spine.examples.chatspn.server.user.UserProfileRepository;
-import io.spine.examples.chatspn.server.user.UserChatsRepository;
-import io.spine.server.BoundedContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.user.UserBlocklist;
+import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.server.projection.ProjectionRepository;
+import io.spine.server.route.EventRouting;
+
+import static io.spine.server.route.EventRoute.withId;
 
 /**
- * Configures Chats Bounded Context with repositories.
+ * The repository for managing {@link UserBlocklistProjection} instances.
  */
-public final class ChatsContext {
+public final class UserBlocklistRepository
+        extends ProjectionRepository<UserId, UserBlocklistProjection, UserBlocklist> {
 
-    static final String NAME = "Chats";
-
-    /**
-     * Prevents instantiation of this class.
-     */
-    private ChatsContext() {
-    }
-
-    /**
-     * Creates {@code BoundedContextBuilder} for the Chats context
-     * and fills it with repositories.
-     */
-    public static BoundedContextBuilder newBuilder() {
-        return BoundedContext
-                .singleTenant(NAME)
-                .add(DefaultRepository.of(UserAggregate.class))
-                .add(new UserProfileRepository())
-                .add(new UserChatsRepository())
-                .add(new UserBlocklistRepository());
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    protected void setupEventRouting(EventRouting<UserId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()));
     }
 }
