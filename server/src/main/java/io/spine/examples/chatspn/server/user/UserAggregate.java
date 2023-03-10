@@ -24,53 +24,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.examples.chatspn.dependency.Grpc
-import io.spine.examples.chatspn.dependency.Guava
-import io.spine.examples.chatspn.dependency.JUnit
-import io.spine.examples.chatspn.dependency.Truth
+package io.spine.examples.chatspn.server.user;
+
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.user.User;
+import io.spine.examples.chatspn.user.command.RegisterUser;
+import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.server.aggregate.Aggregate;
+import io.spine.server.aggregate.Apply;
+import io.spine.server.command.Assign;
 
 /**
- * Configures repositories, adds dependencies and forces transitive dependencies.
- *
- * Dependencies are contained within dependency objects in the
- * [io.spine.examples.chatspn.dependency] package. These objects allow configuration of
- * dependency properties (e.g. version).
+ * A registered user of ChatSPN.
  */
+public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
 
-plugins {
-    java
-}
-
-repositories {
-    mavenLocal()
-    gradlePluginPortal()
-    mavenCentral()
-    maven {
-        url = uri("https://spine.mycloudrepo.io/public/repositories/releases")
-        mavenContent {
-            releasesOnly()
-        }
+    /**
+     * Handles the command to register a user.
+     */
+    @Assign
+    UserRegistered handle(RegisterUser c) {
+        return UserRegistered
+                .newBuilder()
+                .setUser(c.getUser())
+                .setName(c.getName())
+                .vBuild();
     }
-}
 
-dependencies {
-    implementation(Guava.lib)
-    runtimeOnly(Grpc.lib)
-
-    testImplementation(JUnit.Params.lib)
-    testImplementation(JUnit.Api.lib)
-    testRuntimeOnly(JUnit.Runner.lib)
-}
-
-configurations {
-    all {
-        resolutionStrategy {
-            force(
-                Guava.lib,
-                Truth.lib,
-                Truth.Extensions.Java8.lib,
-                Truth.Extensions.Proto.lib
-            )
-        }
+    @Apply
+    private void event(UserRegistered e) {
+        builder().setId(e.getUser())
+                 .setName(e.getName());
     }
 }

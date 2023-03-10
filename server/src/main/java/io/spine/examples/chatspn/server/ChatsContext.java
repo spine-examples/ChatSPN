@@ -24,53 +24,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.examples.chatspn.dependency.Grpc
-import io.spine.examples.chatspn.dependency.Guava
-import io.spine.examples.chatspn.dependency.JUnit
-import io.spine.examples.chatspn.dependency.Truth
+package io.spine.examples.chatspn.server;
+
+import io.spine.examples.chatspn.server.user.UserAggregate;
+import io.spine.examples.chatspn.server.user.UserProfileRepository;
+import io.spine.server.BoundedContext;
+import io.spine.server.BoundedContextBuilder;
+import io.spine.server.DefaultRepository;
 
 /**
- * Configures repositories, adds dependencies and forces transitive dependencies.
- *
- * Dependencies are contained within dependency objects in the
- * [io.spine.examples.chatspn.dependency] package. These objects allow configuration of
- * dependency properties (e.g. version).
+ * Configures Chats Bounded Context with repositories.
  */
+public final class ChatsContext {
 
-plugins {
-    java
-}
+    static final String NAME = "Chats";
 
-repositories {
-    mavenLocal()
-    gradlePluginPortal()
-    mavenCentral()
-    maven {
-        url = uri("https://spine.mycloudrepo.io/public/repositories/releases")
-        mavenContent {
-            releasesOnly()
-        }
+    /**
+     * Prevents instantiation of this class.
+     */
+    private ChatsContext() {
     }
-}
 
-dependencies {
-    implementation(Guava.lib)
-    runtimeOnly(Grpc.lib)
-
-    testImplementation(JUnit.Params.lib)
-    testImplementation(JUnit.Api.lib)
-    testRuntimeOnly(JUnit.Runner.lib)
-}
-
-configurations {
-    all {
-        resolutionStrategy {
-            force(
-                Guava.lib,
-                Truth.lib,
-                Truth.Extensions.Java8.lib,
-                Truth.Extensions.Proto.lib
-            )
-        }
+    /**
+     * Creates {@code BoundedContextBuilder} for the Chats context
+     * and fills it with repositories.
+     */
+    public static BoundedContextBuilder newBuilder() {
+        return BoundedContext
+                .singleTenant(NAME)
+                .add(DefaultRepository.of(UserAggregate.class))
+                .add(new UserProfileRepository());
     }
 }

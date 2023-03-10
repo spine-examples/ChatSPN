@@ -26,3 +26,4 @@
 
 rootProject.name = "ChatSPN"
 include("model")
+include("server")

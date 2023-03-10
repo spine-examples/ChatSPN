@@ -24,53 +24,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.examples.chatspn.dependency.Grpc
-import io.spine.examples.chatspn.dependency.Guava
-import io.spine.examples.chatspn.dependency.JUnit
-import io.spine.examples.chatspn.dependency.Truth
+package io.spine.examples.chatspn.server.user;
+
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.user.UserProfile;
+import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.server.projection.ProjectionRepository;
+import io.spine.server.route.EventRouting;
+
+import static io.spine.server.route.EventRoute.withId;
 
 /**
- * Configures repositories, adds dependencies and forces transitive dependencies.
+ * The repository for managing {@link UserProfileProjection} instances.
  *
- * Dependencies are contained within dependency objects in the
- * [io.spine.examples.chatspn.dependency] package. These objects allow configuration of
- * dependency properties (e.g. version).
+ * <p>Routes the users {@link UserRegistered} event to an appropriate {@link UserProfileProjection}.
  */
+public final class UserProfileRepository extends ProjectionRepository<UserId, UserProfileProjection, UserProfile> {
 
-plugins {
-    java
-}
-
-repositories {
-    mavenLocal()
-    gradlePluginPortal()
-    mavenCentral()
-    maven {
-        url = uri("https://spine.mycloudrepo.io/public/repositories/releases")
-        mavenContent {
-            releasesOnly()
-        }
-    }
-}
-
-dependencies {
-    implementation(Guava.lib)
-    runtimeOnly(Grpc.lib)
-
-    testImplementation(JUnit.Params.lib)
-    testImplementation(JUnit.Api.lib)
-    testRuntimeOnly(JUnit.Runner.lib)
-}
-
-configurations {
-    all {
-        resolutionStrategy {
-            force(
-                Guava.lib,
-                Truth.lib,
-                Truth.Extensions.Java8.lib,
-                Truth.Extensions.Proto.lib
-            )
-        }
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    protected void setupEventRouting(EventRouting<UserId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()));
     }
 }

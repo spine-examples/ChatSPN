@@ -24,53 +24,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import io.spine.examples.chatspn.dependency.Grpc
-import io.spine.examples.chatspn.dependency.Guava
-import io.spine.examples.chatspn.dependency.JUnit
-import io.spine.examples.chatspn.dependency.Truth
-
-/**
- * Configures repositories, adds dependencies and forces transitive dependencies.
- *
- * Dependencies are contained within dependency objects in the
- * [io.spine.examples.chatspn.dependency] package. These objects allow configuration of
- * dependency properties (e.g. version).
+/*
+ * Add the Gradle plugin for bootstrapping projects built with Spine.
+ * See: https://github.com/SpineEventEngine/bootstrap
  */
-
 plugins {
-    java
+    `kotlin-dsl`
+    id("io.spine.tools.gradle.bootstrap")
 }
 
-repositories {
-    mavenLocal()
-    gradlePluginPortal()
-    mavenCentral()
-    maven {
-        url = uri("https://spine.mycloudrepo.io/public/repositories/releases")
-        mavenContent {
-            releasesOnly()
-        }
-    }
+spine {
+    /*
+     * Add and configure required dependencies for developing a Spine-based Java server.
+     * See: https://github.com/SpineEventEngine/bootstrap#java-projects
+     */
+    enableJava().server()
+    forceDependencies = true
 }
 
 dependencies {
-    implementation(Guava.lib)
-    runtimeOnly(Grpc.lib)
-
-    testImplementation(JUnit.Params.lib)
-    testImplementation(JUnit.Api.lib)
-    testRuntimeOnly(JUnit.Runner.lib)
-}
-
-configurations {
-    all {
-        resolutionStrategy {
-            force(
-                Guava.lib,
-                Truth.lib,
-                Truth.Extensions.Java8.lib,
-                Truth.Extensions.Proto.lib
-            )
-        }
-    }
+    implementation(project(":model"))
 }
