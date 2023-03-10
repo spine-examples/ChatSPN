@@ -28,18 +28,18 @@ package io.spine.examples.chatspn.server.user.chats;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.server.user.UserRoot;
 import io.spine.examples.chatspn.user.event.UserRegistered;
-import io.spine.server.aggregate.AggregateRepository;
+import io.spine.server.aggregate.AggregatePartRepository;
 import io.spine.server.route.EventRouting;
 
 import static io.spine.server.route.EventRoute.withId;
 
 /**
  * The repository for managing {@link UserChatsAggregate} instances.
- *
- * <p>Routes the users {@link UserRegistered} event to an appropriate {@link UserChatsAggregate}.
  */
-public final class UserChatsRepository extends AggregateRepository<UserId, UserChatsAggregate> {
+public final class UserChatsRepository
+        extends AggregatePartRepository<UserId, UserChatsAggregate, UserRoot> {
 
     @OverridingMethodsMustInvokeSuper
     @Override

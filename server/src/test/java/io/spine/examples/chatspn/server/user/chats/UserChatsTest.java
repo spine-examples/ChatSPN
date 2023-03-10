@@ -26,42 +26,50 @@
 
 package io.spine.examples.chatspn.server.user.chats;
 
-import io.spine.core.UserId;
-import io.spine.examples.chatspn.server.user.UserRoot;
-import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.server.ChatsContext;
+import io.spine.examples.chatspn.user.command.RegisterUser;
 import io.spine.examples.chatspn.userchats.UserChats;
 import io.spine.examples.chatspn.userchats.event.UserChatsCreated;
-import io.spine.server.aggregate.AggregatePart;
-import io.spine.server.aggregate.Apply;
-import io.spine.server.event.React;
+import io.spine.server.BoundedContextBuilder;
+import io.spine.testing.core.given.GivenUserId;
+import io.spine.testing.server.blackbox.ContextAwareTest;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-/**
- * The {@code UserChatsAggregate} controls the policy of joining chats
- * and settings of chats in which the user is a member.
- */
-public final class UserChatsAggregate
-        extends AggregatePart<UserId, UserChats, UserChats.Builder, UserRoot> {
+import static io.spine.testing.TestValues.randomString;
 
-    /**
-     * Creates a new instance of the aggregate part.
-     *
-     * @param root
-     *         a root of the aggregate to which this part belongs
-     */
-    private UserChatsAggregate(UserRoot root) {
-        super(root);
+@DisplayName("`UserChats` should")
+class UserChatsTest extends ContextAwareTest {
+
+    @Override
+    protected BoundedContextBuilder contextBuilder() {
+        return ChatsContext.newBuilder();
     }
 
-    @React
-    UserChatsCreated on(UserRegistered e) {
-        return UserChatsCreated
+    @Test
+    @DisplayName("react on `UserRegistered` and emit the `UserChatsCreated` event")
+    void creation() {
+        RegisterUser command = RegisterUser
                 .newBuilder()
-                .setOwner(e.getUser())
+                .setUser(GivenUserId.generated())
+                .setName(randomString())
                 .vBuild();
-    }
 
-    @Apply
-    private void event(UserChatsCreated e) {
-        builder().setOwner(e.getOwner());
+        context().receivesCommand(command);
+
+        UserChatsCreated expectedEvent = UserChatsCreated
+                .newBuilder()
+                .setOwner(command.getUser())
+                .build();
+        UserChats expectedState = UserChats
+                .newBuilder()
+                .setOwner(command.getUser())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(UserChatsCreated.class)
+                 .hasSize(1);
+        context().assertEvent(expectedEvent);
+        context().assertState(command.getUser(), expectedState);
     }
 }
