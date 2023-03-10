@@ -24,20 +24,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.user;
+package io.spine.examples.chatspn.server.user.chats;
 
 import io.spine.core.UserId;
-import io.spine.examples.chatspn.user.User;
-import io.spine.examples.chatspn.user.command.RegisterUser;
+import io.spine.examples.chatspn.server.user.UserRoot;
 import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.userchats.UserChats;
+import io.spine.examples.chatspn.userchats.event.UserChatsCreated;
 import io.spine.server.aggregate.AggregatePart;
 import io.spine.server.aggregate.Apply;
-import io.spine.server.command.Assign;
+import io.spine.server.event.React;
 
 /**
- * A registered user of ChatSPN.
+ * The {@code UserChatsAggregate} controls the policy of joining chats
+ * and settings of chats in which the user is a member.
  */
-public final class UserAggregate extends AggregatePart<UserId, User, User.Builder, UserRoot> {
+public class UserChatsAggregate
+        extends AggregatePart<UserId, UserChats, UserChats.Builder, UserRoot> {
 
     /**
      * Creates a new instance of the aggregate part.
@@ -45,25 +48,20 @@ public final class UserAggregate extends AggregatePart<UserId, User, User.Builde
      * @param root
      *         a root of the aggregate to which this part belongs
      */
-    private UserAggregate(UserRoot root) {
+    protected UserChatsAggregate(UserRoot root) {
         super(root);
     }
 
-    /**
-     * Handles the command to register a user.
-     */
-    @Assign
-    UserRegistered handle(RegisterUser c) {
-        return UserRegistered
+    @React
+    UserChatsCreated on(UserRegistered e) {
+        return UserChatsCreated
                 .newBuilder()
-                .setUser(c.getUser())
-                .setName(c.getName())
+                .setOwner(e.getUser())
                 .vBuild();
     }
 
     @Apply
-    private void event(UserRegistered e) {
-        builder().setId(e.getUser())
-                 .setName(e.getName());
+    private void apply(UserChatsCreated e) {
+        builder().setOwner(e.getOwner());
     }
 }

@@ -27,43 +27,23 @@
 package io.spine.examples.chatspn.server.user;
 
 import io.spine.core.UserId;
-import io.spine.examples.chatspn.user.User;
-import io.spine.examples.chatspn.user.command.RegisterUser;
-import io.spine.examples.chatspn.user.event.UserRegistered;
-import io.spine.server.aggregate.AggregatePart;
-import io.spine.server.aggregate.Apply;
-import io.spine.server.command.Assign;
+import io.spine.server.BoundedContext;
+import io.spine.server.aggregate.AggregateRoot;
 
 /**
- * A registered user of ChatSPN.
+ * User's {@link AggregateRoot}.
  */
-public final class UserAggregate extends AggregatePart<UserId, User, User.Builder, UserRoot> {
+public class UserRoot extends AggregateRoot<UserId> {
 
     /**
-     * Creates a new instance of the aggregate part.
+     * Creates a new instance.
      *
-     * @param root
-     *         a root of the aggregate to which this part belongs
+     * @param context
+     *         the bounded context to which the aggregate belongs
+     * @param id
+     *         the ID of the aggregate
      */
-    private UserAggregate(UserRoot root) {
-        super(root);
-    }
-
-    /**
-     * Handles the command to register a user.
-     */
-    @Assign
-    UserRegistered handle(RegisterUser c) {
-        return UserRegistered
-                .newBuilder()
-                .setUser(c.getUser())
-                .setName(c.getName())
-                .vBuild();
-    }
-
-    @Apply
-    private void event(UserRegistered e) {
-        builder().setId(e.getUser())
-                 .setName(e.getName());
+    protected UserRoot(BoundedContext context, UserId id) {
+        super(context, id);
     }
 }
