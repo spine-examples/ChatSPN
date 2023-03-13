@@ -45,3 +45,13 @@ message RegisterUser {
     // A name of the user to register.
     string name = 2 [(required) = true];
 }
+
+// Tells to block user.
+message BlockUser {
+
+    // The ID of the user who wants to block.
+    spine.core.UserId user_who_block = 1;
+
+    // The ID of the user to be blocked.
+    spine.core.UserId user_to_block = 2;
+}

@@ -45,3 +45,13 @@ message UserRegistered {
     // A name of the registered user.
     string name = 2 [(required) = true];
 }
+
+// A user has been blocked.
+message UserBlocked {
+
+    // The ID of the user who blocked.
+    spine.core.UserId blocking_user = 1;
+
+    // The ID of the user who was blocked.
+    spine.core.UserId blocked_user = 2;
+}
