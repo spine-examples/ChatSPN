@@ -27,15 +27,15 @@
 package io.spine.examples.chatspn.server.user;
 
 import io.spine.examples.chatspn.server.ChatsContext;
+import io.spine.examples.chatspn.user.User;
 import io.spine.examples.chatspn.user.UserBlocklist;
-import io.spine.examples.chatspn.user.command.RegisterUser;
+import io.spine.examples.chatspn.user.command.BlockUser;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.testing.TestValues.randomString;
+import static io.spine.examples.chatspn.server.given.UserTestEnv.registerRandomUser;
 
 @DisplayName("`UserBlocklistProjection` should")
 class UserBlocklistProjectionTest extends ContextAwareTest {
@@ -48,18 +48,36 @@ class UserBlocklistProjectionTest extends ContextAwareTest {
     @Test
     @DisplayName("display `UserBlocklist`, as soon as `User` registered")
     void reactOnRegistration() {
-        RegisterUser command = RegisterUser
-                .newBuilder()
-                .setUser(GivenUserId.generated())
-                .setName(randomString())
-                .vBuild();
-        context().receivesCommand(command);
+        User user = registerRandomUser(context());
 
         UserBlocklist expected = UserBlocklist
                 .newBuilder()
-                .setId(command.getUser())
+                .setId(user.getId())
                 .vBuild();
 
-        context().assertState(command.getUser(), expected);
+        context().assertState(user.getId(), expected);
+    }
+
+    @Test
+    @DisplayName("update `UserBlocklist`, as soon as the user blocked")
+    void reactOnBlocking() {
+        User blockingUser = registerRandomUser(context());
+        User userToBlock = registerRandomUser(context());
+
+        BlockUser blockingCommand = BlockUser
+                .newBuilder()
+                .setUserWhoBlock(blockingUser.getId())
+                .setUserToBlock(userToBlock.getId())
+                .vBuild();
+
+        context().receivesCommand(blockingCommand);
+
+        UserBlocklist expected = UserBlocklist
+                .newBuilder()
+                .setId(blockingUser.getId())
+                .addBlockedUser(userToBlock.getId())
+                .vBuild();
+
+        context().assertState(blockingUser.getId(), expected);
     }
 }
