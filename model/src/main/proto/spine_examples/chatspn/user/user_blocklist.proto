@@ -36,7 +36,7 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 
-// A user profile view in the chatting system.
+// A user's blocklist view in the chatting system.
 message UserBlocklist {
     option (entity) = { kind: PROJECTION };
 

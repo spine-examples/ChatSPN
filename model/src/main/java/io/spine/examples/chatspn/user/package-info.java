@@ -25,7 +25,7 @@
  */
 
 /**
- * This package contains `User` data types of the ChatSPN application.
+ * This package contains User data types of the ChatSPN application.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
