@@ -26,12 +26,14 @@
 
 package io.spine.examples.chatspn.server.user;
 
+import com.google.common.base.Objects;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.user.User;
 import io.spine.examples.chatspn.user.command.BlockUser;
 import io.spine.examples.chatspn.user.command.RegisterUser;
 import io.spine.examples.chatspn.user.event.UserBlocked;
 import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.user.rejection.UserCannotBeBlocked;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
@@ -63,7 +65,17 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
      * Handles the command to block a user.
      */
     @Assign
-    UserBlocked handle(BlockUser c) {
+    UserBlocked handle(BlockUser c) throws UserCannotBeBlocked {
+        if (Objects.equal(c.getUserToBlock(), c.getUserWhoBlock()) ||
+                state().getBlockedUsersList()
+                       .contains(c.getUserToBlock())) {
+            throw UserCannotBeBlocked
+                    .newBuilder()
+                    .setUserWhoBlock(c.getUserWhoBlock())
+                    .setUserToBlock(c.getUserToBlock())
+                    .build();
+        }
+
         return UserBlocked
                 .newBuilder()
                 .setBlockingUser(c.getUserWhoBlock())
