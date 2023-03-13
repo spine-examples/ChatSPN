@@ -28,7 +28,6 @@ package io.spine.examples.chatspn.server.user;
 
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.examples.chatspn.user.UserBlocklist;
-import io.spine.examples.chatspn.user.UserProfile;
 import io.spine.examples.chatspn.user.command.RegisterUser;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
