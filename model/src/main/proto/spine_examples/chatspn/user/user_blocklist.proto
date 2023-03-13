@@ -44,15 +44,5 @@ message UserBlocklist {
     spine.core.UserId id = 1;
 
     // User's blocklist.
-    repeated BlockedUser blockedUser = 2;
-
-    // Represents a view of a blocked user.
-    message BlockedUser {
-
-        // The ID of the blocked user.
-        spine.core.UserId user = 1;
-
-        // The name of the blocked user.
-        string name = 2 [(required) = true];
-    }
+    repeated spine.core.UserId blockedUser = 2;
 }

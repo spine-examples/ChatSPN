@@ -28,7 +28,9 @@ package io.spine.examples.chatspn.server.user;
 
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.user.User;
+import io.spine.examples.chatspn.user.command.BlockUser;
 import io.spine.examples.chatspn.user.command.RegisterUser;
+import io.spine.examples.chatspn.user.event.UserBlocked;
 import io.spine.examples.chatspn.user.event.UserRegistered;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
@@ -55,5 +57,22 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
     private void event(UserRegistered e) {
         builder().setId(e.getUser())
                  .setName(e.getName());
+    }
+
+    /**
+     * Handles the command to block a user.
+     */
+    @Assign
+    UserBlocked handle(BlockUser c) {
+        return UserBlocked
+                .newBuilder()
+                .setBlockingUser(c.getUserWhoBlock())
+                .setBlockedUser(c.getUserToBlock())
+                .vBuild();
+    }
+
+    @Apply
+    private void event(UserBlocked e) {
+        builder().addBlockedUsers(e.getBlockedUser());
     }
 }
