@@ -31,9 +31,12 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.user.User;
 import io.spine.examples.chatspn.user.command.BlockUser;
 import io.spine.examples.chatspn.user.command.RegisterUser;
+import io.spine.examples.chatspn.user.command.UnblockUser;
 import io.spine.examples.chatspn.user.event.UserBlocked;
 import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.user.event.UserUnblocked;
 import io.spine.examples.chatspn.user.rejection.UserCannotBeBlocked;
+import io.spine.examples.chatspn.user.rejection.UserCannotBeUnblocked;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
@@ -63,6 +66,9 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
 
     /**
      * Handles the command to block a user.
+     *
+     * @throws UserCannotBeBlocked
+     *         if user tells to block himself or already blocked user.
      */
     @Assign
     UserBlocked handle(BlockUser c) throws UserCannotBeBlocked {
@@ -86,5 +92,38 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
     @Apply
     private void event(UserBlocked e) {
         builder().addBlockedUsers(e.getBlockedUser());
+    }
+
+    /**
+     * Handles the command to unblock a user.
+     *
+     * @throws UserCannotBeUnblocked
+     *         if user tells to unblock a non-blocked user.
+     */
+    @Assign
+    UserUnblocked handle(UnblockUser c) throws UserCannotBeUnblocked {
+        if (!state().getBlockedUsersList()
+                    .contains(c.getUserToUnblock())) {
+            throw UserCannotBeUnblocked
+                    .newBuilder()
+                    .setUserWhoUnblock(c.getUserWhoUnblock())
+                    .setUserToUnblock(c.getUserToUnblock())
+                    .build();
+        }
+
+        return UserUnblocked
+                .newBuilder()
+                .setUnblockingUser(c.getUserWhoUnblock())
+                .setUnblockedUser(c.getUserToUnblock())
+                .vBuild();
+    }
+
+    @Apply
+    private void event(UserUnblocked e) {
+        int unblockedUserIndex = state()
+                .getBlockedUsersList()
+                .indexOf(e.getUnblockedUser());
+
+        builder().removeBlockedUsers(unblockedUserIndex);
     }
 }

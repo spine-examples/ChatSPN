@@ -31,6 +31,7 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.user.UserBlocklist;
 import io.spine.examples.chatspn.user.event.UserBlocked;
 import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.user.event.UserUnblocked;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.route.EventRouting;
 
@@ -47,6 +48,7 @@ public final class UserBlocklistRepository
     protected void setupEventRouting(EventRouting<UserId> routing) {
         super.setupEventRouting(routing);
         routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()))
-               .route(UserBlocked.class, (event, context) -> withId(event.getBlockingUser()));
+               .route(UserBlocked.class, (event, context) -> withId(event.getBlockingUser()))
+               .route(UserUnblocked.class, (event, context) -> withId(event.getUnblockingUser()));
     }
 }

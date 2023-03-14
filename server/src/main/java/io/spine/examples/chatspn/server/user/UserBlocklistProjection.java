@@ -31,6 +31,7 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.user.UserBlocklist;
 import io.spine.examples.chatspn.user.event.UserBlocked;
 import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.user.event.UserUnblocked;
 import io.spine.server.projection.Projection;
 
 /**
@@ -46,5 +47,14 @@ public final class UserBlocklistProjection extends Projection<UserId, UserBlockl
     @Subscribe
     void on(UserBlocked e) {
         builder().addBlockedUser(e.getBlockedUser());
+    }
+
+    @Subscribe
+    void on(UserUnblocked e) {
+        int unblockedUserIndex = state()
+                .getBlockedUserList()
+                .indexOf(e.getUnblockedUser());
+
+        builder().removeBlockedUser(unblockedUserIndex);
     }
 }
