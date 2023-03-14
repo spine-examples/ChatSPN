@@ -31,6 +31,7 @@ import io.spine.examples.chatspn.user.User;
 import io.spine.examples.chatspn.user.command.BlockUser;
 import io.spine.examples.chatspn.user.event.UserBlocked;
 import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.user.rejection.Rejections.UserCannotBeBlocked;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
@@ -100,5 +101,57 @@ class UserTest extends ContextAwareTest {
                  .hasSize(1);
         context().assertEvent(expectedEvent);
         context().assertState(blockingCommand.getUserWhoBlock(), expectedState);
+    }
+
+    @Test
+    @DisplayName("reject blocking himself")
+    void rejectSelfBlocking() {
+        User user = registerRandomUser(context());
+
+        BlockUser command = BlockUser
+                .newBuilder()
+                .setUserWhoBlock(user.getId())
+                .setUserToBlock(user.getId())
+                .vBuild();
+
+        context().receivesCommand(command);
+
+        UserCannotBeBlocked expectedRejection = UserCannotBeBlocked
+                .newBuilder()
+                .setUserWhoBlock(user.getId())
+                .setUserToBlock(user.getId())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(UserCannotBeBlocked.class)
+                 .message(0)
+                 .isEqualTo(expectedRejection);
+    }
+
+    @Test
+    @DisplayName("reject blocking already blocked user")
+    void rejectReblocking() {
+        User blockingUser = registerRandomUser(context());
+        User userToBlock = registerRandomUser(context());
+
+        BlockUser command = BlockUser
+                .newBuilder()
+                .setUserWhoBlock(blockingUser.getId())
+                .setUserToBlock(userToBlock.getId())
+                .vBuild();
+
+        context().receivesCommand(command);
+        context().receivesCommand(command);
+
+        UserCannotBeBlocked expectedRejection = UserCannotBeBlocked
+                .newBuilder()
+                .setUserWhoBlock(blockingUser.getId())
+                .setUserToBlock(userToBlock.getId())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(UserCannotBeBlocked.class)
+                 .message(0)
+                 .isEqualTo(expectedRejection);
     }
 }
