@@ -29,9 +29,12 @@ package io.spine.examples.chatspn.server.user;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.examples.chatspn.user.User;
 import io.spine.examples.chatspn.user.command.BlockUser;
+import io.spine.examples.chatspn.user.command.UnblockUser;
 import io.spine.examples.chatspn.user.event.UserBlocked;
 import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.user.event.UserUnblocked;
 import io.spine.examples.chatspn.user.rejection.Rejections.UserCannotBeBlocked;
+import io.spine.examples.chatspn.user.rejection.Rejections.UserCannotBeUnblocked;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
@@ -151,6 +154,72 @@ class UserTest extends ContextAwareTest {
 
         context().assertEvents()
                  .withType(UserCannotBeBlocked.class)
+                 .message(0)
+                 .isEqualTo(expectedRejection);
+    }
+
+    @Test
+    @DisplayName("allow unblocking blocked user and emit the `UserUnblocked` event")
+    void unblocking() {
+        User unblockingUser = registerRandomUser(context());
+        User userToUnblock = registerRandomUser(context());
+
+        BlockUser blockingCommand = BlockUser
+                .newBuilder()
+                .setUserWhoBlock(unblockingUser.getId())
+                .setUserToBlock(userToUnblock.getId())
+                .vBuild();
+
+        context().receivesCommand(blockingCommand);
+
+        UnblockUser unblockingCommand = UnblockUser
+                .newBuilder()
+                .setUserWhoUnblock(unblockingUser.getId())
+                .setUserToUnblock(userToUnblock.getId())
+                .vBuild();
+
+        context().receivesCommand(unblockingCommand);
+
+        UserUnblocked expectedEvent = UserUnblocked
+                .newBuilder()
+                .setUnblockingUser(unblockingUser.getId())
+                .setUnblockedUser(userToUnblock.getId())
+                .build();
+        User expectedState = User
+                .newBuilder()
+                .setId(unblockingUser.getId())
+                .setName(unblockingUser.getName())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(UserUnblocked.class)
+                 .hasSize(1);
+        context().assertEvent(expectedEvent);
+        context().assertState(unblockingCommand.getUserWhoUnblock(), expectedState);
+    }
+
+    @Test
+    @DisplayName("reject unblocking a non-blocked user")
+    void rejectUnblockingNonblocked() {
+        User unblockingUser = registerRandomUser(context());
+        User userToUnblock = registerRandomUser(context());
+
+        UnblockUser unblockingCommand = UnblockUser
+                .newBuilder()
+                .setUserWhoUnblock(unblockingUser.getId())
+                .setUserToUnblock(userToUnblock.getId())
+                .vBuild();
+
+        context().receivesCommand(unblockingCommand);
+
+        UserCannotBeUnblocked expectedRejection = UserCannotBeUnblocked
+                .newBuilder()
+                .setUserWhoUnblock(unblockingUser.getId())
+                .setUserToUnblock(userToUnblock.getId())
+                .build();
+
+        context().assertEvents()
+                 .withType(UserCannotBeUnblocked.class)
                  .message(0)
                  .isEqualTo(expectedRejection);
     }

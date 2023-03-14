@@ -30,6 +30,7 @@ import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.examples.chatspn.user.User;
 import io.spine.examples.chatspn.user.UserBlocklist;
 import io.spine.examples.chatspn.user.command.BlockUser;
+import io.spine.examples.chatspn.user.command.UnblockUser;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
@@ -79,5 +80,35 @@ class UserBlocklistProjectionTest extends ContextAwareTest {
                 .vBuild();
 
         context().assertState(blockingUser.getId(), expected);
+    }
+
+    @Test
+    @DisplayName("update `UserBlocklist`, as soon as the user unblocked")
+    void reactOnUnblocking() {
+        User unblockingUser = registerRandomUser(context());
+        User userToUnblock = registerRandomUser(context());
+
+        BlockUser blockingCommand = BlockUser
+                .newBuilder()
+                .setUserWhoBlock(unblockingUser.getId())
+                .setUserToBlock(userToUnblock.getId())
+                .vBuild();
+
+        context().receivesCommand(blockingCommand);
+
+        UnblockUser unblockingCommand = UnblockUser
+                .newBuilder()
+                .setUserWhoUnblock(unblockingUser.getId())
+                .setUserToUnblock(userToUnblock.getId())
+                .vBuild();
+
+        context().receivesCommand(unblockingCommand);
+
+        UserBlocklist expected = UserBlocklist
+                .newBuilder()
+                .setId(unblockingUser.getId())
+                .vBuild();
+
+        context().assertState(unblockingUser.getId(), expected);
     }
 }
