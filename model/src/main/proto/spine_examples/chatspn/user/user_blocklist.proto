@@ -44,5 +44,5 @@ message UserBlocklist {
     spine.core.UserId id = 1;
 
     // User's blocklist.
-    repeated spine.core.UserId blockedUser = 2;
+    repeated spine.core.UserId blocked_user = 2;
 }
