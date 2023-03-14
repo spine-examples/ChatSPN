@@ -23,33 +23,42 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.chat;
+package io.spine.examples.chatspn.server.chat;
 
-import "spine/options.proto";
+import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.CreateChat;
+import io.spine.examples.chatspn.chat.event.ChatCreated;
+import io.spine.server.aggregate.Aggregate;
+import io.spine.server.aggregate.Apply;
+import io.spine.server.command.Assign;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat";
-option java_outer_classname = "ChatProto";
-option java_multiple_files = true;
+/**
+ * A chat in ChatSPN.
+ * Chat is a form of communication between two or more users via messages.
+ */
+public class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
-import "spine/core/user_id.proto";
-import "spine_examples/chatspn/identifiers.proto";
+    /**
+     * Handles the command to create a chat.
+     */
+    @Assign
+    ChatCreated handle(CreateChat c) {
+        return ChatCreated
+                .newBuilder()
+                .setChat(c.getChat())
+                .setCreator(c.getCreator())
+                .setChatName(c.getChatName())
+                .addAllMember(c.getMemberList())
+                .vBuild();
+    }
 
-// A chat in the chatting system.
-//
-// Chat is a form of communication between two or more users via messages.
-//
-message Chat {
-    option (entity) = { kind: AGGREGATE };
-
-    // The ID of the chat.
-    ChatId id = 1;
-
-    // List of the chat members.
-    repeated spine.core.UserId member = 2 [(required) = true];
-
-    // The name of the chat.
-    string name = 3;
+    @Apply
+    private void event(ChatCreated e) {
+        builder().setId(e.getChat())
+                 .addMember(e.getCreator())
+                 .addAllMember(e.getMemberList())
+                 .setName(e.getChatName());
+    }
 }

@@ -23,33 +23,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.chat;
+/**
+ * Provides server-side classes for working with Chat.
+ */
+@CheckReturnValue
+@ParametersAreNonnullByDefault
+package io.spine.examples.chatspn.server.chat;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.CheckReturnValue;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat";
-option java_outer_classname = "ChatProto";
-option java_multiple_files = true;
-
-import "spine/core/user_id.proto";
-import "spine_examples/chatspn/identifiers.proto";
-
-// A chat in the chatting system.
-//
-// Chat is a form of communication between two or more users via messages.
-//
-message Chat {
-    option (entity) = { kind: AGGREGATE };
-
-    // The ID of the chat.
-    ChatId id = 1;
-
-    // List of the chat members.
-    repeated spine.core.UserId member = 2 [(required) = true];
-
-    // The name of the chat.
-    string name = 3;
-}
+import javax.annotation.ParametersAreNonnullByDefault;
