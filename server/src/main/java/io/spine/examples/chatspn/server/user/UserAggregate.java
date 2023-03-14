@@ -73,7 +73,7 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
     @Assign
     UserBlocked handle(BlockUser c) throws UserCannotBeBlocked {
         if (Objects.equal(c.getUserToBlock(), c.getUserWhoBlock()) ||
-                state().getBlockedUsersList()
+                state().getBlockedUserList()
                        .contains(c.getUserToBlock())) {
             throw UserCannotBeBlocked
                     .newBuilder()
@@ -91,7 +91,7 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
 
     @Apply
     private void event(UserBlocked e) {
-        builder().addBlockedUsers(e.getBlockedUser());
+        builder().addBlockedUser(e.getBlockedUser());
     }
 
     /**
@@ -102,7 +102,7 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
      */
     @Assign
     UserUnblocked handle(UnblockUser c) throws UserCannotBeUnblocked {
-        if (!state().getBlockedUsersList()
+        if (!state().getBlockedUserList()
                     .contains(c.getUserToUnblock())) {
             throw UserCannotBeUnblocked
                     .newBuilder()
@@ -121,9 +121,9 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
     @Apply
     private void event(UserUnblocked e) {
         int unblockedUserIndex = state()
-                .getBlockedUsersList()
+                .getBlockedUserList()
                 .indexOf(e.getUnblockedUser());
 
-        builder().removeBlockedUsers(unblockedUserIndex);
+        builder().removeBlockedUser(unblockedUserIndex);
     }
 }

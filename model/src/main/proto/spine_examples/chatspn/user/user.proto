@@ -55,11 +55,11 @@ message User {
     google.protobuf.Timestamp when_last_active = 3;
 
     // The chats in which the user is a member.
-    repeated ChatId chats = 4;
+    repeated ChatId chat = 4;
 
     // The chats that the user has muted.
-    repeated ChatId muted_chats = 5;
+    repeated ChatId muted_chat = 5;
 
     // The users that the user has blocked.
-    repeated spine.core.UserId blocked_users = 6;
+    repeated spine.core.UserId blocked_user = 6;
 }

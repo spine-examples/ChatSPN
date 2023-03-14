@@ -93,7 +93,7 @@ class UserTest extends ContextAwareTest {
                 .newBuilder()
                 .setId(blockingUser.getId())
                 .setName(blockingUser.getName())
-                .addBlockedUsers(userToBlock.getId())
+                .addBlockedUser(userToBlock.getId())
                 .vBuild();
 
         context().assertEvents()
