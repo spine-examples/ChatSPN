@@ -46,9 +46,19 @@ import "spine/core/user_id.proto";
 // A user cannot be blocked.
 message UserCannotBeBlocked {
 
-  // The ID of the user that could not block.
-  spine.core.UserId user_who_block = 1;
+    // The ID of the user that could not block.
+    spine.core.UserId user_who_block = 1;
 
-  // The ID of the user that could not be blocked.
-  spine.core.UserId user_to_block = 2;
+    // The ID of the user that could not be blocked.
+    spine.core.UserId user_to_block = 2 [(required) = true];
+}
+
+// A user cannot be unblocked.
+message UserCannotBeUnblocked {
+
+    // The ID of the user that could not unblock.
+    spine.core.UserId user_who_unblock = 1;
+
+    // The ID of the user that could not be unblocked.
+    spine.core.UserId user_to_unblock = 2 [(required) = true];
 }

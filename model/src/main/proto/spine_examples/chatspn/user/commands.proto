@@ -53,5 +53,15 @@ message BlockUser {
     spine.core.UserId user_who_block = 1;
 
     // The ID of the user to be blocked.
-    spine.core.UserId user_to_block = 2;
+    spine.core.UserId user_to_block = 2 [(required) = true];
+}
+
+// Tells to unblock user.
+message UnblockUser {
+
+    // The ID of the user who wants to unblock.
+    spine.core.UserId user_who_unblock = 1;
+
+    // The ID of the user to be unblocked.
+    spine.core.UserId user_to_unblock = 2 [(required) = true];
 }
