@@ -28,15 +28,19 @@ package io.spine.examples.chatspn.server.user;
 
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.examples.chatspn.user.User;
-import io.spine.examples.chatspn.user.command.RegisterUser;
+import io.spine.examples.chatspn.user.command.BlockUser;
+import io.spine.examples.chatspn.user.command.UnblockUser;
+import io.spine.examples.chatspn.user.event.UserBlocked;
 import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.user.event.UserUnblocked;
+import io.spine.examples.chatspn.user.rejection.Rejections.UserCannotBeBlocked;
+import io.spine.examples.chatspn.user.rejection.Rejections.UserCannotBeUnblocked;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.testing.TestValues.randomString;
+import static io.spine.examples.chatspn.server.given.UserTestEnv.registerRandomUser;
 
 @DisplayName("`User` should")
 class UserTest extends ContextAwareTest {
@@ -49,29 +53,174 @@ class UserTest extends ContextAwareTest {
     @Test
     @DisplayName("allow registration and emit the `UserRegistered` event")
     void registration() {
-        RegisterUser command = RegisterUser
-                .newBuilder()
-                .setUser(GivenUserId.generated())
-                .setName(randomString())
-                .vBuild();
-
-        context().receivesCommand(command);
+        User user = registerRandomUser(context());
 
         UserRegistered expectedEvent = UserRegistered
                 .newBuilder()
-                .setUser(command.getUser())
-                .setName(command.getName())
+                .setUser(user.getId())
+                .setName(user.getName())
                 .build();
         User expectedState = User
                 .newBuilder()
-                .setId(command.getUser())
-                .setName(command.getName())
+                .setId(user.getId())
+                .setName(user.getName())
                 .vBuild();
 
         context().assertEvents()
                  .withType(UserRegistered.class)
                  .hasSize(1);
         context().assertEvent(expectedEvent);
-        context().assertState(command.getUser(), expectedState);
+        context().assertState(user.getId(), expectedState);
+    }
+
+    @Test
+    @DisplayName("allow blocking another user and emit the `UserBlocked` event")
+    void blocking() {
+        User blockingUser = registerRandomUser(context());
+        User userToBlock = registerRandomUser(context());
+
+        BlockUser blockingCommand = BlockUser
+                .newBuilder()
+                .setUserWhoBlock(blockingUser.getId())
+                .setUserToBlock(userToBlock.getId())
+                .vBuild();
+
+        context().receivesCommand(blockingCommand);
+
+        UserBlocked expectedEvent = UserBlocked
+                .newBuilder()
+                .setBlockingUser(blockingUser.getId())
+                .setBlockedUser(userToBlock.getId())
+                .build();
+        User expectedState = User
+                .newBuilder()
+                .setId(blockingUser.getId())
+                .setName(blockingUser.getName())
+                .addBlockedUser(userToBlock.getId())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(UserBlocked.class)
+                 .hasSize(1);
+        context().assertEvent(expectedEvent);
+        context().assertState(blockingCommand.getUserWhoBlock(), expectedState);
+    }
+
+    @Test
+    @DisplayName("reject blocking himself")
+    void rejectSelfBlocking() {
+        User user = registerRandomUser(context());
+
+        BlockUser command = BlockUser
+                .newBuilder()
+                .setUserWhoBlock(user.getId())
+                .setUserToBlock(user.getId())
+                .vBuild();
+
+        context().receivesCommand(command);
+
+        UserCannotBeBlocked expectedRejection = UserCannotBeBlocked
+                .newBuilder()
+                .setUserWhoBlock(user.getId())
+                .setUserToBlock(user.getId())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(UserCannotBeBlocked.class)
+                 .message(0)
+                 .isEqualTo(expectedRejection);
+    }
+
+    @Test
+    @DisplayName("reject blocking already blocked user")
+    void rejectReblocking() {
+        User blockingUser = registerRandomUser(context());
+        User userToBlock = registerRandomUser(context());
+
+        BlockUser command = BlockUser
+                .newBuilder()
+                .setUserWhoBlock(blockingUser.getId())
+                .setUserToBlock(userToBlock.getId())
+                .vBuild();
+
+        context().receivesCommand(command);
+        context().receivesCommand(command);
+
+        UserCannotBeBlocked expectedRejection = UserCannotBeBlocked
+                .newBuilder()
+                .setUserWhoBlock(blockingUser.getId())
+                .setUserToBlock(userToBlock.getId())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(UserCannotBeBlocked.class)
+                 .message(0)
+                 .isEqualTo(expectedRejection);
+    }
+
+    @Test
+    @DisplayName("allow unblocking blocked user and emit the `UserUnblocked` event")
+    void unblocking() {
+        User unblockingUser = registerRandomUser(context());
+        User userToUnblock = registerRandomUser(context());
+
+        BlockUser blockingCommand = BlockUser
+                .newBuilder()
+                .setUserWhoBlock(unblockingUser.getId())
+                .setUserToBlock(userToUnblock.getId())
+                .vBuild();
+
+        context().receivesCommand(blockingCommand);
+
+        UnblockUser unblockingCommand = UnblockUser
+                .newBuilder()
+                .setUserWhoUnblock(unblockingUser.getId())
+                .setUserToUnblock(userToUnblock.getId())
+                .vBuild();
+
+        context().receivesCommand(unblockingCommand);
+
+        UserUnblocked expectedEvent = UserUnblocked
+                .newBuilder()
+                .setUnblockingUser(unblockingUser.getId())
+                .setUnblockedUser(userToUnblock.getId())
+                .build();
+        User expectedState = User
+                .newBuilder()
+                .setId(unblockingUser.getId())
+                .setName(unblockingUser.getName())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(UserUnblocked.class)
+                 .hasSize(1);
+        context().assertEvent(expectedEvent);
+        context().assertState(unblockingCommand.getUserWhoUnblock(), expectedState);
+    }
+
+    @Test
+    @DisplayName("reject unblocking a non-blocked user")
+    void rejectUnblockingNonblocked() {
+        User unblockingUser = registerRandomUser(context());
+        User userToUnblock = registerRandomUser(context());
+
+        UnblockUser unblockingCommand = UnblockUser
+                .newBuilder()
+                .setUserWhoUnblock(unblockingUser.getId())
+                .setUserToUnblock(userToUnblock.getId())
+                .vBuild();
+
+        context().receivesCommand(unblockingCommand);
+
+        UserCannotBeUnblocked expectedRejection = UserCannotBeUnblocked
+                .newBuilder()
+                .setUserWhoUnblock(unblockingUser.getId())
+                .setUserToUnblock(userToUnblock.getId())
+                .build();
+
+        context().assertEvents()
+                 .withType(UserCannotBeUnblocked.class)
+                 .message(0)
+                 .isEqualTo(expectedRejection);
     }
 }

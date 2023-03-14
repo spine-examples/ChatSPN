@@ -23,45 +23,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.user;
+/**
+ * Provides server-side code of the ChatSPN application.
+ */
+@BoundedContext(ChatsContext.NAME)
+@CheckReturnValue
+@ParametersAreNonnullByDefault
+package io.spine.examples.chatspn.server;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.CheckReturnValue;
+import io.spine.core.BoundedContext;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.user.event";
-option java_outer_classname = "EventsProto";
-option java_multiple_files = true;
-
-import "spine/core/user_id.proto";
-
-// A new user has been registered.
-message UserRegistered {
-
-    // The ID of the registered user.
-    spine.core.UserId user = 1;
-
-    // A name of the registered user.
-    string name = 2 [(required) = true];
-}
-
-// A user has been blocked.
-message UserBlocked {
-
-    // The ID of the user who blocked.
-    spine.core.UserId blocking_user = 1;
-
-    // The ID of the user who was blocked.
-    spine.core.UserId blocked_user = 2 [(required) = true];
-}
-
-// A user has been unblocked.
-message UserUnblocked {
-
-    // The ID of the user who unblocked.
-    spine.core.UserId unblocking_user = 1;
-
-    // The ID of the user who was unblocked.
-    spine.core.UserId unblocked_user = 2 [(required) = true];
-}
+import javax.annotation.ParametersAreNonnullByDefault;

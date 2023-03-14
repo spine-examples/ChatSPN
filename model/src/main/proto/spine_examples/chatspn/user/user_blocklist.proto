@@ -30,38 +30,19 @@ package spine_examples.chatspn.user;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.user.event";
-option java_outer_classname = "EventsProto";
+option java_package = "io.spine.examples.chatspn.user";
+option java_outer_classname = "UserBlocklistProto";
 option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 
-// A new user has been registered.
-message UserRegistered {
+// A user's blocklist view in the chatting system.
+message UserBlocklist {
+    option (entity) = { kind: PROJECTION };
 
-    // The ID of the registered user.
-    spine.core.UserId user = 1;
+    // The ID of the user who owned blocklist.
+    spine.core.UserId id = 1;
 
-    // A name of the registered user.
-    string name = 2 [(required) = true];
-}
-
-// A user has been blocked.
-message UserBlocked {
-
-    // The ID of the user who blocked.
-    spine.core.UserId blocking_user = 1;
-
-    // The ID of the user who was blocked.
-    spine.core.UserId blocked_user = 2 [(required) = true];
-}
-
-// A user has been unblocked.
-message UserUnblocked {
-
-    // The ID of the user who unblocked.
-    spine.core.UserId unblocking_user = 1;
-
-    // The ID of the user who was unblocked.
-    spine.core.UserId unblocked_user = 2 [(required) = true];
+    // User's blocklist.
+    repeated spine.core.UserId blocked_user = 2;
 }

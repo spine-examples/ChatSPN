@@ -30,38 +30,35 @@ package spine_examples.chatspn.user;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.user.event";
-option java_outer_classname = "EventsProto";
-option java_multiple_files = true;
+option java_package = "io.spine.examples.chatspn.user.rejection";
+
+// Set the value of `java_multiple_files` to `false` to instruct Protobuf Compiler to put all the
+// rejection classes in one outer class.
+//
+// Then Spine Model Compiler for Java would generate `ThrowableMessage` classes for all
+// these messages. These classes will be named after the classes of rejection messages.
+// Putting rejection message classes under an outer class avoids name clash inside the package.
+//
+option java_multiple_files = false;
 
 import "spine/core/user_id.proto";
 
-// A new user has been registered.
-message UserRegistered {
+// A user cannot be blocked.
+message UserCannotBeBlocked {
 
-    // The ID of the registered user.
-    spine.core.UserId user = 1;
+    // The ID of the user that could not block.
+    spine.core.UserId user_who_block = 1;
 
-    // A name of the registered user.
-    string name = 2 [(required) = true];
+    // The ID of the user that could not be blocked.
+    spine.core.UserId user_to_block = 2 [(required) = true];
 }
 
-// A user has been blocked.
-message UserBlocked {
+// A user cannot be unblocked.
+message UserCannotBeUnblocked {
 
-    // The ID of the user who blocked.
-    spine.core.UserId blocking_user = 1;
+    // The ID of the user that could not unblock.
+    spine.core.UserId user_who_unblock = 1;
 
-    // The ID of the user who was blocked.
-    spine.core.UserId blocked_user = 2 [(required) = true];
-}
-
-// A user has been unblocked.
-message UserUnblocked {
-
-    // The ID of the user who unblocked.
-    spine.core.UserId unblocking_user = 1;
-
-    // The ID of the user who was unblocked.
-    spine.core.UserId unblocked_user = 2 [(required) = true];
+    // The ID of the user that could not be unblocked.
+    spine.core.UserId user_to_unblock = 2 [(required) = true];
 }

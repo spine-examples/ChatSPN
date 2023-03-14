@@ -27,6 +27,7 @@
 package io.spine.examples.chatspn.server;
 
 import io.spine.examples.chatspn.server.user.UserAggregate;
+import io.spine.examples.chatspn.server.user.UserBlocklistRepository;
 import io.spine.examples.chatspn.server.user.UserProfileRepository;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
@@ -53,6 +54,7 @@ public final class ChatsContext {
         return BoundedContext
                 .singleTenant(NAME)
                 .add(DefaultRepository.of(UserAggregate.class))
-                .add(new UserProfileRepository());
+                .add(new UserProfileRepository())
+                .add(new UserBlocklistRepository());
     }
 }

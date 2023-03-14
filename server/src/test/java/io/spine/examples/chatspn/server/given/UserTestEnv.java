@@ -23,45 +23,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.user;
+package io.spine.examples.chatspn.server.given;
 
-import "spine/options.proto";
+import io.spine.examples.chatspn.user.User;
+import io.spine.examples.chatspn.user.command.RegisterUser;
+import io.spine.testing.core.given.GivenUserId;
+import io.spine.testing.server.blackbox.BlackBoxContext;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.user.event";
-option java_outer_classname = "EventsProto";
-option java_multiple_files = true;
+import static io.spine.testing.TestValues.randomString;
 
-import "spine/core/user_id.proto";
+public final class UserTestEnv {
 
-// A new user has been registered.
-message UserRegistered {
+    /**
+     * Prevents instantiation of this test environment.
+     */
+    private UserTestEnv() {
+    }
 
-    // The ID of the registered user.
-    spine.core.UserId user = 1;
+    public static User registerRandomUser(BlackBoxContext context) {
+        User user = User
+                .newBuilder()
+                .setId(GivenUserId.generated())
+                .setName(randomString())
+                .vBuild();
 
-    // A name of the registered user.
-    string name = 2 [(required) = true];
-}
+        RegisterUser command = RegisterUser
+                .newBuilder()
+                .setUser(user.getId())
+                .setName(user.getName())
+                .vBuild();
 
-// A user has been blocked.
-message UserBlocked {
-
-    // The ID of the user who blocked.
-    spine.core.UserId blocking_user = 1;
-
-    // The ID of the user who was blocked.
-    spine.core.UserId blocked_user = 2 [(required) = true];
-}
-
-// A user has been unblocked.
-message UserUnblocked {
-
-    // The ID of the user who unblocked.
-    spine.core.UserId unblocking_user = 1;
-
-    // The ID of the user who was unblocked.
-    spine.core.UserId unblocked_user = 2 [(required) = true];
+        context.receivesCommand(command);
+        return user;
+    }
 }

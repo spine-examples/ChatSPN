@@ -23,45 +23,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.user;
+package io.spine.examples.chatspn.server.user;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.user.UserBlocklist;
+import io.spine.examples.chatspn.user.event.UserBlocked;
+import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.user.event.UserUnblocked;
+import io.spine.server.projection.ProjectionRepository;
+import io.spine.server.route.EventRouting;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.user.event";
-option java_outer_classname = "EventsProto";
-option java_multiple_files = true;
+import static io.spine.server.route.EventRoute.withId;
 
-import "spine/core/user_id.proto";
+/**
+ * The repository for managing {@link UserBlocklistProjection} instances.
+ */
+public final class UserBlocklistRepository
+        extends ProjectionRepository<UserId, UserBlocklistProjection, UserBlocklist> {
 
-// A new user has been registered.
-message UserRegistered {
-
-    // The ID of the registered user.
-    spine.core.UserId user = 1;
-
-    // A name of the registered user.
-    string name = 2 [(required) = true];
-}
-
-// A user has been blocked.
-message UserBlocked {
-
-    // The ID of the user who blocked.
-    spine.core.UserId blocking_user = 1;
-
-    // The ID of the user who was blocked.
-    spine.core.UserId blocked_user = 2 [(required) = true];
-}
-
-// A user has been unblocked.
-message UserUnblocked {
-
-    // The ID of the user who unblocked.
-    spine.core.UserId unblocking_user = 1;
-
-    // The ID of the user who was unblocked.
-    spine.core.UserId unblocked_user = 2 [(required) = true];
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    protected void setupEventRouting(EventRouting<UserId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()))
+               .route(UserBlocked.class, (event, context) -> withId(event.getBlockingUser()))
+               .route(UserUnblocked.class, (event, context) -> withId(event.getUnblockingUser()));
+    }
 }

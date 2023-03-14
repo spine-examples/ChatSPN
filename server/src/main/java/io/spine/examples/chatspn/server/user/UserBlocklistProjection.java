@@ -23,45 +23,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.user;
+package io.spine.examples.chatspn.server.user;
 
-import "spine/options.proto";
+import io.spine.core.Subscribe;
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.user.UserBlocklist;
+import io.spine.examples.chatspn.user.event.UserBlocked;
+import io.spine.examples.chatspn.user.event.UserRegistered;
+import io.spine.examples.chatspn.user.event.UserUnblocked;
+import io.spine.server.projection.Projection;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.user.event";
-option java_outer_classname = "EventsProto";
-option java_multiple_files = true;
+/**
+ * Manages instances of {@code UserBlocklist} projections.
+ */
+public final class UserBlocklistProjection extends Projection<UserId, UserBlocklist, UserBlocklist.Builder> {
 
-import "spine/core/user_id.proto";
+    @Subscribe
+    void on(UserRegistered e) {
+        builder().setId(e.getUser());
+    }
 
-// A new user has been registered.
-message UserRegistered {
+    @Subscribe
+    void on(UserBlocked e) {
+        builder().addBlockedUser(e.getBlockedUser());
+    }
 
-    // The ID of the registered user.
-    spine.core.UserId user = 1;
+    @Subscribe
+    void on(UserUnblocked e) {
+        int unblockedUserIndex = state()
+                .getBlockedUserList()
+                .indexOf(e.getUnblockedUser());
 
-    // A name of the registered user.
-    string name = 2 [(required) = true];
-}
-
-// A user has been blocked.
-message UserBlocked {
-
-    // The ID of the user who blocked.
-    spine.core.UserId blocking_user = 1;
-
-    // The ID of the user who was blocked.
-    spine.core.UserId blocked_user = 2 [(required) = true];
-}
-
-// A user has been unblocked.
-message UserUnblocked {
-
-    // The ID of the user who unblocked.
-    spine.core.UserId unblocking_user = 1;
-
-    // The ID of the user who was unblocked.
-    spine.core.UserId unblocked_user = 2 [(required) = true];
+        builder().removeBlockedUser(unblockedUserIndex);
+    }
 }
