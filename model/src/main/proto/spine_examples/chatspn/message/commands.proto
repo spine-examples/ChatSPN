@@ -25,23 +25,30 @@
  */
 syntax = "proto3";
 
-package spine_examples.chatspn;
+package spine_examples.chatspn.message;
 
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn";
-option java_outer_classname = "IdentifiersProto";
+option java_package = "io.spine.examples.chatspn.message.command";
+option java_outer_classname = "CommandsProto";
 option java_multiple_files = true;
 
-// Identifies a chat.
-message ChatId {
+import "spine/core/user_id.proto";
+import "spine_examples/chatspn/identifiers.proto";
 
-    string uuid = 1 [(required) = true];
-}
+// Tells to post a new message.
+message PostMessage {
 
-// Identifies a message.
-message MessageId {
+    // The ID of the message to post.
+    MessageId id = 1;
 
-    string uuid = 1 [(required) = true];
+    // The ID of the chat to post this message in.
+    ChatId chat = 2 [(required) = true];
+
+    // The ID of the user who tells to post this message.
+    spine.core.UserId user = 3 [(required) = true];
+
+    // The message text content.
+    string content = 4 [(required) = true];
 }
