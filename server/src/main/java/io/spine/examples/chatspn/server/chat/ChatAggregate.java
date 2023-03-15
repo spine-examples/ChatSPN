@@ -35,8 +35,7 @@ import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 
 /**
- * A chat in ChatSPN.
- * Chat is a form of communication between two or more users via messages.
+ * A chat between two or more users.
  */
 public class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
@@ -47,18 +46,18 @@ public class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     ChatCreated handle(CreateChat c) {
         return ChatCreated
                 .newBuilder()
-                .setChat(c.getChat())
+                .setId(c.getId())
                 .setCreator(c.getCreator())
-                .setChatName(c.getChatName())
+                .setName(c.getName())
                 .addAllMember(c.getMemberList())
                 .vBuild();
     }
 
     @Apply
     private void event(ChatCreated e) {
-        builder().setId(e.getChat())
+        builder().setId(e.getId())
                  .addMember(e.getCreator())
                  .addAllMember(e.getMemberList())
-                 .setName(e.getChatName());
+                 .setName(e.getName());
     }
 }

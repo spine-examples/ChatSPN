@@ -36,5 +36,6 @@ option java_multiple_files = true;
 
 // Identifies a chat.
 message ChatId {
+
     string uuid = 1 [(required) = true];
 }

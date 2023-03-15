@@ -41,14 +41,14 @@ import "spine_examples/chatspn/identifiers.proto";
 message ChatCreated {
 
     // The ID of the created chat.
-    ChatId chat = 1;
+    ChatId id = 1;
 
-    // The user who was told to create the chat.
+    // The user who was created the chat.
     spine.core.UserId creator = 2 [(required) = true];
 
     // List of users who became members of the chat without a creator.
     repeated spine.core.UserId member = 3 [(required) = true];
 
     // The name of the created chat.
-    string chat_name = 4;
+    string name = 4;
 }

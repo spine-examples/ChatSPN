@@ -41,7 +41,7 @@ import "spine_examples/chatspn/identifiers.proto";
 message CreateChat {
 
     // The ID of the chat to create.
-    ChatId chat = 1;
+    ChatId id = 1;
 
     // The user who tells to create the chat.
     spine.core.UserId creator = 2 [(required) = true];
@@ -50,5 +50,5 @@ message CreateChat {
     repeated spine.core.UserId member = 3 [(required) = true];
 
     // The name of the chat to create.
-    string chat_name = 4;
+    string name = 4;
 }

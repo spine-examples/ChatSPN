@@ -52,40 +52,40 @@ class ChatTest extends ContextAwareTest {
 
     @Test
     @DisplayName("allow creation and emit the `ChatCreated` event")
-    void creationn() {
+    void creation() {
         ArrayList<UserId> members = new ArrayList<>();
         members.add(GivenUserId.generated());
         members.add(GivenUserId.generated());
 
         CreateChat command = CreateChat
                 .newBuilder()
-                .setChat(ChatId.generate())
+                .setId(ChatId.generate())
                 .setCreator(GivenUserId.generated())
                 .addAllMember(members)
-                .setChatName(randomString())
+                .setName(randomString())
                 .vBuild();
 
         context().receivesCommand(command);
 
         ChatCreated expectedEvent = ChatCreated
                 .newBuilder()
-                .setChat(command.getChat())
+                .setId(command.getId())
                 .setCreator(command.getCreator())
                 .addAllMember(command.getMemberList())
-                .setChatName(command.getChatName())
+                .setName(command.getName())
                 .build();
         Chat expectedState = Chat
                 .newBuilder()
-                .setId(command.getChat())
+                .setId(command.getId())
                 .addMember(command.getCreator())
                 .addAllMember(command.getMemberList())
-                .setName(command.getChatName())
+                .setName(command.getName())
                 .vBuild();
 
         context().assertEvents()
                  .withType(ChatCreated.class)
                  .hasSize(1);
         context().assertEvent(expectedEvent);
-        context().assertState(command.getChat(), expectedState);
+        context().assertState(command.getId(), expectedState);
     }
 }
