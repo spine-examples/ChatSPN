@@ -27,12 +27,10 @@
 /**
  * This package contains basic data types of the ChatSPN application.
  */
-@BoundedContext("Chats")
 @CheckReturnValue
 @ParametersAreNonnullByDefault
 package io.spine.examples.chatspn;
 
 import com.google.errorprone.annotations.CheckReturnValue;
-import io.spine.core.BoundedContext;
 
 import javax.annotation.ParametersAreNonnullByDefault;
