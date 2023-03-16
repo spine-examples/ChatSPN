@@ -25,7 +25,7 @@
  */
 
 /**
- * Provides server-side classes for working with Message.
+ * Provides server-side classes for working with chat messages.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault

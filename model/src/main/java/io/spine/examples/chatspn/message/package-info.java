@@ -25,7 +25,7 @@
  */
 
 /**
- * This package contains Message data types of the ChatSPN application.
+ * This package contains data types describing chat messages.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
