@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server.message;
 
-import com.google.protobuf.Timestamp;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.PostMessage;
@@ -34,6 +33,7 @@ import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
+import static io.spine.base.Time.currentTime;
 
 /**
  * A single message in the chat.
@@ -45,20 +45,13 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
      */
     @Assign
     MessagePosted handle(PostMessage c) {
-        long millis = System.currentTimeMillis();
-        Timestamp currentTimestamp =
-                Timestamp.newBuilder()
-                         .setSeconds(millis / 1000)
-                         .setNanos((int) ((millis % 1000) * 1000000))
-                         .build();
-
         return MessagePosted
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .setContent(c.getContent())
-                .setWhenPosted(currentTimestamp)
+                .setWhenPosted(currentTime())
                 .vBuild();
     }
 
