@@ -25,7 +25,7 @@
  */
 
 /**
- * Provides ChatSPN Message commands and common command interfaces.
+ * Describes command API to interact with chat messages.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
