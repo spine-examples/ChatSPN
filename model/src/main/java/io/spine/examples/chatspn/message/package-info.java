@@ -24,39 +24,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server;
-
-import io.spine.examples.chatspn.server.chat.ChatAggregate;
-import io.spine.examples.chatspn.server.message.MessageAggregate;
-import io.spine.examples.chatspn.server.user.UserAggregate;
-import io.spine.examples.chatspn.server.user.UserProfileRepository;
-import io.spine.server.BoundedContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
-
 /**
- * Configures Chats Bounded Context with repositories.
+ * This package contains data types describing chat messages.
  */
-public final class ChatsContext {
+@CheckReturnValue
+@ParametersAreNonnullByDefault
+package io.spine.examples.chatspn.message;
 
-    static final String NAME = "Chats";
+import com.google.errorprone.annotations.CheckReturnValue;
 
-    /**
-     * Prevents instantiation of this class.
-     */
-    private ChatsContext() {
-    }
-
-    /**
-     * Creates {@code BoundedContextBuilder} for the Chats context
-     * and fills it with repositories.
-     */
-    public static BoundedContextBuilder newBuilder() {
-        return BoundedContext
-                .singleTenant(NAME)
-                .add(DefaultRepository.of(UserAggregate.class))
-                .add(DefaultRepository.of(ChatAggregate.class))
-                .add(DefaultRepository.of(MessageAggregate.class))
-                .add(new UserProfileRepository());
-    }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

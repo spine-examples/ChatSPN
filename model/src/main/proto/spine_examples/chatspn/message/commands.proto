@@ -23,40 +23,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+syntax = "proto3";
 
-package io.spine.examples.chatspn.server;
+package spine_examples.chatspn.message;
 
-import io.spine.examples.chatspn.server.chat.ChatAggregate;
-import io.spine.examples.chatspn.server.message.MessageAggregate;
-import io.spine.examples.chatspn.server.user.UserAggregate;
-import io.spine.examples.chatspn.server.user.UserProfileRepository;
-import io.spine.server.BoundedContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
+import "spine/options.proto";
 
-/**
- * Configures Chats Bounded Context with repositories.
- */
-public final class ChatsContext {
+option (type_url_prefix) = "type.chatspn.spine.io";
+option java_package = "io.spine.examples.chatspn.message.command";
+option java_outer_classname = "CommandsProto";
+option java_multiple_files = true;
 
-    static final String NAME = "Chats";
+import "spine/core/user_id.proto";
+import "spine_examples/chatspn/identifiers.proto";
 
-    /**
-     * Prevents instantiation of this class.
-     */
-    private ChatsContext() {
-    }
+// Tells to post a new message.
+message PostMessage {
 
-    /**
-     * Creates {@code BoundedContextBuilder} for the Chats context
-     * and fills it with repositories.
-     */
-    public static BoundedContextBuilder newBuilder() {
-        return BoundedContext
-                .singleTenant(NAME)
-                .add(DefaultRepository.of(UserAggregate.class))
-                .add(DefaultRepository.of(ChatAggregate.class))
-                .add(DefaultRepository.of(MessageAggregate.class))
-                .add(new UserProfileRepository());
-    }
+    // The ID of the message to post.
+    MessageId id = 1;
+
+    // The ID of the chat to post this message in.
+    ChatId chat = 2 [(required) = true];
+
+    // The ID of the user who tells to post this message.
+    spine.core.UserId user = 3 [(required) = true];
+
+    // The message text content.
+    string content = 4 [(required) = true];
 }

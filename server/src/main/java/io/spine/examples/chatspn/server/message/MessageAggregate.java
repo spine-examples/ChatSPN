@@ -24,39 +24,44 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server;
+package io.spine.examples.chatspn.server.message;
 
-import io.spine.examples.chatspn.server.chat.ChatAggregate;
-import io.spine.examples.chatspn.server.message.MessageAggregate;
-import io.spine.examples.chatspn.server.user.UserAggregate;
-import io.spine.examples.chatspn.server.user.UserProfileRepository;
-import io.spine.server.BoundedContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
+import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.command.PostMessage;
+import io.spine.examples.chatspn.message.event.MessagePosted;
+import io.spine.server.aggregate.Aggregate;
+import io.spine.server.aggregate.Apply;
+import io.spine.server.command.Assign;
+
+import static io.spine.base.Time.currentTime;
 
 /**
- * Configures Chats Bounded Context with repositories.
+ * A single message in the chat.
  */
-public final class ChatsContext {
-
-    static final String NAME = "Chats";
+public final class MessageAggregate extends Aggregate<MessageId, Message, Message.Builder> {
 
     /**
-     * Prevents instantiation of this class.
+     * Handles the command to post a message.
      */
-    private ChatsContext() {
+    @Assign
+    MessagePosted handle(PostMessage c) {
+        return MessagePosted
+                .newBuilder()
+                .setId(c.getId())
+                .setChat(c.getChat())
+                .setUser(c.getUser())
+                .setContent(c.getContent())
+                .setWhenPosted(currentTime())
+                .vBuild();
     }
 
-    /**
-     * Creates {@code BoundedContextBuilder} for the Chats context
-     * and fills it with repositories.
-     */
-    public static BoundedContextBuilder newBuilder() {
-        return BoundedContext
-                .singleTenant(NAME)
-                .add(DefaultRepository.of(UserAggregate.class))
-                .add(DefaultRepository.of(ChatAggregate.class))
-                .add(DefaultRepository.of(MessageAggregate.class))
-                .add(new UserProfileRepository());
+    @Apply
+    private void event(MessagePosted e) {
+        builder().setId(e.getId())
+                 .setChat(e.getChat())
+                 .setUser(e.getUser())
+                 .setContent(e.getContent())
+                 .setWhenPosted(e.getWhenPosted());
     }
 }
