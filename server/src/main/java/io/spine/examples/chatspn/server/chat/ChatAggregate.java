@@ -24,13 +24,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.examples.chatspn.server.chat;
+
+import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.CreateChat;
+import io.spine.examples.chatspn.chat.event.ChatCreated;
+import io.spine.server.aggregate.Aggregate;
+import io.spine.server.aggregate.Apply;
+import io.spine.server.command.Assign;
+
 /**
- * Provides ChatSPN User commands and common command interfaces.
+ * A chat between two or more users.
  */
-@CheckReturnValue
-@ParametersAreNonnullByDefault
-package io.spine.examples.chatspn.user.command;
+public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
-import com.google.errorprone.annotations.CheckReturnValue;
+    /**
+     * Handles the command to create a chat.
+     */
+    @Assign
+    ChatCreated handle(CreateChat c) {
+        return ChatCreated
+                .newBuilder()
+                .setId(c.getId())
+                .setCreator(c.getCreator())
+                .setName(c.getName())
+                .addAllMember(c.getMemberList())
+                .vBuild();
+    }
 
-import javax.annotation.ParametersAreNonnullByDefault;
+    @Apply
+    private void event(ChatCreated e) {
+        builder().setId(e.getId())
+                 .addMember(e.getCreator())
+                 .addAllMember(e.getMemberList())
+                 .setName(e.getName());
+    }
+}

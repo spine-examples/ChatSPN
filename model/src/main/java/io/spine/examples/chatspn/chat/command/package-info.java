@@ -25,11 +25,11 @@
  */
 
 /**
- * Provides ChatSPN User commands and common command interfaces.
+ * Provides ChatSPN Chat commands and common command interfaces.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
-package io.spine.examples.chatspn.user.command;
+package io.spine.examples.chatspn.chat.command;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 

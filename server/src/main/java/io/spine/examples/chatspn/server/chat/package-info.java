@@ -25,11 +25,11 @@
  */
 
 /**
- * Provides ChatSPN User commands and common command interfaces.
+ * Provides server-side classes for working with Chat.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
-package io.spine.examples.chatspn.user.command;
+package io.spine.examples.chatspn.server.chat;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 
