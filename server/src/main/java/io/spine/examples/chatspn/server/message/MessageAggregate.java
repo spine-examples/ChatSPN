@@ -33,6 +33,7 @@ import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
+
 import static io.spine.base.Time.currentTime;
 
 /**
