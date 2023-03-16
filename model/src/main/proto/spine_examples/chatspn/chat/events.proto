@@ -46,7 +46,10 @@ message ChatCreated {
     // The user who was created the chat.
     spine.core.UserId creator = 2 [(required) = true];
 
-    // List of users who became members of the chat without a creator.
+    // Users who are included in the chat as members.
+    //
+    // This list does not include a `creator`.
+    //
     repeated spine.core.UserId member = 3 [(required) = true];
 
     // The name of the created chat.

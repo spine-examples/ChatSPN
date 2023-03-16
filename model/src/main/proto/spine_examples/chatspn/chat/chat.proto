@@ -37,10 +37,7 @@ option java_multiple_files = true;
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// A chat in the chatting system.
-//
-// Chat is a form of communication between two or more users via messages.
-//
+// A chat between two or more users.
 message Chat {
     option (entity) = { kind: AGGREGATE };
 
