@@ -37,7 +37,7 @@ import io.spine.server.command.Assign;
 /**
  * A chat between two or more users.
  */
-public class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
+public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     /**
      * Handles the command to create a chat.

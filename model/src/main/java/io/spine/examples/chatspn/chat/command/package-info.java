@@ -25,7 +25,7 @@
  */
 
 /**
- * Provides ChatSPN Chat commands and common commands interfaces.
+ * Provides ChatSPN Chat commands and common command interfaces.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault

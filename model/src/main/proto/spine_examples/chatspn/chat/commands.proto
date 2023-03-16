@@ -46,8 +46,11 @@ message CreateChat {
     // The user who tells to create the chat.
     spine.core.UserId creator = 2 [(required) = true];
 
-    // List of users who are ready to become chat members without a creator.
-    repeated spine.core.UserId member = 3 [(required) = true];
+    // Users to include into the chat as members.
+    //
+    // This list does not include a `creator`.
+    //
+    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 
     // The name of the chat to create.
     string name = 4;
