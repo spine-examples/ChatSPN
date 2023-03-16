@@ -73,7 +73,7 @@ class ChatTest extends ContextAwareTest {
                 .setCreator(command.getCreator())
                 .addAllMember(command.getMemberList())
                 .setName(command.getName())
-                .build();
+                .vBuild();
         Chat expectedState = Chat
                 .newBuilder()
                 .setId(command.getId())
