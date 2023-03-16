@@ -45,7 +45,7 @@ message Chat {
     ChatId id = 1;
 
     // List of the chat members.
-    repeated spine.core.UserId member = 2 [(required) = true];
+    repeated spine.core.UserId member = 2 [(required) = true, (distinct) = true];
 
     // The name of the chat.
     string name = 3;

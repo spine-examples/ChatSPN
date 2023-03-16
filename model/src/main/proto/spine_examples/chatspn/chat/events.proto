@@ -50,7 +50,7 @@ message ChatCreated {
     //
     // This list does not include a `creator`.
     //
-    repeated spine.core.UserId member = 3 [(required) = true];
+    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 
     // The name of the created chat.
     string name = 4;
