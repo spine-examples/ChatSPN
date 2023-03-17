@@ -51,8 +51,8 @@ public final class MessageSendingProcess
         extends ProcessManager<MessageId, MessageSending, MessageSending.Builder> {
 
     /**
-     * {@link Stand} of the bounded context, in which this process manager
-     * is registered as an entity.
+     * {@link ProjectionProvider} with {@link Stand} of the bounded context,
+     * in which this process manager is registered as an entity.
      */
     @MonotonicNonNull
     private ProjectionProvider<ChatId, ChatMembers> projectionProvider;
