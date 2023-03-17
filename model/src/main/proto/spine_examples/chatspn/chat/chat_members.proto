@@ -39,11 +39,11 @@ import "spine_examples/chatspn/identifiers.proto";
 
 // Members in the chat.
 message ChatMembers {
-  option (entity) = { kind: PROJECTION };
+    option (entity) = { kind: PROJECTION };
 
-  // The ID of the chat.
-  ChatId id = 1;
+    // The ID of the chat.
+    ChatId id = 1;
 
-  // List of the chat members.
-  repeated spine.core.UserId member = 2 [(required) = true, (distinct) = true];
+    // List of the chat members.
+    repeated spine.core.UserId member = 2 [(required) = true, (distinct) = true];
 }
