@@ -35,12 +35,21 @@ import io.spine.examples.chatspn.message.sendingevent.MessageSent;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
 import io.spine.server.procman.ProcessManager;
+import io.spine.server.stand.Stand;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Coordinates the message sending to the chat.
  */
-public class MessageSendingProcess
+public final class MessageSendingProcess
         extends ProcessManager<MessageId, MessageSending, MessageSending.Builder> {
+
+    /**
+     * {@link Stand} of the bounded context, in which this process manager
+     * is registered as an entity.
+     */
+    @MonotonicNonNull
+    private Stand stand;
 
     /**
      * Issues a command to post message to the chat.
@@ -74,5 +83,9 @@ public class MessageSendingProcess
                 .setUser(e.getUser())
                 .setContent(e.getContent())
                 .vBuild();
+    }
+
+    void inject(Stand stand) {
+        this.stand = stand;
     }
 }
