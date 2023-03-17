@@ -28,8 +28,10 @@ package io.spine.examples.chatspn.server.message;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageSending;
 import io.spine.examples.chatspn.message.event.MessagePosted;
+import io.spine.examples.chatspn.server.ProjectionProvider;
 import io.spine.server.procman.ProcessManagerRepository;
 import io.spine.server.route.EventRouting;
 
@@ -52,6 +54,6 @@ public final class MessageSendingRepository
     @Override
     protected void configure(MessageSendingProcess p) {
         super.configure(p);
-        p.inject(context().stand());
+        p.inject(new ProjectionProvider<>(context().stand(), ChatMembers.class));
     }
 }

@@ -62,13 +62,13 @@ public final class ProjectionProvider<I, S extends EntityState> {
     /**
      * Querying projections by identifiers.
      */
-    public List<S> getProjections(List<I> ids, CommandContext ctx) {
+    public List<S> getProjections(ImmutableSet<I> ids, CommandContext ctx) {
         QueryFactory queryFactory = ActorRequestFactory
                 .fromContext(ctx.getActorContext())
                 .query();
         Query query = queryFactory.byIds(
                 projectionStateClass,
-                ImmutableSet.of(ids)
+                ids
         );
         return executeAndUnpackResponse(query);
     }

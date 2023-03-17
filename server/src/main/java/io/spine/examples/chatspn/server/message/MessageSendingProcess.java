@@ -27,12 +27,8 @@
 package io.spine.examples.chatspn.server.message;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.Any;
-import io.spine.client.ActorRequestFactory;
-import io.spine.client.Query;
-import io.spine.client.QueryFactory;
-import io.spine.client.QueryResponse;
 import io.spine.core.CommandContext;
+import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageSending;
@@ -41,14 +37,12 @@ import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.sendingcommand.SendMessage;
 import io.spine.examples.chatspn.message.sendingevent.MessageSent;
 import io.spine.examples.chatspn.message.sendingrejection.MessageCannotBeSent;
-import io.spine.grpc.MemoizingObserver;
+import io.spine.examples.chatspn.server.ProjectionProvider;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
 import io.spine.server.procman.ProcessManager;
 import io.spine.server.stand.Stand;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-
-import static io.spine.protobuf.AnyPacker.unpack;
 
 /**
  * Coordinates the message sending to the chat.
@@ -61,7 +55,7 @@ public final class MessageSendingProcess
      * is registered as an entity.
      */
     @MonotonicNonNull
-    private Stand stand;
+    private ProjectionProvider<ChatId, ChatMembers> projectionProvider;
 
     /**
      * Issues a command to post message to the chat.
@@ -72,13 +66,9 @@ public final class MessageSendingProcess
     @Command
     PostMessage on(SendMessage c, CommandContext ctx) throws MessageCannotBeSent {
         initState(c);
-
-        QueryFactory queryFactory = queryFactoryOnTopOf(ctx);
-        Query query = queryFactory.byIds(
-                ChatMembers.class,
-                ImmutableSet.of(c.getChat())
-        );
-        ChatMembers chatMembers = executeAndUnpackResponse(query);
+        ChatMembers chatMembers = projectionProvider
+                .getProjections(ImmutableSet.of(c.getChat()), ctx)
+                .get(0);
 
         if (chatMembers.getMemberList()
                        .contains(c.getUser())) {
@@ -119,23 +109,7 @@ public final class MessageSendingProcess
                 .vBuild();
     }
 
-    private QueryFactory queryFactoryOnTopOf(CommandContext ctx) {
-        ActorRequestFactory requestFactory =
-                ActorRequestFactory.fromContext(ctx.getActorContext());
-        return requestFactory.query();
-    }
-
-    private ChatMembers executeAndUnpackResponse(Query query) {
-        MemoizingObserver<QueryResponse> observer = new MemoizingObserver<>();
-        stand.execute(query, observer);
-        QueryResponse response = observer.firstResponse();
-        Any packed = response.getMessageList()
-                             .get(0)
-                             .getState();
-        return unpack(packed, ChatMembers.class);
-    }
-
-    void inject(Stand stand) {
-        this.stand = stand;
+    void inject(ProjectionProvider<ChatId, ChatMembers> provider) {
+        projectionProvider = provider;
     }
 }
