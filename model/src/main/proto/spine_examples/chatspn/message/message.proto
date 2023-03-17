@@ -57,3 +57,11 @@ message Message {
     // Time when this message was posted.
     google.protobuf.Timestamp when_posted = 5 [(required) = true];
 }
+
+// The process of message sending to the chat.
+message MessageSending {
+    option (entity) = { kind: PROCESS_MANAGER };
+
+    // The ID of the message to send.
+    MessageId id = 1;
+}
