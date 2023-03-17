@@ -41,6 +41,7 @@ public final class ChatMembersProjection
     @Subscribe
     void on(ChatCreated e) {
         builder().setId(e.getId())
-                 .addAllMember(e.getMemberList());
+                 .addAllMember(e.getMemberList())
+                 .addMember(e.getCreator());
     }
 }
