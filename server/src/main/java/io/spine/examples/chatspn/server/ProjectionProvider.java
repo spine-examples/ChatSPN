@@ -50,7 +50,6 @@ import static io.spine.protobuf.AnyPacker.unpack;
  *         {@code Projection} state type.
  */
 public final class ProjectionProvider<I, S extends EntityState> {
-
     private final Stand stand;
     private final Class<S> projectionStateClass;
 
