@@ -24,41 +24,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server;
+package io.spine.examples.chatspn.server.chat;
 
-import io.spine.examples.chatspn.server.chat.ChatAggregate;
-import io.spine.examples.chatspn.server.chat.ChatMembersRepository;
-import io.spine.examples.chatspn.server.message.MessageAggregate;
-import io.spine.examples.chatspn.server.user.UserAggregate;
-import io.spine.examples.chatspn.server.user.UserProfileRepository;
-import io.spine.server.BoundedContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
+import io.spine.core.Subscribe;
+import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.event.ChatCreated;
+import io.spine.server.projection.Projection;
 
 /**
- * Configures Chats Bounded Context with repositories.
+ * Manages instances of {@code ChatMembers} projections.
  */
-public final class ChatsContext {
+public final class ChatMembersProjection
+        extends Projection<ChatId, ChatMembers, ChatMembers.Builder> {
 
-    static final String NAME = "Chats";
-
-    /**
-     * Prevents instantiation of this class.
-     */
-    private ChatsContext() {
-    }
-
-    /**
-     * Creates {@code BoundedContextBuilder} for the Chats context
-     * and fills it with repositories.
-     */
-    public static BoundedContextBuilder newBuilder() {
-        return BoundedContext
-                .singleTenant(NAME)
-                .add(DefaultRepository.of(UserAggregate.class))
-                .add(DefaultRepository.of(ChatAggregate.class))
-                .add(DefaultRepository.of(MessageAggregate.class))
-                .add(new UserProfileRepository())
-                .add(new ChatMembersRepository());
+    @Subscribe
+    void on(ChatCreated e) {
+        builder().setId(e.getId())
+                 .addAllMember(e.getMemberList());
     }
 }

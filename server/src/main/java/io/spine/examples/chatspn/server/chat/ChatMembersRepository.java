@@ -24,41 +24,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server;
+package io.spine.examples.chatspn.server.chat;
 
-import io.spine.examples.chatspn.server.chat.ChatAggregate;
-import io.spine.examples.chatspn.server.chat.ChatMembersRepository;
-import io.spine.examples.chatspn.server.message.MessageAggregate;
-import io.spine.examples.chatspn.server.user.UserAggregate;
-import io.spine.examples.chatspn.server.user.UserProfileRepository;
-import io.spine.server.BoundedContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.event.ChatCreated;
+import io.spine.server.projection.ProjectionRepository;
+import io.spine.server.route.EventRouting;
+
+import static io.spine.server.route.EventRoute.withId;
 
 /**
- * Configures Chats Bounded Context with repositories.
+ * The repository for managing {@link ChatMembersProjection} instances.
  */
-public final class ChatsContext {
+public final class ChatMembersRepository
+        extends ProjectionRepository<ChatId, ChatMembersProjection, ChatMembers> {
 
-    static final String NAME = "Chats";
-
-    /**
-     * Prevents instantiation of this class.
-     */
-    private ChatsContext() {
-    }
-
-    /**
-     * Creates {@code BoundedContextBuilder} for the Chats context
-     * and fills it with repositories.
-     */
-    public static BoundedContextBuilder newBuilder() {
-        return BoundedContext
-                .singleTenant(NAME)
-                .add(DefaultRepository.of(UserAggregate.class))
-                .add(DefaultRepository.of(ChatAggregate.class))
-                .add(DefaultRepository.of(MessageAggregate.class))
-                .add(new UserProfileRepository())
-                .add(new ChatMembersRepository());
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    protected void setupEventRouting(EventRouting<ChatId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(ChatCreated.class, (event, context) -> withId(event.getId()));
     }
 }
