@@ -23,40 +23,36 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+syntax = "proto3";
 
-package io.spine.examples.chatspn.server;
+package spine_examples.chatspn.message;
 
-import io.spine.examples.chatspn.server.chat.ChatAggregate;
-import io.spine.examples.chatspn.server.message.MessageAggregate;
-import io.spine.examples.chatspn.server.user.UserAggregate;
-import io.spine.examples.chatspn.server.user.UserProfileRepository;
-import io.spine.server.BoundedContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
+import "spine/options.proto";
 
-/**
- * Configures Chats Bounded Context with repositories.
- */
-public final class ChatsContext {
+option (type_url_prefix) = "type.chatspn.spine.io";
+option java_package = "io.spine.examples.chatspn.message.event";
+option java_outer_classname = "EventsProto";
+option java_multiple_files = true;
 
-    static final String NAME = "Chats";
+import "spine/core/user_id.proto";
+import "spine_examples/chatspn/identifiers.proto";
+import "google/protobuf/timestamp.proto";
 
-    /**
-     * Prevents instantiation of this class.
-     */
-    private ChatsContext() {
-    }
+// A new message has been posted.
+message MessagePosted {
 
-    /**
-     * Creates {@code BoundedContextBuilder} for the Chats context
-     * and fills it with repositories.
-     */
-    public static BoundedContextBuilder newBuilder() {
-        return BoundedContext
-                .singleTenant(NAME)
-                .add(DefaultRepository.of(UserAggregate.class))
-                .add(DefaultRepository.of(ChatAggregate.class))
-                .add(DefaultRepository.of(MessageAggregate.class))
-                .add(new UserProfileRepository());
-    }
+    // The ID of the posted message.
+    MessageId id = 1;
+
+    // The ID of the chat in which the message was posted.
+    ChatId chat = 2 [(required) = true];
+
+    // The ID of the user who posted the message.
+    spine.core.UserId user = 3 [(required) = true];
+
+    // The posted message text content.
+    string content = 4 [(required) = true];
+
+    // Time when the message was posted.
+    google.protobuf.Timestamp when_posted = 5 [(required) = true];
 }
