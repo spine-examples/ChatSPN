@@ -36,7 +36,6 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
-import "google/protobuf/timestamp.proto";
 
 // A message has been sent.
 message MessageSent {
