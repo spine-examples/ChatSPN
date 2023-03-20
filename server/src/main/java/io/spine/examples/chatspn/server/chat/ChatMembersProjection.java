@@ -33,7 +33,7 @@ import io.spine.examples.chatspn.chat.event.ChatCreated;
 import io.spine.server.projection.Projection;
 
 /**
- * Manages instances of {@code ChatMembers} projections.
+ * View of the members in the chat.
  */
 public final class ChatMembersProjection
         extends Projection<ChatId, ChatMembers, ChatMembers.Builder> {
