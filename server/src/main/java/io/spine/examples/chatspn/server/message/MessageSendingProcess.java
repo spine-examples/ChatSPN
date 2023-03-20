@@ -67,7 +67,6 @@ public final class MessageSendingProcess
         ChatMembers chatMembers = projectionReader
                 .readProjections(ImmutableSet.of(c.getChat()), ctx.getActorContext())
                 .get(0);
-
         if (chatMembers.getMemberList()
                        .contains(c.getUser())) {
             return PostMessage
@@ -78,7 +77,6 @@ public final class MessageSendingProcess
                     .setContent(c.getContent())
                     .vBuild();
         }
-
         throw MessageCannotBeSent
                 .newBuilder()
                 .setId(c.getId())

@@ -44,7 +44,6 @@ public class MessageSendingTestEnv {
      * Prevents instantiation of this class.
      */
     private MessageSendingTestEnv() {
-
     }
 
     public static Chat createRandomChat(BlackBoxContext context) {
