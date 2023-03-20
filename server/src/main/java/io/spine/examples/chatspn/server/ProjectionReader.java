@@ -54,9 +54,9 @@ public final class ProjectionReader<I, S extends EntityState> {
     private final Stand stand;
     private final Class<S> stateClass;
 
-    public ProjectionReader(Stand stand, Class<S> projectionStateClass) {
+    public ProjectionReader(Stand stand, Class<S> stateClass) {
         this.stand = checkNotNull(stand);
-        this.stateClass = checkNotNull(projectionStateClass);
+        this.stateClass = checkNotNull(stateClass);
     }
 
     /**
