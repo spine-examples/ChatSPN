@@ -67,7 +67,7 @@ public final class MessageSendingProcess
     PostMessage on(SendMessage c, CommandContext ctx) throws MessageCannotBeSent {
         initState(c);
         ChatMembers chatMembers = projectionReader
-                .getProjections(ImmutableSet.of(c.getChat()), ctx)
+                .readProjections(ImmutableSet.of(c.getChat()), ctx.getActorContext())
                 .get(0);
 
         if (chatMembers.getMemberList()

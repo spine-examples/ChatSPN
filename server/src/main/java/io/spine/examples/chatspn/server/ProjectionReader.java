@@ -26,18 +26,16 @@
 
 package io.spine.examples.chatspn.server;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.spine.base.EntityState;
 import io.spine.client.ActorRequestFactory;
 import io.spine.client.Query;
 import io.spine.client.QueryFactory;
 import io.spine.client.QueryResponse;
-import io.spine.core.CommandContext;
+import io.spine.core.ActorContext;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.server.stand.Stand;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.protobuf.AnyPacker.unpack;
@@ -61,11 +59,13 @@ public final class ProjectionReader<I, S extends EntityState> {
     }
 
     /**
-     * Querying projections by identifiers.
+     * Reads projections by identifiers on behalf of the actor from the context.
      */
-    public List<S> getProjections(ImmutableSet<I> ids, CommandContext ctx) {
+    public ImmutableList<S> readProjections(ImmutableSet<I> ids, ActorContext ctx) {
+        checkNotNull(ids);
+        checkNotNull(ctx);
         QueryFactory queryFactory = ActorRequestFactory
-                .fromContext(ctx.getActorContext())
+                .fromContext(ctx)
                 .query();
         Query query = queryFactory.byIds(
                 projectionStateClass,
@@ -74,13 +74,13 @@ public final class ProjectionReader<I, S extends EntityState> {
         return executeAndUnpackResponse(query);
     }
 
-    private List<S> executeAndUnpackResponse(Query query) {
+    private ImmutableList<S> executeAndUnpackResponse(Query query) {
         MemoizingObserver<QueryResponse> observer = new MemoizingObserver<>();
         stand.execute(query, observer);
         QueryResponse response = observer.firstResponse();
         return response.getMessageList()
                        .stream()
                        .map(state -> unpack(state.getState(), projectionStateClass))
-                       .collect(Collectors.toList());
+                       .collect(ImmutableList.toImmutableList());
     }
 }
