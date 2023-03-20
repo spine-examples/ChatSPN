@@ -42,12 +42,12 @@ import java.util.stream.Collectors;
 import static io.spine.protobuf.AnyPacker.unpack;
 
 /**
- * {@link Stand} wrapper to simplify the projections querying.
+ * Provider for projections in bounded context.
  *
  * @param <I>
- *         {@code Projection} id type.
+ *         {@code Projection} id type
  * @param <S>
- *         {@code Projection} state type.
+ *         {@code Projection} state type
  */
 public final class ProjectionProvider<I, S extends EntityState> {
     private final Stand stand;
