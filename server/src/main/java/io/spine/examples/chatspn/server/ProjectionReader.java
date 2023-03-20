@@ -39,6 +39,7 @@ import io.spine.server.stand.Stand;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.protobuf.AnyPacker.unpack;
 
 /**
@@ -55,8 +56,8 @@ public final class ProjectionReader<I, S extends EntityState> {
     private final Class<S> projectionStateClass;
 
     public ProjectionReader(Stand stand, Class<S> projectionStateClass) {
-        this.stand = stand;
-        this.projectionStateClass = projectionStateClass;
+        this.stand = checkNotNull(stand);
+        this.projectionStateClass = checkNotNull(projectionStateClass);
     }
 
     /**
