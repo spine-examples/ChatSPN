@@ -30,7 +30,13 @@ import io.spine.net.EmailAddress;
 
 import static io.spine.testing.TestValues.randomString;
 
-public class GivenEmailAddress {
+public final class GivenEmailAddress {
+
+    /**
+     * Prevents class instantiation.
+     */
+    private GivenEmailAddress() {
+    }
 
     public static EmailAddress randomEmailAddress() {
         return EmailAddress.newBuilder()
