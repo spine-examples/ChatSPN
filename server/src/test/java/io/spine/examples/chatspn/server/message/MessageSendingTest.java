@@ -28,8 +28,8 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.message.Message;
-import io.spine.examples.chatspn.message.sendingevent.MessageSent;
-import io.spine.examples.chatspn.message.sendingrejection.SendingRejections.MessageCannotBeSent;
+import io.spine.examples.chatspn.message.event.MessageSent;
+import io.spine.examples.chatspn.message.rejection.SendingRejections.MessageCannotBeSent;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
