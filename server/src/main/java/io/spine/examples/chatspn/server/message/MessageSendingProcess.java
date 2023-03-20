@@ -37,7 +37,7 @@ import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.examples.chatspn.message.event.MessageSent;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeSent;
-import io.spine.examples.chatspn.server.ProjectionProvider;
+import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
 import io.spine.server.procman.ProcessManager;
@@ -51,11 +51,11 @@ public final class MessageSendingProcess
         extends ProcessManager<MessageId, MessageSending, MessageSending.Builder> {
 
     /**
-     * {@link ProjectionProvider} with {@link Stand} of the bounded context,
+     * {@link ProjectionReader} with {@link Stand} of the bounded context,
      * in which this process manager is registered as an entity.
      */
     @MonotonicNonNull
-    private ProjectionProvider<ChatId, ChatMembers> projectionProvider;
+    private ProjectionReader<ChatId, ChatMembers> projectionReader;
 
     /**
      * Issues a command to post message to the chat.
@@ -66,7 +66,7 @@ public final class MessageSendingProcess
     @Command
     PostMessage on(SendMessage c, CommandContext ctx) throws MessageCannotBeSent {
         initState(c);
-        ChatMembers chatMembers = projectionProvider
+        ChatMembers chatMembers = projectionReader
                 .getProjections(ImmutableSet.of(c.getChat()), ctx)
                 .get(0);
 
@@ -109,7 +109,7 @@ public final class MessageSendingProcess
                 .vBuild();
     }
 
-    void inject(ProjectionProvider<ChatId, ChatMembers> provider) {
-        projectionProvider = provider;
+    void inject(ProjectionReader<ChatId, ChatMembers> reader) {
+        projectionReader = reader;
     }
 }

@@ -42,18 +42,19 @@ import java.util.stream.Collectors;
 import static io.spine.protobuf.AnyPacker.unpack;
 
 /**
- * Provider for projections in bounded context.
+ * Reader for projections in bounded context.
  *
  * @param <I>
  *         {@code Projection} id type
  * @param <S>
  *         {@code Projection} state type
  */
-public final class ProjectionProvider<I, S extends EntityState> {
+public final class ProjectionReader<I, S extends EntityState> {
+
     private final Stand stand;
     private final Class<S> projectionStateClass;
 
-    public ProjectionProvider(Stand stand, Class<S> projectionStateClass) {
+    public ProjectionReader(Stand stand, Class<S> projectionStateClass) {
         this.stand = stand;
         this.projectionStateClass = projectionStateClass;
     }
