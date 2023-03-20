@@ -74,7 +74,7 @@ public final class MessageSendingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("post message")
+    @DisplayName("produce a `Message` with the expected state")
     void state() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
@@ -108,7 +108,7 @@ public final class MessageSendingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("archive itself after work")
+    @DisplayName("archive itself once the message is sent")
     void archiving() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
