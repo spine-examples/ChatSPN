@@ -23,45 +23,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.message;
+package io.spine.examples.chatspn.server.chat;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.event.ChatCreated;
+import io.spine.server.projection.ProjectionRepository;
+import io.spine.server.route.EventRouting;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.message";
-option java_outer_classname = "MessageProto";
-option java_multiple_files = true;
+import static io.spine.server.route.EventRoute.withId;
 
-import "spine/core/user_id.proto";
-import "spine_examples/chatspn/identifiers.proto";
-import "google/protobuf/timestamp.proto";
+/**
+ * The repository for managing {@link ChatMembersProjection} instances.
+ */
+public final class ChatMembersRepository
+        extends ProjectionRepository<ChatId, ChatMembersProjection, ChatMembers> {
 
-// A message in the chat.
-message Message {
-    option (entity) = { kind: AGGREGATE };
-
-    // The ID of the message.
-    MessageId id = 1;
-
-    // The ID of the chat in which this message was posted.
-    ChatId chat = 2 [(required) = true];
-
-    // The ID of the user who posted this message.
-    spine.core.UserId user = 3 [(required) = true];
-
-    // The message text content.
-    string content = 4 [(required) = true];
-
-    // Time when this message was posted.
-    google.protobuf.Timestamp when_posted = 5 [(required) = true];
-}
-
-// The process of message sending to the chat.
-message MessageSending {
-    option (entity) = { kind: PROCESS_MANAGER };
-
-    // The ID of the message to send.
-    MessageId id = 1;
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    protected void setupEventRouting(EventRouting<ChatId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(ChatCreated.class, (event, context) -> withId(event.getId()));
+    }
 }
