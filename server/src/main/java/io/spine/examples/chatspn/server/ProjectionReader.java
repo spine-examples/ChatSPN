@@ -38,6 +38,7 @@ import io.spine.grpc.MemoizingObserver;
 import io.spine.server.stand.Stand;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.spine.protobuf.AnyPacker.unpack;
 
 /**
@@ -82,7 +83,7 @@ public final class ProjectionReader<I, S extends EntityState> {
                 response.getMessageList()
                         .stream()
                         .map(state -> unpack(state.getState(), projectionStateClass))
-                        .collect(ImmutableList.toImmutableList());
+                        .collect(toImmutableList());
         return result;
     }
 }
