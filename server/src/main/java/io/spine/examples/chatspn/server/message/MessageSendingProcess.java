@@ -59,7 +59,7 @@ public final class MessageSendingProcess
      * Issues a command to post message to the chat.
      *
      * @throws MessageCannotBeSent
-     *         if the message sender is not a chat member.
+     *         if the message sender is not a chat member
      */
     @Command
     PostMessage on(SendMessage c, CommandContext ctx) throws MessageCannotBeSent {
