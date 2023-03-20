@@ -30,7 +30,7 @@ package spine_examples.chatspn.message;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.message.sendingcommand";
+option java_package = "io.spine.examples.chatspn.message.command";
 option java_outer_classname = "CommandsProto";
 option java_multiple_files = true;
 
