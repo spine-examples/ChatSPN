@@ -27,7 +27,9 @@
 package io.spine.examples.chatspn.server;
 
 import io.spine.examples.chatspn.server.chat.ChatAggregate;
+import io.spine.examples.chatspn.server.chat.ChatMembersRepository;
 import io.spine.examples.chatspn.server.message.MessageAggregate;
+import io.spine.examples.chatspn.server.message.MessageSendingRepository;
 import io.spine.examples.chatspn.server.user.UserAggregate;
 import io.spine.examples.chatspn.server.user.UserProfileRepository;
 import io.spine.server.BoundedContext;
@@ -57,6 +59,8 @@ public final class ChatsContext {
                 .add(DefaultRepository.of(UserAggregate.class))
                 .add(DefaultRepository.of(ChatAggregate.class))
                 .add(DefaultRepository.of(MessageAggregate.class))
-                .add(new UserProfileRepository());
+                .add(new UserProfileRepository())
+                .add(new ChatMembersRepository())
+                .add(new MessageSendingRepository());
     }
 }
