@@ -61,7 +61,7 @@ public final class ProjectionReader<I, S extends EntityState> {
     /**
      * Reads projections by identifiers on behalf of the actor from the context.
      */
-    public ImmutableList<S> readProjections(ImmutableSet<I> ids, ActorContext ctx) {
+    public ImmutableList<S> read(ImmutableSet<I> ids, ActorContext ctx) {
         checkNotNull(ids);
         checkNotNull(ctx);
         QueryFactory queryFactory = ActorRequestFactory
