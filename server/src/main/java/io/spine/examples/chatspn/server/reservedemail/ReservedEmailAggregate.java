@@ -27,6 +27,7 @@
 package io.spine.examples.chatspn.server.reservedemail;
 
 import io.spine.examples.chatspn.reservedemail.ReservedEmail;
+import io.spine.examples.chatspn.reservedemail.command.ReserveEmail;
 import io.spine.examples.chatspn.reservedemail.event.EmailReserved;
 import io.spine.examples.chatspn.reservedemail.rejection.EmailAlreadyReserved;
 import io.spine.net.EmailAddress;
@@ -47,7 +48,7 @@ public final class ReservedEmailAggregate
      *         if email address has already been reserved by another user
      */
     @Assign
-    EmailReserved handle(ReservedEmail c) throws EmailAlreadyReserved {
+    EmailReserved handle(ReserveEmail c) throws EmailAlreadyReserved {
         if (state().hasUser()) {
             throw EmailAlreadyReserved
                     .newBuilder()
