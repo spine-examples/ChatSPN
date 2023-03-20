@@ -41,7 +41,6 @@ import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
 import io.spine.server.procman.ProcessManager;
-import io.spine.server.stand.Stand;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -51,8 +50,7 @@ public final class MessageSendingProcess
         extends ProcessManager<MessageId, MessageSending, MessageSending.Builder> {
 
     /**
-     * {@link ProjectionReader} with {@link Stand} of the bounded context,
-     * in which this process manager is registered as an entity.
+     * {@link ProjectionReader} for {@link ChatMembers} projection.
      */
     @MonotonicNonNull
     private ProjectionReader<ChatId, ChatMembers> projectionReader;
