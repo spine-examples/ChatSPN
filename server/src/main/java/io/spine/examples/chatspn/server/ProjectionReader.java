@@ -78,9 +78,11 @@ public final class ProjectionReader<I, S extends EntityState> {
         MemoizingObserver<QueryResponse> observer = new MemoizingObserver<>();
         stand.execute(query, observer);
         QueryResponse response = observer.firstResponse();
-        return response.getMessageList()
-                       .stream()
-                       .map(state -> unpack(state.getState(), projectionStateClass))
-                       .collect(ImmutableList.toImmutableList());
+        ImmutableList<S> result =
+                response.getMessageList()
+                        .stream()
+                        .map(state -> unpack(state.getState(), projectionStateClass))
+                        .collect(ImmutableList.toImmutableList());
+        return result;
     }
 }
