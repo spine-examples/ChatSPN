@@ -52,11 +52,11 @@ import static io.spine.protobuf.AnyPacker.unpack;
 public final class ProjectionReader<I, S extends EntityState> {
 
     private final Stand stand;
-    private final Class<S> projectionStateClass;
+    private final Class<S> stateClass;
 
     public ProjectionReader(Stand stand, Class<S> projectionStateClass) {
         this.stand = checkNotNull(stand);
-        this.projectionStateClass = checkNotNull(projectionStateClass);
+        this.stateClass = checkNotNull(projectionStateClass);
     }
 
     /**
@@ -68,10 +68,7 @@ public final class ProjectionReader<I, S extends EntityState> {
         QueryFactory queryFactory = ActorRequestFactory
                 .fromContext(ctx)
                 .query();
-        Query query = queryFactory.byIds(
-                projectionStateClass,
-                ids
-        );
+        Query query = queryFactory.byIds(stateClass, ids);
         return executeAndUnpackResponse(query);
     }
 
@@ -82,7 +79,7 @@ public final class ProjectionReader<I, S extends EntityState> {
         ImmutableList<S> result =
                 response.getMessageList()
                         .stream()
-                        .map(state -> unpack(state.getState(), projectionStateClass))
+                        .map(state -> unpack(state.getState(), stateClass))
                         .collect(toImmutableList());
         return result;
     }
