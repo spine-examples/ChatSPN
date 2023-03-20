@@ -50,7 +50,7 @@ public final class MessageSendingProcess
         extends ProcessManager<MessageId, MessageSending, MessageSending.Builder> {
 
     /**
-     * {@link ProjectionReader} for {@link ChatMembers} projection.
+     * Reads chat members per chat.
      */
     @MonotonicNonNull
     private ProjectionReader<ChatId, ChatMembers> projectionReader;
