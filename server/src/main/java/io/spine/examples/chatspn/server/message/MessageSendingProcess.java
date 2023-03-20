@@ -33,8 +33,8 @@ import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageSending;
 import io.spine.examples.chatspn.message.command.PostMessage;
-import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.command.SendMessage;
+import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.event.MessageSent;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeSent;
 import io.spine.examples.chatspn.server.ProjectionReader;
@@ -63,7 +63,7 @@ public final class MessageSendingProcess
      */
     @Command
     PostMessage on(SendMessage c, CommandContext ctx) throws MessageCannotBeSent {
-        initState(c);
+        builder().setId(c.getId());
         ChatMembers chatMembers = projectionReader
                 .readProjections(ImmutableSet.of(c.getChat()), ctx.getActorContext())
                 .get(0);
@@ -84,10 +84,6 @@ public final class MessageSendingProcess
                 .setUser(c.getUser())
                 .setContent(c.getContent())
                 .build();
-    }
-
-    private void initState(SendMessage c) {
-        builder().setId(c.getId());
     }
 
     /**
