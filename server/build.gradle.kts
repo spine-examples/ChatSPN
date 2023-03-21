@@ -30,6 +30,7 @@
  */
 plugins {
     `kotlin-dsl`
+    jacoco
     id("io.spine.tools.gradle.bootstrap")
 }
 
@@ -44,4 +45,11 @@ spine {
 
 dependencies {
     implementation(project(":model"))
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
 }
