@@ -42,6 +42,6 @@ message EmailAlreadyReserved {
     // The already reserved email address.
     spine.net.EmailAddress email = 1;
 
-    // The ID of the user who failed email address reservation.
+    // The ID of the user who initially requested to reserve an email address.
     spine.core.UserId user = 2 [(required) = true];
 }
