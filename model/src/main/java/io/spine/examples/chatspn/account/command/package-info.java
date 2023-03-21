@@ -25,7 +25,7 @@
  */
 
 /**
- * Describes command API to interact with user account and processes related to it.
+ * Describes command API to interact with user accounts and processes related to it.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault

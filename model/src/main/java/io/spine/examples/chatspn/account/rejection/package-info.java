@@ -25,7 +25,7 @@
  */
 
 /**
- * Provides data types that describe rejections with user account and associated processes.
+ * Provides data types that describe rejections with user accounts and associated processes.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
