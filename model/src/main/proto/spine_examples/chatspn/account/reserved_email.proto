@@ -25,12 +25,12 @@
  */
 syntax = "proto3";
 
-package spine_examples.chatspn.account.reserved_email;
+package spine_examples.chatspn.account;
 
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.account.reservedemail";
+option java_package = "io.spine.examples.chatspn.account";
 option java_outer_classname = "ReservedEmailProto";
 option java_multiple_files = true;
 

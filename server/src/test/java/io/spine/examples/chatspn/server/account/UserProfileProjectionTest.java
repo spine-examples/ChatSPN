@@ -24,12 +24,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.account.user;
+package io.spine.examples.chatspn.server.account;
 
+import io.spine.examples.chatspn.account.UserProfile;
+import io.spine.examples.chatspn.account.command.RegisterUser;
 import io.spine.examples.chatspn.server.ChatsContext;
-import io.spine.examples.chatspn.account.user.User;
-import io.spine.examples.chatspn.account.user.command.RegisterUser;
-import io.spine.examples.chatspn.account.user.event.UserRegistered;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
@@ -38,8 +37,8 @@ import org.junit.jupiter.api.Test;
 
 import static io.spine.testing.TestValues.randomString;
 
-@DisplayName("`User` should")
-class UserTest extends ContextAwareTest {
+@DisplayName("`UserProfileProjection` should")
+class UserProfileProjectionTest extends ContextAwareTest {
 
     @Override
     protected BoundedContextBuilder contextBuilder() {
@@ -47,31 +46,21 @@ class UserTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("allow registration and emit the `UserRegistered` event")
-    void registration() {
+    @DisplayName("display `UserProfile`, as soon as `User` registered")
+    void reactOnRegistration() {
         RegisterUser command = RegisterUser
                 .newBuilder()
                 .setUser(GivenUserId.generated())
                 .setName(randomString())
                 .vBuild();
-
         context().receivesCommand(command);
 
-        UserRegistered expectedEvent = UserRegistered
-                .newBuilder()
-                .setUser(command.getUser())
-                .setName(command.getName())
-                .build();
-        User expectedState = User
+        UserProfile expected = UserProfile
                 .newBuilder()
                 .setId(command.getUser())
                 .setName(command.getName())
                 .vBuild();
 
-        context().assertEvents()
-                 .withType(UserRegistered.class)
-                 .hasSize(1);
-        context().assertEvent(expectedEvent);
-        context().assertState(command.getUser(), expectedState);
+        context().assertState(command.getUser(), expected);
     }
 }

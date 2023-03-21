@@ -25,28 +25,23 @@
  */
 syntax = "proto3";
 
-package spine_examples.chatspn.account.user;
+package spine_examples.chatspn.account;
 
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.account.user";
-option java_outer_classname = "UserProfileProto";
-option java_multiple_files = true;
+option java_package = "io.spine.examples.chatspn.account.rejection";
+option java_multiple_files = false;
 
-import "google/protobuf/timestamp.proto";
 import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
 
-// A user profile view in the chatting system.
-message UserProfile {
-    option (entity) = { kind: PROJECTION };
+// Email address has been already reserved by another user.
+message EmailAlreadyReserved {
 
-    // The ID of the user.
-    spine.core.UserId id = 1;
+    // The already reserved email address.
+    spine.net.EmailAddress email = 1;
 
-    // A name of a user.
-    string name = 2 [(required) = true];
-
-    // A time of last user activity.
-    google.protobuf.Timestamp when_last_active = 3;
+    // The ID of the user who initially requested to reserve an email address.
+    spine.core.UserId user = 2 [(required) = true];
 }

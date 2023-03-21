@@ -23,14 +23,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+syntax = "proto3";
 
-/**
- * Provides ChatSPN User events and common event interfaces.
- */
-@CheckReturnValue
-@ParametersAreNonnullByDefault
-package io.spine.examples.chatspn.account.user.event;
+package spine_examples.chatspn.account;
 
-import com.google.errorprone.annotations.CheckReturnValue;
+import "spine/options.proto";
 
-import javax.annotation.ParametersAreNonnullByDefault;
+option (type_url_prefix) = "type.chatspn.spine.io";
+option java_package = "io.spine.examples.chatspn.account.command";
+option java_outer_classname = "ReservedEmailCommandsProto";
+option java_multiple_files = true;
+
+import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
+
+// Tells to reserve email address.
+message ReserveEmail {
+
+    // The email address to reserve.
+    spine.net.EmailAddress email = 1;
+
+    // The ID of the user who tells to reserve the email address.
+    spine.core.UserId user = 2 [(required) = true];
+}

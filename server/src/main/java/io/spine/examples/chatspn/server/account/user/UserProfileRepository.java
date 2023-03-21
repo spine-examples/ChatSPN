@@ -28,8 +28,8 @@ package io.spine.examples.chatspn.server.account.user;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.core.UserId;
-import io.spine.examples.chatspn.account.user.UserProfile;
-import io.spine.examples.chatspn.account.user.event.UserRegistered;
+import io.spine.examples.chatspn.account.UserProfile;
+import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.route.EventRouting;
 

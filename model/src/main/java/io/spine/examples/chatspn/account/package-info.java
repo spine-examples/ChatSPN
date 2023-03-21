@@ -25,8 +25,8 @@
  */
 
 /**
- * This package describes the API and data types
- * related to processes working with user accounts.
+ * This package describes the API and data types to work with user accounts
+ * and processes related to it.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault

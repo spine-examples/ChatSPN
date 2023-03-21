@@ -25,24 +25,31 @@
  */
 syntax = "proto3";
 
-package spine_examples.chatspn.account.reserved_email;
+package spine_examples.chatspn.account;
 
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.account.reservedemail.command";
-option java_outer_classname = "CommandsProto";
+option java_package = "io.spine.examples.chatspn.account";
+option java_outer_classname = "UserProto";
 option java_multiple_files = true;
 
+import "google/protobuf/timestamp.proto";
 import "spine/core/user_id.proto";
-import "spine/net/email_address.proto";
 
-// Tells to reserve email address.
-message ReserveEmail {
+// A user in the chatting system.
+message User {
+    option (entity) = { kind: AGGREGATE };
 
-    // The email address to reserve.
-    spine.net.EmailAddress email = 1;
+    // The ID of the user.
+    //
+    // Once set it should never change.
+    //
+    spine.core.UserId id = 1;
 
-    // The ID of the user who tells to reserve the email address.
-    spine.core.UserId user = 2 [(required) = true];
+    // A name of a user.
+    string name = 2 [(required) = true];
+
+    // A time of last user activity.
+    google.protobuf.Timestamp when_last_active = 3;
 }

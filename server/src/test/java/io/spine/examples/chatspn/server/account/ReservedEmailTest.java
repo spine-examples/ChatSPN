@@ -24,12 +24,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.account.reservedemail;
+package io.spine.examples.chatspn.server.account;
 
-import io.spine.examples.chatspn.account.reservedemail.ReservedEmail;
-import io.spine.examples.chatspn.account.reservedemail.command.ReserveEmail;
-import io.spine.examples.chatspn.account.reservedemail.event.EmailReserved;
-import io.spine.examples.chatspn.account.reservedemail.rejection.Rejections.EmailAlreadyReserved;
+import io.spine.examples.chatspn.account.ReservedEmail;
+import io.spine.examples.chatspn.account.command.ReserveEmail;
+import io.spine.examples.chatspn.account.event.EmailReserved;
+import io.spine.examples.chatspn.account.rejection.ReservedEmailRejections.EmailAlreadyReserved;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;

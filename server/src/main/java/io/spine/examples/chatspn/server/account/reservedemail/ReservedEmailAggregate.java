@@ -26,10 +26,10 @@
 
 package io.spine.examples.chatspn.server.account.reservedemail;
 
-import io.spine.examples.chatspn.account.reservedemail.ReservedEmail;
-import io.spine.examples.chatspn.account.reservedemail.command.ReserveEmail;
-import io.spine.examples.chatspn.account.reservedemail.event.EmailReserved;
-import io.spine.examples.chatspn.account.reservedemail.rejection.EmailAlreadyReserved;
+import io.spine.examples.chatspn.account.ReservedEmail;
+import io.spine.examples.chatspn.account.command.ReserveEmail;
+import io.spine.examples.chatspn.account.event.EmailReserved;
+import io.spine.examples.chatspn.account.rejection.EmailAlreadyReserved;
 import io.spine.net.EmailAddress;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;

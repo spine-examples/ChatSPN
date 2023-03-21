@@ -25,11 +25,11 @@
  */
 
 /**
- * Describes command API to interact with reserved email.
+ * Describes command API to interact with user account and processes related to it.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
-package io.spine.examples.chatspn.account.reservedemail.command;
+package io.spine.examples.chatspn.account.command;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 

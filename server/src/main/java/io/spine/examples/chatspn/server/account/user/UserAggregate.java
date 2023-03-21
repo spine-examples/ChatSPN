@@ -27,9 +27,9 @@
 package io.spine.examples.chatspn.server.account.user;
 
 import io.spine.core.UserId;
-import io.spine.examples.chatspn.account.user.User;
-import io.spine.examples.chatspn.account.user.command.RegisterUser;
-import io.spine.examples.chatspn.account.user.event.UserRegistered;
+import io.spine.examples.chatspn.account.User;
+import io.spine.examples.chatspn.account.command.RegisterUser;
+import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;

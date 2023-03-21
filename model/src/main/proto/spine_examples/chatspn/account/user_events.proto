@@ -25,31 +25,23 @@
  */
 syntax = "proto3";
 
-package spine_examples.chatspn.account.user;
+package spine_examples.chatspn.account;
 
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.account.user";
-option java_outer_classname = "UserProto";
+option java_package = "io.spine.examples.chatspn.account.event";
+option java_outer_classname = "UserEventsProto";
 option java_multiple_files = true;
 
-import "google/protobuf/timestamp.proto";
 import "spine/core/user_id.proto";
 
-// A user in the chatting system.
-message User {
-    option (entity) = { kind: AGGREGATE };
+// A new user has been registered.
+message UserRegistered {
 
-    // The ID of the user.
-    //
-    // Once set it should never change.
-    //
-    spine.core.UserId id = 1;
+    // The ID of the registered user.
+    spine.core.UserId user = 1;
 
-    // A name of a user.
+    // A name of the registered user.
     string name = 2 [(required) = true];
-
-    // A time of last user activity.
-    google.protobuf.Timestamp when_last_active = 3;
 }

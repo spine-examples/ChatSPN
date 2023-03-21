@@ -25,11 +25,11 @@
  */
 
 /**
- * This package contains data types for reserved email.
+ * Provides data types that describe rejections with user account and associated processes.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
-package io.spine.examples.chatspn.account.reservedemail;
+package io.spine.examples.chatspn.account.rejection;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 
