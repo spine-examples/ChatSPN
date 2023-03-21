@@ -25,28 +25,28 @@
  */
 syntax = "proto3";
 
-package spine_examples.chatspn.user;
+package spine_examples.chatspn.account;
 
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.user";
-option java_outer_classname = "UserProfileProto";
+option java_package = "io.spine.examples.chatspn.account";
+option java_outer_classname = "ReservedEmailProto";
 option java_multiple_files = true;
 
-import "google/protobuf/timestamp.proto";
 import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
 
-// A user profile view in the chatting system.
-message UserProfile {
-    option (entity) = { kind: PROJECTION };
+// The email address reserved by the user.
+//
+// Ensures the uniqueness of the user's email in the ChatSPN.
+//
+message ReservedEmail {
+    option (entity) = { kind: AGGREGATE };
 
-    // The ID of the user.
-    spine.core.UserId id = 1;
+    // The reserved email address.
+    spine.net.EmailAddress email = 1;
 
-    // A name of a user.
-    string name = 2 [(required) = true];
-
-    // A time of last user activity.
-    google.protobuf.Timestamp when_last_active = 3;
+    // The ID of the user who reserved this email address.
+    spine.core.UserId user = 2;
 }

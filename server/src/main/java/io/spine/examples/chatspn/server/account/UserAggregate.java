@@ -24,43 +24,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.user;
+package io.spine.examples.chatspn.server.account;
 
-import io.spine.examples.chatspn.server.ChatsContext;
-import io.spine.examples.chatspn.user.UserProfile;
-import io.spine.examples.chatspn.user.command.RegisterUser;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.testing.core.given.GivenUserId;
-import io.spine.testing.server.blackbox.ContextAwareTest;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.account.User;
+import io.spine.examples.chatspn.account.command.RegisterUser;
+import io.spine.examples.chatspn.account.event.UserRegistered;
+import io.spine.server.aggregate.Aggregate;
+import io.spine.server.aggregate.Apply;
+import io.spine.server.command.Assign;
 
-import static io.spine.testing.TestValues.randomString;
+/**
+ * A registered user of ChatSPN.
+ */
+public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
 
-@DisplayName("`UserProfileProjection` should")
-class UserProfileProjectionTest extends ContextAwareTest {
-
-    @Override
-    protected BoundedContextBuilder contextBuilder() {
-        return ChatsContext.newBuilder();
+    /**
+     * Handles the command to register a user.
+     */
+    @Assign
+    UserRegistered handle(RegisterUser c) {
+        return UserRegistered
+                .newBuilder()
+                .setUser(c.getUser())
+                .setName(c.getName())
+                .vBuild();
     }
 
-    @Test
-    @DisplayName("display `UserProfile`, as soon as `User` registered")
-    void reactOnRegistration() {
-        RegisterUser command = RegisterUser
-                .newBuilder()
-                .setUser(GivenUserId.generated())
-                .setName(randomString())
-                .vBuild();
-        context().receivesCommand(command);
-
-        UserProfile expected = UserProfile
-                .newBuilder()
-                .setId(command.getUser())
-                .setName(command.getName())
-                .vBuild();
-
-        context().assertState(command.getUser(), expected);
+    @Apply
+    private void event(UserRegistered e) {
+        builder().setId(e.getUser())
+                 .setName(e.getName());
     }
 }

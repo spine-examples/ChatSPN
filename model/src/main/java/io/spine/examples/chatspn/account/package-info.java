@@ -25,11 +25,12 @@
  */
 
 /**
- * Provides ChatSPN User commands and common command interfaces.
+ * This package describes the API and data types to work with user accounts
+ * and related processes.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
-package io.spine.examples.chatspn.user.command;
+package io.spine.examples.chatspn.account;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 

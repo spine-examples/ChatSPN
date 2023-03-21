@@ -23,29 +23,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+syntax = "proto3";
 
-package io.spine.examples.chatspn.server.user;
+package spine_examples.chatspn.account;
 
-import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
-import io.spine.core.UserId;
-import io.spine.examples.chatspn.user.UserProfile;
-import io.spine.examples.chatspn.user.event.UserRegistered;
-import io.spine.server.projection.ProjectionRepository;
-import io.spine.server.route.EventRouting;
+import "spine/options.proto";
 
-import static io.spine.server.route.EventRoute.withId;
+option (type_url_prefix) = "type.chatspn.spine.io";
+option java_package = "io.spine.examples.chatspn.account.command";
+option java_outer_classname = "ReservedEmailCommandsProto";
+option java_multiple_files = true;
 
-/**
- * The repository for managing {@link UserProfileProjection} instances.
- *
- * <p>Routes the users {@link UserRegistered} event to an appropriate {@link UserProfileProjection}.
- */
-public final class UserProfileRepository extends ProjectionRepository<UserId, UserProfileProjection, UserProfile> {
+import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
 
-    @OverridingMethodsMustInvokeSuper
-    @Override
-    protected void setupEventRouting(EventRouting<UserId> routing) {
-        super.setupEventRouting(routing);
-        routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()));
-    }
+// Tells to reserve email address.
+message ReserveEmail {
+
+    // The email address to reserve.
+    spine.net.EmailAddress email = 1;
+
+    // The ID of the user who tells to reserve the email address.
+    spine.core.UserId user = 2 [(required) = true];
 }

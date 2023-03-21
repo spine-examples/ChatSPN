@@ -24,12 +24,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.user;
+package io.spine.examples.chatspn.server.account;
 
+import io.spine.examples.chatspn.account.User;
+import io.spine.examples.chatspn.account.command.RegisterUser;
+import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.examples.chatspn.server.ChatsContext;
-import io.spine.examples.chatspn.user.User;
-import io.spine.examples.chatspn.user.command.RegisterUser;
-import io.spine.examples.chatspn.user.event.UserRegistered;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
