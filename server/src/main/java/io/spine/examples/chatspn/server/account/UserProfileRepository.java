@@ -24,13 +24,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.examples.chatspn.server.account;
+
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.account.UserProfile;
+import io.spine.examples.chatspn.account.event.UserRegistered;
+import io.spine.server.projection.ProjectionRepository;
+import io.spine.server.route.EventRouting;
+
+import static io.spine.server.route.EventRoute.withId;
+
 /**
- * Provides server-side classes for working with reserved email.
+ * The repository for managing {@link UserProfileProjection} instances.
+ *
+ * <p>Routes the users {@link UserRegistered} event to an appropriate {@link UserProfileProjection}.
  */
-@CheckReturnValue
-@ParametersAreNonnullByDefault
-package io.spine.examples.chatspn.server.account.reservedemail;
+public final class UserProfileRepository extends ProjectionRepository<UserId, UserProfileProjection, UserProfile> {
 
-import com.google.errorprone.annotations.CheckReturnValue;
-
-import javax.annotation.ParametersAreNonnullByDefault;
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    protected void setupEventRouting(EventRouting<UserId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()));
+    }
+}

@@ -26,9 +26,9 @@
 
 package io.spine.examples.chatspn.server;
 
-import io.spine.examples.chatspn.server.account.reservedemail.ReservedEmailAggregate;
-import io.spine.examples.chatspn.server.account.user.UserAggregate;
-import io.spine.examples.chatspn.server.account.user.UserProfileRepository;
+import io.spine.examples.chatspn.server.account.ReservedEmailAggregate;
+import io.spine.examples.chatspn.server.account.UserAggregate;
+import io.spine.examples.chatspn.server.account.UserProfileRepository;
 import io.spine.examples.chatspn.server.chat.ChatAggregate;
 import io.spine.examples.chatspn.server.chat.ChatMembersRepository;
 import io.spine.examples.chatspn.server.message.MessageAggregate;

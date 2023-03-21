@@ -25,11 +25,11 @@
  */
 
 /**
- * Provides server-side classes for working with User.
+ * Provides server-side classes for working with user accounts and associated processes.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
-package io.spine.examples.chatspn.server.account.user;
+package io.spine.examples.chatspn.server.account;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 

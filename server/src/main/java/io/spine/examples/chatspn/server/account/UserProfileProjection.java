@@ -24,28 +24,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.account.user;
+package io.spine.examples.chatspn.server.account;
 
-import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.core.Subscribe;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.account.UserProfile;
 import io.spine.examples.chatspn.account.event.UserRegistered;
-import io.spine.server.projection.ProjectionRepository;
-import io.spine.server.route.EventRouting;
-
-import static io.spine.server.route.EventRoute.withId;
+import io.spine.server.projection.Projection;
 
 /**
- * The repository for managing {@link UserProfileProjection} instances.
- *
- * <p>Routes the users {@link UserRegistered} event to an appropriate {@link UserProfileProjection}.
+ * Manages instances of {@code UserProfile} projections.
  */
-public final class UserProfileRepository extends ProjectionRepository<UserId, UserProfileProjection, UserProfile> {
+public final class UserProfileProjection extends Projection<UserId, UserProfile, UserProfile.Builder> {
 
-    @OverridingMethodsMustInvokeSuper
-    @Override
-    protected void setupEventRouting(EventRouting<UserId> routing) {
-        super.setupEventRouting(routing);
-        routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()));
+    @Subscribe
+    void on(UserRegistered e) {
+        builder().setId(e.getUser())
+                 .setName(e.getName());
     }
 }

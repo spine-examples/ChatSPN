@@ -24,36 +24,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.account.user;
+package io.spine.examples.chatspn.server.account;
 
-import io.spine.core.UserId;
-import io.spine.examples.chatspn.account.User;
-import io.spine.examples.chatspn.account.command.RegisterUser;
-import io.spine.examples.chatspn.account.event.UserRegistered;
+import io.spine.examples.chatspn.account.ReservedEmail;
+import io.spine.examples.chatspn.account.command.ReserveEmail;
+import io.spine.examples.chatspn.account.event.EmailReserved;
+import io.spine.examples.chatspn.account.rejection.EmailAlreadyReserved;
+import io.spine.net.EmailAddress;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 
 /**
- * A registered user of ChatSPN.
+ * Reserved email in the ChatSPN.
  */
-public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
+public final class ReservedEmailAggregate
+        extends Aggregate<EmailAddress, ReservedEmail, ReservedEmail.Builder> {
 
     /**
-     * Handles the command to register a user.
+     * Handles the command to reserve an email.
+     *
+     * @throws EmailAlreadyReserved
+     *         if email address has already been reserved by another user
      */
     @Assign
-    UserRegistered handle(RegisterUser c) {
-        return UserRegistered
+    EmailReserved handle(ReserveEmail c) throws EmailAlreadyReserved {
+        if (state().hasUser()) {
+            throw EmailAlreadyReserved
+                    .newBuilder()
+                    .setEmail(c.getEmail())
+                    .setUser(c.getUser())
+                    .build();
+        }
+        return EmailReserved
                 .newBuilder()
+                .setEmail(c.getEmail())
                 .setUser(c.getUser())
-                .setName(c.getName())
                 .vBuild();
     }
 
     @Apply
-    private void event(UserRegistered e) {
-        builder().setId(e.getUser())
-                 .setName(e.getName());
+    private void event(EmailReserved e) {
+        builder().setEmail(e.getEmail())
+                 .setUser(e.getUser());
     }
 }

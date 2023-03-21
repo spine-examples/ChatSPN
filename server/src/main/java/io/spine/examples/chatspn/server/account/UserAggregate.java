@@ -24,21 +24,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.account.user;
+package io.spine.examples.chatspn.server.account;
 
-import io.spine.core.Subscribe;
 import io.spine.core.UserId;
-import io.spine.examples.chatspn.account.UserProfile;
+import io.spine.examples.chatspn.account.User;
+import io.spine.examples.chatspn.account.command.RegisterUser;
 import io.spine.examples.chatspn.account.event.UserRegistered;
-import io.spine.server.projection.Projection;
+import io.spine.server.aggregate.Aggregate;
+import io.spine.server.aggregate.Apply;
+import io.spine.server.command.Assign;
 
 /**
- * Manages instances of {@code UserProfile} projections.
+ * A registered user of ChatSPN.
  */
-public final class UserProfileProjection extends Projection<UserId, UserProfile, UserProfile.Builder> {
+public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
 
-    @Subscribe
-    void on(UserRegistered e) {
+    /**
+     * Handles the command to register a user.
+     */
+    @Assign
+    UserRegistered handle(RegisterUser c) {
+        return UserRegistered
+                .newBuilder()
+                .setUser(c.getUser())
+                .setName(c.getName())
+                .vBuild();
+    }
+
+    @Apply
+    private void event(UserRegistered e) {
         builder().setId(e.getUser())
                  .setName(e.getName());
     }
