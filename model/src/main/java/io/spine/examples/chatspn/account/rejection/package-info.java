@@ -23,25 +23,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.user;
+/**
+ * Provides data types that describe rejections with user accounts and associated processes.
+ */
+@CheckReturnValue
+@ParametersAreNonnullByDefault
+package io.spine.examples.chatspn.account.rejection;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.CheckReturnValue;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.user.event";
-option java_outer_classname = "EventsProto";
-option java_multiple_files = true;
-
-import "spine/core/user_id.proto";
-
-// A new user has been registered.
-message UserRegistered {
-
-    // The ID of the registered user.
-    spine.core.UserId user = 1;
-
-    // A name of the registered user.
-    string name = 2 [(required) = true];
-}
+import javax.annotation.ParametersAreNonnullByDefault;

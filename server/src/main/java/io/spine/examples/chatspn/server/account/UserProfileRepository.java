@@ -23,25 +23,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.user;
+package io.spine.examples.chatspn.server.account;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.account.UserProfile;
+import io.spine.examples.chatspn.account.event.UserRegistered;
+import io.spine.server.projection.ProjectionRepository;
+import io.spine.server.route.EventRouting;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.user.command";
-option java_outer_classname = "CommandsProto";
-option java_multiple_files = true;
+import static io.spine.server.route.EventRoute.withId;
 
-import "spine/core/user_id.proto";
+/**
+ * The repository for managing {@link UserProfileProjection} instances.
+ *
+ * <p>Routes the users {@link UserRegistered} event to an appropriate {@link UserProfileProjection}.
+ */
+public final class UserProfileRepository extends ProjectionRepository<UserId, UserProfileProjection, UserProfile> {
 
-// Tells to register a new user.
-message RegisterUser {
-
-    // The ID of the user to register.
-    spine.core.UserId user = 1;
-
-    // A name of the user to register.
-    string name = 2 [(required) = true];
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    protected void setupEventRouting(EventRouting<UserId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()));
+    }
 }
