@@ -25,7 +25,7 @@
  */
 
 /**
- * Provides data types that describe events with user accounts and associated processes.
+ * Describes the event data types associated with user accounts and related processes.
  */
 @CheckReturnValue
 @ParametersAreNonnullByDefault
