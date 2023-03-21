@@ -25,7 +25,7 @@
  */
 
 /**
- * Configures test-running and code-coverage tasks in a project.
+ * Configures test-running and code coverage tasks in a project.
  *
  * Explicitly instructs to discover and execute JUnit tests.
  */
