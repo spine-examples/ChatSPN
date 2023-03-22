@@ -38,8 +38,8 @@ import "spine/core/user_id.proto";
 
 // The process of creating an account for user in the ChatSPN.
 message AccountCreation {
-  option (entity) = { kind: PROCESS_MANAGER };
+    option (entity) = { kind: PROCESS_MANAGER };
 
-  // The ID of the user for whom the account is created.
-  spine.core.UserId id = 1;
+    // The ID of the user for whom the account is created.
+    spine.core.UserId id = 1;
 }

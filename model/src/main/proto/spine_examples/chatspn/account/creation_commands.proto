@@ -40,12 +40,12 @@ import "spine/net/email_address.proto";
 // Tells to create an account for a user.
 message CreateAccount {
 
-  // The ID of the user to create an account for.
-  spine.core.UserId user = 1;
+    // The ID of the user to create an account for.
+    spine.core.UserId user = 1;
 
-  // A name of the user to create an account for.
-  string name = 2 [(required) = true];
+    // A name of the user to create an account for.
+    string name = 2 [(required) = true];
 
-  // An email of the user to create an account for.
-  spine.net.EmailAddress email = 3 [(required) = true];
+    // An email of the user to create an account for.
+    spine.net.EmailAddress email = 3 [(required) = true];
 }

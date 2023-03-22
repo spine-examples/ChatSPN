@@ -40,25 +40,25 @@ import "spine/net/email_address.proto";
 // An account has been created.
 message AccountCreated {
 
-  // The ID of the user who created an account.
-  spine.core.UserId user = 1;
+    // The ID of the user who created an account.
+    spine.core.UserId user = 1;
 
-  // A name of the user who created an account.
-  string name = 2 [(required) = true];
+    // A name of the user who created an account.
+    string name = 2 [(required) = true];
 
-  // An email of the user who created an account.
-  spine.net.EmailAddress email = 3 [(required) = true];
+    // An email of the user who created an account.
+    spine.net.EmailAddress email = 3 [(required) = true];
 }
 
 // An account has not been created.
 message AccountNotCreated {
 
-  // The ID of the user who could not create an account.
-  spine.core.UserId user = 1;
+    // The ID of the user who could not create an account.
+    spine.core.UserId user = 1;
 
-  // Name of the user who could not create an account.
-  string name = 2 [(required) = true];
+    // Name of the user who could not create an account.
+    string name = 2 [(required) = true];
 
-  // Email of the user who could not create an account.
-  spine.net.EmailAddress email = 3 [(required) = true];
+    // Email of the user who could not create an account.
+    spine.net.EmailAddress email = 3 [(required) = true];
 }
