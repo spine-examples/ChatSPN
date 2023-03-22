@@ -53,7 +53,7 @@ class AccountCreationTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `AccountCreated` event if process finished successfully")
+    @DisplayName("emit `AccountCreated` event if the process is finished successfully and archives itself")
     void createdEvent() {
         User user = createRandomAccount(context());
         AccountCreated expectedEvent = AccountCreated
@@ -70,6 +70,9 @@ class AccountCreationTest extends ContextAwareTest {
                  .withType(AccountCreated.class)
                  .message(0)
                  .isEqualTo(expectedEvent);
+        context().assertEntity(user.getId(), AccountCreationProcess.class)
+                 .archivedFlag()
+                 .isTrue();
     }
 
     @Test
@@ -87,7 +90,7 @@ class AccountCreationTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `AccountNotCreated` event if an email has been already reserved")
+    @DisplayName("emit `AccountNotCreated` event if an email has been already reserved and archives itself")
     void notCreatedEvent() {
         ReserveEmail reserveEmail = ReserveEmail
                 .newBuilder()
@@ -117,6 +120,9 @@ class AccountCreationTest extends ContextAwareTest {
                  .withType(AccountNotCreated.class)
                  .message(0)
                  .isEqualTo(expectedEvent);
+        context().assertEntity(createAccount.getUser(), AccountCreationProcess.class)
+                 .archivedFlag()
+                 .isTrue();
     }
 
     @Test
