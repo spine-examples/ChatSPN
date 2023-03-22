@@ -35,6 +35,7 @@ option java_outer_classname = "AccountCreationProto";
 option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
 
 // The process of creating an account for user in the ChatSPN.
 message AccountCreation {
@@ -42,4 +43,10 @@ message AccountCreation {
 
     // The ID of the user for whom the account is created.
     spine.core.UserId id = 1;
+
+    // The name of the user for whom the account is created.
+    string name = 2;
+
+    // The email address of the user for whom the account is created.
+    spine.net.EmailAddress email = 3;
 }
