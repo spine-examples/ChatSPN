@@ -35,6 +35,7 @@ import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static io.spine.examples.chatspn.server.given.GivenEmailAddress.randomEmailAddress;
 import static io.spine.testing.TestValues.randomString;
 
 @DisplayName("`UserProfileProjection` should")
@@ -52,6 +53,7 @@ class UserProfileProjectionTest extends ContextAwareTest {
                 .newBuilder()
                 .setUser(GivenUserId.generated())
                 .setName(randomString())
+                .setEmail(randomEmailAddress())
                 .vBuild();
         context().receivesCommand(command);
 
@@ -59,6 +61,7 @@ class UserProfileProjectionTest extends ContextAwareTest {
                 .newBuilder()
                 .setId(command.getUser())
                 .setName(command.getName())
+                .setEmail(command.getEmail())
                 .vBuild();
 
         context().assertState(command.getUser(), expected);

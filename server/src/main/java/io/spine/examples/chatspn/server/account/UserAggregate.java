@@ -48,12 +48,14 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
                 .newBuilder()
                 .setUser(c.getUser())
                 .setName(c.getName())
+                .setEmail(c.getEmail())
                 .vBuild();
     }
 
     @Apply
     private void event(UserRegistered e) {
         builder().setId(e.getUser())
-                 .setName(e.getName());
+                 .setName(e.getName())
+                 .setEmail(e.getEmail());
     }
 }
