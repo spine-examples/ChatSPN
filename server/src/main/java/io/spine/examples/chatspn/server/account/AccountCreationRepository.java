@@ -26,15 +26,15 @@
 
 package io.spine.examples.chatspn.server.account;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.account.AccountCreation;
 import io.spine.examples.chatspn.account.event.EmailReserved;
+import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.examples.chatspn.account.rejection.ReservedEmailRejections.EmailAlreadyReserved;
 import io.spine.server.procman.ProcessManagerRepository;
 import io.spine.server.route.EventRouting;
-
-import static io.spine.server.route.EventRoute.withId;
 
 /**
  * The repository for managing {@link AccountCreationProcess} instances.
@@ -46,7 +46,20 @@ public final class AccountCreationRepository
     @Override
     protected void setupEventRouting(EventRouting<UserId> routing) {
         super.setupEventRouting(routing);
-        routing.route(EmailReserved.class, (event, context) -> withId(event.getUser()))
-               .route(EmailAlreadyReserved.class, (event, context) -> withId(event.getUser()));
+        routing.route(EmailReserved.class, (event, context) -> toProcessIfExist(event.getUser()))
+               .route(EmailAlreadyReserved.class,
+                      (event, context) -> toProcessIfExist(event.getUser()))
+               .route(UserRegistered.class, (event, context) -> toProcessIfExist(event.getUser()));
+    }
+
+    /**
+     * Returns process ID only if this process was instantiated before. 
+     */
+    private ImmutableSet<UserId> toProcessIfExist(UserId userId) {
+        if (!findOrCreate(userId).state()
+                                 .hasId()) {
+            return ImmutableSet.of();
+        }
+        return ImmutableSet.of(userId);
     }
 }
