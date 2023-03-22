@@ -35,6 +35,7 @@ option java_outer_classname = "UserEventsProto";
 option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
 
 // A new user has been registered.
 message UserRegistered {
@@ -44,4 +45,7 @@ message UserRegistered {
 
     // A name of the registered user.
     string name = 2 [(required) = true];
+
+    // An email of the registered user.
+    spine.net.EmailAddress email = 3 [(required) = true];
 }
