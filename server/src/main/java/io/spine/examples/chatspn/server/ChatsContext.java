@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server;
 
-import io.spine.examples.chatspn.server.account.AccountCreationProcess;
 import io.spine.examples.chatspn.server.account.AccountCreationRepository;
 import io.spine.examples.chatspn.server.account.ReservedEmailAggregate;
 import io.spine.examples.chatspn.server.account.UserAggregate;

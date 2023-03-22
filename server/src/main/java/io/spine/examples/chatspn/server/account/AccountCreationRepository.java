@@ -53,7 +53,7 @@ public final class AccountCreationRepository
     }
 
     /**
-     * Returns process ID only if this process was instantiated before. 
+     * Returns process ID only if this process was instantiated before.
      */
     private ImmutableSet<UserId> toProcessIfExist(UserId userId) {
         if (!findOrCreate(userId).state()
