@@ -105,7 +105,6 @@ class AccountCreationTest extends ContextAwareTest {
                 .setName(randomString())
                 .vBuild();
         context().receivesCommand(createAccount);
-
         AccountNotCreated expectedEvent = AccountNotCreated
                 .newBuilder()
                 .setUser(createAccount.getUser())
