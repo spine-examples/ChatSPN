@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server.account;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.AccountCreationId;
 import io.spine.examples.chatspn.account.AccountCreation;
@@ -49,9 +48,9 @@ public final class AccountCreationRepository
     protected void setupEventRouting(EventRouting<AccountCreationId> routing) {
         super.setupEventRouting(routing);
         routing.route(EmailReserved.class,
-                      (event, context) ->  withId(event.getAccountCreationProcess()))
+                      (event, context) -> withId(event.getAccountCreationProcess()))
                .route(EmailAlreadyReserved.class,
-                      (event, context) ->  withId(event.getAccountCreationProcess()))
+                      (event, context) -> withId(event.getAccountCreationProcess()))
                .route(UserRegistered.class,
                       (event, context) -> withId(event.getAccountCreationProcess()));
     }
