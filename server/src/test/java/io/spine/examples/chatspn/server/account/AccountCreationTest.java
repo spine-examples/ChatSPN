@@ -55,7 +55,7 @@ class AccountCreationTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `AccountCreated` event if the process is finished successfully and archive itself")
+    @DisplayName("emit the `AccountCreated` event if the process is finished successfully and archive itself")
     void createdEvent() {
         CreateAccount command = sendRandomCreateAccountCommand(context());
         AccountCreated expectedEvent = AccountCreated
@@ -93,7 +93,7 @@ class AccountCreationTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("lead `ReservedEmailAggregate` to emit `EmailReserved` event")
+    @DisplayName("lead `ReservedEmailAggregate` to emit an `EmailReserved` event")
     void emailReservedEvent() {
         CreateAccount command = sendRandomCreateAccountCommand(context());
         EmailReserved expectedEvent = EmailReserved
@@ -113,7 +113,7 @@ class AccountCreationTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("lead `ReservedEmailAggregate` to emit `EmailAlreadyReserved` rejection")
+    @DisplayName("lead `ReservedEmailAggregate` to emit an `EmailAlreadyReserved` rejection")
     void emailAlreadyReservedRejection() {
         CreateAccount command = sendRandomCreateAccountCommand(context());
         CreateAccount createAccount = CreateAccount
@@ -141,7 +141,7 @@ class AccountCreationTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `AccountNotCreated` event if an email has been already reserved and archive itself")
+    @DisplayName("emit the `AccountNotCreated` event if an email has been already reserved and archive itself")
     void notCreatedEvent() {
         CreateAccount command = sendRandomCreateAccountCommand(context());
         CreateAccount createAccount = CreateAccount
@@ -188,7 +188,7 @@ class AccountCreationTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("lead `UserAggregate` to emit `UserRegistered` event")
+    @DisplayName("lead `UserAggregate` to emit an `UserRegistered` event")
     void userRegisteredEvent() {
         CreateAccount command = sendRandomCreateAccountCommand(context());
         UserRegistered expectedEvent = UserRegistered
