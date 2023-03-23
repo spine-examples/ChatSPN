@@ -31,7 +31,6 @@ import io.spine.examples.chatspn.account.ReservedEmail;
 import io.spine.examples.chatspn.account.User;
 import io.spine.examples.chatspn.account.UserProfile;
 import io.spine.examples.chatspn.account.command.CreateAccount;
-import io.spine.examples.chatspn.account.command.ReserveEmail;
 import io.spine.examples.chatspn.account.event.AccountCreated;
 import io.spine.examples.chatspn.account.event.AccountNotCreated;
 import io.spine.examples.chatspn.server.ChatsContext;
@@ -42,7 +41,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.sendCreateRandomAccountCommand;
-import static io.spine.examples.chatspn.server.given.GivenEmailAddress.randomEmailAddress;
 import static io.spine.testing.TestValues.randomString;
 
 @DisplayName("`AccountCreation` should")
@@ -94,17 +92,12 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("emit `AccountNotCreated` event if an email has been already reserved and archives itself")
     void notCreatedEvent() {
-        ReserveEmail reserveEmail = ReserveEmail
-                .newBuilder()
-                .setEmail(randomEmailAddress())
-                .setUser(GivenUserId.generated())
-                .vBuild();
-        context().receivesCommand(reserveEmail);
+        CreateAccount command = sendCreateRandomAccountCommand(context());
         CreateAccount createAccount = CreateAccount
                 .newBuilder()
                 .setId(AccountCreationId.generate())
                 .setUser(GivenUserId.generated())
-                .setEmail(reserveEmail.getEmail())
+                .setEmail(command.getEmail())
                 .setName(randomString())
                 .vBuild();
         context().receivesCommand(createAccount);
