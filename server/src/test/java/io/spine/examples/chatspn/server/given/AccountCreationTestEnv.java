@@ -27,7 +27,6 @@
 package io.spine.examples.chatspn.server.given;
 
 import io.spine.examples.chatspn.AccountCreationId;
-import io.spine.examples.chatspn.account.User;
 import io.spine.examples.chatspn.account.command.CreateAccount;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
