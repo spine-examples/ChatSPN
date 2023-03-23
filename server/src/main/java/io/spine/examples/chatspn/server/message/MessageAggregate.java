@@ -28,8 +28,11 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.command.EditMessageContent;
 import io.spine.examples.chatspn.message.command.PostMessage;
+import io.spine.examples.chatspn.message.event.MessageContentEdited;
 import io.spine.examples.chatspn.message.event.MessagePosted;
+import io.spine.examples.chatspn.message.rejection.MessageContentCannotBeEdited;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
@@ -63,5 +66,35 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
                  .setUser(e.getUser())
                  .setContent(e.getContent())
                  .setWhenPosted(e.getWhenPosted());
+    }
+
+    /**
+     * Handles the command to edit a message content.
+     *
+     * @throws MessageContentCannotBeEdited
+     *         if the message not exists or is tried to be edited by non-sender
+     */
+    @Assign
+    MessageContentEdited handle(EditMessageContent c) throws MessageContentCannotBeEdited {
+        if (!state().hasId() || state().getUser() != c.getUser()) {
+            throw MessageContentCannotBeEdited
+                    .newBuilder()
+                    .setId(c.getId())
+                    .setChat(c.getChat())
+                    .setUser(c.getUser())
+                    .build();
+        }
+        return MessageContentEdited
+                .newBuilder()
+                .setId(c.getId())
+                .setChat(c.getChat())
+                .setUser(c.getUser())
+                .setContent(c.getContent())
+                .vBuild();
+    }
+
+    @Apply
+    private void event(MessageContentEdited e) {
+        builder().setContent(e.getContent());
     }
 }
