@@ -60,12 +60,12 @@ message AccountNotCreated {
     // The ID of the failed account creation process.
     AccountCreationId id = 1;
 
-    // The ID of the user who could not create an account.
+    // The ID of the user for whom the account could not be created.
     spine.core.UserId user = 2 [(required) = true];
 
-    // Name of the user who could not create an account.
+    // Name of the user for whom the account could not be created.
     string name = 3 [(required) = true];
 
-    // Email of the user who could not create an account.
+    // Email of the user for whom the account could not be created.
     spine.net.EmailAddress email = 4 [(required) = true];
 }
