@@ -33,6 +33,9 @@ import io.spine.examples.chatspn.account.UserProfile;
 import io.spine.examples.chatspn.account.command.CreateAccount;
 import io.spine.examples.chatspn.account.event.AccountCreated;
 import io.spine.examples.chatspn.account.event.AccountNotCreated;
+import io.spine.examples.chatspn.account.event.EmailReserved;
+import io.spine.examples.chatspn.account.event.UserRegistered;
+import io.spine.examples.chatspn.account.rejection.ReservedEmailRejections.EmailAlreadyReserved;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
@@ -90,6 +93,54 @@ class AccountCreationTest extends ContextAwareTest {
     }
 
     @Test
+    @DisplayName("lead `ReservedEmailAggregate` to emit `EmailReserved` event")
+    void emailReservedEvent() {
+        CreateAccount command = sendRandomCreateAccountCommand(context());
+        EmailReserved expectedEvent = EmailReserved
+                .newBuilder()
+                .setEmail(command.getEmail())
+                .setUser(command.getUser())
+                .setAccountCreationProcess(command.getId())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(EmailReserved.class)
+                 .hasSize(1);
+        context().assertEvents()
+                 .withType(EmailReserved.class)
+                 .message(0)
+                 .isEqualTo(expectedEvent);
+    }
+
+    @Test
+    @DisplayName("lead `ReservedEmailAggregate` to emit `EmailAlreadyReserved` rejection")
+    void emailAlreadyReservedRejection() {
+        CreateAccount command = sendRandomCreateAccountCommand(context());
+        CreateAccount createAccount = CreateAccount
+                .newBuilder()
+                .setId(AccountCreationId.generate())
+                .setUser(GivenUserId.generated())
+                .setEmail(command.getEmail())
+                .setName(randomString())
+                .vBuild();
+        context().receivesCommand(createAccount);
+        EmailAlreadyReserved expectedEvent = EmailAlreadyReserved
+                .newBuilder()
+                .setEmail(createAccount.getEmail())
+                .setUser(createAccount.getUser())
+                .setAccountCreationProcess(createAccount.getId())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(EmailAlreadyReserved.class)
+                 .hasSize(1);
+        context().assertEvents()
+                 .withType(EmailAlreadyReserved.class)
+                 .message(0)
+                 .isEqualTo(expectedEvent);
+    }
+
+    @Test
     @DisplayName("emit `AccountNotCreated` event if an email has been already reserved and archive itself")
     void notCreatedEvent() {
         CreateAccount command = sendRandomCreateAccountCommand(context());
@@ -134,6 +185,27 @@ class AccountCreationTest extends ContextAwareTest {
 
         context().assertState(user.getId(), User.class)
                  .isEqualTo(user);
+    }
+
+    @Test
+    @DisplayName("lead `UserAggregate` to emit `UserRegistered` event")
+    void userRegisteredEvent() {
+        CreateAccount command = sendRandomCreateAccountCommand(context());
+        UserRegistered expectedEvent = UserRegistered
+                .newBuilder()
+                .setUser(command.getUser())
+                .setEmail(command.getEmail())
+                .setName(command.getName())
+                .setAccountCreationProcess(command.getId())
+                .vBuild();
+
+        context().assertEvents()
+                 .withType(UserRegistered.class)
+                 .hasSize(1);
+        context().assertEvents()
+                 .withType(UserRegistered.class)
+                 .message(0)
+                 .isEqualTo(expectedEvent);
     }
 
     @Test
