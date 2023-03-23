@@ -51,8 +51,5 @@ message RegisterUser {
     spine.net.EmailAddress email = 3 [(required) = true];
 
     // The ID of the account creation process that has initiated the user registration.
-    //
-    // Must be empty if user registration started without the account creation process.
-    //
-    AccountCreationId account_creation_process = 4;
+    AccountCreationId account_creation_process = 4 [(required) = true];
 }
