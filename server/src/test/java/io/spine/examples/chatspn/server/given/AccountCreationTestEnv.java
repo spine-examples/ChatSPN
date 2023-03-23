@@ -42,7 +42,7 @@ public final class AccountCreationTestEnv {
     private AccountCreationTestEnv() {
     }
 
-    public static CreateAccount sendCreateRandomAccountCommand(BlackBoxContext context) {
+    public static CreateAccount sendRandomCreateAccountCommand(BlackBoxContext context) {
         CreateAccount command = CreateAccount
                 .newBuilder()
                 .setId(AccountCreationId.generate())

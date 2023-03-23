@@ -40,7 +40,7 @@ import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.sendCreateRandomAccountCommand;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.sendRandomCreateAccountCommand;
 import static io.spine.testing.TestValues.randomString;
 
 @DisplayName("`AccountCreation` should")
@@ -54,7 +54,7 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("emit `AccountCreated` event if the process is finished successfully and archive itself")
     void createdEvent() {
-        CreateAccount command = sendCreateRandomAccountCommand(context());
+        CreateAccount command = sendRandomCreateAccountCommand(context());
         AccountCreated expectedEvent = AccountCreated
                 .newBuilder()
                 .setId(command.getId())
@@ -78,7 +78,7 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("reserve an email")
     void reserveEmail() {
-        CreateAccount command = sendCreateRandomAccountCommand(context());
+        CreateAccount command = sendRandomCreateAccountCommand(context());
         ReservedEmail reservedEmail = ReservedEmail
                 .newBuilder()
                 .setEmail(command.getEmail())
@@ -92,7 +92,7 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("emit `AccountNotCreated` event if an email has been already reserved and archive itself")
     void notCreatedEvent() {
-        CreateAccount command = sendCreateRandomAccountCommand(context());
+        CreateAccount command = sendRandomCreateAccountCommand(context());
         CreateAccount createAccount = CreateAccount
                 .newBuilder()
                 .setId(AccountCreationId.generate())
@@ -124,7 +124,7 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("register a `User` with the expected state")
     void registerUser() {
-        CreateAccount command = sendCreateRandomAccountCommand(context());
+        CreateAccount command = sendRandomCreateAccountCommand(context());
         User user = User
                 .newBuilder()
                 .setId(command.getUser())
@@ -139,7 +139,7 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("display `UserProfile` with the expected state")
     void updateUserProfile() {
-        CreateAccount command = sendCreateRandomAccountCommand(context());
+        CreateAccount command = sendRandomCreateAccountCommand(context());
         UserProfile userProfile = UserProfile
                 .newBuilder()
                 .setId(command.getUser())
