@@ -26,6 +26,7 @@
 
 package io.spine.examples.chatspn.server.account;
 
+import io.spine.examples.chatspn.AccountCreationId;
 import io.spine.examples.chatspn.account.ReservedEmail;
 import io.spine.examples.chatspn.account.User;
 import io.spine.examples.chatspn.account.UserProfile;
@@ -40,7 +41,7 @@ import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.createRandomAccount;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.sendCreateRandomAccountCommand;
 import static io.spine.examples.chatspn.server.given.GivenEmailAddress.randomEmailAddress;
 import static io.spine.testing.TestValues.randomString;
 
@@ -55,12 +56,13 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("emit `AccountCreated` event if the process is finished successfully and archives itself")
     void createdEvent() {
-        User user = createRandomAccount(context());
+        CreateAccount command = sendCreateRandomAccountCommand(context());
         AccountCreated expectedEvent = AccountCreated
                 .newBuilder()
-                .setUser(user.getId())
-                .setEmail(user.getEmail())
-                .setName(user.getName())
+                .setId(command.getId())
+                .setUser(command.getUser())
+                .setEmail(command.getEmail())
+                .setName(command.getName())
                 .vBuild();
 
         context().assertEvents()
@@ -70,7 +72,7 @@ class AccountCreationTest extends ContextAwareTest {
                  .withType(AccountCreated.class)
                  .message(0)
                  .isEqualTo(expectedEvent);
-        context().assertEntity(user.getId(), AccountCreationProcess.class)
+        context().assertEntity(command.getId(), AccountCreationProcess.class)
                  .archivedFlag()
                  .isTrue();
     }
@@ -78,11 +80,11 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("reserve an email")
     void reserveEmail() {
-        User user = createRandomAccount(context());
+        CreateAccount command = sendCreateRandomAccountCommand(context());
         ReservedEmail reservedEmail = ReservedEmail
                 .newBuilder()
-                .setEmail(user.getEmail())
-                .setUser(user.getId())
+                .setEmail(command.getEmail())
+                .setUser(command.getUser())
                 .vBuild();
 
         context().assertState(reservedEmail.getEmail(), ReservedEmail.class)
@@ -100,6 +102,7 @@ class AccountCreationTest extends ContextAwareTest {
         context().receivesCommand(reserveEmail);
         CreateAccount createAccount = CreateAccount
                 .newBuilder()
+                .setId(AccountCreationId.generate())
                 .setUser(GivenUserId.generated())
                 .setEmail(reserveEmail.getEmail())
                 .setName(randomString())
@@ -107,6 +110,7 @@ class AccountCreationTest extends ContextAwareTest {
         context().receivesCommand(createAccount);
         AccountNotCreated expectedEvent = AccountNotCreated
                 .newBuilder()
+                .setId(createAccount.getId())
                 .setUser(createAccount.getUser())
                 .setEmail(createAccount.getEmail())
                 .setName(createAccount.getName())
@@ -119,7 +123,7 @@ class AccountCreationTest extends ContextAwareTest {
                  .withType(AccountNotCreated.class)
                  .message(0)
                  .isEqualTo(expectedEvent);
-        context().assertEntity(createAccount.getUser(), AccountCreationProcess.class)
+        context().assertEntity(createAccount.getId(), AccountCreationProcess.class)
                  .archivedFlag()
                  .isTrue();
     }
@@ -127,7 +131,13 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("register a `User` with the expected state")
     void registerUser() {
-        User user = createRandomAccount(context());
+        CreateAccount command = sendCreateRandomAccountCommand(context());
+        User user = User
+                .newBuilder()
+                .setId(command.getUser())
+                .setName(command.getName())
+                .setEmail(command.getEmail())
+                .vBuild();
 
         context().assertState(user.getId(), User.class)
                  .isEqualTo(user);
@@ -136,12 +146,12 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("display `UserProfile` with the expected state")
     void updateUserProfile() {
-        User user = createRandomAccount(context());
+        CreateAccount command = sendCreateRandomAccountCommand(context());
         UserProfile userProfile = UserProfile
                 .newBuilder()
-                .setId(user.getId())
-                .setEmail(user.getEmail())
-                .setName(user.getName())
+                .setId(command.getUser())
+                .setEmail(command.getEmail())
+                .setName(command.getName())
                 .vBuild();
 
         context().assertState(userProfile.getId(), UserProfile.class)

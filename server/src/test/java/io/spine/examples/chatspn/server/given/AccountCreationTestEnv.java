@@ -26,6 +26,7 @@
 
 package io.spine.examples.chatspn.server.given;
 
+import io.spine.examples.chatspn.AccountCreationId;
 import io.spine.examples.chatspn.account.User;
 import io.spine.examples.chatspn.account.command.CreateAccount;
 import io.spine.testing.core.given.GivenUserId;
@@ -42,20 +43,15 @@ public final class AccountCreationTestEnv {
     private AccountCreationTestEnv() {
     }
 
-    public static User createRandomAccount(BlackBoxContext context) {
-        User user = User
+    public static CreateAccount sendCreateRandomAccountCommand(BlackBoxContext context) {
+        CreateAccount command = CreateAccount
                 .newBuilder()
-                .setId(GivenUserId.generated())
+                .setId(AccountCreationId.generate())
+                .setUser(GivenUserId.generated())
                 .setEmail(randomEmailAddress())
                 .setName(randomString())
                 .vBuild();
-        CreateAccount command = CreateAccount
-                .newBuilder()
-                .setUser(user.getId())
-                .setEmail(user.getEmail())
-                .setName(user.getName())
-                .vBuild();
         context.receivesCommand(command);
-        return user;
+        return command;
     }
 }

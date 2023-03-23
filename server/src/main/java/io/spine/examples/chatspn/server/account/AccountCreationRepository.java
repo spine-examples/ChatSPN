@@ -28,7 +28,7 @@ package io.spine.examples.chatspn.server.account;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
-import io.spine.core.UserId;
+import io.spine.examples.chatspn.AccountCreationId;
 import io.spine.examples.chatspn.account.AccountCreation;
 import io.spine.examples.chatspn.account.event.EmailReserved;
 import io.spine.examples.chatspn.account.event.UserRegistered;
@@ -40,26 +40,28 @@ import io.spine.server.route.EventRouting;
  * The repository for managing {@link AccountCreationProcess} instances.
  */
 public final class AccountCreationRepository
-        extends ProcessManagerRepository<UserId, AccountCreationProcess, AccountCreation> {
+        extends ProcessManagerRepository<AccountCreationId, AccountCreationProcess, AccountCreation> {
 
     @OverridingMethodsMustInvokeSuper
     @Override
-    protected void setupEventRouting(EventRouting<UserId> routing) {
+    protected void setupEventRouting(EventRouting<AccountCreationId> routing) {
         super.setupEventRouting(routing);
-        routing.route(EmailReserved.class, (event, context) -> toProcessIfExist(event.getUser()))
+        routing.route(EmailReserved.class,
+                      (event, context) -> ifProducedByProcess(event.hasAccountCreationProcess(),
+                                                              event.getAccountCreationProcess()))
                .route(EmailAlreadyReserved.class,
-                      (event, context) -> toProcessIfExist(event.getUser()))
-               .route(UserRegistered.class, (event, context) -> toProcessIfExist(event.getUser()));
+                      (event, context) -> ifProducedByProcess(event.hasAccountCreationProcess(),
+                                                              event.getAccountCreationProcess()))
+               .route(UserRegistered.class,
+                      (event, context) -> ifProducedByProcess(event.hasAccountCreationProcess(),
+                                                              event.getAccountCreationProcess()));
     }
 
-    /**
-     * Returns process ID only if this process was instantiated before.
-     */
-    private ImmutableSet<UserId> toProcessIfExist(UserId userId) {
-        if (!findOrCreate(userId).state()
-                                 .hasId()) {
-            return ImmutableSet.of();
+    private static ImmutableSet<AccountCreationId> ifProducedByProcess(boolean isPresent,
+                                                                       AccountCreationId id) {
+        if (isPresent) {
+            return ImmutableSet.of(id);
         }
-        return ImmutableSet.of(userId);
+        return ImmutableSet.of();
     }
 }

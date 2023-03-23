@@ -27,6 +27,7 @@
 package io.spine.examples.chatspn.server.account;
 
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.AccountCreationId;
 import io.spine.examples.chatspn.account.AccountCreation;
 import io.spine.examples.chatspn.account.command.CreateAccount;
 import io.spine.examples.chatspn.account.command.RegisterUser;
@@ -44,7 +45,7 @@ import io.spine.server.procman.ProcessManager;
  * Coordinates the account creation for user in the ChatSPN.
  */
 public final class AccountCreationProcess
-        extends ProcessManager<UserId, AccountCreation, AccountCreation.Builder> {
+        extends ProcessManager<AccountCreationId, AccountCreation, AccountCreation.Builder> {
 
     /**
      * Issues a command to reserve email address.
@@ -56,12 +57,14 @@ public final class AccountCreationProcess
                 .newBuilder()
                 .setEmail(c.getEmail())
                 .setUser(c.getUser())
+                .setAccountCreationProcess(c.getId())
                 .vBuild();
     }
 
     private void initState(CreateAccount c) {
         builder()
-                .setId(c.getUser())
+                .setId(c.getId())
+                .setUser(c.getUser())
                 .setName(c.getName())
                 .setEmail(c.getEmail());
     }
@@ -76,6 +79,7 @@ public final class AccountCreationProcess
                 .setUser(e.getUser())
                 .setName(state().getName())
                 .setEmail(e.getEmail())
+                .setAccountCreationProcess(state().getId())
                 .vBuild();
     }
 
@@ -87,6 +91,7 @@ public final class AccountCreationProcess
         setArchived(true);
         return AccountNotCreated
                 .newBuilder()
+                .setId(state().getId())
                 .setUser(e.getUser())
                 .setName(state().getName())
                 .setEmail(e.getEmail())
@@ -101,6 +106,7 @@ public final class AccountCreationProcess
         setArchived(true);
         return AccountCreated
                 .newBuilder()
+                .setId(state().getId())
                 .setUser(e.getUser())
                 .setName(e.getName())
                 .setEmail(e.getEmail())

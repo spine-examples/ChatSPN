@@ -50,17 +50,32 @@ public final class ReservedEmailAggregate
     @Assign
     EmailReserved handle(ReserveEmail c) throws EmailAlreadyReserved {
         if (state().hasUser()) {
-            throw EmailAlreadyReserved
-                    .newBuilder()
-                    .setEmail(c.getEmail())
-                    .setUser(c.getUser())
-                    .build();
+            throwEmailAlreadyReserved(c);
         }
-        return EmailReserved
+        return buildEmailReserved(c);
+    }
+
+    private static void throwEmailAlreadyReserved(ReserveEmail c)
+            throws EmailAlreadyReserved {
+        EmailAlreadyReserved.Builder builder = EmailAlreadyReserved
                 .newBuilder()
                 .setEmail(c.getEmail())
-                .setUser(c.getUser())
-                .vBuild();
+                .setUser(c.getUser());
+        if (c.hasAccountCreationProcess()) {
+            builder = builder.setAccountCreationProcess(c.getAccountCreationProcess());
+        }
+        throw builder.build();
+    }
+
+    private static EmailReserved buildEmailReserved(ReserveEmail c) {
+        EmailReserved.Builder builder = EmailReserved
+                .newBuilder()
+                .setEmail(c.getEmail())
+                .setUser(c.getUser());
+        if (c.hasAccountCreationProcess()) {
+            builder = builder.setAccountCreationProcess(c.getAccountCreationProcess());
+        }
+        return builder.vBuild();
     }
 
     @Apply
