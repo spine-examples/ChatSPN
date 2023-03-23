@@ -29,8 +29,6 @@ package io.spine.examples.chatspn.server.account;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.account.User;
 import io.spine.examples.chatspn.account.command.RegisterUser;
-import io.spine.examples.chatspn.account.command.ReserveEmail;
-import io.spine.examples.chatspn.account.event.EmailReserved;
 import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
@@ -46,15 +44,13 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
      */
     @Assign
     UserRegistered handle(RegisterUser c) {
-        UserRegistered.Builder builder = UserRegistered
+        return UserRegistered
                 .newBuilder()
                 .setUser(c.getUser())
                 .setName(c.getName())
-                .setEmail(c.getEmail());
-        if (c.hasAccountCreationProcess()) {
-            builder = builder.setAccountCreationProcess(c.getAccountCreationProcess());
-        }
-        return builder.vBuild();
+                .setEmail(c.getEmail())
+                .setAccountCreationProcess(c.getAccountCreationProcess())
+                .vBuild();
     }
 
     @Apply

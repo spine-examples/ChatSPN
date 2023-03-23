@@ -36,6 +36,8 @@ import io.spine.examples.chatspn.account.rejection.ReservedEmailRejections.Email
 import io.spine.server.procman.ProcessManagerRepository;
 import io.spine.server.route.EventRouting;
 
+import static io.spine.server.route.EventRoute.withId;
+
 /**
  * The repository for managing {@link AccountCreationProcess} instances.
  */
@@ -47,21 +49,10 @@ public final class AccountCreationRepository
     protected void setupEventRouting(EventRouting<AccountCreationId> routing) {
         super.setupEventRouting(routing);
         routing.route(EmailReserved.class,
-                      (event, context) -> ifProducedByProcess(event.hasAccountCreationProcess(),
-                                                              event.getAccountCreationProcess()))
+                      (event, context) ->  withId(event.getAccountCreationProcess()))
                .route(EmailAlreadyReserved.class,
-                      (event, context) -> ifProducedByProcess(event.hasAccountCreationProcess(),
-                                                              event.getAccountCreationProcess()))
+                      (event, context) ->  withId(event.getAccountCreationProcess()))
                .route(UserRegistered.class,
-                      (event, context) -> ifProducedByProcess(event.hasAccountCreationProcess(),
-                                                              event.getAccountCreationProcess()));
-    }
-
-    private static ImmutableSet<AccountCreationId> ifProducedByProcess(boolean isPresent,
-                                                                       AccountCreationId id) {
-        if (isPresent) {
-            return ImmutableSet.of(id);
-        }
-        return ImmutableSet.of();
+                      (event, context) -> withId(event.getAccountCreationProcess()));
     }
 }
