@@ -52,3 +52,19 @@ message PostMessage {
     // The message text content.
     string content = 4 [(required) = true];
 }
+
+// Tells to edit a message content.
+message EditMessageContent {
+
+    // The ID of the message to edit its content.
+    MessageId id = 1;
+
+    // The ID of the chat to edit message content in.
+    ChatId chat = 2 [(required) = true];
+
+    // The ID of the user who tells to edit message content.
+    spine.core.UserId user = 3 [(required) = true];
+
+    // The new message text content.
+    string content = 4 [(required) = true];
+}

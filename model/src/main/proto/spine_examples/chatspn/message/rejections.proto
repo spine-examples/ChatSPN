@@ -30,43 +30,22 @@ package spine_examples.chatspn.message;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.message.event";
-option java_outer_classname = "EventsProto";
-option java_multiple_files = true;
+option java_package = "io.spine.examples.chatspn.message.rejection";
+option java_multiple_files = false;
 
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
-import "google/protobuf/timestamp.proto";
 
-// A new message has been posted.
-message MessagePosted {
+// A message content cannot be edited.
+message MessageContentCannotBeEdited {
 
-    // The ID of the posted message.
-    MessageId id = 1;
+    // The ID of the message whose content failed to be edited.
+    MessageId id = 1 [(required) = true];
 
-    // The ID of the chat in which the message was posted.
+    // The ID of the chat in which message content failed to be edited.
     ChatId chat = 2 [(required) = true];
 
-    // The ID of the user who posted the message.
-    spine.core.UserId user = 3 [(required) = true];
-
-    // The posted message text content.
-    string content = 4 [(required) = true];
-
-    // Time when the message was posted.
-    google.protobuf.Timestamp when_posted = 5 [(required) = true];
-}
-
-// The content of the message has been edited.
-message MessageContentEdited {
-
-    // The ID of the message with edited content.
-    MessageId id = 1;
-
-    // ID of the chat in which the message content was edited.
-    ChatId chat = 2 [(required) = true];
-
-    // The ID of the user who edited the message content
+    // The ID of the user who failed to edit message content.
     spine.core.UserId user = 3 [(required) = true];
 
     // The new message text content.
