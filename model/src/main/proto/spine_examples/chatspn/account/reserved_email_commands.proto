@@ -36,6 +36,7 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine/net/email_address.proto";
+import "spine_examples/chatspn/identifiers.proto";
 
 // Tells to reserve email address.
 message ReserveEmail {
@@ -45,4 +46,10 @@ message ReserveEmail {
 
     // The ID of the user who tells to reserve the email address.
     spine.core.UserId user = 2 [(required) = true];
+
+    // The ID of the account creation process that has initiated the email reservation.
+    //
+    // Must be empty if user registration started without the account creation process.
+    //
+    AccountCreationId account_creation_process = 3;
 }

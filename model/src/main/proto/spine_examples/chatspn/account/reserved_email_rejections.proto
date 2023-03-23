@@ -35,6 +35,7 @@ option java_multiple_files = false;
 
 import "spine/core/user_id.proto";
 import "spine/net/email_address.proto";
+import "spine_examples/chatspn/identifiers.proto";
 
 // Email address has been already reserved by another user.
 message EmailAlreadyReserved {
@@ -44,4 +45,10 @@ message EmailAlreadyReserved {
 
     // The ID of the user who initially requested to reserve an email address.
     spine.core.UserId user = 2 [(required) = true];
+
+    // The ID of the account creation process that has initiated the email reservation.
+    //
+    // Must be empty if user registration started without the account creation process.
+    //
+    AccountCreationId account_creation_process = 3;
 }
