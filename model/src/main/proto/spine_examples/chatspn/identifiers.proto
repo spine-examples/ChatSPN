@@ -45,3 +45,9 @@ message MessageId {
 
     string uuid = 1 [(required) = true];
 }
+
+// Identifies an account creation process.
+message AccountCreationId {
+
+    string uuid = 1 [(required) = true];
+}

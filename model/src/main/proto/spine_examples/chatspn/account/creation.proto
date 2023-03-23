@@ -36,17 +36,21 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine/net/email_address.proto";
+import "spine_examples/chatspn/identifiers.proto";
 
 // The process of creating an account for user in the ChatSPN.
 message AccountCreation {
     option (entity) = { kind: PROCESS_MANAGER };
 
+    // The ID of the account creation process.
+    AccountCreationId id = 1;
+
     // The ID of the user for whom the account is created.
-    spine.core.UserId id = 1;
+    spine.core.UserId user = 2 [(required) = true];
 
     // The name of the user for whom the account is created.
-    string name = 2;
+    string name = 3 [(required) = true];
 
     // The email address of the user for whom the account is created.
-    spine.net.EmailAddress email = 3;
+    spine.net.EmailAddress email = 4 [(required) = true];
 }
