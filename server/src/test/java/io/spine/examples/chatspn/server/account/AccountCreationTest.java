@@ -52,7 +52,7 @@ class AccountCreationTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `AccountCreated` event if the process is finished successfully and archives itself")
+    @DisplayName("emit `AccountCreated` event if the process is finished successfully and archive itself")
     void createdEvent() {
         CreateAccount command = sendCreateRandomAccountCommand(context());
         AccountCreated expectedEvent = AccountCreated
@@ -90,7 +90,7 @@ class AccountCreationTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `AccountNotCreated` event if an email has been already reserved and archives itself")
+    @DisplayName("emit `AccountNotCreated` event if an email has been already reserved and archive itself")
     void notCreatedEvent() {
         CreateAccount command = sendCreateRandomAccountCommand(context());
         CreateAccount createAccount = CreateAccount
