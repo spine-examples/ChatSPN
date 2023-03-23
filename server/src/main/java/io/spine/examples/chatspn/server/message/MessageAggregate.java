@@ -82,6 +82,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
                     .setId(c.getId())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
+                    .setContent(c.getContent())
                     .build();
         }
         return MessageContentEdited
