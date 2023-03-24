@@ -53,7 +53,7 @@ import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.user
 import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.userRegisteredFrom;
 
 @DisplayName("`AccountCreation` should")
-class AccountCreationTest extends ContextAwareTest {
+final class AccountCreationTest extends ContextAwareTest {
 
     @Override
     protected BoundedContextBuilder contextBuilder() {
