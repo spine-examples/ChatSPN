@@ -56,7 +56,7 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `MessageEdited` event if the process is finished successfully and archive itself")
+    @DisplayName("emit a `MessageEdited` event if the process is finished successfully and archive itself")
     void messageEditedEvent() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
@@ -98,7 +98,7 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("reject with `MessageCannotBeEdited` if the message editor is not the chat member")
+    @DisplayName("reject with the `MessageCannotBeEdited` if the message editor is not the chat member")
     void messageCannotBeEditedRejection() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
@@ -123,7 +123,7 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `MessageNotEdited` event if message content cannot be edited and archive itself")
+    @DisplayName("emit a `MessageNotEdited` event if message content cannot be edited and archive itself")
     void messageNotEditedEvent() {
         Chat chat = createRandomChat(context());
         Message message = Message
@@ -159,7 +159,7 @@ final class MessageEditingTest extends ContextAwareTest {
     class MessageAggregate {
 
         @Test
-        @DisplayName("emit an `MessageContentEdited` event")
+        @DisplayName("emit a `MessageContentEdited` event")
         void event() {
             Chat chat = createRandomChat(context());
             Message message = sendMessage(chat.getId(),
@@ -216,7 +216,7 @@ final class MessageEditingTest extends ContextAwareTest {
         void rejectBecauseEditorNonOwner() {
             Chat chat = createRandomChat(context());
             Message message = sendMessage(chat.getId(),
-                                          GivenUserId.generated(),
+                                          chat.getMember(0),
                                           context());
             Message wrongUserMessage = message.toBuilder()
                                               .setUser(chat.getMember(1))
