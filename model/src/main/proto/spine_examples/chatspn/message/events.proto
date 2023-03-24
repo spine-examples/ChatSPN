@@ -63,7 +63,7 @@ message MessageContentEdited {
     // The ID of the message whose content has been edited.
     MessageId id = 1;
 
-    // ID of the chat in which the message content was edited.
+    // The ID of the chat in which the message content was edited.
     ChatId chat = 2 [(required) = true];
 
     // The ID of the user who edited the message content.
