@@ -31,7 +31,7 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageEdited;
-import io.spine.examples.chatspn.message.event.MessageNotEdited;
+import io.spine.examples.chatspn.message.event.MessageEditingFailed;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageCannotBeEdited;
 import io.spine.examples.chatspn.message.rejection.Rejections.MessageContentCannotBeUpdated;
 import io.spine.examples.chatspn.server.ChatsContext;
@@ -127,7 +127,7 @@ final class MessageEditingTest extends ContextAwareTest {
                 .setContent(randomString())
                 .buildPartial();
         Message editedMessage = editMessage(message, context());
-        MessageNotEdited expectedEvent = MessageNotEdited
+        MessageEditingFailed expectedEvent = MessageEditingFailed
                 .newBuilder()
                 .setId(editedMessage.getId())
                 .setChat(editedMessage.getChat())
@@ -136,10 +136,10 @@ final class MessageEditingTest extends ContextAwareTest {
                 .vBuild();
 
         context().assertEvents()
-                 .withType(MessageNotEdited.class)
+                 .withType(MessageEditingFailed.class)
                  .hasSize(1);
         context().assertEvents()
-                 .withType(MessageNotEdited.class)
+                 .withType(MessageEditingFailed.class)
                  .message(0)
                  .isEqualTo(expectedEvent);
         context().assertEntity(editedMessage.getId(), MessageEditingProcess.class)

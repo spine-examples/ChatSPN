@@ -36,7 +36,7 @@ import io.spine.examples.chatspn.message.command.EditMessage;
 import io.spine.examples.chatspn.message.command.UpdateMessageContent;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageEdited;
-import io.spine.examples.chatspn.message.event.MessageNotEdited;
+import io.spine.examples.chatspn.message.event.MessageEditingFailed;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeEdited;
 import io.spine.examples.chatspn.message.rejection.Rejections;
 import io.spine.examples.chatspn.server.ProjectionReader;
@@ -107,9 +107,9 @@ public final class MessageEditingProcess
      * Archives the process when the message has not been edited.
      */
     @React
-    MessageNotEdited on(Rejections.MessageContentCannotBeUpdated e) {
+    MessageEditingFailed on(Rejections.MessageContentCannotBeUpdated e) {
         setArchived(true);
-        return MessageNotEdited
+        return MessageEditingFailed
                 .newBuilder()
                 .setId(e.getId())
                 .setChat(e.getChat())

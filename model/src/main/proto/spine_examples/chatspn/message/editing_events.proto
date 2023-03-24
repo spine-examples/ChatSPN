@@ -53,8 +53,8 @@ message MessageEdited {
   string content = 4 [(required) = true];
 }
 
-// A message has not been edited.
-message MessageNotEdited {
+// The message failed to be edited.
+message MessageEditingFailed {
 
   // The ID of the message that failed to be edited.
   MessageId id = 1;
