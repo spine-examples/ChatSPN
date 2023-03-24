@@ -26,6 +26,7 @@
 
 package io.spine.examples.chatspn.server.message;
 
+import com.google.common.base.Objects;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.EditMessageContent;
@@ -76,7 +77,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
      */
     @Assign
     MessageContentEdited handle(EditMessageContent c) throws MessageContentCannotBeEdited {
-        if (!state().hasId() || state().getUser() != c.getUser()) {
+        if (!state().hasId() || !Objects.equal(state().getUser(), c.getUser())) {
             throw MessageContentCannotBeEdited
                     .newBuilder()
                     .setId(c.getId())
