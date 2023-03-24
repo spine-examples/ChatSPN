@@ -48,5 +48,5 @@ message ReserveEmail {
     spine.core.UserId user = 2 [(required) = true];
 
     // The ID of the account creation process that has initiated the email reservation.
-    AccountCreationId account_creation_process = 3 [(required) = true];
+    AccountCreationId process = 3 [(required) = true];
 }

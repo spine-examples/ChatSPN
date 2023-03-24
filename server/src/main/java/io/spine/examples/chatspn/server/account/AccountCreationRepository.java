@@ -48,10 +48,10 @@ public final class AccountCreationRepository
     protected void setupEventRouting(EventRouting<AccountCreationId> routing) {
         super.setupEventRouting(routing);
         routing.route(EmailReserved.class,
-                      (event, context) -> withId(event.getAccountCreationProcess()))
+                      (event, context) -> withId(event.getProcess()))
                .route(EmailAlreadyReserved.class,
-                      (event, context) -> withId(event.getAccountCreationProcess()))
+                      (event, context) -> withId(event.getProcess()))
                .route(UserRegistered.class,
-                      (event, context) -> withId(event.getAccountCreationProcess()));
+                      (event, context) -> withId(event.getProcess()));
     }
 }

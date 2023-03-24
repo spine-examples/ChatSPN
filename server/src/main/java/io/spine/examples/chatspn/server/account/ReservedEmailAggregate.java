@@ -54,14 +54,14 @@ public final class ReservedEmailAggregate
                     .newBuilder()
                     .setEmail(c.getEmail())
                     .setUser(c.getUser())
-                    .setAccountCreationProcess(c.getAccountCreationProcess())
+                    .setProcess(c.getProcess())
                     .build();
         }
         return EmailReserved
                 .newBuilder()
                 .setEmail(c.getEmail())
                 .setUser(c.getUser())
-                .setAccountCreationProcess(c.getAccountCreationProcess())
+                .setProcess(c.getProcess())
                 .vBuild();
     }
 

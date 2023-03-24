@@ -56,7 +56,7 @@ public final class AccountCreationProcess
                 .newBuilder()
                 .setEmail(c.getEmail())
                 .setUser(c.getUser())
-                .setAccountCreationProcess(c.getId())
+                .setProcess(c.getId())
                 .vBuild();
     }
 
@@ -78,7 +78,7 @@ public final class AccountCreationProcess
                 .setUser(e.getUser())
                 .setName(state().getName())
                 .setEmail(e.getEmail())
-                .setAccountCreationProcess(state().getId())
+                .setProcess(state().getId())
                 .vBuild();
     }
 

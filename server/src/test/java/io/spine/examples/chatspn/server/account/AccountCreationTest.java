@@ -100,7 +100,7 @@ class AccountCreationTest extends ContextAwareTest {
                 .newBuilder()
                 .setEmail(command.getEmail())
                 .setUser(command.getUser())
-                .setAccountCreationProcess(command.getId())
+                .setProcess(command.getId())
                 .vBuild();
 
         context().assertEvents()
@@ -128,7 +128,7 @@ class AccountCreationTest extends ContextAwareTest {
                 .newBuilder()
                 .setEmail(createAccount.getEmail())
                 .setUser(createAccount.getUser())
-                .setAccountCreationProcess(createAccount.getId())
+                .setProcess(createAccount.getId())
                 .vBuild();
 
         context().assertEvents()
@@ -196,7 +196,7 @@ class AccountCreationTest extends ContextAwareTest {
                 .setUser(command.getUser())
                 .setEmail(command.getEmail())
                 .setName(command.getName())
-                .setAccountCreationProcess(command.getId())
+                .setProcess(command.getId())
                 .vBuild();
 
         context().assertEvents()

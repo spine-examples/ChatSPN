@@ -49,7 +49,7 @@ public final class UserAggregate extends Aggregate<UserId, User, User.Builder> {
                 .setUser(c.getUser())
                 .setName(c.getName())
                 .setEmail(c.getEmail())
-                .setAccountCreationProcess(c.getAccountCreationProcess())
+                .setProcess(c.getProcess())
                 .vBuild();
     }
 
