@@ -102,7 +102,7 @@ final class MessageEditingTest extends ContextAwareTest {
     void messageCannotBeEditedRejection() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
-                                      GivenUserId.generated(),
+                                      chat.getMember(0),
                                       context());
         Message wrongUserMessage = message.toBuilder()
                                           .setUser(GivenUserId.generated())
