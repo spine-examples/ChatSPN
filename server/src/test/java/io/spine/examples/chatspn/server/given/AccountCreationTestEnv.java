@@ -27,9 +27,17 @@
 package io.spine.examples.chatspn.server.given;
 
 import io.spine.examples.chatspn.AccountCreationId;
+import io.spine.examples.chatspn.account.ReservedEmail;
+import io.spine.examples.chatspn.account.User;
+import io.spine.examples.chatspn.account.UserProfile;
 import io.spine.examples.chatspn.account.command.CreateAccount;
+import io.spine.examples.chatspn.account.event.AccountCreated;
+import io.spine.examples.chatspn.account.event.AccountNotCreated;
+import io.spine.examples.chatspn.account.event.EmailReserved;
+import io.spine.examples.chatspn.account.event.UserRegistered;
+import io.spine.examples.chatspn.account.rejection.ReservedEmailRejections.EmailAlreadyReserved;
+import io.spine.net.EmailAddress;
 import io.spine.testing.core.given.GivenUserId;
-import io.spine.testing.server.blackbox.BlackBoxContext;
 
 import static io.spine.examples.chatspn.server.given.GivenEmailAddress.randomEmailAddress;
 import static io.spine.testing.TestValues.randomString;
@@ -42,7 +50,7 @@ public final class AccountCreationTestEnv {
     private AccountCreationTestEnv() {
     }
 
-    public static CreateAccount sendRandomCreateAccountCommand(BlackBoxContext context) {
+    public static CreateAccount randomCreateAccountCommand() {
         CreateAccount command = CreateAccount
                 .newBuilder()
                 .setId(AccountCreationId.generate())
@@ -50,7 +58,99 @@ public final class AccountCreationTestEnv {
                 .setEmail(randomEmailAddress())
                 .setName(randomString())
                 .vBuild();
-        context.receivesCommand(command);
         return command;
+    }
+
+    public static CreateAccount createAccountCommandWith(EmailAddress email) {
+        CreateAccount command = CreateAccount
+                .newBuilder()
+                .setId(AccountCreationId.generate())
+                .setUser(GivenUserId.generated())
+                .setEmail(email)
+                .setName(randomString())
+                .vBuild();
+        return command;
+    }
+
+    public static AccountCreated accountCreatedFrom(CreateAccount c) {
+        AccountCreated event = AccountCreated
+                .newBuilder()
+                .setId(c.getId())
+                .setUser(c.getUser())
+                .setEmail(c.getEmail())
+                .setName(c.getName())
+                .vBuild();
+        return event;
+    }
+
+    public static AccountNotCreated accountNotCreatedFrom(CreateAccount c) {
+        AccountNotCreated event = AccountNotCreated
+                .newBuilder()
+                .setId(c.getId())
+                .setUser(c.getUser())
+                .setEmail(c.getEmail())
+                .setName(c.getName())
+                .vBuild();
+        return event;
+    }
+
+    public static EmailReserved emailReservedFrom(CreateAccount c) {
+        EmailReserved event = EmailReserved
+                .newBuilder()
+                .setEmail(c.getEmail())
+                .setUser(c.getUser())
+                .setProcess(c.getId())
+                .vBuild();
+        return event;
+    }
+
+    public static EmailAlreadyReserved emailAlreadyReservedFrom(CreateAccount c) {
+        EmailAlreadyReserved event = EmailAlreadyReserved
+                .newBuilder()
+                .setEmail(c.getEmail())
+                .setUser(c.getUser())
+                .setProcess(c.getId())
+                .vBuild();
+        return event;
+    }
+
+    public static ReservedEmail reservedEmailFrom(CreateAccount c) {
+        ReservedEmail state = ReservedEmail
+                .newBuilder()
+                .setEmail(c.getEmail())
+                .setUser(c.getUser())
+                .vBuild();
+        return state;
+    }
+
+    public static UserRegistered userRegisteredFrom(CreateAccount c) {
+        UserRegistered state = UserRegistered
+                .newBuilder()
+                .setUser(c.getUser())
+                .setEmail(c.getEmail())
+                .setName(c.getName())
+                .setProcess(c.getId())
+                .vBuild();
+        return state;
+    }
+
+    public static User userFrom(CreateAccount c) {
+        User state = User
+                .newBuilder()
+                .setId(c.getUser())
+                .setEmail(c.getEmail())
+                .setName(c.getName())
+                .vBuild();
+        return state;
+    }
+
+    public static UserProfile userProfileFrom(CreateAccount c) {
+        UserProfile state = UserProfile
+                .newBuilder()
+                .setId(c.getUser())
+                .setEmail(c.getEmail())
+                .setName(c.getName())
+                .vBuild();
+        return state;
     }
 }

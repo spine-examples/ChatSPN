@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server.account;
 
-import io.spine.examples.chatspn.AccountCreationId;
 import io.spine.examples.chatspn.account.ReservedEmail;
 import io.spine.examples.chatspn.account.User;
 import io.spine.examples.chatspn.account.UserProfile;
@@ -38,13 +37,20 @@ import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.examples.chatspn.account.rejection.ReservedEmailRejections.EmailAlreadyReserved;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.sendRandomCreateAccountCommand;
-import static io.spine.testing.TestValues.randomString;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.accountCreatedFrom;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.accountNotCreatedFrom;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.createAccountCommandWith;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.emailAlreadyReservedFrom;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.emailReservedFrom;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.randomCreateAccountCommand;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.reservedEmailFrom;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.userFrom;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.userProfileFrom;
+import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.userRegisteredFrom;
 
 @DisplayName("`AccountCreation` should")
 class AccountCreationTest extends ContextAwareTest {
@@ -57,22 +63,14 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("emit the `AccountCreated` event if the process is finished successfully and archive itself")
     void createdEvent() {
-        CreateAccount command = sendRandomCreateAccountCommand(context());
-        AccountCreated expectedEvent = AccountCreated
-                .newBuilder()
-                .setId(command.getId())
-                .setUser(command.getUser())
-                .setEmail(command.getEmail())
-                .setName(command.getName())
-                .vBuild();
+        CreateAccount command = randomCreateAccountCommand();
+        context().receivesCommand(command);
+        AccountCreated expected = accountCreatedFrom(command);
 
         context().assertEvents()
                  .withType(AccountCreated.class)
-                 .hasSize(1);
-        context().assertEvents()
-                 .withType(AccountCreated.class)
                  .message(0)
-                 .isEqualTo(expectedEvent);
+                 .isEqualTo(expected);
         context().assertEntity(command.getId(), AccountCreationProcess.class)
                  .archivedFlag()
                  .isTrue();
@@ -81,59 +79,36 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("reserve an email")
     void reserveEmail() {
-        CreateAccount command = sendRandomCreateAccountCommand(context());
-        ReservedEmail reservedEmail = ReservedEmail
-                .newBuilder()
-                .setEmail(command.getEmail())
-                .setUser(command.getUser())
-                .vBuild();
+        CreateAccount command = randomCreateAccountCommand();
+        context().receivesCommand(command);
+        ReservedEmail state = reservedEmailFrom(command);
 
-        context().assertState(reservedEmail.getEmail(), ReservedEmail.class)
-                 .isEqualTo(reservedEmail);
+        context().assertState(state.getEmail(), ReservedEmail.class)
+                 .isEqualTo(state);
     }
 
     @Test
     @DisplayName("lead `ReservedEmailAggregate` to emit an `EmailReserved` event")
     void emailReservedEvent() {
-        CreateAccount command = sendRandomCreateAccountCommand(context());
-        EmailReserved expectedEvent = EmailReserved
-                .newBuilder()
-                .setEmail(command.getEmail())
-                .setUser(command.getUser())
-                .setProcess(command.getId())
-                .vBuild();
+        CreateAccount command = randomCreateAccountCommand();
+        context().receivesCommand(command);
+        EmailReserved expected = emailReservedFrom(command);
 
         context().assertEvents()
                  .withType(EmailReserved.class)
-                 .hasSize(1);
-        context().assertEvents()
-                 .withType(EmailReserved.class)
                  .message(0)
-                 .isEqualTo(expectedEvent);
+                 .isEqualTo(expected);
     }
 
     @Test
     @DisplayName("lead `ReservedEmailAggregate` to emit an `EmailAlreadyReserved` rejection")
     void emailAlreadyReservedRejection() {
-        CreateAccount command = sendRandomCreateAccountCommand(context());
-        CreateAccount createAccount = CreateAccount
-                .newBuilder()
-                .setId(AccountCreationId.generate())
-                .setUser(GivenUserId.generated())
-                .setEmail(command.getEmail())
-                .setName(randomString())
-                .vBuild();
-        context().receivesCommand(createAccount);
-        EmailAlreadyReserved expectedEvent = EmailAlreadyReserved
-                .newBuilder()
-                .setEmail(createAccount.getEmail())
-                .setUser(createAccount.getUser())
-                .setProcess(createAccount.getId())
-                .vBuild();
+        CreateAccount firstCommand = randomCreateAccountCommand();
+        context().receivesCommand(firstCommand);
+        CreateAccount secondCommand = createAccountCommandWith(firstCommand.getEmail());
+        context().receivesCommand(secondCommand);
+        EmailAlreadyReserved expectedEvent = emailAlreadyReservedFrom(secondCommand);
 
-        context().assertEvents()
-                 .withType(EmailAlreadyReserved.class)
-                 .hasSize(1);
         context().assertEvents()
                  .withType(EmailAlreadyReserved.class)
                  .message(0)
@@ -143,31 +118,17 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("emit the `AccountNotCreated` event if an email has been already reserved and archive itself")
     void notCreatedEvent() {
-        CreateAccount command = sendRandomCreateAccountCommand(context());
-        CreateAccount createAccount = CreateAccount
-                .newBuilder()
-                .setId(AccountCreationId.generate())
-                .setUser(GivenUserId.generated())
-                .setEmail(command.getEmail())
-                .setName(randomString())
-                .vBuild();
-        context().receivesCommand(createAccount);
-        AccountNotCreated expectedEvent = AccountNotCreated
-                .newBuilder()
-                .setId(createAccount.getId())
-                .setUser(createAccount.getUser())
-                .setEmail(createAccount.getEmail())
-                .setName(createAccount.getName())
-                .vBuild();
+        CreateAccount firstCommand = randomCreateAccountCommand();
+        context().receivesCommand(firstCommand);
+        CreateAccount secondCommand = createAccountCommandWith(firstCommand.getEmail());
+        context().receivesCommand(secondCommand);
+        AccountNotCreated expected = accountNotCreatedFrom(secondCommand);
 
         context().assertEvents()
                  .withType(AccountNotCreated.class)
-                 .hasSize(1);
-        context().assertEvents()
-                 .withType(AccountNotCreated.class)
                  .message(0)
-                 .isEqualTo(expectedEvent);
-        context().assertEntity(createAccount.getId(), AccountCreationProcess.class)
+                 .isEqualTo(expected);
+        context().assertEntity(secondCommand.getId(), AccountCreationProcess.class)
                  .archivedFlag()
                  .isTrue();
     }
@@ -175,13 +136,9 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("register a `User` with the expected state")
     void registerUser() {
-        CreateAccount command = sendRandomCreateAccountCommand(context());
-        User user = User
-                .newBuilder()
-                .setId(command.getUser())
-                .setName(command.getName())
-                .setEmail(command.getEmail())
-                .vBuild();
+        CreateAccount command = randomCreateAccountCommand();
+        context().receivesCommand(command);
+        User user = userFrom(command);
 
         context().assertState(user.getId(), User.class)
                  .isEqualTo(user);
@@ -190,34 +147,22 @@ class AccountCreationTest extends ContextAwareTest {
     @Test
     @DisplayName("lead `UserAggregate` to emit an `UserRegistered` event")
     void userRegisteredEvent() {
-        CreateAccount command = sendRandomCreateAccountCommand(context());
-        UserRegistered expectedEvent = UserRegistered
-                .newBuilder()
-                .setUser(command.getUser())
-                .setEmail(command.getEmail())
-                .setName(command.getName())
-                .setProcess(command.getId())
-                .vBuild();
+        CreateAccount command = randomCreateAccountCommand();
+        context().receivesCommand(command);
+        UserRegistered expected = userRegisteredFrom(command);
 
         context().assertEvents()
                  .withType(UserRegistered.class)
-                 .hasSize(1);
-        context().assertEvents()
-                 .withType(UserRegistered.class)
                  .message(0)
-                 .isEqualTo(expectedEvent);
+                 .isEqualTo(expected);
     }
 
     @Test
     @DisplayName("display `UserProfile` with the expected state")
     void updateUserProfile() {
-        CreateAccount command = sendRandomCreateAccountCommand(context());
-        UserProfile userProfile = UserProfile
-                .newBuilder()
-                .setId(command.getUser())
-                .setEmail(command.getEmail())
-                .setName(command.getName())
-                .vBuild();
+        CreateAccount command = randomCreateAccountCommand();
+        context().receivesCommand(command);
+        UserProfile userProfile = userProfileFrom(command);
 
         context().assertState(userProfile.getId(), UserProfile.class)
                  .isEqualTo(userProfile);
