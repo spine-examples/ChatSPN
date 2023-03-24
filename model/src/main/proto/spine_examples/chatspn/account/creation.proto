@@ -38,7 +38,7 @@ import "spine/core/user_id.proto";
 import "spine/net/email_address.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// The process of creating an account for user in the ChatSPN.
+// The process of creating a user account.
 message AccountCreation {
     option (entity) = { kind: PROCESS_MANAGER };
 

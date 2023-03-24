@@ -41,7 +41,7 @@ import io.spine.server.event.React;
 import io.spine.server.procman.ProcessManager;
 
 /**
- * Coordinates the account creation for user in the ChatSPN.
+ * Coordinates the account creation for user.
  */
 public final class AccountCreationProcess
         extends ProcessManager<AccountCreationId, AccountCreation, AccountCreation.Builder> {
