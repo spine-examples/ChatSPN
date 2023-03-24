@@ -26,20 +26,26 @@
 
 package io.spine.examples.chatspn.server.message;
 
+import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.event.MessageContentEdited;
 import io.spine.examples.chatspn.message.event.MessageEdited;
+import io.spine.examples.chatspn.message.event.MessageNotEdited;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageCannotBeEdited;
+import io.spine.examples.chatspn.message.rejection.Rejections.MessageContentCannotBeEdited;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.given.MessageTestEnv.createRandomChat;
 import static io.spine.examples.chatspn.server.given.MessageTestEnv.editMessage;
 import static io.spine.examples.chatspn.server.given.MessageTestEnv.sendMessage;
+import static io.spine.testing.TestValues.randomString;
 
 @DisplayName("`MessageEditing` should")
 final class MessageEditingTest extends ContextAwareTest {
@@ -50,14 +56,13 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `MessageEdited` event")
+    @DisplayName("emit `MessageEdited` event if the process is finished successfully and archive itself")
     void messageEditedEvent() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
                                       chat.getMember(0),
                                       context());
         Message editedMessage = editMessage(message, context());
-
         MessageEdited expectedEvent = MessageEdited
                 .newBuilder()
                 .setId(editedMessage.getId())
@@ -73,6 +78,9 @@ final class MessageEditingTest extends ContextAwareTest {
                  .withType(MessageEdited.class)
                  .message(0)
                  .isEqualTo(expectedEvent);
+        context().assertEntity(editedMessage.getId(), MessageEditingProcess.class)
+                 .archivedFlag()
+                 .isTrue();
     }
 
     @Test
@@ -90,8 +98,8 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("reject with `MessageCannotBeEdited` when the message editor is not the chat member")
-    void rejection() {
+    @DisplayName("reject with `MessageCannotBeEdited` if the message editor is not the chat member")
+    void messageCannotBeEditedRejection() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
                                       GivenUserId.generated(),
@@ -115,16 +123,117 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("archive itself once the message is edited")
-    void archiving() {
+    @DisplayName("emit `MessageNotEdited` event if message content cannot be edited and archive itself")
+    void messageNotEditedEvent() {
         Chat chat = createRandomChat(context());
-        Message message = sendMessage(chat.getId(),
-                                      chat.getMember(0),
-                                      context());
+        Message message = Message
+                .newBuilder()
+                .setId(MessageId.generate())
+                .setUser(chat.getMember(0))
+                .setChat(chat.getId())
+                .setContent(randomString())
+                .buildPartial();
         Message editedMessage = editMessage(message, context());
+        MessageNotEdited expectedEvent = MessageNotEdited
+                .newBuilder()
+                .setId(editedMessage.getId())
+                .setChat(editedMessage.getChat())
+                .setUser(editedMessage.getUser())
+                .setContent(editedMessage.getContent())
+                .vBuild();
 
-        context().assertEntity(editedMessage.getId(), MessageSendingProcess.class)
+        context().assertEvents()
+                 .withType(MessageNotEdited.class)
+                 .hasSize(1);
+        context().assertEvents()
+                 .withType(MessageNotEdited.class)
+                 .message(0)
+                 .isEqualTo(expectedEvent);
+        context().assertEntity(editedMessage.getId(), MessageEditingProcess.class)
                  .archivedFlag()
                  .isTrue();
+    }
+
+    @Nested
+    @DisplayName("lead `MessageAggregate` to")
+    class MessageAggregate {
+
+        @Test
+        @DisplayName("emit an `MessageContentEdited` event")
+        void event() {
+            Chat chat = createRandomChat(context());
+            Message message = sendMessage(chat.getId(),
+                                          chat.getMember(0),
+                                          context());
+            Message editedMessage = editMessage(message, context());
+            MessageContentEdited expectedEvent = MessageContentEdited
+                    .newBuilder()
+                    .setId(editedMessage.getId())
+                    .setChat(editedMessage.getChat())
+                    .setUser(editedMessage.getUser())
+                    .setContent(editedMessage.getContent())
+                    .vBuild();
+
+            context().assertEvents()
+                     .withType(MessageContentEdited.class)
+                     .hasSize(1);
+            context().assertEvents()
+                     .withType(MessageContentEdited.class)
+                     .message(0)
+                     .isEqualTo(expectedEvent);
+        }
+
+        @Test
+        @DisplayName("emit a `MessageContentCannotBeEdited` rejection " +
+                "if message with the given id doesn't exist")
+        void rejectBecauseNotExist() {
+            Chat chat = createRandomChat(context());
+            Message message = Message
+                    .newBuilder()
+                    .setId(MessageId.generate())
+                    .setChat(chat.getId())
+                    .setUser(chat.getMember(0))
+                    .setContent(randomString())
+                    .buildPartial();
+            Message editedMessage = editMessage(message, context());
+            MessageContentCannotBeEdited expectedRejection = MessageContentCannotBeEdited
+                    .newBuilder()
+                    .setId(editedMessage.getId())
+                    .setChat(editedMessage.getChat())
+                    .setUser(editedMessage.getUser())
+                    .setContent(editedMessage.getContent())
+                    .vBuild();
+
+            context().assertEvents()
+                     .withType(MessageContentCannotBeEdited.class)
+                     .message(0)
+                     .isEqualTo(expectedRejection);
+        }
+
+        @Test
+        @DisplayName("emit a `MessageContentCannotBeEdited` rejection " +
+                "if non-owner try to edit message")
+        void rejectBecauseEditorNonOwner() {
+            Chat chat = createRandomChat(context());
+            Message message = sendMessage(chat.getId(),
+                                          GivenUserId.generated(),
+                                          context());
+            Message wrongUserMessage = message.toBuilder()
+                                              .setUser(chat.getMember(1))
+                                              .buildPartial();
+            Message editedMessage = editMessage(wrongUserMessage, context());
+            MessageContentCannotBeEdited expectedRejection = MessageContentCannotBeEdited
+                    .newBuilder()
+                    .setId(editedMessage.getId())
+                    .setChat(editedMessage.getChat())
+                    .setUser(editedMessage.getUser())
+                    .setContent(editedMessage.getContent())
+                    .vBuild();
+
+            context().assertEvents()
+                     .withType(MessageContentCannotBeEdited.class)
+                     .message(0)
+                     .isEqualTo(expectedRejection);
+        }
     }
 }
