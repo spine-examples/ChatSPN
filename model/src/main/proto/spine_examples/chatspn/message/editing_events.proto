@@ -65,6 +65,6 @@ message MessageNotEdited {
   // The ID of the user who failed to edit the message.
   spine.core.UserId user = 3 [(required) = true];
 
-  // The new text content of the message that failed to be edited.
+  // Suggested text content of the message that failed to be edited.
   string content = 4 [(required) = true];
 }

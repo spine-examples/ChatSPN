@@ -48,6 +48,6 @@ message MessageCannotBeEdited {
   // The ID of the user who failed to edit this message.
   spine.core.UserId user = 3 [(required) = true];
 
-  // The new text content of the message that could not be edited.
+  // Suggested content of the message that could not be edited.
   string content = 4 [(required) = true];
 }
