@@ -60,13 +60,13 @@ message MessagePosted {
 // The content of the message has been edited.
 message MessageContentEdited {
 
-    // The ID of the message with edited content.
+    // The ID of the message whose content has been edited.
     MessageId id = 1;
 
     // ID of the chat in which the message content was edited.
     ChatId chat = 2 [(required) = true];
 
-    // The ID of the user who edited the message content
+    // The ID of the user who edited the message content.
     spine.core.UserId user = 3 [(required) = true];
 
     // The new message text content.
