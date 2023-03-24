@@ -32,18 +32,19 @@ import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.CreateChat;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.command.EditMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
 
 import static io.spine.testing.TestValues.randomString;
 
-public class MessageSendingTestEnv {
+public final class MessageTestEnv {
 
     /**
      * Prevents instantiation of this class.
      */
-    private MessageSendingTestEnv() {
+    private MessageTestEnv() {
     }
 
     public static Chat createRandomChat(BlackBoxContext context) {
@@ -82,5 +83,24 @@ public class MessageSendingTestEnv {
                 .vBuild();
         context.receivesCommand(command);
         return message;
+    }
+
+    public static Message editMessage(Message message, BlackBoxContext context) {
+        Message editedMessage = Message
+                .newBuilder()
+                .setId(message.getId())
+                .setChat(message.getChat())
+                .setUser(message.getUser())
+                .setContent(randomString())
+                .buildPartial();
+        EditMessage command = EditMessage
+                .newBuilder()
+                .setId(message.getId())
+                .setChat(message.getChat())
+                .setUser(message.getUser())
+                .setContent(editedMessage.getContent())
+                .vBuild();
+        context.receivesCommand(command);
+        return editedMessage;
     }
 }

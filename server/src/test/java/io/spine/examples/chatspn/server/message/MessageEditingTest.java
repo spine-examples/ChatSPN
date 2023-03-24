@@ -28,8 +28,8 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.message.Message;
-import io.spine.examples.chatspn.message.event.MessageSent;
-import io.spine.examples.chatspn.message.rejection.SendingRejections.MessageCannotBeSent;
+import io.spine.examples.chatspn.message.event.MessageEdited;
+import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageCannotBeEdited;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
@@ -38,10 +38,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.given.MessageTestEnv.createRandomChat;
+import static io.spine.examples.chatspn.server.given.MessageTestEnv.editMessage;
 import static io.spine.examples.chatspn.server.given.MessageTestEnv.sendMessage;
 
-@DisplayName("`MessageSending` should")
-public final class MessageSendingTest extends ContextAwareTest {
+@DisplayName("`MessageEditing` should")
+final class MessageEditingTest extends ContextAwareTest {
 
     @Override
     protected BoundedContextBuilder contextBuilder() {
@@ -49,71 +50,80 @@ public final class MessageSendingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `MessageSent` event")
-    void event() {
+    @DisplayName("emit `MessageEdited` event")
+    void messageEditedEvent() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
                                       chat.getMember(0),
                                       context());
-        MessageSent expectedEvent = MessageSent
+        Message editedMessage = editMessage(message, context());
+
+        MessageEdited expectedEvent = MessageEdited
                 .newBuilder()
-                .setId(message.getId())
-                .setChat(message.getChat())
-                .setUser(message.getUser())
-                .setContent(message.getContent())
+                .setId(editedMessage.getId())
+                .setChat(editedMessage.getChat())
+                .setUser(editedMessage.getUser())
+                .setContent(editedMessage.getContent())
                 .vBuild();
 
         context().assertEvents()
-                 .withType(MessageSent.class)
+                 .withType(MessageEdited.class)
                  .hasSize(1);
         context().assertEvents()
-                 .withType(MessageSent.class)
+                 .withType(MessageEdited.class)
                  .message(0)
                  .isEqualTo(expectedEvent);
     }
 
     @Test
-    @DisplayName("produce a `Message` with the expected state")
+    @DisplayName("update a `Message` to the expected state")
     void state() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
                                       chat.getMember(0),
                                       context());
-        context().assertState(message.getId(), Message.class)
+        Message editedMessage = editMessage(message, context());
+
+        context().assertState(editedMessage.getId(), Message.class)
                  .comparingExpectedFieldsOnly()
-                 .isEqualTo(message);
+                 .isEqualTo(editedMessage);
     }
 
     @Test
-    @DisplayName("reject when the message sender is not the chat member")
+    @DisplayName("reject with `MessageCannotBeEdited` when the message editor is not the chat member")
     void rejection() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
                                       GivenUserId.generated(),
                                       context());
-
-        MessageCannotBeSent expectedRejection = MessageCannotBeSent
+        Message wrongUserMessage = message.toBuilder()
+                                          .setUser(GivenUserId.generated())
+                                          .buildPartial();
+        Message editedMessage = editMessage(wrongUserMessage, context());
+        MessageCannotBeEdited expectedRejection = MessageCannotBeEdited
                 .newBuilder()
-                .setId(message.getId())
-                .setChat(message.getChat())
-                .setUser(message.getUser())
-                .setContent(message.getContent())
+                .setId(editedMessage.getId())
+                .setChat(editedMessage.getChat())
+                .setUser(editedMessage.getUser())
+                .setContent(editedMessage.getContent())
                 .vBuild();
 
         context().assertEvents()
-                 .withType(MessageCannotBeSent.class)
+                 .withType(MessageCannotBeEdited.class)
                  .message(0)
                  .isEqualTo(expectedRejection);
     }
 
     @Test
-    @DisplayName("archive itself once the message is sent")
+    @DisplayName("archive itself once the message is edited")
     void archiving() {
         Chat chat = createRandomChat(context());
         Message message = sendMessage(chat.getId(),
                                       chat.getMember(0),
                                       context());
-        context().assertEntity(message.getId(), MessageSendingProcess.class)
+        Message editedMessage = editMessage(message, context());
+
+        context().assertEntity(editedMessage.getId(), MessageSendingProcess.class)
                  .archivedFlag()
                  .isTrue();
     }
