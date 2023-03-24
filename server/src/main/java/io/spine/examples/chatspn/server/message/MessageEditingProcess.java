@@ -33,12 +33,12 @@ import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageEditing;
 import io.spine.examples.chatspn.message.command.EditMessage;
-import io.spine.examples.chatspn.message.command.EditMessageContent;
-import io.spine.examples.chatspn.message.event.MessageContentEdited;
+import io.spine.examples.chatspn.message.command.UpdateMessageContent;
+import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageEdited;
 import io.spine.examples.chatspn.message.event.MessageNotEdited;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeEdited;
-import io.spine.examples.chatspn.message.rejection.Rejections.MessageContentCannotBeEdited;
+import io.spine.examples.chatspn.message.rejection.Rejections;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
@@ -64,14 +64,14 @@ public final class MessageEditingProcess
      *         if the message editor is not a chat member
      */
     @Command
-    EditMessageContent on(EditMessage c, CommandContext ctx) throws MessageCannotBeEdited {
+    UpdateMessageContent on(EditMessage c, CommandContext ctx) throws MessageCannotBeEdited {
         builder().setId(c.getId());
         ChatMembers chatMembers = projectionReader
                 .read(ImmutableSet.of(c.getChat()), ctx.getActorContext())
                 .get(0);
         if (chatMembers.getMemberList()
                        .contains(c.getUser())) {
-            return EditMessageContent
+            return UpdateMessageContent
                     .newBuilder()
                     .setId(c.getId())
                     .setChat(c.getChat())
@@ -92,7 +92,7 @@ public final class MessageEditingProcess
      * Archives the process when the message was edited.
      */
     @React
-    MessageEdited on(MessageContentEdited e) {
+    MessageEdited on(MessageContentUpdated e) {
         setArchived(true);
         return MessageEdited
                 .newBuilder()
@@ -107,7 +107,7 @@ public final class MessageEditingProcess
      * Archives the process when the message has not been edited.
      */
     @React
-    MessageNotEdited on(MessageContentCannotBeEdited e) {
+    MessageNotEdited on(Rejections.MessageContentCannotBeUpdated e) {
         setArchived(true);
         return MessageNotEdited
                 .newBuilder()

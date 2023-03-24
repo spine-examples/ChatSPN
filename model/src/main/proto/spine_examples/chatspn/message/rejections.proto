@@ -36,16 +36,16 @@ option java_multiple_files = false;
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// A message content cannot be edited.
-message MessageContentCannotBeEdited {
+// A message content cannot be updated.
+message MessageContentCannotBeUpdated {
 
-    // The ID of the message whose content failed to be edited.
+    // The ID of the message whose content failed to be updated.
     MessageId id = 1 [(required) = true];
 
-    // The ID of the chat in which message content failed to be edited.
+    // The ID of the chat in which message content failed to be updated.
     ChatId chat = 2 [(required) = true];
 
-    // The ID of the user who failed to edit message content.
+    // The ID of the user who failed to update message content.
     spine.core.UserId user = 3 [(required) = true];
 
     // The new message text content.

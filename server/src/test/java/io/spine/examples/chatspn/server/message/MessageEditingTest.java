@@ -29,11 +29,11 @@ package io.spine.examples.chatspn.server.message;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.message.Message;
-import io.spine.examples.chatspn.message.event.MessageContentEdited;
+import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageEdited;
 import io.spine.examples.chatspn.message.event.MessageNotEdited;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageCannotBeEdited;
-import io.spine.examples.chatspn.message.rejection.Rejections.MessageContentCannotBeEdited;
+import io.spine.examples.chatspn.message.rejection.Rejections.MessageContentCannotBeUpdated;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
@@ -155,7 +155,7 @@ final class MessageEditingTest extends ContextAwareTest {
         @DisplayName("emit a `MessageContentEdited` event")
         void event() {
             Message editedMessage = setUpChatWithEditedMessage(context());
-            MessageContentEdited expectedEvent = MessageContentEdited
+            MessageContentUpdated expectedEvent = MessageContentUpdated
                     .newBuilder()
                     .setId(editedMessage.getId())
                     .setChat(editedMessage.getChat())
@@ -164,10 +164,10 @@ final class MessageEditingTest extends ContextAwareTest {
                     .vBuild();
 
             context().assertEvents()
-                     .withType(MessageContentEdited.class)
+                     .withType(MessageContentUpdated.class)
                      .hasSize(1);
             context().assertEvents()
-                     .withType(MessageContentEdited.class)
+                     .withType(MessageContentUpdated.class)
                      .message(0)
                      .isEqualTo(expectedEvent);
         }
@@ -185,7 +185,7 @@ final class MessageEditingTest extends ContextAwareTest {
                     .setContent(randomString())
                     .buildPartial();
             Message editedMessage = editMessage(message, context());
-            MessageContentCannotBeEdited expectedRejection = MessageContentCannotBeEdited
+            MessageContentCannotBeUpdated expectedRejection = MessageContentCannotBeUpdated
                     .newBuilder()
                     .setId(editedMessage.getId())
                     .setChat(editedMessage.getChat())
@@ -194,7 +194,7 @@ final class MessageEditingTest extends ContextAwareTest {
                     .vBuild();
 
             context().assertEvents()
-                     .withType(MessageContentCannotBeEdited.class)
+                     .withType(MessageContentCannotBeUpdated.class)
                      .message(0)
                      .isEqualTo(expectedRejection);
         }
@@ -211,7 +211,7 @@ final class MessageEditingTest extends ContextAwareTest {
                                               .setUser(chat.getMember(1))
                                               .buildPartial();
             Message editedMessage = editMessage(wrongUserMessage, context());
-            MessageContentCannotBeEdited expectedRejection = MessageContentCannotBeEdited
+            MessageContentCannotBeUpdated expectedRejection = MessageContentCannotBeUpdated
                     .newBuilder()
                     .setId(editedMessage.getId())
                     .setChat(editedMessage.getChat())
@@ -220,7 +220,7 @@ final class MessageEditingTest extends ContextAwareTest {
                     .vBuild();
 
             context().assertEvents()
-                     .withType(MessageContentCannotBeEdited.class)
+                     .withType(MessageContentCannotBeUpdated.class)
                      .message(0)
                      .isEqualTo(expectedRejection);
         }

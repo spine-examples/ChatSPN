@@ -29,11 +29,11 @@ package io.spine.examples.chatspn.server.message;
 import com.google.common.base.Objects;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
-import io.spine.examples.chatspn.message.command.EditMessageContent;
+import io.spine.examples.chatspn.message.command.UpdateMessageContent;
 import io.spine.examples.chatspn.message.command.PostMessage;
-import io.spine.examples.chatspn.message.event.MessageContentEdited;
+import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessagePosted;
-import io.spine.examples.chatspn.message.rejection.MessageContentCannotBeEdited;
+import io.spine.examples.chatspn.message.rejection.MessageContentCannotBeUpdated;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
@@ -70,15 +70,15 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
     }
 
     /**
-     * Handles the command to edit a message content.
+     * Handles the command to update a message content.
      *
-     * @throws MessageContentCannotBeEdited
+     * @throws MessageContentCannotBeUpdated
      *         if the message not exists or is tried to be edited by non-sender
      */
     @Assign
-    MessageContentEdited handle(EditMessageContent c) throws MessageContentCannotBeEdited {
+    MessageContentUpdated handle(UpdateMessageContent c) throws MessageContentCannotBeUpdated {
         if (!state().hasId() || !Objects.equal(state().getUser(), c.getUser())) {
-            throw MessageContentCannotBeEdited
+            throw MessageContentCannotBeUpdated
                     .newBuilder()
                     .setId(c.getId())
                     .setChat(c.getChat())
@@ -86,7 +86,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
                     .setContent(c.getContent())
                     .build();
         }
-        return MessageContentEdited
+        return MessageContentUpdated
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -96,7 +96,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
     }
 
     @Apply
-    private void event(MessageContentEdited e) {
+    private void event(MessageContentUpdated e) {
         builder().setContent(e.getContent());
     }
 }
