@@ -103,4 +103,13 @@ public final class MessageTestEnv {
         context.receivesCommand(command);
         return editedMessage;
     }
+
+    public static Message setUpChatWithEditedMessage(BlackBoxContext context) {
+        Chat chat = createRandomChat(context);
+        Message message = sendMessage(chat.getId(),
+                                      chat.getMember(0),
+                                      context);
+        Message editedMessage = editMessage(message, context);
+        return editedMessage;
+    }
 }

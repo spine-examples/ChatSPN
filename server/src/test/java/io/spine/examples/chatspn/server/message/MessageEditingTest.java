@@ -45,6 +45,7 @@ import org.junit.jupiter.api.Test;
 import static io.spine.examples.chatspn.server.given.MessageTestEnv.createRandomChat;
 import static io.spine.examples.chatspn.server.given.MessageTestEnv.editMessage;
 import static io.spine.examples.chatspn.server.given.MessageTestEnv.sendMessage;
+import static io.spine.examples.chatspn.server.given.MessageTestEnv.setUpChatWithEditedMessage;
 import static io.spine.testing.TestValues.randomString;
 
 @DisplayName("`MessageEditing` should")
@@ -58,11 +59,7 @@ final class MessageEditingTest extends ContextAwareTest {
     @Test
     @DisplayName("emit a `MessageEdited` event if the process is finished successfully and archive itself")
     void messageEditedEvent() {
-        Chat chat = createRandomChat(context());
-        Message message = sendMessage(chat.getId(),
-                                      chat.getMember(0),
-                                      context());
-        Message editedMessage = editMessage(message, context());
+        Message editedMessage = setUpChatWithEditedMessage(context());
         MessageEdited expectedEvent = MessageEdited
                 .newBuilder()
                 .setId(editedMessage.getId())
@@ -86,11 +83,7 @@ final class MessageEditingTest extends ContextAwareTest {
     @Test
     @DisplayName("update a `Message` to the expected state")
     void state() {
-        Chat chat = createRandomChat(context());
-        Message message = sendMessage(chat.getId(),
-                                      chat.getMember(0),
-                                      context());
-        Message editedMessage = editMessage(message, context());
+        Message editedMessage = setUpChatWithEditedMessage(context());
 
         context().assertState(editedMessage.getId(), Message.class)
                  .comparingExpectedFieldsOnly()
@@ -161,11 +154,7 @@ final class MessageEditingTest extends ContextAwareTest {
         @Test
         @DisplayName("emit a `MessageContentEdited` event")
         void event() {
-            Chat chat = createRandomChat(context());
-            Message message = sendMessage(chat.getId(),
-                                          chat.getMember(0),
-                                          context());
-            Message editedMessage = editMessage(message, context());
+            Message editedMessage = setUpChatWithEditedMessage(context());
             MessageContentEdited expectedEvent = MessageContentEdited
                     .newBuilder()
                     .setId(editedMessage.getId())
