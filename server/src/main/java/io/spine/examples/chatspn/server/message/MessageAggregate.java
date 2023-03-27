@@ -26,11 +26,10 @@
 
 package io.spine.examples.chatspn.server.message;
 
-import com.google.common.base.Objects;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
-import io.spine.examples.chatspn.message.command.UpdateMessageContent;
 import io.spine.examples.chatspn.message.command.PostMessage;
+import io.spine.examples.chatspn.message.command.UpdateMessageContent;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.rejection.MessageContentCannotBeUpdated;
@@ -77,7 +76,8 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
      */
     @Assign
     MessageContentUpdated handle(UpdateMessageContent c) throws MessageContentCannotBeUpdated {
-        if (!state().hasId() || !Objects.equal(state().getUser(), c.getUser())) {
+        if (!state().hasId() || !state().getUser()
+                                       .equals(c.getUser())) {
             throw MessageContentCannotBeUpdated
                     .newBuilder()
                     .setId(c.getId())
