@@ -84,32 +84,4 @@ public final class MessageTestEnv {
         context.receivesCommand(command);
         return message;
     }
-
-    public static Message editMessage(Message message, BlackBoxContext context) {
-        Message editedMessage = Message
-                .newBuilder()
-                .setId(message.getId())
-                .setChat(message.getChat())
-                .setUser(message.getUser())
-                .setContent(randomString())
-                .buildPartial();
-        EditMessage command = EditMessage
-                .newBuilder()
-                .setId(message.getId())
-                .setChat(message.getChat())
-                .setUser(message.getUser())
-                .setSuggestedContent(editedMessage.getContent())
-                .vBuild();
-        context.receivesCommand(command);
-        return editedMessage;
-    }
-
-    public static Message setUpChatWithEditedMessage(BlackBoxContext context) {
-        Chat chat = createRandomChat(context);
-        Message message = sendMessage(chat.getId(),
-                                      chat.getMember(0),
-                                      context);
-        Message editedMessage = editMessage(message, context);
-        return editedMessage;
-    }
 }
