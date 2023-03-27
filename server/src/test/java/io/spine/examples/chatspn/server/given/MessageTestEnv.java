@@ -98,7 +98,7 @@ public final class MessageTestEnv {
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(message.getUser())
-                .setContent(editedMessage.getContent())
+                .setSuggestedContent(editedMessage.getContent())
                 .vBuild();
         context.receivesCommand(command);
         return editedMessage;

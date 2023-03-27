@@ -76,7 +76,7 @@ public final class MessageEditingProcess
                     .setId(c.getId())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
-                    .setContent(c.getContent())
+                    .setSuggestedContent(c.getSuggestedContent())
                     .vBuild();
         }
         throw MessageCannotBeEdited
@@ -84,7 +84,7 @@ public final class MessageEditingProcess
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setContent(c.getContent())
+                .setSuggestedContent(c.getSuggestedContent())
                 .build();
     }
 
@@ -114,7 +114,7 @@ public final class MessageEditingProcess
                 .setId(e.getId())
                 .setChat(e.getChat())
                 .setUser(e.getUser())
-                .setContent(e.getContent())
+                .setSuggestedContent(e.getSuggestedContent())
                 .vBuild();
     }
 

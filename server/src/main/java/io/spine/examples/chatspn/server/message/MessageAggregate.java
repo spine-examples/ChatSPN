@@ -83,7 +83,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
                     .setId(c.getId())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
-                    .setContent(c.getContent())
+                    .setSuggestedContent(c.getSuggestedContent())
                     .build();
         }
         return MessageContentUpdated
@@ -91,7 +91,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setContent(c.getContent())
+                .setContent(c.getSuggestedContent())
                 .vBuild();
     }
 

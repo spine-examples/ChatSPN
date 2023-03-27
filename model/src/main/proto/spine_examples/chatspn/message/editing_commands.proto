@@ -49,6 +49,6 @@ message EditMessage {
   // The ID of the user who tells to edit this message.
   spine.core.UserId user = 3 [(required) = true];
 
-  // The new text content for the message.
-  string content = 4 [(required) = true];
+  // The suggested message content.
+  string suggested_content = 4 [(required) = true];
 }

@@ -106,7 +106,7 @@ final class MessageEditingTest extends ContextAwareTest {
                 .setId(editedMessage.getId())
                 .setChat(editedMessage.getChat())
                 .setUser(editedMessage.getUser())
-                .setContent(editedMessage.getContent())
+                .setSuggestedContent(editedMessage.getContent())
                 .vBuild();
 
         context().assertEvents()
@@ -132,7 +132,7 @@ final class MessageEditingTest extends ContextAwareTest {
                 .setId(editedMessage.getId())
                 .setChat(editedMessage.getChat())
                 .setUser(editedMessage.getUser())
-                .setContent(editedMessage.getContent())
+                .setSuggestedContent(editedMessage.getContent())
                 .vBuild();
 
         context().assertEvents()
@@ -190,7 +190,7 @@ final class MessageEditingTest extends ContextAwareTest {
                     .setId(editedMessage.getId())
                     .setChat(editedMessage.getChat())
                     .setUser(editedMessage.getUser())
-                    .setContent(editedMessage.getContent())
+                    .setSuggestedContent(editedMessage.getContent())
                     .vBuild();
 
             context().assertEvents()
@@ -216,7 +216,7 @@ final class MessageEditingTest extends ContextAwareTest {
                     .setId(editedMessage.getId())
                     .setChat(editedMessage.getChat())
                     .setUser(editedMessage.getUser())
-                    .setContent(editedMessage.getContent())
+                    .setSuggestedContent(editedMessage.getContent())
                     .vBuild();
 
             context().assertEvents()

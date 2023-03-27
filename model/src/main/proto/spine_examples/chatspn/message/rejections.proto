@@ -45,9 +45,9 @@ message MessageContentCannotBeUpdated {
     // The ID of the chat in which message content failed to be updated.
     ChatId chat = 2 [(required) = true];
 
-    // The ID of the user who failed to update message content.
+    // The ID of the user who failed to update the message content.
     spine.core.UserId user = 3 [(required) = true];
 
-    // The new message text content.
-    string content = 4 [(required) = true];
+    // Suggested message content.
+    string suggested_content = 4 [(required) = true];
 }
