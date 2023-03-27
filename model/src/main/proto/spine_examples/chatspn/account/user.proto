@@ -36,6 +36,7 @@ option java_multiple_files = true;
 
 import "google/protobuf/timestamp.proto";
 import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
 
 // A user in the chatting system.
 message User {
@@ -50,6 +51,9 @@ message User {
     // A name of a user.
     string name = 2 [(required) = true];
 
+    // The user's email address.
+    spine.net.EmailAddress email = 3;
+
     // A time of last user activity.
-    google.protobuf.Timestamp when_last_active = 3;
+    google.protobuf.Timestamp when_last_active = 4;
 }

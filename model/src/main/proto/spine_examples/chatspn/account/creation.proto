@@ -30,23 +30,27 @@ package spine_examples.chatspn.account;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.account.command";
-option java_outer_classname = "ReservedEmailCommandsProto";
+option java_package = "io.spine.examples.chatspn.account";
+option java_outer_classname = "AccountCreationProto";
 option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine/net/email_address.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// Tells to reserve email address.
-message ReserveEmail {
+// The process of creating a user account.
+message AccountCreation {
+    option (entity) = { kind: PROCESS_MANAGER };
 
-    // The email address to reserve.
-    spine.net.EmailAddress email = 1;
+    // The ID of the account creation process.
+    AccountCreationId id = 1;
 
-    // The ID of the user who tells to reserve the email address.
+    // The ID of the user for whom the account is created.
     spine.core.UserId user = 2 [(required) = true];
 
-    // The ID of the account creation process that has initiated the email reservation.
-    AccountCreationId process = 3 [(required) = true];
+    // The name of the user for whom the account is created.
+    string name = 3 [(required) = true];
+
+    // The email address of the user for whom the account is created.
+    spine.net.EmailAddress email = 4 [(required) = true];
 }

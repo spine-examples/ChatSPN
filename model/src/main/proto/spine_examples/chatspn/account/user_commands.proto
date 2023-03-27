@@ -35,6 +35,8 @@ option java_outer_classname = "UserCommandsProto";
 option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
+import "spine_examples/chatspn/identifiers.proto";
 
 // Tells to register a new user.
 message RegisterUser {
@@ -44,4 +46,10 @@ message RegisterUser {
 
     // A name of the user to register.
     string name = 2 [(required) = true];
+
+    // An email of the user to register.
+    spine.net.EmailAddress email = 3 [(required) = true];
+
+    // The ID of the account creation process that has initiated the user registration.
+    AccountCreationId process = 4 [(required) = true];
 }
