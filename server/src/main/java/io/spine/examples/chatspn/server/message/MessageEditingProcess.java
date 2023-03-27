@@ -38,7 +38,7 @@ import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageEdited;
 import io.spine.examples.chatspn.message.event.MessageEditingFailed;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeEdited;
-import io.spine.examples.chatspn.message.rejection.Rejections;
+import io.spine.examples.chatspn.message.rejection.Rejections.MessageContentCannotBeUpdated;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
@@ -104,10 +104,10 @@ public final class MessageEditingProcess
     }
 
     /**
-     * Archives the process when the message has not been edited.
+     * Archives the process when the message editing failed.
      */
     @React
-    MessageEditingFailed on(Rejections.MessageContentCannotBeUpdated e) {
+    MessageEditingFailed on(MessageContentCannotBeUpdated e) {
         setArchived(true);
         return MessageEditingFailed
                 .newBuilder()
