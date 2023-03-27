@@ -31,7 +31,7 @@ import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageEditing;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
-import io.spine.examples.chatspn.message.rejection.Rejections;
+import io.spine.examples.chatspn.message.rejection.Rejections.MessageContentCannotBeUpdated;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.procman.ProcessManagerRepository;
 import io.spine.server.route.EventRouting;
@@ -49,7 +49,7 @@ public final class MessageEditingRepository
     protected void setupEventRouting(EventRouting<MessageId> routing) {
         super.setupEventRouting(routing);
         routing.route(MessageContentUpdated.class, (event, context) -> withId(event.getId()))
-               .route(Rejections.MessageContentCannotBeUpdated.class,
+               .route(MessageContentCannotBeUpdated.class,
                       (event, context) -> withId(event.getId()));
     }
 
