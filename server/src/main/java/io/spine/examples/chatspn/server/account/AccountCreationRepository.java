@@ -26,41 +26,32 @@
 
 package io.spine.examples.chatspn.server.account;
 
-import io.spine.examples.chatspn.account.UserProfile;
-import io.spine.examples.chatspn.account.command.RegisterUser;
-import io.spine.examples.chatspn.server.ChatsContext;
-import io.spine.server.BoundedContextBuilder;
-import io.spine.testing.core.given.GivenUserId;
-import io.spine.testing.server.blackbox.ContextAwareTest;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.spine.examples.chatspn.AccountCreationId;
+import io.spine.examples.chatspn.account.AccountCreation;
+import io.spine.examples.chatspn.account.event.EmailReserved;
+import io.spine.examples.chatspn.account.event.UserRegistered;
+import io.spine.examples.chatspn.account.rejection.ReservedEmailRejections.EmailAlreadyReserved;
+import io.spine.server.procman.ProcessManagerRepository;
+import io.spine.server.route.EventRouting;
 
-import static io.spine.testing.TestValues.randomString;
+import static io.spine.server.route.EventRoute.withId;
 
-@DisplayName("`UserProfileProjection` should")
-class UserProfileProjectionTest extends ContextAwareTest {
+/**
+ * The repository for managing {@link AccountCreationProcess} instances.
+ */
+public final class AccountCreationRepository
+        extends ProcessManagerRepository<AccountCreationId, AccountCreationProcess, AccountCreation> {
 
+    @OverridingMethodsMustInvokeSuper
     @Override
-    protected BoundedContextBuilder contextBuilder() {
-        return ChatsContext.newBuilder();
-    }
-
-    @Test
-    @DisplayName("display `UserProfile`, as soon as `User` registered")
-    void reactOnRegistration() {
-        RegisterUser command = RegisterUser
-                .newBuilder()
-                .setUser(GivenUserId.generated())
-                .setName(randomString())
-                .vBuild();
-        context().receivesCommand(command);
-
-        UserProfile expected = UserProfile
-                .newBuilder()
-                .setId(command.getUser())
-                .setName(command.getName())
-                .vBuild();
-
-        context().assertState(command.getUser(), expected);
+    protected void setupEventRouting(EventRouting<AccountCreationId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(EmailReserved.class,
+                      (event, context) -> withId(event.getProcess()))
+               .route(EmailAlreadyReserved.class,
+                      (event, context) -> withId(event.getProcess()))
+               .route(UserRegistered.class,
+                      (event, context) -> withId(event.getProcess()));
     }
 }

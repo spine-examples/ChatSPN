@@ -40,6 +40,7 @@ public final class UserProfileProjection extends Projection<UserId, UserProfile,
     @Subscribe
     void on(UserRegistered e) {
         builder().setId(e.getUser())
-                 .setName(e.getName());
+                 .setName(e.getName())
+                 .setEmail(e.getEmail());
     }
 }

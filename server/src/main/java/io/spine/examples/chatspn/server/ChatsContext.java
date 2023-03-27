@@ -26,6 +26,7 @@
 
 package io.spine.examples.chatspn.server;
 
+import io.spine.examples.chatspn.server.account.AccountCreationRepository;
 import io.spine.examples.chatspn.server.account.ReservedEmailAggregate;
 import io.spine.examples.chatspn.server.account.UserAggregate;
 import io.spine.examples.chatspn.server.account.UserProfileRepository;
@@ -65,6 +66,7 @@ public final class ChatsContext {
                 .add(new ChatMembersRepository())
                 .add(new MessageSendingRepository())
                 .add(new MessageEditingRepository())
-                .add(DefaultRepository.of(ReservedEmailAggregate.class));
+                .add(DefaultRepository.of(ReservedEmailAggregate.class))
+                .add(new AccountCreationRepository());
     }
 }

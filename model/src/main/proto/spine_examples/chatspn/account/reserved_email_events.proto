@@ -36,6 +36,7 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine/net/email_address.proto";
+import "spine_examples/chatspn/identifiers.proto";
 
 // An email address has been reserved.
 message EmailReserved {
@@ -45,4 +46,7 @@ message EmailReserved {
 
     // The ID of the user who was reserved the email address.
     spine.core.UserId user = 2 [(required) = true];
+
+    // The ID of the account creation process that has initiated the email reservation.
+    AccountCreationId process = 3 [(required) = true];
 }
