@@ -40,15 +40,15 @@ import "spine_examples/chatspn/identifiers.proto";
 // Tells to edit a message in the chat.
 message EditMessage {
 
-  // The ID of the message to edit.
-  MessageId id = 1;
+    // The ID of the message to edit.
+    MessageId id = 1;
 
-  // The ID of the chat to edit the message in.
-  ChatId chat = 2 [(required) = true];
+    // The ID of the chat to edit the message in.
+    ChatId chat = 2 [(required) = true];
 
-  // The ID of the user who tells to edit this message.
-  spine.core.UserId user = 3 [(required) = true];
+    // The ID of the user who tells to edit this message.
+    spine.core.UserId user = 3 [(required) = true];
 
-  // The suggested message content.
-  string suggested_content = 4 [(required) = true];
+    // The suggested message content.
+    string suggested_content = 4 [(required) = true];
 }
