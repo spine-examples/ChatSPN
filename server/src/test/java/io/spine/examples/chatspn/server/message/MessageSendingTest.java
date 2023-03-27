@@ -37,8 +37,8 @@ import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.createRandomChat;
-import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.sendMessage;
+import static io.spine.examples.chatspn.server.given.MessageTestEnv.createRandomChat;
+import static io.spine.examples.chatspn.server.given.MessageTestEnv.sendMessage;
 
 @DisplayName("`MessageSending` should")
 public final class MessageSendingTest extends ContextAwareTest {
@@ -55,7 +55,6 @@ public final class MessageSendingTest extends ContextAwareTest {
         Message message = sendMessage(chat.getId(),
                                       chat.getMember(0),
                                       context());
-
         MessageSent expectedEvent = MessageSent
                 .newBuilder()
                 .setId(message.getId())

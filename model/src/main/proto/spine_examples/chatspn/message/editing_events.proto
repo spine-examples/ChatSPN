@@ -30,46 +30,57 @@ package spine_examples.chatspn.message;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.message";
-option java_outer_classname = "MessageProto";
+option java_package = "io.spine.examples.chatspn.message.event";
+option java_outer_classname = "EditingEventsProto";
 option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
-import "google/protobuf/timestamp.proto";
 
-// A message in the chat.
-message Message {
-    option (entity) = { kind: AGGREGATE };
+// A message has been edited.
+message MessageEdited {
 
-    // The ID of the message.
+    // The ID of the edited message.
     MessageId id = 1;
 
-    // The ID of the chat in which this message was posted.
+    // The ID of the chat in which the message was edited.
     ChatId chat = 2 [(required) = true];
 
-    // The ID of the user who posted this message.
+    // The ID of the user who edited the message.
     spine.core.UserId user = 3 [(required) = true];
 
-    // The message text content.
+    // The new text content of the message.
     string content = 4 [(required) = true];
-
-    // Time when this message was posted.
-    google.protobuf.Timestamp when_posted = 5 [(required) = true];
 }
 
-// The process of message sending to the chat.
-message MessageSending {
-    option (entity) = { kind: PROCESS_MANAGER };
+// The message failed to be edited.
+message MessageEditingFailed {
 
-    // The ID of the message to send.
+    // The ID of the message that failed to be edited.
     MessageId id = 1;
+
+    // The ID of the chat in which the message failed to be edited.
+    ChatId chat = 2 [(required) = true];
+
+    // The ID of the user who originally asked to edit this message.
+    spine.core.UserId user = 3 [(required) = true];
+
+    // The suggested message content.
+    string suggested_content = 4 [(required) = true];
 }
 
-// The process of message editing.
-message MessageEditing {
-    option (entity) = { kind: PROCESS_MANAGER };
+// The content of the message has been updated.
+message MessageContentUpdated {
 
-    // The ID of the message to edit.
+    // The ID of the message whose content has been updated.
     MessageId id = 1;
+
+    // The ID of the chat in which the message content was updated.
+    ChatId chat = 2 [(required) = true];
+
+    // The ID of the user who updated the message content.
+    spine.core.UserId user = 3 [(required) = true];
+
+    // The new message text content.
+    string content = 4 [(required) = true];
 }

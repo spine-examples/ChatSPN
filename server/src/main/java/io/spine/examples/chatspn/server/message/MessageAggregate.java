@@ -29,7 +29,10 @@ package io.spine.examples.chatspn.server.message;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.PostMessage;
+import io.spine.examples.chatspn.message.command.UpdateMessageContent;
+import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessagePosted;
+import io.spine.examples.chatspn.message.rejection.MessageContentCannotBeUpdated;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
@@ -63,5 +66,37 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
                  .setUser(e.getUser())
                  .setContent(e.getContent())
                  .setWhenPosted(e.getWhenPosted());
+    }
+
+    /**
+     * Handles the command to update a message content.
+     *
+     * @throws MessageContentCannotBeUpdated
+     *         if the message does not exist, or editor is not an original sender of this message
+     */
+    @Assign
+    MessageContentUpdated handle(UpdateMessageContent c) throws MessageContentCannotBeUpdated {
+        if (!state().hasId() || !state().getUser()
+                                        .equals(c.getUser())) {
+            throw MessageContentCannotBeUpdated
+                    .newBuilder()
+                    .setId(c.getId())
+                    .setChat(c.getChat())
+                    .setUser(c.getUser())
+                    .setSuggestedContent(c.getSuggestedContent())
+                    .build();
+        }
+        return MessageContentUpdated
+                .newBuilder()
+                .setId(c.getId())
+                .setChat(c.getChat())
+                .setUser(c.getUser())
+                .setContent(c.getSuggestedContent())
+                .vBuild();
+    }
+
+    @Apply
+    private void event(MessageContentUpdated e) {
+        builder().setContent(e.getContent());
     }
 }

@@ -38,12 +38,12 @@ import io.spine.testing.server.blackbox.BlackBoxContext;
 
 import static io.spine.testing.TestValues.randomString;
 
-public class MessageSendingTestEnv {
+public final class MessageTestEnv {
 
     /**
      * Prevents instantiation of this class.
      */
-    private MessageSendingTestEnv() {
+    private MessageTestEnv() {
     }
 
     public static Chat createRandomChat(BlackBoxContext context) {
