@@ -62,9 +62,9 @@ message MessageEditingFailed {
   // The ID of the chat in which the message failed to be edited.
   ChatId chat = 2 [(required) = true];
 
-  // The ID of the user who failed to edit the message.
+  // The ID of the user who originally asked to edit this message.
   spine.core.UserId user = 3 [(required) = true];
 
-  // Suggested text content of the message that failed to be edited.
+  // The suggested message content.
   string suggested_content = 4 [(required) = true];
 }
