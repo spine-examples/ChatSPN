@@ -73,7 +73,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
      * Handles the command to update a message content.
      *
      * @throws MessageContentCannotBeUpdated
-     *         if the message not exists or is tried to be edited by non-sender
+     *         if the message does not exist, or editor is not an original sender of this message
      */
     @Assign
     MessageContentUpdated handle(UpdateMessageContent c) throws MessageContentCannotBeUpdated {
