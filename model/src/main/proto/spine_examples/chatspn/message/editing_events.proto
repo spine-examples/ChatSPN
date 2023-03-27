@@ -40,17 +40,17 @@ import "spine_examples/chatspn/identifiers.proto";
 // A message has been edited.
 message MessageEdited {
 
-  // The ID of the edited message.
-  MessageId id = 1;
+    // The ID of the edited message.
+    MessageId id = 1;
 
-  // The ID of the chat in which the message was edited.
-  ChatId chat = 2 [(required) = true];
+    // The ID of the chat in which the message was edited.
+    ChatId chat = 2 [(required) = true];
 
-  // The ID of the user who edited the message.
-  spine.core.UserId user = 3 [(required) = true];
+    // The ID of the user who edited the message.
+    spine.core.UserId user = 3 [(required) = true];
 
-  // The new text content of the message.
-  string content = 4 [(required) = true];
+    // The new text content of the message.
+    string content = 4 [(required) = true];
 }
 
 // The message failed to be edited.
@@ -67,4 +67,20 @@ message MessageEditingFailed {
 
     // The suggested message content.
     string suggested_content = 4 [(required) = true];
+}
+
+// The content of the message has been updated.
+message MessageContentUpdated {
+
+    // The ID of the message whose content has been updated.
+    MessageId id = 1;
+
+    // The ID of the chat in which the message content was updated.
+    ChatId chat = 2 [(required) = true];
+
+    // The ID of the user who updated the message content.
+    spine.core.UserId user = 3 [(required) = true];
+
+    // The new message text content.
+    string content = 4 [(required) = true];
 }

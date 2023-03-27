@@ -51,3 +51,19 @@ message MessageCannotBeEdited {
     // The suggested message content.
     string suggested_content = 4 [(required) = true];
 }
+
+// A message content cannot be updated.
+message MessageContentCannotBeUpdated {
+
+    // The ID of the message whose content could not be updated.
+    MessageId id = 1 [(required) = true];
+
+    // The ID of the chat in which message content could not be updated.
+    ChatId chat = 2 [(required) = true];
+
+    // The ID of the user who originally asked to update this message content.
+    spine.core.UserId user = 3 [(required) = true];
+
+    // The suggested message content.
+    string suggested_content = 4 [(required) = true];
+}

@@ -38,7 +38,7 @@ import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageEdited;
 import io.spine.examples.chatspn.message.event.MessageEditingFailed;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeEdited;
-import io.spine.examples.chatspn.message.rejection.Rejections.MessageContentCannotBeUpdated;
+import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageContentCannotBeUpdated;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;

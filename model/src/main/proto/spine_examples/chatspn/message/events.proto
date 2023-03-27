@@ -56,19 +56,3 @@ message MessagePosted {
     // Time when the message was posted.
     google.protobuf.Timestamp when_posted = 5 [(required) = true];
 }
-
-// The content of the message has been updated.
-message MessageContentUpdated {
-
-    // The ID of the message whose content has been updated.
-    MessageId id = 1;
-
-    // The ID of the chat in which the message content was updated.
-    ChatId chat = 2 [(required) = true];
-
-    // The ID of the user who updated the message content.
-    spine.core.UserId user = 3 [(required) = true];
-
-    // The new message text content.
-    string content = 4 [(required) = true];
-}
