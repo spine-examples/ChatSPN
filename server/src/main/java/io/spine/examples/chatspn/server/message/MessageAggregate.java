@@ -28,10 +28,13 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.command.MarkMessageAsRemoved;
 import io.spine.examples.chatspn.message.command.PostMessage;
 import io.spine.examples.chatspn.message.command.UpdateMessageContent;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
+import io.spine.examples.chatspn.message.event.MessageMarkedAsRemoved;
 import io.spine.examples.chatspn.message.event.MessagePosted;
+import io.spine.examples.chatspn.message.rejection.MessageCannotBeMarkedAsRemoved;
 import io.spine.examples.chatspn.message.rejection.MessageContentCannotBeUpdated;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
@@ -98,5 +101,34 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
     @Apply
     private void event(MessageContentUpdated e) {
         builder().setContent(e.getContent());
+    }
+
+    /**
+     * Handles the command to mark a message as removed.
+     *
+     * @throws MessageCannotBeMarkedAsRemoved
+     *         if the message does not exist, or is already marked as removed
+     */
+    @Assign
+    MessageMarkedAsRemoved handle(MarkMessageAsRemoved c) throws MessageCannotBeMarkedAsRemoved {
+        if (!state().hasId() || state().getIsRemoved()) {
+            throw MessageCannotBeMarkedAsRemoved
+                    .newBuilder()
+                    .setId(c.getId())
+                    .setChat(c.getChat())
+                    .setUser(c.getUser())
+                    .build();
+        }
+        return MessageMarkedAsRemoved
+                .newBuilder()
+                .setId(c.getId())
+                .setChat(c.getChat())
+                .setUser(c.getUser())
+                .vBuild();
+    }
+
+    @Apply
+    private void event(MessageMarkedAsRemoved e) {
+        builder().setIsRemoved(true);
     }
 }
