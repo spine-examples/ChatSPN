@@ -39,7 +39,7 @@ import "spine_examples/chatspn/identifiers.proto";
 // A message cannot be edited.
 message MessageCannotBeEdited {
 
-    // The ID of the message failed to be edited.
+    // The ID of the message that could not be edited.
     MessageId id = 1 [(required) = true];
 
     // The ID of the chat where the message editing failed.
