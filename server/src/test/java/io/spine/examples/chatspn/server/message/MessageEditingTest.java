@@ -128,11 +128,11 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Nested
-    @DisplayName("lead `MessageAggregate` to")
+    @DisplayName("lead `MessageAggregate` to emission of the")
     class MessageAggregate {
 
         @Test
-        @DisplayName("emit a `MessageContentUpdated` event")
+        @DisplayName("`MessageContentUpdated`")
         void event() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
@@ -147,8 +147,7 @@ final class MessageEditingTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("emit a `MessageContentCannotBeUpdated` rejection " +
-                "if message with the given id doesn't exist")
+        @DisplayName("`MessageContentCannotBeUpdated` rejection if message with the given ID doesn't exist")
         void rejectBecauseNotExist() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
@@ -164,8 +163,7 @@ final class MessageEditingTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("emit a `MessageContentCannotBeEdited` rejection " +
-                "if non-owner try to edit message")
+        @DisplayName("`MessageContentCannotBeUpdated` rejection if non-owner tries to edit message")
         void rejectBecauseEditorNonOwner() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
