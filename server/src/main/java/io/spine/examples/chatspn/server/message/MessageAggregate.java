@@ -77,7 +77,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
     @Assign
     MessageContentUpdated handle(UpdateMessageContent c) throws MessageContentCannotBeUpdated {
         if (!state().hasId() || !state().getUser()
-                                       .equals(c.getUser())) {
+                                        .equals(c.getUser())) {
             throw MessageContentCannotBeUpdated
                     .newBuilder()
                     .setId(c.getId())

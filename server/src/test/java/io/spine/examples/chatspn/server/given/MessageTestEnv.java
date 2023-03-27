@@ -32,7 +32,6 @@ import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.CreateChat;
 import io.spine.examples.chatspn.message.Message;
-import io.spine.examples.chatspn.message.command.EditMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
