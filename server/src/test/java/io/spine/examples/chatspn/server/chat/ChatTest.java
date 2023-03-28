@@ -32,7 +32,6 @@ import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.examples.chatspn.server.ChatsContext;
-import io.spine.examples.chatspn.server.given.ChatTestEnv;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
