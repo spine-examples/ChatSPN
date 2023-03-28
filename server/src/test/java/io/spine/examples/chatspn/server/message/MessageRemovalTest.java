@@ -65,7 +65,7 @@ final class MessageRemovalTest extends ContextAwareTest {
     @Test
     @DisplayName("emit a `MessageRemoved` event " +
             "if the process is finished successfully and archive itself")
-    void messageEditedEvent() {
+    void messageRemovedEvent() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
         RemoveMessage command = removeMessageCommand(message);
@@ -98,7 +98,7 @@ final class MessageRemovalTest extends ContextAwareTest {
     @Test
     @DisplayName("reject with the `MessageCannotBeRemoved` " +
             "if the message remover is not the chat member")
-    void messageCannotBeEditedRejection() {
+    void messageCannotBeRemovedRejection() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
         RemoveMessage command = removeMessageCommandWith(message, GivenUserId.generated());
@@ -114,7 +114,7 @@ final class MessageRemovalTest extends ContextAwareTest {
     @Test
     @DisplayName("emit a `MessageRemovalFailed` event " +
             "if message cannot be marked as removed and archive itself")
-    void messageNotEditedEvent() {
+    void messageRemovalFailedEvent() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
         RemoveMessage command = removeMessageCommandWith(message, MessageId.generate());
@@ -169,7 +169,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         @Test
         @DisplayName("`MessageCannotBeMarkedAsRemoved` rejection " +
                 "if the message is already marked as removed")
-        void rejectBecauseEditorNonOwner() {
+        void rejectBecauseAlreadyRemoved() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
             RemoveMessage command = removeMessageCommand(message);
