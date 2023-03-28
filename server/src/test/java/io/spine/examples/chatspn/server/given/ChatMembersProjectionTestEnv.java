@@ -32,6 +32,12 @@ import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 
 public final class ChatMembersProjectionTestEnv {
 
+    /**
+     * Prevents class instantiation.
+     */
+    private ChatMembersProjectionTestEnv() {
+    }
+
     public static ChatMembers chatMembersFrom(CreatePersonalChat c) {
         ChatMembers state = ChatMembers
                 .newBuilder()
