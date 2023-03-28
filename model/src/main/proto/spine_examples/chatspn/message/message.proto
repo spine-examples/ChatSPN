@@ -57,7 +57,7 @@ message Message {
     // Time when this message was posted.
     google.protobuf.Timestamp when_posted = 5 [(required) = true];
 
-    // Answers the question `Is the message removed?`.
+    // Answers the question 'Is the message removed?'.
     bool is_removed = 6 [(required) = true];
 }
 
