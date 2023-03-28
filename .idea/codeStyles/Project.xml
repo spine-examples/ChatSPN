@@ -1,11 +1,5 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
-    <option name="OTHER_INDENT_OPTIONS">
-      <value>
-        <option name="INDENT_SIZE" value="8" />
-        <option name="TAB_SIZE" value="8" />
-      </value>
-    </option>
     <option name="RIGHT_MARGIN" value="100" />
     <DartCodeStyleSettings>
       <option name="DELEGATE_TO_DARTFMT" value="false" />
