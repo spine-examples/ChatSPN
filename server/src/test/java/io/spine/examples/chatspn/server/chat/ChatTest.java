@@ -32,6 +32,7 @@ import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.examples.chatspn.server.ChatsContext;
+import io.spine.examples.chatspn.server.given.ChatTestEnv;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import static io.spine.examples.chatspn.server.given.ChatTestEnv.chatFrom;
 import static io.spine.examples.chatspn.server.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.given.ChatTestEnv.createPersonalChatCommand;
+import static io.spine.examples.chatspn.server.given.ChatTestEnv.groupChatCreatedFrom;
 import static io.spine.examples.chatspn.server.given.ChatTestEnv.personalChatCreatedFrom;
 
 @DisplayName("`Chat` should")
@@ -69,7 +71,7 @@ final class ChatTest extends ContextAwareTest {
         CreateGroupChat command = createGroupChatCommand();
         context().receivesCommand(command);
 
-        GroupChatCreated expectedEvent = personalChatCreatedFrom(command);
+        GroupChatCreated expectedEvent = groupChatCreatedFrom(command);
         Chat expectedState = chatFrom(command);
 
         context().assertEvent(expectedEvent);

@@ -83,7 +83,7 @@ public final class ChatTestEnv {
         return command;
     }
 
-    public static GroupChatCreated personalChatCreatedFrom(CreateGroupChat c) {
+    public static GroupChatCreated groupChatCreatedFrom(CreateGroupChat c) {
         GroupChatCreated event = GroupChatCreated
                 .newBuilder()
                 .setId(c.getId())

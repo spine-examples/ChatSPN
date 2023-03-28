@@ -41,6 +41,7 @@ public final class ChatMembersProjectionTestEnv {
     public static ChatMembers chatMembersFrom(CreatePersonalChat c) {
         ChatMembers state = ChatMembers
                 .newBuilder()
+                .setId(c.getId())
                 .addMember(c.getCreator())
                 .addMember(c.getMember())
                 .vBuild();
@@ -50,6 +51,7 @@ public final class ChatMembersProjectionTestEnv {
     public static ChatMembers chatMembersFrom(CreateGroupChat c) {
         ChatMembers state = ChatMembers
                 .newBuilder()
+                .setId(c.getId())
                 .addMember(c.getCreator())
                 .addAllMember(c.getMemberList())
                 .vBuild();
