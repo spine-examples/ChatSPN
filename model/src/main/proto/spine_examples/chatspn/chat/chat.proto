@@ -47,6 +47,14 @@ message Chat {
     // List of the chat members.
     repeated spine.core.UserId member = 2 [(required) = true, (distinct) = true];
 
+    // The type of the chat.
+    ChatType type = 3;
+
+    enum ChatType {
+        PERSONAL = 0;
+        GROUP = 1;
+    }
+
     // The name of the chat.
-    string name = 3;
+    string name = 4;
 }
