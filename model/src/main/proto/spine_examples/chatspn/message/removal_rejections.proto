@@ -42,10 +42,10 @@ message MessageCannotBeRemoved {
     // The ID of the message that could not be removed.
     MessageId id = 1 [(required) = true];
 
-    // The ID of the chat where the message removal failed.
+    // The ID of the chat where the message could not be removed.
     ChatId chat = 2 [(required) = true];
 
-    // The ID of the user who originally asked to removed this message.
+    // The ID of the user who originally asked to remove this message.
     spine.core.UserId user = 3 [(required) = true];
 }
 
