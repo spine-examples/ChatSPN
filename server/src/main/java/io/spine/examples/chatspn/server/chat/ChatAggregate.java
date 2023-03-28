@@ -28,8 +28,10 @@ package io.spine.examples.chatspn.server.chat;
 
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.command.CreateChat;
-import io.spine.examples.chatspn.chat.event.ChatCreated;
+import io.spine.examples.chatspn.chat.command.CreateGroupChat;
+import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
@@ -40,24 +42,45 @@ import io.spine.server.command.Assign;
 public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     /**
-     * Handles the command to create a chat.
+     * Handles the command to create a personal chat.
      */
     @Assign
-    ChatCreated handle(CreateChat c) {
-        return ChatCreated
+    PersonalChatCreated handle(CreatePersonalChat c) {
+        return PersonalChatCreated
                 .newBuilder()
                 .setId(c.getId())
                 .setCreator(c.getCreator())
-                .setName(c.getName())
+                .setMember(c.getMember())
+                .vBuild();
+    }
+
+    @Apply
+    private void event(PersonalChatCreated e) {
+        builder().setId(e.getId())
+                 .addMember(e.getCreator())
+                 .addMember(e.getMember())
+                 .setType(Chat.ChatType.PERSONAL);
+    }
+
+    /**
+     * Handles the command to create a group chat.
+     */
+    @Assign
+    GroupChatCreated handle(CreateGroupChat c) {
+        return GroupChatCreated
+                .newBuilder()
+                .setId(c.getId())
+                .setCreator(c.getCreator())
                 .addAllMember(c.getMemberList())
                 .vBuild();
     }
 
     @Apply
-    private void event(ChatCreated e) {
+    private void event(GroupChatCreated e) {
         builder().setId(e.getId())
                  .addMember(e.getCreator())
                  .addAllMember(e.getMemberList())
-                 .setName(e.getName());
+                 .setName(e.getName())
+                 .setType(Chat.ChatType.GROUP);
     }
 }
