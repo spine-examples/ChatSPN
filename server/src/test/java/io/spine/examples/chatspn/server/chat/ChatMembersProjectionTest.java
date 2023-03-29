@@ -40,7 +40,7 @@ import static io.spine.examples.chatspn.server.given.ChatTestEnv.createGroupChat
 import static io.spine.examples.chatspn.server.given.ChatTestEnv.createPersonalChatCommand;
 
 @DisplayName("`ChatMembersProjection` should")
-class ChatMembersProjectionTest extends ContextAwareTest {
+final class ChatMembersProjectionTest extends ContextAwareTest {
 
     @Override
     protected BoundedContextBuilder contextBuilder() {
