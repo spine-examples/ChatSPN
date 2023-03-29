@@ -71,10 +71,7 @@ final class MessageEditingTest extends ContextAwareTest {
         context().receivesCommand(command);
         MessageEdited expected = messageEditedFrom(command);
 
-        context().assertEvents()
-                 .withType(MessageEdited.class)
-                 .message(0)
-                 .isEqualTo(expected);
+        context().assertEvent(expected);
         context().assertEntity(expected.getId(), MessageEditingProcess.class)
                  .archivedFlag()
                  .isTrue();

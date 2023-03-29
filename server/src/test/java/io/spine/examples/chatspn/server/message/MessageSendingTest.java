@@ -63,9 +63,6 @@ public final class MessageSendingTest extends ContextAwareTest {
                 .setContent(message.getContent())
                 .vBuild();
 
-        context().assertEvents()
-                 .withType(MessageSent.class)
-                 .hasSize(1);
         context().assertEvent(expected);
     }
 
