@@ -40,6 +40,12 @@ import static io.spine.testing.TestValues.randomString;
 
 public final class ChatTestEnv {
 
+    /**
+     * Prevents class instantiation.
+     */
+    private ChatTestEnv() {
+    }
+
     public static CreatePersonalChat createPersonalChatCommand() {
         CreatePersonalChat command = CreatePersonalChat
                 .newBuilder()
