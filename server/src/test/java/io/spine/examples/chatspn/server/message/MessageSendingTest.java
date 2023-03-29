@@ -55,7 +55,7 @@ public final class MessageSendingTest extends ContextAwareTest {
         Message message = sendMessage(chat.getId(),
                                       chat.getMember(0),
                                       context());
-        MessageSent expectedEvent = MessageSent
+        MessageSent expected = MessageSent
                 .newBuilder()
                 .setId(message.getId())
                 .setChat(message.getChat())
@@ -66,10 +66,7 @@ public final class MessageSendingTest extends ContextAwareTest {
         context().assertEvents()
                  .withType(MessageSent.class)
                  .hasSize(1);
-        context().assertEvents()
-                 .withType(MessageSent.class)
-                 .message(0)
-                 .isEqualTo(expectedEvent);
+        context().assertEvent(expected);
     }
 
     @Test
@@ -92,7 +89,7 @@ public final class MessageSendingTest extends ContextAwareTest {
                                       GivenUserId.generated(),
                                       context());
 
-        MessageCannotBeSent expectedRejection = MessageCannotBeSent
+        MessageCannotBeSent expected = MessageCannotBeSent
                 .newBuilder()
                 .setId(message.getId())
                 .setChat(message.getChat())
@@ -100,10 +97,7 @@ public final class MessageSendingTest extends ContextAwareTest {
                 .setContent(message.getContent())
                 .vBuild();
 
-        context().assertEvents()
-                 .withType(MessageCannotBeSent.class)
-                 .message(0)
-                 .isEqualTo(expectedRejection);
+        context().assertEvent(expected);
     }
 
     @Test

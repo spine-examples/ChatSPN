@@ -103,10 +103,7 @@ final class MessageEditingTest extends ContextAwareTest {
         context().receivesCommand(command);
         MessageCannotBeEdited expected = messageCannotBeEditedFrom(command);
 
-        context().assertEvents()
-                 .withType(MessageCannotBeEdited.class)
-                 .message(0)
-                 .isEqualTo(expected);
+        context().assertEvent(expected);
     }
 
     @Test
@@ -118,10 +115,7 @@ final class MessageEditingTest extends ContextAwareTest {
         context().receivesCommand(command);
         MessageEditingFailed expected = messageEditingFailedFrom(command);
 
-        context().assertEvents()
-                 .withType(MessageEditingFailed.class)
-                 .message(0)
-                 .isEqualTo(expected);
+        context().assertEvent(expected);
         context().assertEntity(expected.getId(), MessageEditingProcess.class)
                  .archivedFlag()
                  .isTrue();
@@ -140,10 +134,7 @@ final class MessageEditingTest extends ContextAwareTest {
             context().receivesCommand(command);
             MessageContentUpdated expected = messageContentUpdatedFrom(command);
 
-            context().assertEvents()
-                     .withType(MessageContentUpdated.class)
-                     .message(0)
-                     .isEqualTo(expected);
+            context().assertEvent(expected);
         }
 
         @Test
@@ -153,13 +144,10 @@ final class MessageEditingTest extends ContextAwareTest {
             Message message = sendRandomMessageTo(chat, context());
             EditMessage command = editMessageCommandWith(message, MessageId.generate());
             context().receivesCommand(command);
-            MessageContentCannotBeUpdated expectedRejection =
+            MessageContentCannotBeUpdated expected =
                     messageContentCannotBeUpdatedFrom(command);
 
-            context().assertEvents()
-                     .withType(MessageContentCannotBeUpdated.class)
-                     .message(0)
-                     .isEqualTo(expectedRejection);
+            context().assertEvent(expected);
         }
 
         @Test
@@ -169,13 +157,10 @@ final class MessageEditingTest extends ContextAwareTest {
             Message message = sendRandomMessageTo(chat, context());
             EditMessage command = editMessageCommandWith(message, chat.getMember(1));
             context().receivesCommand(command);
-            MessageContentCannotBeUpdated expectedRejection =
+            MessageContentCannotBeUpdated expected =
                     messageContentCannotBeUpdatedFrom(command);
 
-            context().assertEvents()
-                     .withType(MessageContentCannotBeUpdated.class)
-                     .message(0)
-                     .isEqualTo(expectedRejection);
+            context().assertEvent(expected);
         }
     }
 }

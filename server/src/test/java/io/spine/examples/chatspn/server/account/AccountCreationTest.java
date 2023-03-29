@@ -67,10 +67,7 @@ final class AccountCreationTest extends ContextAwareTest {
         context().receivesCommand(command);
         AccountCreated expected = accountCreatedFrom(command);
 
-        context().assertEvents()
-                 .withType(AccountCreated.class)
-                 .message(0)
-                 .isEqualTo(expected);
+        context().assertEvent(expected);
         context().assertEntity(command.getId(), AccountCreationProcess.class)
                  .archivedFlag()
                  .isTrue();
@@ -94,10 +91,7 @@ final class AccountCreationTest extends ContextAwareTest {
         context().receivesCommand(command);
         EmailReserved expected = emailReservedFrom(command);
 
-        context().assertEvents()
-                 .withType(EmailReserved.class)
-                 .message(0)
-                 .isEqualTo(expected);
+        context().assertEvent(expected);
     }
 
     @Test
@@ -107,12 +101,9 @@ final class AccountCreationTest extends ContextAwareTest {
         context().receivesCommand(firstCommand);
         CreateAccount secondCommand = createAccountCommandWith(firstCommand.getEmail());
         context().receivesCommand(secondCommand);
-        EmailAlreadyReserved expectedEvent = emailAlreadyReservedFrom(secondCommand);
+        EmailAlreadyReserved expected = emailAlreadyReservedFrom(secondCommand);
 
-        context().assertEvents()
-                 .withType(EmailAlreadyReserved.class)
-                 .message(0)
-                 .isEqualTo(expectedEvent);
+        context().assertEvent(expected);
     }
 
     @Test
@@ -124,10 +115,7 @@ final class AccountCreationTest extends ContextAwareTest {
         context().receivesCommand(secondCommand);
         AccountNotCreated expected = accountNotCreatedFrom(secondCommand);
 
-        context().assertEvents()
-                 .withType(AccountNotCreated.class)
-                 .message(0)
-                 .isEqualTo(expected);
+        context().assertEvent(expected);
         context().assertEntity(secondCommand.getId(), AccountCreationProcess.class)
                  .archivedFlag()
                  .isTrue();
@@ -151,10 +139,7 @@ final class AccountCreationTest extends ContextAwareTest {
         context().receivesCommand(command);
         UserRegistered expected = userRegisteredFrom(command);
 
-        context().assertEvents()
-                 .withType(UserRegistered.class)
-                 .message(0)
-                 .isEqualTo(expected);
+        context().assertEvent(expected);
     }
 
     @Test
