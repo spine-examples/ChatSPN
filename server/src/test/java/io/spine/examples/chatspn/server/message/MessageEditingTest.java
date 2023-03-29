@@ -43,7 +43,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.createRandomChatIn;
 import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.editMessageCommand;
 import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.editMessageCommandWith;
 import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.messageCannotBeEditedFrom;
@@ -52,7 +51,8 @@ import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.messa
 import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.messageEditedFrom;
 import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.messageEditingFailedFrom;
 import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.messageFrom;
-import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.sendRandomMessageTo;
+import static io.spine.examples.chatspn.server.given.MessageTestEnv.createRandomChatIn;
+import static io.spine.examples.chatspn.server.given.MessageTestEnv.sendRandomMessageTo;
 
 @DisplayName("`MessageEditing` should")
 final class MessageEditingTest extends ContextAwareTest {

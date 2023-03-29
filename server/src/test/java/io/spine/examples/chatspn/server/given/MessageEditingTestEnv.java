@@ -27,20 +27,14 @@
 package io.spine.examples.chatspn.server.given;
 
 import io.spine.core.UserId;
-import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.command.CreateChat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.EditMessage;
-import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageEdited;
 import io.spine.examples.chatspn.message.event.MessageEditingFailed;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageCannotBeEdited;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageContentCannotBeUpdated;
-import io.spine.testing.core.given.GivenUserId;
-import io.spine.testing.server.blackbox.BlackBoxContext;
 
 import static io.spine.testing.TestValues.randomString;
 
@@ -50,44 +44,6 @@ public final class MessageEditingTestEnv {
      * Prevents class instantiation.
      */
     private MessageEditingTestEnv() {
-    }
-
-    public static Chat createRandomChatIn(BlackBoxContext context) {
-        Chat chat = Chat
-                .newBuilder()
-                .setId(ChatId.generate())
-                .setName(randomString())
-                .addMember(GivenUserId.generated())
-                .addMember(GivenUserId.generated())
-                .vBuild();
-        CreateChat createChat = CreateChat
-                .newBuilder()
-                .setId(chat.getId())
-                .setName(chat.getName())
-                .setCreator(chat.getMember(0))
-                .addMember(chat.getMember(1))
-                .vBuild();
-        context.receivesCommand(createChat);
-        return chat;
-    }
-
-    public static Message sendRandomMessageTo(Chat chat, BlackBoxContext context) {
-        Message message = Message
-                .newBuilder()
-                .setId(MessageId.generate())
-                .setChat(chat.getId())
-                .setUser(chat.getMember(0))
-                .setContent(randomString())
-                .buildPartial();
-        SendMessage sendMessage = SendMessage
-                .newBuilder()
-                .setId(message.getId())
-                .setChat(message.getChat())
-                .setUser(message.getUser())
-                .setContent(message.getContent())
-                .vBuild();
-        context.receivesCommand(sendMessage);
-        return message;
     }
 
     public static EditMessage editMessageCommand(Message message) {

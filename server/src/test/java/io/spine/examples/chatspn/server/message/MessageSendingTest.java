@@ -46,7 +46,7 @@ import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.messa
 import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.messageSentFrom;
 import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.randomSendMessageCommand;
 import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.sendMessageCommandWith;
-import static io.spine.examples.chatspn.server.given.MessageTestEnv.createRandomChat;
+import static io.spine.examples.chatspn.server.given.MessageTestEnv.createRandomChatIn;
 
 @DisplayName("`MessageSending` should")
 public final class MessageSendingTest extends ContextAwareTest {
@@ -59,7 +59,7 @@ public final class MessageSendingTest extends ContextAwareTest {
     @Test
     @DisplayName("emit `MessageSent` event and archive itself")
     void event() {
-        Chat chat = createRandomChat(context());
+        Chat chat = createRandomChatIn(context());
         SendMessage command = randomSendMessageCommand(chat);
         context().receivesCommand(command);
         MessageSent expected = messageSentFrom(command);
@@ -73,7 +73,7 @@ public final class MessageSendingTest extends ContextAwareTest {
     @Test
     @DisplayName("produce a `Message` with the expected state")
     void state() {
-        Chat chat = createRandomChat(context());
+        Chat chat = createRandomChatIn(context());
         SendMessage command = randomSendMessageCommand(chat);
         context().receivesCommand(command);
         Message state = messageFrom(command);
@@ -86,7 +86,7 @@ public final class MessageSendingTest extends ContextAwareTest {
     @Test
     @DisplayName("reject when the message sender is not the chat member")
     void rejection() {
-        Chat chat = createRandomChat(context());
+        Chat chat = createRandomChatIn(context());
         SendMessage command = sendMessageCommandWith(chat, GivenUserId.generated());
         context().receivesCommand(command);
         MessageCannotBeSent expected = messageCannotBeSentFrom(command);
@@ -101,7 +101,7 @@ public final class MessageSendingTest extends ContextAwareTest {
         @Test
         @DisplayName("`MessagePosted`")
         void event() {
-            Chat chat = createRandomChat(context());
+            Chat chat = createRandomChatIn(context());
             SendMessage command = randomSendMessageCommand(chat);
             context().receivesCommand(command);
             MessagePosted expected = messagePostedFrom(command);

@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server.given;
 
-import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
@@ -46,41 +45,41 @@ public final class MessageTestEnv {
     private MessageTestEnv() {
     }
 
-    public static Chat createRandomChat(BlackBoxContext context) {
+    public static Chat createRandomChatIn(BlackBoxContext context) {
         Chat chat = Chat
                 .newBuilder()
                 .setId(ChatId.generate())
-                .addMember(GivenUserId.generated())
-                .addMember(GivenUserId.generated())
                 .setName(randomString())
+                .addMember(GivenUserId.generated())
+                .addMember(GivenUserId.generated())
                 .vBuild();
-        CreateChat command = CreateChat
+        CreateChat createChat = CreateChat
                 .newBuilder()
                 .setId(chat.getId())
+                .setName(chat.getName())
                 .setCreator(chat.getMember(0))
                 .addMember(chat.getMember(1))
-                .setName(chat.getName())
                 .vBuild();
-        context.receivesCommand(command);
+        context.receivesCommand(createChat);
         return chat;
     }
 
-    public static Message sendMessage(ChatId chat, UserId user, BlackBoxContext context) {
+    public static Message sendRandomMessageTo(Chat chat, BlackBoxContext context) {
         Message message = Message
                 .newBuilder()
                 .setId(MessageId.generate())
-                .setChat(chat)
-                .setUser(user)
+                .setChat(chat.getId())
+                .setUser(chat.getMember(0))
                 .setContent(randomString())
                 .buildPartial();
-        SendMessage command = SendMessage
+        SendMessage sendMessage = SendMessage
                 .newBuilder()
                 .setId(message.getId())
-                .setChat(chat)
-                .setUser(user)
+                .setChat(message.getChat())
+                .setUser(message.getUser())
                 .setContent(message.getContent())
                 .vBuild();
-        context.receivesCommand(command);
+        context.receivesCommand(sendMessage);
         return message;
     }
 }
