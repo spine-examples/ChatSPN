@@ -72,17 +72,14 @@ final class MessageRemovalTest extends ContextAwareTest {
         context().receivesCommand(command);
         MessageRemoved expected = messageRemovedFrom(command);
 
-        context().assertEvents()
-                 .withType(MessageRemoved.class)
-                 .message(0)
-                 .isEqualTo(expected);
+        context().assertEvent(expected);
         context().assertEntity(expected.getId(), MessageRemovalProcess.class)
                  .archivedFlag()
                  .isTrue();
     }
 
     @Test
-    @DisplayName("update a `Message` to the expected state")
+    @DisplayName("update a `MessageAggregate` to the expected state")
     void state() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
@@ -93,6 +90,9 @@ final class MessageRemovalTest extends ContextAwareTest {
         context().assertState(expected.getId(), Message.class)
                  .comparingExpectedFieldsOnly()
                  .isEqualTo(expected);
+        context().assertEntity(expected.getId(), MessageAggregate.class)
+                 .deletedFlag()
+                 .isTrue();
     }
 
     @Test
@@ -105,15 +105,12 @@ final class MessageRemovalTest extends ContextAwareTest {
         context().receivesCommand(command);
         MessageCannotBeRemoved expected = messageCannotBeRemovedFrom(command);
 
-        context().assertEvents()
-                 .withType(MessageCannotBeRemoved.class)
-                 .message(0)
-                 .isEqualTo(expected);
+        context().assertEvent(expected);
     }
 
     @Test
     @DisplayName("emit a `MessageRemovalFailed` event " +
-            "if message cannot be marked as removed and archive itself")
+            "if message cannot be marked as deleted and archive itself")
     void messageRemovalFailedEvent() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
@@ -121,10 +118,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         context().receivesCommand(command);
         MessageRemovalFailed expected = messageRemovalFailedFrom(command);
 
-        context().assertEvents()
-                 .withType(MessageRemovalFailed.class)
-                 .message(0)
-                 .isEqualTo(expected);
+        context().assertEvent(expected);
         context().assertEntity(expected.getId(), MessageRemovalProcess.class)
                  .archivedFlag()
                  .isTrue();
@@ -132,7 +126,7 @@ final class MessageRemovalTest extends ContextAwareTest {
 
     @Nested
     @DisplayName("lead `MessageAggregate` to emission of the")
-    class MessageAggregate {
+    class MessageAggregateSubTest {
 
         @Test
         @DisplayName("`MessageMarkedAsDeleted`")
@@ -143,10 +137,7 @@ final class MessageRemovalTest extends ContextAwareTest {
             context().receivesCommand(command);
             MessageMarkedAsDeleted expected = messageMarkedAsDeletedFrom(command);
 
-            context().assertEvents()
-                     .withType(MessageMarkedAsDeleted.class)
-                     .message(0)
-                     .isEqualTo(expected);
+            context().assertEvent(expected);
         }
 
         @Test
@@ -160,15 +151,12 @@ final class MessageRemovalTest extends ContextAwareTest {
             MessageCannotBeMarkedAsDeleted expected =
                     messageCannotBeMarkedAsRemovedFrom(command);
 
-            context().assertEvents()
-                     .withType(MessageCannotBeMarkedAsDeleted.class)
-                     .message(0)
-                     .isEqualTo(expected);
+            context().assertEvent(expected);
         }
 
         @Test
         @DisplayName("`MessageCannotBeMarkedAsDeleted` rejection " +
-                "if the message is already marked as removed")
+                "if the message is already marked as deleted")
         void rejectBecauseAlreadyRemoved() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
@@ -178,10 +166,7 @@ final class MessageRemovalTest extends ContextAwareTest {
             MessageCannotBeMarkedAsDeleted expected =
                     messageCannotBeMarkedAsRemovedFrom(command);
 
-            context().assertEvents()
-                     .withType(MessageCannotBeMarkedAsDeleted.class)
-                     .message(0)
-                     .isEqualTo(expected);
+            context().assertEvent(expected);
         }
     }
 }
