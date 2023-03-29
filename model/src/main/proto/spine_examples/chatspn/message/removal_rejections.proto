@@ -52,19 +52,19 @@ message MessageCannotBeRemoved {
     spine.core.UserId user = 3 [(required) = true];
 }
 
-// A message cannot be marked as removed.
+// A message cannot be marked as deleted.
 //
 // The reason is that the message with the given ID doesn't exist,
-// or has already been marked as removed.
+// or has already been marked as deleted.
 //
-message MessageCannotBeMarkedAsRemoved {
+message MessageCannotBeMarkedAsDeleted {
 
-    // The ID of the message that could not be marked as removed.
+    // The ID of the message that could not be marked as deleted.
     MessageId id = 1 [(required) = true];
 
-    // The ID of the chat in which message could not be marked as removed.
+    // The ID of the chat in which message could not be marked as deleted.
     ChatId chat = 2 [(required) = true];
 
-    // The ID of the user who originally asked to mark this message as removed.
+    // The ID of the user who originally asked to mark this message as deleted.
     spine.core.UserId user = 3 [(required) = true];
 }

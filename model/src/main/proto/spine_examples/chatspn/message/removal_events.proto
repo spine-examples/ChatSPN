@@ -67,15 +67,15 @@ message MessageRemovalFailed {
     spine.core.UserId user = 3 [(required) = true];
 }
 
-// The message has been marked as removed.
-message MessageMarkedAsRemoved {
+// The message has been marked as deleted.
+message MessageMarkedAsDeleted {
 
-    // The ID of the message that was marked as removed.
+    // The ID of the message that was marked as deleted.
     MessageId id = 1;
 
-    // The ID of the chat in which the message was marked as removed.
+    // The ID of the chat in which the message was marked as deleted.
     ChatId chat = 2 [(required) = true];
 
-    // The ID of the user who marked the message as removed.
+    // The ID of the user who marked the message as deleted.
     spine.core.UserId user = 3 [(required) = true];
 }

@@ -53,18 +53,18 @@ message RemoveMessage {
     spine.core.UserId user = 3 [(required) = true];
 }
 
-// Tells to mark a message as removed.
+// Tells to mark a message as deleted.
 //
 // The command can be sent by a MessageRemovalProcess.
 //
-message MarkMessageAsRemoved {
+message MarkMessageAsDeleted {
 
-    // The ID of the message to be marked as removed.
+    // The ID of the message to be marked as deleted.
     MessageId id = 1;
 
-    // The ID of the chat to mark the message as removed in.
+    // The ID of the chat to mark the message as deleted in.
     ChatId chat = 2 [(required) = true];
 
-    // The ID of the user who tells to mark message as removed.
+    // The ID of the user who tells to mark message as deleted.
     spine.core.UserId user = 3 [(required) = true];
 }

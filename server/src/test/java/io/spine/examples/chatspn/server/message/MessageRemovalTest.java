@@ -30,10 +30,10 @@ import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
-import io.spine.examples.chatspn.message.event.MessageMarkedAsRemoved;
+import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
 import io.spine.examples.chatspn.message.event.MessageRemoved;
-import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsRemoved;
+import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeRemoved;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
@@ -48,7 +48,7 @@ import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.sendR
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageMarkedAsRemovedFrom;
+import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageMarkedAsDeletedFrom;
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageRemovalFailedFrom;
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageRemovedFrom;
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.removeMessageCommand;
@@ -135,39 +135,39 @@ final class MessageRemovalTest extends ContextAwareTest {
     class MessageAggregate {
 
         @Test
-        @DisplayName("`MessageMarkedAsRemoved`")
+        @DisplayName("`MessageMarkedAsDeleted`")
         void event() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
             RemoveMessage command = removeMessageCommand(message);
             context().receivesCommand(command);
-            MessageMarkedAsRemoved expected = messageMarkedAsRemovedFrom(command);
+            MessageMarkedAsDeleted expected = messageMarkedAsDeletedFrom(command);
 
             context().assertEvents()
-                     .withType(MessageMarkedAsRemoved.class)
+                     .withType(MessageMarkedAsDeleted.class)
                      .message(0)
                      .isEqualTo(expected);
         }
 
         @Test
-        @DisplayName("`MessageCannotBeMarkedAsRemoved` rejection " +
+        @DisplayName("`MessageCannotBeMarkedAsDeleted` rejection " +
                 "if message with the given ID doesn't exist")
         void rejectBecauseNotExist() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
             RemoveMessage command = removeMessageCommandWith(message, MessageId.generate());
             context().receivesCommand(command);
-            MessageCannotBeMarkedAsRemoved expected =
+            MessageCannotBeMarkedAsDeleted expected =
                     messageCannotBeMarkedAsRemovedFrom(command);
 
             context().assertEvents()
-                     .withType(MessageCannotBeMarkedAsRemoved.class)
+                     .withType(MessageCannotBeMarkedAsDeleted.class)
                      .message(0)
                      .isEqualTo(expected);
         }
 
         @Test
-        @DisplayName("`MessageCannotBeMarkedAsRemoved` rejection " +
+        @DisplayName("`MessageCannotBeMarkedAsDeleted` rejection " +
                 "if the message is already marked as removed")
         void rejectBecauseAlreadyRemoved() {
             Chat chat = createRandomChatIn(context());
@@ -175,11 +175,11 @@ final class MessageRemovalTest extends ContextAwareTest {
             RemoveMessage command = removeMessageCommand(message);
             context().receivesCommand(command);
             context().receivesCommand(command);
-            MessageCannotBeMarkedAsRemoved expected =
+            MessageCannotBeMarkedAsDeleted expected =
                     messageCannotBeMarkedAsRemovedFrom(command);
 
             context().assertEvents()
-                     .withType(MessageCannotBeMarkedAsRemoved.class)
+                     .withType(MessageCannotBeMarkedAsDeleted.class)
                      .message(0)
                      .isEqualTo(expected);
         }

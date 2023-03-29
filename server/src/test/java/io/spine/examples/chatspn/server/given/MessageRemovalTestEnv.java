@@ -30,10 +30,10 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
-import io.spine.examples.chatspn.message.event.MessageMarkedAsRemoved;
+import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
 import io.spine.examples.chatspn.message.event.MessageRemoved;
-import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsRemoved;
+import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeRemoved;
 
 public final class MessageRemovalTestEnv {
@@ -94,8 +94,8 @@ public final class MessageRemovalTestEnv {
         return event;
     }
 
-    public static MessageMarkedAsRemoved messageMarkedAsRemovedFrom(RemoveMessage c) {
-        MessageMarkedAsRemoved event = MessageMarkedAsRemoved
+    public static MessageMarkedAsDeleted messageMarkedAsDeletedFrom(RemoveMessage c) {
+        MessageMarkedAsDeleted event = MessageMarkedAsDeleted
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -124,9 +124,9 @@ public final class MessageRemovalTestEnv {
         return rejection;
     }
 
-    public static MessageCannotBeMarkedAsRemoved messageCannotBeMarkedAsRemovedFrom(
+    public static MessageCannotBeMarkedAsDeleted messageCannotBeMarkedAsRemovedFrom(
             RemoveMessage c) {
-        MessageCannotBeMarkedAsRemoved rejection = MessageCannotBeMarkedAsRemoved
+        MessageCannotBeMarkedAsDeleted rejection = MessageCannotBeMarkedAsDeleted
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())

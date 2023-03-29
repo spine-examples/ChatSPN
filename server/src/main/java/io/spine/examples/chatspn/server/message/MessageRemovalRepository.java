@@ -30,8 +30,8 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
-import io.spine.examples.chatspn.message.event.MessageMarkedAsRemoved;
-import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsRemoved;
+import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
+import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.procman.ProcessManagerRepository;
 import io.spine.server.route.EventRouting;
@@ -48,8 +48,8 @@ public final class MessageRemovalRepository
     @Override
     protected void setupEventRouting(EventRouting<MessageId> routing) {
         super.setupEventRouting(routing);
-        routing.route(MessageMarkedAsRemoved.class, (event, context) -> withId(event.getId()))
-               .route(MessageCannotBeMarkedAsRemoved.class,
+        routing.route(MessageMarkedAsDeleted.class, (event, context) -> withId(event.getId()))
+               .route(MessageCannotBeMarkedAsDeleted.class,
                       (event, context) -> withId(event.getId()));
     }
 

@@ -28,13 +28,13 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
-import io.spine.examples.chatspn.message.command.MarkMessageAsRemoved;
+import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
 import io.spine.examples.chatspn.message.command.PostMessage;
 import io.spine.examples.chatspn.message.command.UpdateMessageContent;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
-import io.spine.examples.chatspn.message.event.MessageMarkedAsRemoved;
+import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessagePosted;
-import io.spine.examples.chatspn.message.rejection.MessageCannotBeMarkedAsRemoved;
+import io.spine.examples.chatspn.message.rejection.MessageCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.rejection.MessageContentCannotBeUpdated;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
@@ -104,22 +104,22 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
     }
 
     /**
-     * Handles the command to mark a message as removed.
+     * Handles the command to mark a message as deleted.
      *
-     * @throws MessageCannotBeMarkedAsRemoved
-     *         if the message does not exist, or is already marked as removed
+     * @throws MessageCannotBeMarkedAsDeleted
+     *         if the message does not exist, or is already marked as deleted
      */
     @Assign
-    MessageMarkedAsRemoved handle(MarkMessageAsRemoved c) throws MessageCannotBeMarkedAsRemoved {
+    MessageMarkedAsDeleted handle(MarkMessageAsDeleted c) throws MessageCannotBeMarkedAsDeleted {
         if (!state().hasId() || isDeleted()) {
-            throw MessageCannotBeMarkedAsRemoved
+            throw MessageCannotBeMarkedAsDeleted
                     .newBuilder()
                     .setId(c.getId())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
                     .build();
         }
-        return MessageMarkedAsRemoved
+        return MessageMarkedAsDeleted
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -128,7 +128,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
     }
 
     @Apply
-    private void event(MessageMarkedAsRemoved e) {
+    private void event(MessageMarkedAsDeleted e) {
         setDeleted(true);
     }
 }

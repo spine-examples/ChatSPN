@@ -34,11 +34,11 @@ import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.command.MarkMessageAsRemoved;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
-import io.spine.examples.chatspn.message.event.MessageMarkedAsRemoved;
+import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
 import io.spine.examples.chatspn.message.event.MessageRemoved;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeRemoved;
-import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsRemoved;
+import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
@@ -58,7 +58,7 @@ public final class MessageRemovalProcess
     private ProjectionReader<ChatId, ChatMembers> projectionReader;
 
     /**
-     * Issues a command to mark message as removed.
+     * Issues a command to mark message as deleted.
      *
      * @throws MessageCannotBeRemoved
      *         if the message remover is not a chat member
@@ -90,7 +90,7 @@ public final class MessageRemovalProcess
      * Archives the process when the message was removed.
      */
     @React
-    MessageRemoved on(MessageMarkedAsRemoved e) {
+    MessageRemoved on(MessageMarkedAsDeleted e) {
         setArchived(true);
         return MessageRemoved
                 .newBuilder()
@@ -104,7 +104,7 @@ public final class MessageRemovalProcess
      * Archives the process when the message removal failed.
      */
     @React
-    MessageRemovalFailed on(MessageCannotBeMarkedAsRemoved e) {
+    MessageRemovalFailed on(MessageCannotBeMarkedAsDeleted e) {
         setArchived(true);
         return MessageRemovalFailed
                 .newBuilder()
