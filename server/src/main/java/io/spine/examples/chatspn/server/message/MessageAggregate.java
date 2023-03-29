@@ -111,7 +111,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
      */
     @Assign
     MessageMarkedAsRemoved handle(MarkMessageAsRemoved c) throws MessageCannotBeMarkedAsRemoved {
-        if (!state().hasId() || state().getIsRemoved()) {
+        if (!state().hasId() || isDeleted()) {
             throw MessageCannotBeMarkedAsRemoved
                     .newBuilder()
                     .setId(c.getId())
@@ -129,6 +129,6 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
 
     @Apply
     private void event(MessageMarkedAsRemoved e) {
-        builder().setIsRemoved(true);
+        setDeleted(true);
     }
 }

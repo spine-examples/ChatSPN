@@ -110,7 +110,6 @@ public final class MessageRemovalTestEnv {
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setIsRemoved(true)
                 .buildPartial();
         return state;
     }
