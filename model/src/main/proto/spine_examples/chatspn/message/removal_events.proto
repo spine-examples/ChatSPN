@@ -51,6 +51,10 @@ message MessageRemoved {
 }
 
 // The message failed to be removed.
+//
+// The reason is that the message with the given ID doesn't exist,
+// or has already been marked as removed.
+//
 message MessageRemovalFailed {
 
     // The ID of the message that failed to be removed.

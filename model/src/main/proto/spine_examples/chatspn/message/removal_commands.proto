@@ -38,6 +38,9 @@ import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
 // Tells to remove a message in the chat.
+//
+// The command can be sent by a chat member who wants to remove a message.
+//
 message RemoveMessage {
 
     // The ID of the message to remove.
@@ -51,6 +54,9 @@ message RemoveMessage {
 }
 
 // Tells to mark a message as removed.
+//
+// The command can be sent by a MessageRemovalProcess.
+//
 message MarkMessageAsRemoved {
 
     // The ID of the message to be marked as removed.
