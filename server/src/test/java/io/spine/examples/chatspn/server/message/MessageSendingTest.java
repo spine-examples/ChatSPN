@@ -28,6 +28,8 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.command.SendMessage;
+import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.event.MessageSent;
 import io.spine.examples.chatspn.message.rejection.SendingRejections.MessageCannotBeSent;
 import io.spine.examples.chatspn.server.ChatsContext;
@@ -35,10 +37,16 @@ import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.messageCannotBeSentFrom;
+import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.messageFrom;
+import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.messagePostedFrom;
+import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.messageSentFrom;
+import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.randomSendMessageCommand;
+import static io.spine.examples.chatspn.server.given.MessageSendingTestEnv.sendMessageCommandWith;
 import static io.spine.examples.chatspn.server.given.MessageTestEnv.createRandomChat;
-import static io.spine.examples.chatspn.server.given.MessageTestEnv.sendMessage;
 
 @DisplayName("`MessageSending` should")
 public final class MessageSendingTest extends ContextAwareTest {
@@ -49,63 +57,56 @@ public final class MessageSendingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `MessageSent` event")
+    @DisplayName("emit `MessageSent` event and archive itself")
     void event() {
         Chat chat = createRandomChat(context());
-        Message message = sendMessage(chat.getId(),
-                                      chat.getMember(0),
-                                      context());
-        MessageSent expected = MessageSent
-                .newBuilder()
-                .setId(message.getId())
-                .setChat(message.getChat())
-                .setUser(message.getUser())
-                .setContent(message.getContent())
-                .vBuild();
+        SendMessage command = randomSendMessageCommand(chat);
+        context().receivesCommand(command);
+        MessageSent expected = messageSentFrom(command);
 
         context().assertEvent(expected);
+        context().assertEntity(expected.getId(), MessageSendingProcess.class)
+                 .archivedFlag()
+                 .isTrue();
     }
 
     @Test
     @DisplayName("produce a `Message` with the expected state")
     void state() {
         Chat chat = createRandomChat(context());
-        Message message = sendMessage(chat.getId(),
-                                      chat.getMember(0),
-                                      context());
-        context().assertState(message.getId(), Message.class)
+        SendMessage command = randomSendMessageCommand(chat);
+        context().receivesCommand(command);
+        Message state = messageFrom(command);
+
+        context().assertState(state.getId(), Message.class)
                  .comparingExpectedFieldsOnly()
-                 .isEqualTo(message);
+                 .isEqualTo(state);
     }
 
     @Test
     @DisplayName("reject when the message sender is not the chat member")
     void rejection() {
         Chat chat = createRandomChat(context());
-        Message message = sendMessage(chat.getId(),
-                                      GivenUserId.generated(),
-                                      context());
-
-        MessageCannotBeSent expected = MessageCannotBeSent
-                .newBuilder()
-                .setId(message.getId())
-                .setChat(message.getChat())
-                .setUser(message.getUser())
-                .setContent(message.getContent())
-                .vBuild();
+        SendMessage command = sendMessageCommandWith(chat, GivenUserId.generated());
+        context().receivesCommand(command);
+        MessageCannotBeSent expected = messageCannotBeSentFrom(command);
 
         context().assertEvent(expected);
     }
 
-    @Test
-    @DisplayName("archive itself once the message is sent")
-    void archiving() {
-        Chat chat = createRandomChat(context());
-        Message message = sendMessage(chat.getId(),
-                                      chat.getMember(0),
-                                      context());
-        context().assertEntity(message.getId(), MessageSendingProcess.class)
-                 .archivedFlag()
-                 .isTrue();
+    @Nested
+    @DisplayName("lead `MessageAggregate` to emission of the")
+    class MessageAggregateSubTest {
+
+        @Test
+        @DisplayName("`MessagePosted`")
+        void event() {
+            Chat chat = createRandomChat(context());
+            SendMessage command = randomSendMessageCommand(chat);
+            context().receivesCommand(command);
+            MessagePosted expected = messagePostedFrom(command);
+
+            context().assertEvent(expected);
+        }
     }
 }
