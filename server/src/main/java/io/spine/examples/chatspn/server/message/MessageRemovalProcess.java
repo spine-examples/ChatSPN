@@ -32,7 +32,7 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
-import io.spine.examples.chatspn.message.command.MarkMessageAsRemoved;
+import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
@@ -64,14 +64,14 @@ public final class MessageRemovalProcess
      *         if the message remover is not a chat member
      */
     @Command
-    MarkMessageAsRemoved on(RemoveMessage c, CommandContext ctx) throws MessageCannotBeRemoved {
+    MarkMessageAsDeleted on(RemoveMessage c, CommandContext ctx) throws MessageCannotBeRemoved {
         builder().setId(c.getId());
         ChatMembers chatMembers = projectionReader
                 .read(ImmutableSet.of(c.getChat()), ctx.getActorContext())
                 .get(0);
         if (chatMembers.getMemberList()
                        .contains(c.getUser())) {
-            return MarkMessageAsRemoved
+            return MarkMessageAsDeleted
                     .newBuilder()
                     .setId(c.getId())
                     .setChat(c.getChat())
