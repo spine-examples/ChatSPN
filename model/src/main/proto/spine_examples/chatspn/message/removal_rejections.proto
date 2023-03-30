@@ -30,54 +30,41 @@ package spine_examples.chatspn.message;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.message";
-option java_outer_classname = "MessageProto";
-option java_multiple_files = true;
+option java_package = "io.spine.examples.chatspn.message.rejection";
+option java_multiple_files = false;
 
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
-import "google/protobuf/timestamp.proto";
 
-// A message in the chat.
-message Message {
-    option (entity) = { kind: AGGREGATE };
+// A message cannot be removed.
+//
+// Emitted when the user who sent the original command, is not a chat member.
+//
+message MessageCannotBeRemoved {
 
-    // The ID of the message.
-    MessageId id = 1;
+    // The ID of the message that could not be removed.
+    MessageId id = 1 [(required) = true];
 
-    // The ID of the chat in which this message was posted.
+    // The ID of the chat where the message could not be removed.
     ChatId chat = 2 [(required) = true];
 
-    // The ID of the user who posted this message.
+    // The ID of the user who originally asked to remove this message.
     spine.core.UserId user = 3 [(required) = true];
-
-    // The message text content.
-    string content = 4 [(required) = true];
-
-    // Time when this message was posted.
-    google.protobuf.Timestamp when_posted = 5 [(required) = true];
 }
 
-// The process of message sending to the chat.
-message MessageSending {
-    option (entity) = { kind: PROCESS_MANAGER };
+// A message cannot be marked as deleted.
+//
+// Typically emitted if the message with the specified ID does not exist,
+// or if it has already been marked deleted.
+//
+message MessageCannotBeMarkedAsDeleted {
 
-    // The ID of the message to send.
-    MessageId id = 1;
-}
+    // The ID of the message that could not be marked as deleted.
+    MessageId id = 1 [(required) = true];
 
-// The process of message editing.
-message MessageEditing {
-    option (entity) = { kind: PROCESS_MANAGER };
+    // The ID of the chat in which message could not be marked as deleted.
+    ChatId chat = 2 [(required) = true];
 
-    // The ID of the message to edit.
-    MessageId id = 1;
-}
-
-// The process of message removal.
-message MessageRemoval {
-    option (entity) = { kind: PROCESS_MANAGER };
-
-    // The ID of the message to remove.
-    MessageId id = 1;
+    // The ID of the user who originally asked to mark this message as deleted.
+    spine.core.UserId user = 3 [(required) = true];
 }
