@@ -66,9 +66,7 @@ public final class MessageRemovalProcess
     @Command
     MarkMessageAsDeleted on(RemoveMessage c, CommandContext ctx) throws MessageCannotBeRemoved {
         builder().setId(c.getId());
-        ChatMembers chatMembers = projectionReader
-                .read(ImmutableSet.of(c.getChat()), ctx.getActorContext())
-                .get(0);
+        ChatMembers chatMembers = readMembers(c.getChat(), ctx);
         if (chatMembers.getMemberList()
                        .contains(c.getUser())) {
             return MarkMessageAsDeleted
@@ -116,5 +114,11 @@ public final class MessageRemovalProcess
 
     void inject(ProjectionReader<ChatId, ChatMembers> reader) {
         projectionReader = reader;
+    }
+
+    private ChatMembers readMembers(ChatId id, CommandContext ctx) {
+        return projectionReader
+                .read(ImmutableSet.of(id), ctx.getActorContext())
+                .get(0);
     }
 }
