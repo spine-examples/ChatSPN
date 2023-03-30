@@ -38,7 +38,7 @@ import "spine_examples/chatspn/identifiers.proto";
 
 // A message cannot be removed.
 //
-// The reason is that the user who sent the command to remove the message is not a chat member.
+// Emitted when the user who sent the original command, is not a chat member.
 //
 message MessageCannotBeRemoved {
 
@@ -54,8 +54,8 @@ message MessageCannotBeRemoved {
 
 // A message cannot be marked as deleted.
 //
-// The reason is that the message with the given ID doesn't exist,
-// or has already been marked as deleted.
+// Typically emitted if the message with the specified ID does not exist,
+// or if it has already been marked deleted.
 //
 message MessageCannotBeMarkedAsDeleted {
 

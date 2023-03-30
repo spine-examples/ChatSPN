@@ -55,7 +55,7 @@ message RemoveMessage {
 
 // Tells to mark a message as deleted.
 //
-// The command can be sent by a MessageRemovalProcess.
+// The command is typically posted by the corresponding `MessageRemovalProcess`.
 //
 message MarkMessageAsDeleted {
 
