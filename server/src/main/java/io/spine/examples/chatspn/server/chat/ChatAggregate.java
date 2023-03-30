@@ -59,7 +59,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         builder().setId(e.getId())
                  .addMember(e.getCreator())
                  .addMember(e.getMember())
-                 .setType(Chat.ChatType.PERSONAL);
+                 .setType(Chat.ChatType.CT_PERSONAL);
     }
 
     /**
@@ -82,6 +82,6 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                  .addMember(e.getCreator())
                  .addAllMember(e.getMemberList())
                  .setName(e.getName())
-                 .setType(Chat.ChatType.GROUP);
+                 .setType(Chat.ChatType.CT_GROUP);
     }
 }

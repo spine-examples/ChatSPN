@@ -34,8 +34,8 @@ import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.testing.core.given.GivenUserId;
 
-import static io.spine.examples.chatspn.chat.Chat.ChatType.GROUP;
-import static io.spine.examples.chatspn.chat.Chat.ChatType.PERSONAL;
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
 import static io.spine.testing.TestValues.randomString;
 
 public final class ChatTestEnv {
@@ -70,7 +70,7 @@ public final class ChatTestEnv {
         Chat state = Chat
                 .newBuilder()
                 .setId(c.getId())
-                .setType(PERSONAL)
+                .setType(CT_PERSONAL)
                 .addMember(c.getCreator())
                 .addMember(c.getMember())
                 .vBuild();
@@ -104,7 +104,7 @@ public final class ChatTestEnv {
         Chat state = Chat
                 .newBuilder()
                 .setId(c.getId())
-                .setType(GROUP)
+                .setType(CT_GROUP)
                 .addMember(c.getCreator())
                 .addAllMember(c.getMemberList())
                 .setName(c.getName())

@@ -63,8 +63,8 @@ message Chat {
     ChatType type = 3;
 
     enum ChatType {
-        PERSONAL = 0;
-        GROUP = 1;
+        CT_PERSONAL = 0;
+        CT_GROUP = 1;
     }
 
     // The name of the chat.
