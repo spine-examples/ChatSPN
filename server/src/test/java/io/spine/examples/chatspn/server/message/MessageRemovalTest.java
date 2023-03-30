@@ -64,7 +64,7 @@ final class MessageRemovalTest extends ContextAwareTest {
 
     @Test
     @DisplayName("emit a `MessageRemoved` event " +
-            "if the process is finished successfully and archive itself")
+            "if the process is finished successfully, and archive itself")
     void messageRemovedEvent() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
@@ -110,7 +110,7 @@ final class MessageRemovalTest extends ContextAwareTest {
 
     @Test
     @DisplayName("emit a `MessageRemovalFailed` event " +
-            "if message cannot be marked as deleted and archive itself")
+            "if message cannot be marked as deleted, and archive itself")
     void messageRemovalFailedEvent() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
