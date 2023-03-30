@@ -37,11 +37,11 @@ import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.ChatTestEnv.chatFrom;
-import static io.spine.examples.chatspn.server.given.ChatTestEnv.createGroupChatCommand;
-import static io.spine.examples.chatspn.server.given.ChatTestEnv.createPersonalChatCommand;
-import static io.spine.examples.chatspn.server.given.ChatTestEnv.groupChatCreatedFrom;
-import static io.spine.examples.chatspn.server.given.ChatTestEnv.personalChatCreatedFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatCreatedFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatCreatedFrom;
 
 @DisplayName("`Chat` should")
 final class ChatTest extends ContextAwareTest {

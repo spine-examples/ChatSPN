@@ -36,8 +36,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.given.ChatMembersProjectionTestEnv.chatMembersFrom;
-import static io.spine.examples.chatspn.server.given.ChatTestEnv.createGroupChatCommand;
-import static io.spine.examples.chatspn.server.given.ChatTestEnv.createPersonalChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
 
 @DisplayName("`ChatMembersProjection` should")
 final class ChatMembersProjectionTest extends ContextAwareTest {
