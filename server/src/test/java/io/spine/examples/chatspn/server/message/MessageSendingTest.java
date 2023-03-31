@@ -57,7 +57,7 @@ public final class MessageSendingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit `MessageSent` event and archive itself")
+    @DisplayName("emit `MessageSent` event, and archive itself")
     void event() {
         Chat chat = createRandomChatIn(context());
         SendMessage command = randomSendMessageCommand(chat);

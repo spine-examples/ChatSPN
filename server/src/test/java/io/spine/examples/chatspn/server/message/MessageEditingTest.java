@@ -63,7 +63,8 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit a `MessageEdited` event if the process is finished successfully and archive itself")
+    @DisplayName("emit a `MessageEdited` event " +
+            "if the process is finished successfully, and archive itself")
     void messageEditedEvent() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
@@ -92,7 +93,8 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("reject with the `MessageCannotBeEdited` if the message editor is not the chat member")
+    @DisplayName("reject with the `MessageCannotBeEdited` " +
+            "if the message editor is not the chat member")
     void messageCannotBeEditedRejection() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
@@ -104,7 +106,8 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit a `MessageEditingFailed` event if message content cannot be edited and archive itself")
+    @DisplayName("emit a `MessageEditingFailed` event " +
+            "if message content cannot be edited, and archive itself")
     void messageNotEditedEvent() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
@@ -135,7 +138,8 @@ final class MessageEditingTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("`MessageContentCannotBeUpdated` rejection if message with the given ID doesn't exist")
+        @DisplayName("`MessageContentCannotBeUpdated` rejection " +
+                "if message with the given ID doesn't exist")
         void rejectBecauseNotExist() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
@@ -148,7 +152,8 @@ final class MessageEditingTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("`MessageContentCannotBeUpdated` rejection if non-owner tries to edit message")
+        @DisplayName("`MessageContentCannotBeUpdated` rejection " +
+                "if non-owner tries to edit message")
         void rejectBecauseEditorNonOwner() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
