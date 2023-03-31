@@ -53,14 +53,14 @@ public final class MessageTestEnv {
                 .addMember(GivenUserId.generated())
                 .addMember(GivenUserId.generated())
                 .vBuild();
-        CreateChat createChat = CreateChat
+        CreateChat command = CreateChat
                 .newBuilder()
                 .setId(chat.getId())
                 .setName(chat.getName())
                 .setCreator(chat.getMember(0))
                 .addMember(chat.getMember(1))
                 .vBuild();
-        context.receivesCommand(createChat);
+        context.receivesCommand(command);
         return chat;
     }
 
@@ -72,14 +72,14 @@ public final class MessageTestEnv {
                 .setUser(chat.getMember(0))
                 .setContent(randomString())
                 .buildPartial();
-        SendMessage sendMessage = SendMessage
+        SendMessage command = SendMessage
                 .newBuilder()
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(message.getUser())
                 .setContent(message.getContent())
                 .vBuild();
-        context.receivesCommand(sendMessage);
+        context.receivesCommand(command);
         return message;
     }
 }
