@@ -28,10 +28,13 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
 import io.spine.examples.chatspn.message.command.PostMessage;
 import io.spine.examples.chatspn.message.command.UpdateMessageContent;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
+import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessagePosted;
+import io.spine.examples.chatspn.message.rejection.MessageCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.rejection.MessageContentCannotBeUpdated;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
@@ -98,5 +101,34 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
     @Apply
     private void event(MessageContentUpdated e) {
         builder().setContent(e.getContent());
+    }
+
+    /**
+     * Handles the command to mark a message as deleted.
+     *
+     * @throws MessageCannotBeMarkedAsDeleted
+     *         if the message does not exist, or is already marked as deleted
+     */
+    @Assign
+    MessageMarkedAsDeleted handle(MarkMessageAsDeleted c) throws MessageCannotBeMarkedAsDeleted {
+        if (!state().hasId() || isDeleted()) {
+            throw MessageCannotBeMarkedAsDeleted
+                    .newBuilder()
+                    .setId(c.getId())
+                    .setChat(c.getChat())
+                    .setUser(c.getUser())
+                    .build();
+        }
+        return MessageMarkedAsDeleted
+                .newBuilder()
+                .setId(c.getId())
+                .setChat(c.getChat())
+                .setUser(c.getUser())
+                .vBuild();
+    }
+
+    @Apply
+    private void event(MessageMarkedAsDeleted e) {
+        setDeleted(true);
     }
 }
