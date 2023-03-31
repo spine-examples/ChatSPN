@@ -43,8 +43,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.createRandomChatIn;
-import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.sendRandomMessageTo;
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageFrom;
@@ -53,6 +51,8 @@ import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messa
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageRemovedFrom;
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.removeMessageCommand;
 import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.removeMessageCommandWith;
+import static io.spine.examples.chatspn.server.given.MessageTestEnv.createRandomChatIn;
+import static io.spine.examples.chatspn.server.given.MessageTestEnv.sendRandomMessageTo;
 
 @DisplayName("`MessageRemoval` should")
 final class MessageRemovalTest extends ContextAwareTest {
