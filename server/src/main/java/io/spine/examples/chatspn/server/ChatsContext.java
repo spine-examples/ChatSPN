@@ -34,6 +34,7 @@ import io.spine.examples.chatspn.server.chat.ChatAggregate;
 import io.spine.examples.chatspn.server.chat.ChatMembersRepository;
 import io.spine.examples.chatspn.server.message.MessageAggregate;
 import io.spine.examples.chatspn.server.message.MessageEditingRepository;
+import io.spine.examples.chatspn.server.message.MessageRemovalRepository;
 import io.spine.examples.chatspn.server.message.MessageSendingRepository;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
@@ -66,6 +67,7 @@ public final class ChatsContext {
                 .add(new ChatMembersRepository())
                 .add(new MessageSendingRepository())
                 .add(new MessageEditingRepository())
+                .add(new MessageRemovalRepository())
                 .add(DefaultRepository.of(ReservedEmailAggregate.class))
                 .add(new AccountCreationRepository());
     }
