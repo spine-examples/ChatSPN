@@ -124,6 +124,19 @@ final class MessageRemovalTest extends ContextAwareTest {
                  .isTrue();
     }
 
+    @Test
+    @DisplayName("update a `MessageViewProjection` to the expected state")
+    void updateMessageView() {
+        Chat chat = createRandomChatIn(context());
+        Message message = sendRandomMessageTo(chat, context());
+        RemoveMessage command = removeMessageCommand(message);
+        context().receivesCommand(command);
+
+        context().assertEntity(command.getId(), MessageViewProjection.class)
+                 .deletedFlag()
+                 .isTrue();
+    }
+
     @Nested
     @DisplayName("lead `MessageAggregate` to emission of the")
     class MessageAggregateBehaviour {

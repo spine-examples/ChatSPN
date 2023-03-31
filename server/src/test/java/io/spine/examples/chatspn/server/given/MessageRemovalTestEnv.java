@@ -29,6 +29,7 @@ package io.spine.examples.chatspn.server.given;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
