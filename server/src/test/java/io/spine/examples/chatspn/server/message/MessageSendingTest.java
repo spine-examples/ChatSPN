@@ -71,19 +71,6 @@ public final class MessageSendingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("produce a `Message` with the expected state")
-    void state() {
-        Chat chat = createRandomChatIn(context());
-        SendMessage command = randomSendMessageCommand(chat);
-        context().receivesCommand(command);
-        Message state = messageFrom(command);
-
-        context().assertState(state.getId(), Message.class)
-                 .comparingExpectedFieldsOnly()
-                 .isEqualTo(state);
-    }
-
-    @Test
     @DisplayName("reject when the message sender is not the chat member")
     void rejection() {
         Chat chat = createRandomChatIn(context());
@@ -95,11 +82,24 @@ public final class MessageSendingTest extends ContextAwareTest {
     }
 
     @Nested
-    @DisplayName("lead `MessageAggregate` to emission of the")
+    @DisplayName("lead `MessageAggregate` to ")
     class MessageAggregateBehaviour {
 
         @Test
-        @DisplayName("`MessagePosted`")
+        @DisplayName("produce a `Message` with the expected state")
+        void state() {
+            Chat chat = createRandomChatIn(context());
+            SendMessage command = randomSendMessageCommand(chat);
+            context().receivesCommand(command);
+            Message state = messageFrom(command);
+
+            context().assertState(state.getId(), Message.class)
+                     .comparingExpectedFieldsOnly()
+                     .isEqualTo(state);
+        }
+
+        @Test
+        @DisplayName("emission of the `MessagePosted` event")
         void event() {
             Chat chat = createRandomChatIn(context());
             SendMessage command = randomSendMessageCommand(chat);

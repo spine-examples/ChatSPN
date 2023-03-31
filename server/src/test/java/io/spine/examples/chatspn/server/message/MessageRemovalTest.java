@@ -79,23 +79,6 @@ final class MessageRemovalTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("update a `MessageAggregate` to the expected state")
-    void state() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        RemoveMessage command = removeMessageCommand(message);
-        context().receivesCommand(command);
-        Message expected = messageFrom(command);
-
-        context().assertState(expected.getId(), Message.class)
-                 .comparingExpectedFieldsOnly()
-                 .isEqualTo(expected);
-        context().assertEntity(expected.getId(), MessageAggregate.class)
-                 .deletedFlag()
-                 .isTrue();
-    }
-
-    @Test
     @DisplayName("reject with the `MessageCannotBeRemoved` " +
             "if the message remover is not the chat member")
     void messageCannotBeRemovedRejection() {
@@ -125,11 +108,28 @@ final class MessageRemovalTest extends ContextAwareTest {
     }
 
     @Nested
-    @DisplayName("lead `MessageAggregate` to emission of the")
+    @DisplayName("lead `MessageAggregate` to ")
     class MessageAggregateBehaviour {
 
         @Test
-        @DisplayName("`MessageMarkedAsDeleted`")
+        @DisplayName("update the state as expected")
+        void state() {
+            Chat chat = createRandomChatIn(context());
+            Message message = sendRandomMessageTo(chat, context());
+            RemoveMessage command = removeMessageCommand(message);
+            context().receivesCommand(command);
+            Message expected = messageFrom(command);
+
+            context().assertState(expected.getId(), Message.class)
+                     .comparingExpectedFieldsOnly()
+                     .isEqualTo(expected);
+            context().assertEntity(expected.getId(), MessageAggregate.class)
+                     .deletedFlag()
+                     .isTrue();
+        }
+
+        @Test
+        @DisplayName("emission of the `MessageMarkedAsDeleted` event")
         void event() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
@@ -141,7 +141,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("`MessageCannotBeMarkedAsDeleted` rejection " +
+        @DisplayName("emission of the `MessageCannotBeMarkedAsDeleted` rejection " +
                 "if message with the given ID doesn't exist")
         void rejectBecauseNotExist() {
             Chat chat = createRandomChatIn(context());
@@ -155,7 +155,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("`MessageCannotBeMarkedAsDeleted` rejection " +
+        @DisplayName("emission of the `MessageCannotBeMarkedAsDeleted` rejection " +
                 "if the message is already marked as deleted")
         void rejectBecauseAlreadyRemoved() {
             Chat chat = createRandomChatIn(context());
