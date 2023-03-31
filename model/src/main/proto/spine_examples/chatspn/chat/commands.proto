@@ -68,3 +68,16 @@ message CreateGroupChat {
     // The name of the chat to create.
     string name = 4 [(required) = true];
 }
+
+// Tells to include a new members to the chat.
+message IncludeMembers {
+
+    // The ID of the chat to include new members.
+    ChatId id = 1;
+
+    // The user who tells to include new members.
+    spine.core.UserId who_includes = 2 [(required) = true];
+
+    // Users to include into the chat as members.
+    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+}
