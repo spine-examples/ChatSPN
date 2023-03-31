@@ -24,113 +24,123 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.given;
+package io.spine.examples.chatspn.server.message.given;
 
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
-import io.spine.examples.chatspn.message.command.RemoveMessage;
-import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
-import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
-import io.spine.examples.chatspn.message.event.MessageRemoved;
-import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
-import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeRemoved;
+import io.spine.examples.chatspn.message.command.EditMessage;
+import io.spine.examples.chatspn.message.event.MessageContentUpdated;
+import io.spine.examples.chatspn.message.event.MessageEdited;
+import io.spine.examples.chatspn.message.event.MessageEditingFailed;
+import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageCannotBeEdited;
+import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageContentCannotBeUpdated;
 
-public final class MessageRemovalTestEnv {
+import static io.spine.testing.TestValues.randomString;
+
+public final class MessageEditingTestEnv {
 
     /**
      * Prevents class instantiation.
      */
-    private MessageRemovalTestEnv() {
+    private MessageEditingTestEnv() {
     }
 
-    public static RemoveMessage removeMessageCommand(Message message) {
-        RemoveMessage command = RemoveMessage
+    public static EditMessage editMessageCommand(Message message) {
+        EditMessage command = EditMessage
                 .newBuilder()
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(message.getUser())
+                .setSuggestedContent(randomString())
                 .vBuild();
         return command;
     }
 
-    public static RemoveMessage removeMessageCommandWith(Message message, UserId userId) {
-        RemoveMessage command = RemoveMessage
+    public static EditMessage editMessageCommandWith(Message message, UserId userId) {
+        EditMessage command = EditMessage
                 .newBuilder()
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(userId)
+                .setSuggestedContent(randomString())
                 .vBuild();
         return command;
     }
 
-    public static RemoveMessage removeMessageCommandWith(Message message, MessageId messageId) {
-        RemoveMessage command = RemoveMessage
+    public static EditMessage editMessageCommandWith(Message message, MessageId messageId) {
+        EditMessage command = EditMessage
                 .newBuilder()
                 .setId(messageId)
                 .setChat(message.getChat())
                 .setUser(message.getUser())
+                .setSuggestedContent(randomString())
                 .vBuild();
         return command;
     }
 
-    public static MessageRemoved messageRemovedFrom(RemoveMessage c) {
-        MessageRemoved event = MessageRemoved
+    public static MessageEdited messageEditedFrom(EditMessage c) {
+        MessageEdited event = MessageEdited
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
+                .setContent(c.getSuggestedContent())
                 .vBuild();
         return event;
     }
 
-    public static MessageRemovalFailed messageRemovalFailedFrom(RemoveMessage c) {
-        MessageRemovalFailed event = MessageRemovalFailed
+    public static MessageEditingFailed messageEditingFailedFrom(EditMessage c) {
+        MessageEditingFailed event = MessageEditingFailed
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
+                .setSuggestedContent(c.getSuggestedContent())
                 .vBuild();
         return event;
     }
 
-    public static MessageMarkedAsDeleted messageMarkedAsDeletedFrom(RemoveMessage c) {
-        MessageMarkedAsDeleted event = MessageMarkedAsDeleted
+    public static MessageContentUpdated messageContentUpdatedFrom(EditMessage c) {
+        MessageContentUpdated event = MessageContentUpdated
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
+                .setContent(c.getSuggestedContent())
                 .vBuild();
         return event;
     }
 
-    public static Message messageFrom(RemoveMessage c) {
+    public static Message messageFrom(EditMessage c) {
         Message state = Message
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
+                .setContent(c.getSuggestedContent())
                 .buildPartial();
         return state;
     }
 
-    public static MessageCannotBeRemoved messageCannotBeRemovedFrom(RemoveMessage c) {
-        MessageCannotBeRemoved rejection = MessageCannotBeRemoved
+    public static MessageCannotBeEdited messageCannotBeEditedFrom(EditMessage c) {
+        MessageCannotBeEdited rejection = MessageCannotBeEdited
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
+                .setSuggestedContent(c.getSuggestedContent())
                 .vBuild();
         return rejection;
     }
 
-    public static MessageCannotBeMarkedAsDeleted messageCannotBeMarkedAsRemovedFrom(
-            RemoveMessage c) {
-        MessageCannotBeMarkedAsDeleted rejection = MessageCannotBeMarkedAsDeleted
+    public static MessageContentCannotBeUpdated messageContentCannotBeUpdatedFrom(EditMessage c) {
+        MessageContentCannotBeUpdated rejection = MessageContentCannotBeUpdated
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
+                .setSuggestedContent(c.getSuggestedContent())
                 .vBuild();
         return rejection;
     }

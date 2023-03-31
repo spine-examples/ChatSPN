@@ -41,16 +41,16 @@ import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.accountCreatedFrom;
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.accountNotCreatedFrom;
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.createAccountCommandWith;
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.emailAlreadyReservedFrom;
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.emailReservedFrom;
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.randomCreateAccountCommand;
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.reservedEmailFrom;
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.userFrom;
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.userProfileFrom;
-import static io.spine.examples.chatspn.server.given.AccountCreationTestEnv.userRegisteredFrom;
+import static io.spine.examples.chatspn.server.account.given.AccountCreationTestEnv.accountCreatedFrom;
+import static io.spine.examples.chatspn.server.account.given.AccountCreationTestEnv.accountNotCreatedFrom;
+import static io.spine.examples.chatspn.server.account.given.AccountCreationTestEnv.createAccountCommandWith;
+import static io.spine.examples.chatspn.server.account.given.AccountCreationTestEnv.emailAlreadyReservedFrom;
+import static io.spine.examples.chatspn.server.account.given.AccountCreationTestEnv.emailReservedFrom;
+import static io.spine.examples.chatspn.server.account.given.AccountCreationTestEnv.randomCreateAccountCommand;
+import static io.spine.examples.chatspn.server.account.given.AccountCreationTestEnv.reservedEmailFrom;
+import static io.spine.examples.chatspn.server.account.given.AccountCreationTestEnv.userFrom;
+import static io.spine.examples.chatspn.server.account.given.AccountCreationTestEnv.userProfileFrom;
+import static io.spine.examples.chatspn.server.account.given.AccountCreationTestEnv.userRegisteredFrom;
 
 @DisplayName("`AccountCreation` should")
 final class AccountCreationTest extends ContextAwareTest {

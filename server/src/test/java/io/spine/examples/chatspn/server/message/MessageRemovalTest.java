@@ -43,16 +43,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageMarkedAsDeletedFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageRemovalFailedFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageRemovedFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.removeMessageCommand;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.removeMessageCommandWith;
-import static io.spine.examples.chatspn.server.given.MessageTestEnv.createRandomChatIn;
-import static io.spine.examples.chatspn.server.given.MessageTestEnv.sendRandomMessageTo;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageMarkedAsDeletedFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageRemovalFailedFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageRemovedFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.removeMessageCommand;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.removeMessageCommandWith;
+import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.createRandomChatIn;
+import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.sendRandomMessageTo;
 
 @DisplayName("`MessageRemoval` should")
 final class MessageRemovalTest extends ContextAwareTest {

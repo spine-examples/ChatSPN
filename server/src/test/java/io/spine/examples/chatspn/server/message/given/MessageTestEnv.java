@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.given;
+package io.spine.examples.chatspn.server.message.given;
 
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
