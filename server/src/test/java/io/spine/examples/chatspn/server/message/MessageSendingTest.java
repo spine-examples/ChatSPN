@@ -96,7 +96,7 @@ public final class MessageSendingTest extends ContextAwareTest {
 
     @Nested
     @DisplayName("lead `MessageAggregate` to emission of the")
-    class MessageAggregateSubTest {
+    class MessageAggregateBehaviour {
 
         @Test
         @DisplayName("`MessagePosted`")
