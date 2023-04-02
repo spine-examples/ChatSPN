@@ -29,7 +29,8 @@ package io.spine.examples.chatspn.server.chat;
 import io.spine.core.Subscribe;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatMembers;
-import io.spine.examples.chatspn.chat.event.ChatCreated;
+import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.server.projection.Projection;
 
 /**
@@ -39,9 +40,16 @@ public final class ChatMembersProjection
         extends Projection<ChatId, ChatMembers, ChatMembers.Builder> {
 
     @Subscribe
-    void on(ChatCreated e) {
+    void on(PersonalChatCreated e) {
         builder().setId(e.getId())
-                 .addAllMember(e.getMemberList())
-                 .addMember(e.getCreator());
+                 .addMember(e.getCreator())
+                 .addMember(e.getMember());
+    }
+
+    @Subscribe
+    void on(GroupChatCreated e) {
+        builder().setId(e.getId())
+                 .addMember(e.getCreator())
+                 .addAllMember(e.getMemberList());
     }
 }

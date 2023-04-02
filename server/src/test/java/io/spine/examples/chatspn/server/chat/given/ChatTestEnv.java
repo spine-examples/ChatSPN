@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.chat;
+package io.spine.examples.chatspn.server.chat.given;
 
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
@@ -32,59 +32,83 @@ import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
-import io.spine.server.aggregate.Aggregate;
-import io.spine.server.aggregate.Apply;
-import io.spine.server.command.Assign;
+import io.spine.testing.core.given.GivenUserId;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
+import static io.spine.testing.TestValues.randomString;
 
-/**
- * A chat between two or more users.
- */
-public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
+public final class ChatTestEnv {
 
     /**
-     * Handles the command to create a personal chat.
+     * Prevents class instantiation.
      */
-    @Assign
-    PersonalChatCreated handle(CreatePersonalChat c) {
-        return PersonalChatCreated
+    private ChatTestEnv() {
+    }
+
+    public static CreatePersonalChat createPersonalChatCommand() {
+        CreatePersonalChat command = CreatePersonalChat
+                .newBuilder()
+                .setId(ChatId.generate())
+                .setCreator(GivenUserId.generated())
+                .setMember(GivenUserId.generated())
+                .vBuild();
+        return command;
+    }
+
+    public static PersonalChatCreated personalChatCreatedFrom(CreatePersonalChat c) {
+        PersonalChatCreated event = PersonalChatCreated
                 .newBuilder()
                 .setId(c.getId())
                 .setCreator(c.getCreator())
                 .setMember(c.getMember())
                 .vBuild();
+        return event;
     }
 
-    @Apply
-    private void event(PersonalChatCreated e) {
-        builder().setId(e.getId())
-                 .addMember(e.getCreator())
-                 .addMember(e.getMember())
-                 .setType(CT_PERSONAL);
+    public static Chat chatFrom(CreatePersonalChat c) {
+        Chat state = Chat
+                .newBuilder()
+                .setId(c.getId())
+                .setType(CT_PERSONAL)
+                .addMember(c.getCreator())
+                .addMember(c.getMember())
+                .vBuild();
+        return state;
     }
 
-    /**
-     * Handles the command to create a group chat.
-     */
-    @Assign
-    GroupChatCreated handle(CreateGroupChat c) {
-        return GroupChatCreated
+    public static CreateGroupChat createGroupChatCommand() {
+        CreateGroupChat command = CreateGroupChat
+                .newBuilder()
+                .setId(ChatId.generate())
+                .setCreator(GivenUserId.generated())
+                .addMember(GivenUserId.generated())
+                .addMember(GivenUserId.generated())
+                .setName(randomString())
+                .vBuild();
+        return command;
+    }
+
+    public static GroupChatCreated groupChatCreatedFrom(CreateGroupChat c) {
+        GroupChatCreated event = GroupChatCreated
                 .newBuilder()
                 .setId(c.getId())
                 .setCreator(c.getCreator())
                 .addAllMember(c.getMemberList())
                 .setName(c.getName())
                 .vBuild();
+        return event;
     }
 
-    @Apply
-    private void event(GroupChatCreated e) {
-        builder().setId(e.getId())
-                 .addMember(e.getCreator())
-                 .addAllMember(e.getMemberList())
-                 .setName(e.getName())
-                 .setType(CT_GROUP);
+    public static Chat chatFrom(CreateGroupChat c) {
+        Chat state = Chat
+                .newBuilder()
+                .setId(c.getId())
+                .setType(CT_GROUP)
+                .addMember(c.getCreator())
+                .addAllMember(c.getMemberList())
+                .setName(c.getName())
+                .vBuild();
+        return state;
     }
 }

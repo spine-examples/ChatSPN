@@ -26,24 +26,25 @@
 
 package io.spine.examples.chatspn.server.chat;
 
-import io.spine.core.UserId;
-import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.command.CreateChat;
-import io.spine.examples.chatspn.chat.event.ChatCreated;
+import io.spine.examples.chatspn.chat.command.CreateGroupChat;
+import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
-import static io.spine.testing.TestValues.randomString;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatCreatedFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatCreatedFrom;
 
 @DisplayName("`Chat` should")
-class ChatTest extends ContextAwareTest {
+final class ChatTest extends ContextAwareTest {
 
     @Override
     protected BoundedContextBuilder contextBuilder() {
@@ -51,40 +52,27 @@ class ChatTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("allow creation and emit the `ChatCreated` event")
-    void creation() {
-        ArrayList<UserId> members = new ArrayList<>();
-        members.add(GivenUserId.generated());
-        members.add(GivenUserId.generated());
-
-        CreateChat command = CreateChat
-                .newBuilder()
-                .setId(ChatId.generate())
-                .setCreator(GivenUserId.generated())
-                .addAllMember(members)
-                .setName(randomString())
-                .vBuild();
-
+    @DisplayName("allow creation as personal and emit the `PersonalChatCreated` event")
+    void personalChatCreation() {
+        CreatePersonalChat command = createPersonalChatCommand();
         context().receivesCommand(command);
 
-        ChatCreated expectedEvent = ChatCreated
-                .newBuilder()
-                .setId(command.getId())
-                .setCreator(command.getCreator())
-                .addAllMember(command.getMemberList())
-                .setName(command.getName())
-                .vBuild();
-        Chat expectedState = Chat
-                .newBuilder()
-                .setId(command.getId())
-                .addMember(command.getCreator())
-                .addAllMember(command.getMemberList())
-                .setName(command.getName())
-                .vBuild();
+        PersonalChatCreated expectedEvent = personalChatCreatedFrom(command);
+        Chat expectedState = chatFrom(command);
 
-        context().assertEvents()
-                 .withType(ChatCreated.class)
-                 .hasSize(1);
+        context().assertEvent(expectedEvent);
+        context().assertState(command.getId(), expectedState);
+    }
+
+    @Test
+    @DisplayName("allow creation as group and emit the `GroupChatCreated` event")
+    void groupChatCreation() {
+        CreateGroupChat command = createGroupChatCommand();
+        context().receivesCommand(command);
+
+        GroupChatCreated expectedEvent = groupChatCreatedFrom(command);
+        Chat expectedState = chatFrom(command);
+
         context().assertEvent(expectedEvent);
         context().assertState(command.getId(), expectedState);
     }

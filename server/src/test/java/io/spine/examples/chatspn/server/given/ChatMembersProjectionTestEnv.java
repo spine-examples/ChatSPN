@@ -23,48 +23,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.chat;
+package io.spine.examples.chatspn.server.given;
 
-import "spine/options.proto";
+import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.command.CreateGroupChat;
+import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat.command";
-option java_outer_classname = "CommandsProto";
-option java_multiple_files = true;
+public final class ChatMembersProjectionTestEnv {
 
-import "spine/core/user_id.proto";
-import "spine_examples/chatspn/identifiers.proto";
+    /**
+     * Prevents class instantiation.
+     */
+    private ChatMembersProjectionTestEnv() {
+    }
 
-// Tells to create a new personal chat.
-message CreatePersonalChat {
+    public static ChatMembers chatMembersFrom(CreatePersonalChat c) {
+        ChatMembers state = ChatMembers
+                .newBuilder()
+                .setId(c.getId())
+                .addMember(c.getCreator())
+                .addMember(c.getMember())
+                .vBuild();
+        return state;
+    }
 
-    // The ID of the chat to create.
-    ChatId id = 1;
-
-    // The user who tells to create the chat.
-    spine.core.UserId creator = 2 [(required) = true];
-
-    // The user to include into the personal chat as a second member.
-    spine.core.UserId member = 3 [(required) = true];
-}
-
-// Tells to create a new group chat.
-message CreateGroupChat {
-
-    // The ID of the chat to create.
-    ChatId id = 1;
-
-    // The user who tells to create the chat.
-    spine.core.UserId creator = 2 [(required) = true];
-
-    // Users to include into the chat as members.
-    //
-    // This list does not include a `creator`.
-    //
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
-
-    // The name of the chat to create.
-    string name = 4 [(required) = true];
+    public static ChatMembers chatMembersFrom(CreateGroupChat c) {
+        ChatMembers state = ChatMembers
+                .newBuilder()
+                .setId(c.getId())
+                .addMember(c.getCreator())
+                .addAllMember(c.getMemberList())
+                .vBuild();
+        return state;
+    }
 }

@@ -29,7 +29,7 @@ package io.spine.examples.chatspn.server.message.given;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.command.CreateChat;
+import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.testing.core.given.GivenUserId;
@@ -53,7 +53,7 @@ public final class MessageTestEnv {
                 .addMember(GivenUserId.generated())
                 .addMember(GivenUserId.generated())
                 .vBuild();
-        CreateChat command = CreateChat
+        CreateGroupChat command = CreateGroupChat
                 .newBuilder()
                 .setId(chat.getId())
                 .setName(chat.getName())
