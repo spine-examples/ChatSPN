@@ -30,7 +30,7 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.command.CreateChat;
+import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.EditMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
@@ -60,7 +60,7 @@ public final class MessageEditingTestEnv {
                 .addMember(GivenUserId.generated())
                 .addMember(GivenUserId.generated())
                 .vBuild();
-        CreateChat createChat = CreateChat
+        CreateGroupChat createChat = CreateGroupChat
                 .newBuilder()
                 .setId(chat.getId())
                 .setName(chat.getName())

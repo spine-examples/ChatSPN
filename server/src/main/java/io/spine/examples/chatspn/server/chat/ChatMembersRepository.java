@@ -29,7 +29,8 @@ package io.spine.examples.chatspn.server.chat;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatMembers;
-import io.spine.examples.chatspn.chat.event.ChatCreated;
+import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.route.EventRouting;
 
@@ -45,6 +46,7 @@ public final class ChatMembersRepository
     @Override
     protected void setupEventRouting(EventRouting<ChatId> routing) {
         super.setupEventRouting(routing);
-        routing.route(ChatCreated.class, (event, context) -> withId(event.getId()));
+        routing.route(PersonalChatCreated.class, (event, context) -> withId(event.getId()))
+               .route(GroupChatCreated.class, (event, context) -> withId(event.getId()));
     }
 }
