@@ -43,16 +43,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.createRandomChatIn;
-import static io.spine.examples.chatspn.server.given.MessageEditingTestEnv.sendRandomMessageTo;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageMarkedAsDeletedFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageRemovalFailedFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.messageRemovedFrom;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.removeMessageCommand;
-import static io.spine.examples.chatspn.server.given.MessageRemovalTestEnv.removeMessageCommandWith;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageMarkedAsDeletedFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageRemovalFailedFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageRemovedFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.removeMessageCommand;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.removeMessageCommandWith;
+import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.createRandomChatIn;
+import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.sendRandomMessageTo;
 
 @DisplayName("`MessageRemoval` should")
 final class MessageRemovalTest extends ContextAwareTest {
@@ -75,23 +75,6 @@ final class MessageRemovalTest extends ContextAwareTest {
         context().assertEvent(expected);
         context().assertEntity(expected.getId(), MessageRemovalProcess.class)
                  .archivedFlag()
-                 .isTrue();
-    }
-
-    @Test
-    @DisplayName("update a `MessageAggregate` to the expected state")
-    void state() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        RemoveMessage command = removeMessageCommand(message);
-        context().receivesCommand(command);
-        Message expected = messageFrom(command);
-
-        context().assertState(expected.getId(), Message.class)
-                 .comparingExpectedFieldsOnly()
-                 .isEqualTo(expected);
-        context().assertEntity(expected.getId(), MessageAggregate.class)
-                 .deletedFlag()
                  .isTrue();
     }
 
@@ -125,11 +108,28 @@ final class MessageRemovalTest extends ContextAwareTest {
     }
 
     @Nested
-    @DisplayName("lead `MessageAggregate` to emission of the")
+    @DisplayName("lead `MessageAggregate` to ")
     class MessageAggregateBehaviour {
 
         @Test
-        @DisplayName("`MessageMarkedAsDeleted`")
+        @DisplayName("update the state as expected")
+        void state() {
+            Chat chat = createRandomChatIn(context());
+            Message message = sendRandomMessageTo(chat, context());
+            RemoveMessage command = removeMessageCommand(message);
+            context().receivesCommand(command);
+            Message expected = messageFrom(command);
+
+            context().assertState(expected.getId(), Message.class)
+                     .comparingExpectedFieldsOnly()
+                     .isEqualTo(expected);
+            context().assertEntity(expected.getId(), MessageAggregate.class)
+                     .deletedFlag()
+                     .isTrue();
+        }
+
+        @Test
+        @DisplayName("emission of the `MessageMarkedAsDeleted` event")
         void event() {
             Chat chat = createRandomChatIn(context());
             Message message = sendRandomMessageTo(chat, context());
@@ -141,7 +141,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("`MessageCannotBeMarkedAsDeleted` rejection " +
+        @DisplayName("emission of the `MessageCannotBeMarkedAsDeleted` rejection " +
                 "if message with the given ID doesn't exist")
         void rejectBecauseNotExist() {
             Chat chat = createRandomChatIn(context());
@@ -155,7 +155,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("`MessageCannotBeMarkedAsDeleted` rejection " +
+        @DisplayName("emission of the `MessageCannotBeMarkedAsDeleted` rejection " +
                 "if the message is already marked as deleted")
         void rejectBecauseAlreadyRemoved() {
             Chat chat = createRandomChatIn(context());
