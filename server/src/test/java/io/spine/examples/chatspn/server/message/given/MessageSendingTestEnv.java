@@ -42,7 +42,7 @@ public final class MessageSendingTestEnv {
     /**
      * Prevents class instantiation.
      */
-    public MessageSendingTestEnv() {
+    private MessageSendingTestEnv() {
     }
 
     public static SendMessage randomSendMessageCommand(Chat chat) {
