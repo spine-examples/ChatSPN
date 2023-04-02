@@ -23,48 +23,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.chat;
+/**
+ * Provides API for creation test environment and signals for account testing.
+ */
+@CheckReturnValue
+@ParametersAreNonnullByDefault
+package io.spine.examples.chatspn.server.account.given;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.CheckReturnValue;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat.command";
-option java_outer_classname = "CommandsProto";
-option java_multiple_files = true;
-
-import "spine/core/user_id.proto";
-import "spine_examples/chatspn/identifiers.proto";
-
-// Tells to create a new personal chat.
-message CreatePersonalChat {
-
-    // The ID of the chat to create.
-    ChatId id = 1;
-
-    // The user who tells to create the chat.
-    spine.core.UserId creator = 2 [(required) = true];
-
-    // The user to include into the personal chat as a second member.
-    spine.core.UserId member = 3 [(required) = true];
-}
-
-// Tells to create a new group chat.
-message CreateGroupChat {
-
-    // The ID of the chat to create.
-    ChatId id = 1;
-
-    // The user who tells to create the chat.
-    spine.core.UserId creator = 2 [(required) = true];
-
-    // Users to include into the chat as members.
-    //
-    // This list does not include a `creator`.
-    //
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
-
-    // The name of the chat to create.
-    string name = 4 [(required) = true];
-}
+import javax.annotation.ParametersAreNonnullByDefault;
