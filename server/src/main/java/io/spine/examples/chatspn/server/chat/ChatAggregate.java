@@ -36,6 +36,9 @@ import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
+
 /**
  * A chat between two or more users.
  */
@@ -59,7 +62,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         builder().setId(e.getId())
                  .addMember(e.getCreator())
                  .addMember(e.getMember())
-                 .setType(Chat.ChatType.CT_PERSONAL);
+                 .setType(CT_PERSONAL);
     }
 
     /**
@@ -82,6 +85,6 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                  .addMember(e.getCreator())
                  .addAllMember(e.getMemberList())
                  .setName(e.getName())
-                 .setType(Chat.ChatType.CT_GROUP);
+                 .setType(CT_GROUP);
     }
 }
