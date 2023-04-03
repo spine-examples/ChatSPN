@@ -125,7 +125,7 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("and reject with `MembersCannotBeIncluded` " +
+        @DisplayName("and reject with the `MembersCannotBeIncluded` " +
                 "if the user who includes is not a chat member")
         void rejectIfNotMember() {
             Chat chat = createGroupChatIn(context());
@@ -137,7 +137,7 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("and reject with `MembersCannotBeIncluded` " +
+        @DisplayName("and reject with the `MembersCannotBeIncluded` " +
                 "if chat type isn't a `CT_GROUP`")
         void rejectIfNotGroup() {
             Chat chat = createPersonalChatIn(context());
@@ -149,7 +149,7 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("and reject with `MembersCannotBeIncluded` " +
+        @DisplayName("and reject with the `MembersCannotBeIncluded` " +
                 "if all members to include already in the chat")
         void rejectIfAlreadyMembers() {
             Chat chat = createGroupChatIn(context());
