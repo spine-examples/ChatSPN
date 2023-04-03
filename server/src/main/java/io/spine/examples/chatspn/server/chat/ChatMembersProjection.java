@@ -56,6 +56,10 @@ public final class ChatMembersProjection
 
     @Subscribe
     void on(MembersIncluded e) {
-        builder().addAllMember(e.getMemberList());
+        e.getMemberList()
+         .stream()
+         .filter(member -> !state().getMemberList()
+                                   .contains(member))
+         .forEach(member -> builder().addMember(member));
     }
 }
