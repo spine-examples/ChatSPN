@@ -108,6 +108,7 @@ public final class ChatTestEnv {
                 .addMember(c.getCreator())
                 .addAllMember(c.getMemberList())
                 .setName(c.getName())
+                .setOwner(c.getCreator())
                 .vBuild();
         return state;
     }

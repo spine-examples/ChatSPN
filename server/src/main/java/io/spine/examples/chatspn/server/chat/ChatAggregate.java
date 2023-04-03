@@ -85,6 +85,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                  .addMember(e.getCreator())
                  .addAllMember(e.getMemberList())
                  .setName(e.getName())
+                 .setOwner(e.getCreator())
                  .setType(CT_GROUP);
     }
 }
