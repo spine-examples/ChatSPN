@@ -1,0 +1,58 @@
+/*
+ * Copyright 2023, TeamDev. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Redistribution and use in source and/or binary forms, with or without
+ * modification, must retain the above copyright notice and the following
+ * disclaimer.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+syntax = "proto3";
+
+package spine_examples.chatspn.chat;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.chatspn.spine.io";
+option java_package = "io.spine.examples.chatspn.chat.rejection";
+option java_multiple_files = false;
+
+import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
+import "spine_examples/chatspn/identifiers.proto";
+
+// New members cannot be included to this chat.
+//
+// Emitted when:
+// - chat type isn't a `CT_GROUP`;
+// - the user who sent the original command, is not a chat member;
+// - all users to include already are the chat members.
+//
+message MembersCannotBeIncluded {
+
+  // The ID of the chat in which members couldn't be included.
+  ChatId id = 1;
+
+  // The user who originally tells to include new members.
+  spine.core.UserId who_includes = 2 [(required) = true];
+
+  // Users who couldn't be included in the chat as members.
+  repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+}
+
