@@ -68,3 +68,16 @@ message CreateGroupChat {
     // The name of the chat to create.
     string name = 4 [(required) = true];
 }
+
+// Tells to exclude members from the chat.
+message ExcludeMembers {
+
+    // The ID of the chat to exclude members from.
+    ChatId id = 1;
+
+    // The user who tells to exclude members.
+    spine.core.UserId who_excludes = 2 [(required) = true];
+
+    // Members to exclude from the chat.
+    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+}

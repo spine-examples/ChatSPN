@@ -30,54 +30,28 @@ package spine_examples.chatspn.chat;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat.event";
-option java_outer_classname = "EventsProto";
-option java_multiple_files = true;
+option java_package = "io.spine.examples.chatspn.chat.rejection";
+option java_multiple_files = false;
 
 import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// A new personal chat has been created.
-message PersonalChatCreated {
+// Members cannot be excluded from this chat.
+//
+// Emitted when:
+// - chat type isn't a `CT_GROUP`;
+// - the user who sent the original command, is not a chat owner;
+// - all users to exclude already aren't the chat members.
+//
+message MembersCannotBeExcluded {
 
-    // The ID of the created chat.
-    ChatId id = 1;
+  // The ID of the chat in which members couldn't be excluded.
+  ChatId id = 1;
 
-    // The user who created the chat.
-    spine.core.UserId creator = 2 [(required) = true];
+  // The user who originally tells to exclude members.
+  spine.core.UserId who_includes = 2 [(required) = true];
 
-    // The second member into the created personal chat.
-    spine.core.UserId member = 3 [(required) = true];
-}
-
-// A new group chat has been created.
-message GroupChatCreated {
-
-    // The ID of the created chat.
-    ChatId id = 1;
-
-    // The user who created the chat.
-    spine.core.UserId creator = 2 [(required) = true];
-
-    // Users who are included in the chat as members.
-    //
-    // This list does not include a `creator`.
-    //
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
-
-    // The name of the created chat.
-    string name = 4 [(required) = true];
-}
-
-// A members has been excluded from the chat.
-message MembersExcluded {
-
-    // The ID of the chat in which members were excluded.
-    ChatId id = 1;
-
-    // The user who excluded members.
-    spine.core.UserId who_excludes = 2 [(required) = true];
-
-    // Members who were excluded from the chat.
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+  // Members who couldn't be excluded from the chat.
+  repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }
