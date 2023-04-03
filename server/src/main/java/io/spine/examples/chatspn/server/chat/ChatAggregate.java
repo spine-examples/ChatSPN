@@ -100,7 +100,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * Handles the command to include members to the chat.
      *
      * @throws MembersCannotBeIncluded
-     *         if chat type isn't a {@code CT_GROUP},
+     *         if chat isn't a group,
      *         or the user who sent the original command, is not a chat member,
      *         or all users to include already are the chat members
      */

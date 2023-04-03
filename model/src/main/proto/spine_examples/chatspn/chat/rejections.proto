@@ -40,7 +40,7 @@ import "spine_examples/chatspn/identifiers.proto";
 // New members cannot be included to this chat.
 //
 // Emitted when:
-// - chat type isn't a `CT_GROUP`;
+// - chat isn't a group;
 // - the user who sent the original command, is not a chat member;
 // - all users to include already are the chat members.
 //
