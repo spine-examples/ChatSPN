@@ -125,8 +125,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     @Apply
     private void event(MembersIncluded e) {
-        builder().setId(e.getId())
-                 .addAllMember(e.getMemberList());
+        builder().addAllMember(e.getMemberList());
     }
 
     private boolean checkInclusionPossibility(IncludeMembers command, List<UserId> newMembers) {
