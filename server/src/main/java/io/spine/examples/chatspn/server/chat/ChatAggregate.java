@@ -107,29 +107,33 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     @Assign
     MembersIncluded handle(IncludeMembers c) throws MembersCannotBeIncluded {
         ImmutableList<UserId> newMembers = extractNewMembers(c.getMemberList());
-        boolean isGroupChat = state().getType() == CT_GROUP;
-        boolean isUserWhoIncludesIsMember = state().getMemberList()
-                                                   .contains(c.getWhoIncludes());
-        if (!isGroupChat || !isUserWhoIncludesIsMember || newMembers.isEmpty()) {
-            throw MembersCannotBeIncluded
+        if (checkInclusionPossibility(c, newMembers)) {
+            return MembersIncluded
                     .newBuilder()
                     .setId(c.getId())
                     .setWhoIncludes(c.getWhoIncludes())
-                    .addAllMember(c.getMemberList())
-                    .build();
+                    .addAllMember(newMembers)
+                    .vBuild();
         }
-        return MembersIncluded
+        throw MembersCannotBeIncluded
                 .newBuilder()
                 .setId(c.getId())
                 .setWhoIncludes(c.getWhoIncludes())
-                .addAllMember(newMembers)
-                .vBuild();
+                .addAllMember(c.getMemberList())
+                .build();
     }
 
     @Apply
     private void event(MembersIncluded e) {
         builder().setId(e.getId())
                  .addAllMember(e.getMemberList());
+    }
+
+    private boolean checkInclusionPossibility(IncludeMembers command, List<UserId> newMembers) {
+        boolean isGroupChat = state().getType() == CT_GROUP;
+        boolean isUserWhoIncludesIsMember = state().getMemberList()
+                                                   .contains(command.getWhoIncludes());
+        return isGroupChat && isUserWhoIncludesIsMember && !newMembers.isEmpty();
     }
 
     private ImmutableList<UserId> extractNewMembers(List<UserId> membersInCommand) {
