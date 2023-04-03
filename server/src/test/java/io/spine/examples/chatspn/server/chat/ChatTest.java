@@ -100,10 +100,10 @@ final class ChatTest extends ContextAwareTest {
             Chat chat = createGroupChatIn(context());
             ImmutableList<UserId> membersToInclude =
                     ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
-            ImmutableList<UserId> includedMembers =
-                    ImmutableList.of(membersToInclude.get(0));
             IncludeMembers command = includeMembersCommandWith(chat, membersToInclude);
             context().receivesCommand(command);
+            ImmutableList<UserId> includedMembers =
+                    ImmutableList.of(membersToInclude.get(0));
             MembersIncluded expected = membersIncludedFrom(command, includedMembers);
 
             context().assertEvent(expected);
@@ -115,10 +115,10 @@ final class ChatTest extends ContextAwareTest {
             Chat chat = createGroupChatIn(context());
             ImmutableList<UserId> membersToInclude =
                     ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
-            ImmutableList<UserId> includedMembers =
-                    ImmutableList.of(membersToInclude.get(0));
             IncludeMembers command = includeMembersCommandWith(chat, membersToInclude);
             context().receivesCommand(command);
+            ImmutableList<UserId> includedMembers =
+                    ImmutableList.of(membersToInclude.get(0));
             Chat expected = chatFrom(chat, includedMembers);
 
             context().assertState(chat.getId(), expected);
