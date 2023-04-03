@@ -55,4 +55,3 @@ message MembersCannotBeIncluded {
   // Users who couldn't be included in the chat as members.
   repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }
-
