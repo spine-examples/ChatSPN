@@ -30,6 +30,7 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.MembersIncluded;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.route.EventRouting;
@@ -47,6 +48,7 @@ public final class ChatMembersRepository
     protected void setupEventRouting(EventRouting<ChatId> routing) {
         super.setupEventRouting(routing);
         routing.route(PersonalChatCreated.class, (event, context) -> withId(event.getId()))
-               .route(GroupChatCreated.class, (event, context) -> withId(event.getId()));
+               .route(GroupChatCreated.class, (event, context) -> withId(event.getId()))
+               .route(MembersIncluded.class, (event, context) -> withId(event.getId()));
     }
 }
