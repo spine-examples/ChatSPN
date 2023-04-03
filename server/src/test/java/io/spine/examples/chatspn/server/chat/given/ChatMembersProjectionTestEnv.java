@@ -24,11 +24,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.given;
+package io.spine.examples.chatspn.server.chat.given;
 
+import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.IncludeMembers;
 
 public final class ChatMembersProjectionTestEnv {
 
@@ -53,6 +55,16 @@ public final class ChatMembersProjectionTestEnv {
                 .newBuilder()
                 .setId(c.getId())
                 .addMember(c.getCreator())
+                .addAllMember(c.getMemberList())
+                .vBuild();
+        return state;
+    }
+
+    public static ChatMembers chatMembersFrom(Chat chat, IncludeMembers c) {
+        ChatMembers state = ChatMembers
+                .newBuilder()
+                .setId(c.getId())
+                .addAllMember(chat.getMemberList())
                 .addAllMember(c.getMemberList())
                 .vBuild();
         return state;
