@@ -72,7 +72,7 @@ message CreateGroupChat {
 // Tells to include a new members to the chat.
 message IncludeMembers {
 
-    // The ID of the chat to include new members.
+    // The ID of the chat to include new members in.
     ChatId id = 1;
 
     // The user who tells to include new members.

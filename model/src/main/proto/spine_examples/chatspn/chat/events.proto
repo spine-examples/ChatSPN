@@ -72,7 +72,7 @@ message GroupChatCreated {
 // A new members has been included to the chat.
 message MembersIncluded {
 
-    // The ID of the chat in which members are included.
+    // The ID of the chat in which members were included.
     ChatId id = 1;
 
     // The user who included new members.
