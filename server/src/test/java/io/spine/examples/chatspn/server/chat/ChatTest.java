@@ -99,13 +99,13 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and emit the `MembersAdded` if at least one member can be added")
         void event() {
             Chat chat = createGroupChatIn(context());
-            ImmutableList<UserId> membersToInclude =
+            ImmutableList<UserId> membersToAdd =
                     ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
-            AddMembers command = ChatTestEnv.addMembersCommandWith(chat, membersToInclude);
+            AddMembers command = ChatTestEnv.addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
-            ImmutableList<UserId> includedMembers =
-                    ImmutableList.of(membersToInclude.get(0));
-            MembersAdded expected = membersAddedFrom(command, includedMembers);
+            ImmutableList<UserId> addedMembers =
+                    ImmutableList.of(membersToAdd.get(0));
+            MembersAdded expected = membersAddedFrom(command, addedMembers);
 
             context().assertEvent(expected);
         }
