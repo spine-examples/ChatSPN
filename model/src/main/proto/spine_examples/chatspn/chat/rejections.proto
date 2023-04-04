@@ -42,7 +42,8 @@ import "spine_examples/chatspn/identifiers.proto";
 // Emitted when:
 // - chat isn't a group;
 // - the user who sent the original command, is not a chat member;
-// - all users to add already are the chat members.
+// - all users to add already are the chat members. If at least one user can be added as a member,
+//   this rejection will not be emitted.
 //
 message MembersCannotBeAdded {
 
