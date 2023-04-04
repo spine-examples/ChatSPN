@@ -37,21 +37,21 @@ import "spine/core/user_id.proto";
 import "spine/net/email_address.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// New members cannot be included to this chat.
+// New members cannot be added to this chat.
 //
 // Emitted when:
 // - chat isn't a group;
 // - the user who sent the original command, is not a chat member;
-// - all users to include already are the chat members.
+// - all users to add already are the chat members.
 //
-message MembersCannotBeIncluded {
+message MembersCannotBeAdded {
 
-  // The ID of the chat in which members couldn't be included.
+  // The ID of the chat in which members couldn't be added.
   ChatId id = 1;
 
-  // The user who originally tells to include new members.
-  spine.core.UserId who_includes = 2 [(required) = true];
+  // The user who originally tells to add new members.
+  spine.core.UserId who_adds = 2 [(required) = true];
 
-  // Users who couldn't be included in the chat as members.
+  // Users who couldn't be added in the chat as members.
   repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }

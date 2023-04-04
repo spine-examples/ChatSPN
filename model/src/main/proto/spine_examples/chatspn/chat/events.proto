@@ -69,15 +69,15 @@ message GroupChatCreated {
     string name = 4 [(required) = true];
 }
 
-// A new members has been included to the chat.
-message MembersIncluded {
+// A new members has been added to the chat.
+message MembersAdded{
 
-    // The ID of the chat in which members were included.
+    // The ID of the chat in which members were added.
     ChatId id = 1;
 
-    // The user who included new members.
-    spine.core.UserId who_includes = 2 [(required) = true];
+    // The user who added new members.
+    spine.core.UserId who_added = 2 [(required) = true];
 
-    // Users who were included in the chat as members.
+    // Users who were added in the chat as members.
     repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }

@@ -30,7 +30,7 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.IncludeMembers;
+import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.server.blackbox.ContextAwareTest;
@@ -41,7 +41,7 @@ import static io.spine.examples.chatspn.server.chat.given.ChatMembersProjectionT
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.includeMembersCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommand;
 
 @DisplayName("`ChatMembersProjection` should")
 final class ChatMembersProjectionTest extends ContextAwareTest {
@@ -72,10 +72,10 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("update `ChatMembers`, as soon as `MembersIncluded` is emitted")
+    @DisplayName("update `ChatMembers`, as soon as `MembersAdded` is emitted")
     void reactOnMembersIncluded() {
         Chat chat = createGroupChatIn(context());
-        IncludeMembers command = includeMembersCommand(chat);
+        AddMembers command = addMembersCommand(chat);
         context().receivesCommand(command);
         ChatMembers expected = chatMembersFrom(chat, command);
 

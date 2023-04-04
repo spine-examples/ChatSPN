@@ -30,7 +30,7 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.IncludeMembers;
+import io.spine.examples.chatspn.chat.command.AddMembers;
 
 public final class ChatMembersProjectionTestEnv {
 
@@ -60,7 +60,7 @@ public final class ChatMembersProjectionTestEnv {
         return state;
     }
 
-    public static ChatMembers chatMembersFrom(Chat chat, IncludeMembers c) {
+    public static ChatMembers chatMembersFrom(Chat chat, AddMembers c) {
         ChatMembers state = ChatMembers
                 .newBuilder()
                 .setId(c.getId())

@@ -29,14 +29,15 @@ package io.spine.examples.chatspn.server.chat;
 import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.IncludeMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
-import io.spine.examples.chatspn.chat.event.MembersIncluded;
+import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
-import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeIncluded;
+import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
 import io.spine.examples.chatspn.server.ChatsContext;
+import io.spine.examples.chatspn.server.chat.given.ChatTestEnv;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
@@ -50,10 +51,10 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGrou
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatCreatedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.includeMembersCommand;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.includeMembersCommandWith;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeIncludedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersIncludedFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommandWith;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeAddedFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersAddedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatCreatedFrom;
 
 @DisplayName("`Chat` should")
@@ -91,73 +92,73 @@ final class ChatTest extends ContextAwareTest {
     }
 
     @Nested
-    @DisplayName("handle `IncludeMembers` ")
-    class MembersInclusionHandlerBehaviour {
+    @DisplayName("handle `AddMembers` ")
+    class MembersAdditionHandlerBehaviour {
 
         @Test
-        @DisplayName("and emit the `MembersIncluded` if at least one member can be included")
+        @DisplayName("and emit the `MembersAdded` if at least one member can be added")
         void event() {
             Chat chat = createGroupChatIn(context());
             ImmutableList<UserId> membersToInclude =
                     ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
-            IncludeMembers command = includeMembersCommandWith(chat, membersToInclude);
+            AddMembers command = ChatTestEnv.addMembersCommandWith(chat, membersToInclude);
             context().receivesCommand(command);
             ImmutableList<UserId> includedMembers =
                     ImmutableList.of(membersToInclude.get(0));
-            MembersIncluded expected = membersIncludedFrom(command, includedMembers);
+            MembersAdded expected = membersAddedFrom(command, includedMembers);
 
             context().assertEvent(expected);
         }
 
         @Test
-        @DisplayName("and change state to expected if at least one member can be included")
+        @DisplayName("and change state to expected if at least one member can be added")
         void state() {
             Chat chat = createGroupChatIn(context());
-            ImmutableList<UserId> membersToInclude =
+            ImmutableList<UserId> membersToAdd =
                     ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
-            IncludeMembers command = includeMembersCommandWith(chat, membersToInclude);
+            AddMembers command = ChatTestEnv.addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
-            ImmutableList<UserId> includedMembers =
-                    ImmutableList.of(membersToInclude.get(0));
-            Chat expected = chatFrom(chat, includedMembers);
+            ImmutableList<UserId> addedMembers =
+                    ImmutableList.of(membersToAdd.get(0));
+            Chat expected = chatFrom(chat, addedMembers);
 
             context().assertState(chat.getId(), expected);
         }
 
         @Test
-        @DisplayName("and reject with the `MembersCannotBeIncluded` " +
-                "if the user who includes is not a chat member")
+        @DisplayName("and reject with the `MembersCannotBeAdded` " +
+                "if the user who adds is not a chat member")
         void rejectIfNotMember() {
             Chat chat = createGroupChatIn(context());
-            IncludeMembers command = includeMembersCommandWith(chat, GivenUserId.generated());
+            AddMembers command = addMembersCommandWith(chat, GivenUserId.generated());
             context().receivesCommand(command);
-            MembersCannotBeIncluded expected = membersCannotBeIncludedFrom(command);
+            MembersCannotBeAdded expected = membersCannotBeAddedFrom(command);
 
             context().assertEvent(expected);
         }
 
         @Test
-        @DisplayName("and reject with the `MembersCannotBeIncluded` " +
-                "if chat type isn't a `CT_GROUP`")
+        @DisplayName("and reject with the `MembersCannotBeAdded` " +
+                "if chat isn't a group")
         void rejectIfNotGroup() {
             Chat chat = createPersonalChatIn(context());
-            IncludeMembers command = includeMembersCommand(chat);
+            AddMembers command = addMembersCommand(chat);
             context().receivesCommand(command);
-            MembersCannotBeIncluded expected = membersCannotBeIncludedFrom(command);
+            MembersCannotBeAdded expected = membersCannotBeAddedFrom(command);
 
             context().assertEvent(expected);
         }
 
         @Test
-        @DisplayName("and reject with the `MembersCannotBeIncluded` " +
-                "if all members to include already in the chat")
+        @DisplayName("and reject with the `MembersCannotBeAdded` " +
+                "if all members to add already in the chat")
         void rejectIfAlreadyMembers() {
             Chat chat = createGroupChatIn(context());
-            ImmutableList<UserId> membersToInclude =
+            ImmutableList<UserId> membersToAdd =
                     ImmutableList.of(chat.getMember(0), chat.getMember(1));
-            IncludeMembers command = includeMembersCommandWith(chat, membersToInclude);
+            AddMembers command = ChatTestEnv.addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
-            MembersCannotBeIncluded expected = membersCannotBeIncludedFrom(command);
+            MembersCannotBeAdded expected = membersCannotBeAddedFrom(command);
 
             context().assertEvent(expected);
         }

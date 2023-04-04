@@ -29,13 +29,13 @@ package io.spine.examples.chatspn.server.chat.given;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.IncludeMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
-import io.spine.examples.chatspn.chat.event.MembersIncluded;
+import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
-import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeIncluded;
+import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
 
@@ -157,67 +157,67 @@ public final class ChatTestEnv {
         return chat;
     }
 
-    public static IncludeMembers includeMembersCommand(Chat chat) {
-        IncludeMembers command = IncludeMembers
+    public static AddMembers addMembersCommand(Chat chat) {
+        AddMembers command = AddMembers
                 .newBuilder()
                 .setId(chat.getId())
-                .setWhoIncludes(chat.getMember(0))
+                .setWhoAdds(chat.getMember(0))
                 .addMember(GivenUserId.generated())
                 .vBuild();
         return command;
     }
 
-    public static IncludeMembers includeMembersCommandWith(Chat chat,
-                                                           List<UserId> membersToInclude) {
-        IncludeMembers command = IncludeMembers
+    public static AddMembers addMembersCommandWith(Chat chat,
+                                                   List<UserId> membersToAdd) {
+        AddMembers command = AddMembers
                 .newBuilder()
                 .setId(chat.getId())
-                .setWhoIncludes(chat.getMember(0))
-                .addAllMember(membersToInclude)
+                .setWhoAdds(chat.getMember(0))
+                .addAllMember(membersToAdd)
                 .vBuild();
         return command;
     }
 
-    public static IncludeMembers includeMembersCommandWith(Chat chat,
-                                                           UserId whoIncludes) {
-        IncludeMembers command = IncludeMembers
+    public static AddMembers addMembersCommandWith(Chat chat,
+                                                   UserId whoAdds) {
+        AddMembers command = AddMembers
                 .newBuilder()
                 .setId(chat.getId())
-                .setWhoIncludes(whoIncludes)
+                .setWhoAdds(whoAdds)
                 .addMember(GivenUserId.generated())
                 .vBuild();
         return command;
     }
 
-    public static MembersIncluded membersIncludedFrom(IncludeMembers c,
-                                                      List<UserId> includedMembers) {
-        MembersIncluded event = MembersIncluded
+    public static MembersAdded membersAddedFrom(AddMembers c,
+                                                List<UserId> addedMembers) {
+        MembersAdded event = MembersAdded
                 .newBuilder()
                 .setId(c.getId())
-                .setWhoIncludes(c.getWhoIncludes())
-                .addAllMember(includedMembers)
+                .setWhoAdded(c.getWhoAdds())
+                .addAllMember(addedMembers)
                 .vBuild();
         return event;
     }
 
-    public static MembersCannotBeIncluded membersCannotBeIncludedFrom(IncludeMembers c) {
-        MembersCannotBeIncluded rejection = MembersCannotBeIncluded
+    public static MembersCannotBeAdded membersCannotBeAddedFrom(AddMembers c) {
+        MembersCannotBeAdded rejection = MembersCannotBeAdded
                 .newBuilder()
                 .setId(c.getId())
-                .setWhoIncludes(c.getWhoIncludes())
+                .setWhoAdds(c.getWhoAdds())
                 .addAllMember(c.getMemberList())
                 .vBuild();
         return rejection;
     }
 
-    public static Chat chatFrom(Chat chat, List<UserId> includedMembers) {
+    public static Chat chatFrom(Chat chat, List<UserId> addedMembers) {
         Chat state = Chat
                 .newBuilder()
                 .setId(chat.getId())
                 .setType(chat.getType())
                 .setName(chat.getName())
                 .addAllMember(chat.getMemberList())
-                .addAllMember(includedMembers)
+                .addAllMember(addedMembers)
                 .vBuild();
         return state;
     }
