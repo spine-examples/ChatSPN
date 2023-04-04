@@ -73,7 +73,7 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
 
     @Test
     @DisplayName("update `ChatMembers`, as soon as `MembersAdded` is emitted")
-    void reactOnMembersIncluded() {
+    void reactOnMembersAdded() {
         Chat chat = createGroupChatIn(context());
         AddMembers command = addMembersCommand(chat);
         context().receivesCommand(command);
