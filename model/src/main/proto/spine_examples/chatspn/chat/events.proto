@@ -70,6 +70,8 @@ message GroupChatCreated {
 }
 
 // A new members has been added to the chat.
+// Emitted if at least one new member is added from the corresponding command.
+//
 message MembersAdded {
 
     // The ID of the chat in which members were added.
