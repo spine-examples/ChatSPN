@@ -26,13 +26,21 @@
 
 package io.spine.examples.chatspn.server.chat.given;
 
+import com.google.common.collect.ImmutableList;
+import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.ExcludeMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.MembersExcluded;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeExcluded;
 import io.spine.testing.core.given.GivenUserId;
+import io.spine.testing.server.blackbox.BlackBoxContext;
+
+import java.util.List;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
@@ -111,5 +119,99 @@ public final class ChatTestEnv {
                 .setOwner(c.getCreator())
                 .vBuild();
         return state;
+    }
+
+    public static Chat createGroupChatIn(BlackBoxContext ctx) {
+        UserId owner = GivenUserId.generated();
+        Chat chat = Chat
+                .newBuilder()
+                .setId(ChatId.generate())
+                .setName(randomString())
+                .setType(CT_GROUP)
+                .setOwner(owner)
+                .addMember(owner)
+                .addMember(GivenUserId.generated())
+                .vBuild();
+        CreateGroupChat command = CreateGroupChat
+                .newBuilder()
+                .setId(chat.getId())
+                .setName(chat.getName())
+                .setCreator(chat.getMember(0))
+                .addMember(chat.getMember(1))
+                .vBuild();
+        ctx.receivesCommand(command);
+        return chat;
+    }
+
+    public static Chat createPersonalChatIn(BlackBoxContext ctx) {
+        Chat chat = Chat
+                .newBuilder()
+                .setId(ChatId.generate())
+                .setType(CT_PERSONAL)
+                .addMember(GivenUserId.generated())
+                .addMember(GivenUserId.generated())
+                .vBuild();
+        CreatePersonalChat command = CreatePersonalChat
+                .newBuilder()
+                .setId(chat.getId())
+                .setCreator(chat.getMember(0))
+                .setMember(chat.getMember(1))
+                .vBuild();
+        ctx.receivesCommand(command);
+        return chat;
+    }
+
+    public static ExcludeMembers removeMembersCommandWith(Chat chat, UserId whoRemoves) {
+        ExcludeMembers command = ExcludeMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoExcludes(whoRemoves)
+                .addAllMember(ImmutableList.of(chat.getMember(1)))
+                .vBuild();
+        return command;
+    }
+
+    public static ExcludeMembers removeMembersCommandWith(Chat chat,
+                                                          List<UserId> membersToRemove) {
+        ExcludeMembers command = ExcludeMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoExcludes(chat.getMember(0))
+                .addAllMember(membersToRemove)
+                .vBuild();
+        return command;
+    }
+
+    public static MembersExcluded membersRemovedFrom(ExcludeMembers command,
+                                                     List<UserId> remainingMembers) {
+        MembersExcluded event = MembersExcluded
+                .newBuilder()
+                .setId(command.getId())
+                .setWhoExcludes(command.getWhoExcludes())
+                .addAllRemainingMember(remainingMembers)
+                .vBuild();
+        return event;
+    }
+
+    public static Chat chatFrom(Chat chat, List<UserId> remainingMembers) {
+        Chat state = Chat
+                .newBuilder()
+                .setId(chat.getId())
+                .setType(chat.getType())
+                .addAllMember(remainingMembers)
+                .setName(chat.getName())
+                .setOwner(chat.getOwner())
+                .vBuild();
+        return state;
+    }
+
+    public static MembersCannotBeExcluded membersCannotBeRemovedFrom(ExcludeMembers command) {
+        MembersCannotBeExcluded rejection = MembersCannotBeExcluded
+                .newBuilder()
+                .setId(command.getId())
+                .setWhoRemoves(command.getWhoExcludes())
+                .addAllMember(command.getMemberList())
+                .vBuild();
+        return rejection;
     }
 }
