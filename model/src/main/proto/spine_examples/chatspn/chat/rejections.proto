@@ -46,12 +46,12 @@ import "spine_examples/chatspn/identifiers.proto";
 //
 message MembersCannotBeRemoved {
 
-  // The ID of the chat in which members couldn't be removed.
-  ChatId id = 1;
+    // The ID of the chat in which members couldn't be removed.
+    ChatId id = 1;
 
-  // The user who originally tells to remove members.
-  spine.core.UserId who_removes = 2 [(required) = true];
+    // The user who originally tells to remove members.
+    spine.core.UserId who_removes = 2 [(required) = true];
 
-  // Members who couldn't be removed from the chat.
-  repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+    // Members who couldn't be removed from the chat.
+    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }

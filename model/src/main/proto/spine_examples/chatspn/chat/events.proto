@@ -69,7 +69,7 @@ message GroupChatCreated {
     string name = 4 [(required) = true];
 }
 
-// A members has been removed from the chat.
+// Members have been removed from the chat.
 // Emitted if at least one member was removed.
 //
 message MembersRemoved {
