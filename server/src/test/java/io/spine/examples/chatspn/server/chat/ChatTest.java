@@ -97,14 +97,14 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and emit the `MembersRemoved` if at least one member can be removed")
         void event() {
             Chat chat = createGroupChatIn(context());
+            UserId randomUser = GivenUserId.generated();
+            UserId chatOwner = chat.getOwner();
+            UserId commonChatMember = chat.getMember(1);
             ImmutableList<UserId> membersToRemove =
-                    ImmutableList.of(GivenUserId.generated(),
-                                     chat.getMember(0),
-                                     chat.getMember(1));
+                    ImmutableList.of(randomUser, chatOwner, commonChatMember);
             RemoveMembers command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
-            ImmutableList<UserId> remainingMembers =
-                    ImmutableList.of(chat.getMember(0));
+            ImmutableList<UserId> remainingMembers = ImmutableList.of(chatOwner);
             MembersRemoved expected = membersRemovedFrom(command, remainingMembers);
 
             context().assertEvent(expected);
@@ -114,14 +114,14 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and change state to expected if at least one member can be removed")
         void state() {
             Chat chat = createGroupChatIn(context());
+            UserId randomUser = GivenUserId.generated();
+            UserId chatOwner = chat.getOwner();
+            UserId commonChatMember = chat.getMember(1);
             ImmutableList<UserId> membersToRemove =
-                    ImmutableList.of(GivenUserId.generated(),
-                                     chat.getMember(0),
-                                     chat.getMember(1));
+                    ImmutableList.of(randomUser, chatOwner, commonChatMember);
             RemoveMembers command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
-            ImmutableList<UserId> remainingMembers =
-                    ImmutableList.of(chat.getMember(0));
+            ImmutableList<UserId> remainingMembers = ImmutableList.of(chatOwner);
             Chat expected = chatFrom(chat, remainingMembers);
 
             context().assertState(chat.getId(), expected);
@@ -144,7 +144,8 @@ final class ChatTest extends ContextAwareTest {
                 "if chat isn't a group")
         void rejectIfNotGroup() {
             Chat chat = createPersonalChatIn(context());
-            RemoveMembers command = removeMembersCommandWith(chat, chat.getMember(0));
+            UserId commonChatMember = chat.getMember(1);
+            RemoveMembers command = removeMembersCommandWith(chat, commonChatMember);
             context().receivesCommand(command);
             MembersCannotBeRemoved expected = membersCannotBeRemovedFrom(command);
 
