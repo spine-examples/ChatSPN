@@ -91,7 +91,7 @@ final class ChatTest extends ContextAwareTest {
 
     @Nested
     @DisplayName("handle `RemoveMembers` ")
-    class MembersInclusionHandlerBehaviour {
+    class MembersRemovalHandlerBehaviour {
 
         @Test
         @DisplayName("and emit the `MembersRemoved` if at least one member can be removed")
