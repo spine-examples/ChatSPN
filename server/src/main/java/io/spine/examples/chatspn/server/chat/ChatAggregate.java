@@ -120,7 +120,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         throw MembersCannotBeExcluded
                 .newBuilder()
                 .setId(c.getId())
-                .setWhoIncludes(c.getWhoExcludes())
+                .setWhoRemoves(c.getWhoExcludes())
                 .addAllMember(c.getMemberList())
                 .build();
     }

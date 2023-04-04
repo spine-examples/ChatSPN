@@ -50,7 +50,7 @@ message MembersCannotBeExcluded {
   ChatId id = 1;
 
   // The user who originally tells to exclude members.
-  spine.core.UserId who_includes = 2 [(required) = true];
+  spine.core.UserId who_removes = 2 [(required) = true];
 
   // Members who couldn't be excluded from the chat.
   repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
