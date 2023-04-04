@@ -26,16 +26,24 @@
 
 package io.spine.examples.chatspn.server.chat;
 
+import com.google.common.collect.ImmutableList;
+import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.ExcludeMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.MembersExcluded;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.rejection.MembersCannotBeExcluded;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 
+import java.util.List;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
 
@@ -87,5 +95,59 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                  .setName(e.getName())
                  .setOwner(e.getCreator())
                  .setType(CT_GROUP);
+    }
+
+    /**
+     * Handles the command to exclude members from the chat.
+     * The member who sent the command cannot be excluded.
+     *
+     * @throws MembersCannotBeExcluded
+     *         if chat isn't a group,
+     *         or the user who sent the original command, is not a chat owner,
+     *         or all users to exclude already aren't the chat members
+     */
+    @Assign
+    MembersExcluded handle(ExcludeMembers c) throws MembersCannotBeExcluded {
+        ImmutableList<UserId> remainingMembers = extractRemainingMembers(c);
+        if (checkExclusionPossibility(c, remainingMembers)) {
+            return MembersExcluded
+                    .newBuilder()
+                    .setId(c.getId())
+                    .setWhoExcludes(c.getWhoExcludes())
+                    .addAllRemainingMember(remainingMembers)
+                    .vBuild();
+        }
+        throw MembersCannotBeExcluded
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoIncludes(c.getWhoExcludes())
+                .addAllMember(c.getMemberList())
+                .build();
+    }
+
+    @Apply
+    private void event(MembersExcluded e) {
+        builder().clearMember()
+                 .addAllMember(e.getRemainingMemberList());
+    }
+
+    private boolean checkExclusionPossibility(ExcludeMembers command,
+                                              List<UserId> remainingMembers) {
+        boolean isGroupChat = state().getType() == CT_GROUP;
+        boolean isUserWhoExcludesIsOwner = state().getOwner()
+                                                  .equals(command.getWhoExcludes());
+        boolean isSomeoneExcluded = remainingMembers.size() < state().getMemberCount();
+        return isGroupChat && isUserWhoExcludesIsOwner && isSomeoneExcluded;
+    }
+
+    private ImmutableList<UserId> extractRemainingMembers(ExcludeMembers command) {
+        List<UserId> chatMembers = state().getMemberList();
+        List<UserId> membersInCommand = command.getMemberList();
+        ImmutableList<UserId> remainingMembers =
+                chatMembers.stream()
+                           .filter(userId -> !membersInCommand.contains(userId) ||
+                                   userId.equals(command.getWhoExcludes()))
+                           .collect(toImmutableList());
+        return remainingMembers;
     }
 }
