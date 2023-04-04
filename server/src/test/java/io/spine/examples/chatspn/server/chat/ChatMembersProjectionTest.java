@@ -35,7 +35,7 @@ import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.ChatMembersProjectionTestEnv.chatMembersFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatMembersProjectionTestEnv.chatMembersFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
 
