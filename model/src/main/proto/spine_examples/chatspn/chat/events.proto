@@ -70,7 +70,7 @@ message GroupChatCreated {
 }
 
 // A new members has been added to the chat.
-message MembersAdded{
+message MembersAdded {
 
     // The ID of the chat in which members were added.
     ChatId id = 1;
