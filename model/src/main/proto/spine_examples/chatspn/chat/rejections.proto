@@ -40,7 +40,7 @@ import "spine_examples/chatspn/identifiers.proto";
 // Members cannot be excluded from this chat.
 //
 // Emitted when:
-// - chat type isn't a `CT_GROUP`;
+// - chat isn't a group;
 // - the user who sent the original command, is not a chat owner;
 // - all users to exclude already aren't the chat members.
 //
