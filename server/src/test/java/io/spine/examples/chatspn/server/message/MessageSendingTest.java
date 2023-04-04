@@ -82,7 +82,7 @@ public final class MessageSendingTest extends ContextAwareTest {
     }
 
     @Nested
-    @DisplayName("lead `MessageAggregate` to ")
+    @DisplayName("lead `MessageAggregate` to")
     class MessageAggregateBehaviour {
 
         @Test
