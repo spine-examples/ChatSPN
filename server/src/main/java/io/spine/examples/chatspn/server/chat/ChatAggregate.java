@@ -99,7 +99,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     /**
      * Handles the command to remove members from the chat.
-     * The member who sent the command cannot be removed.
+     *
+     * <p>The member who sent the command cannot be removed.</p>
      *
      * @return {@link MembersRemoved} if at least one member was removed
      * @throws MembersCannotBeRemoved

@@ -70,6 +70,7 @@ message GroupChatCreated {
 }
 
 // Members have been removed from the chat.
+//
 // Emitted if at least one member was removed.
 //
 message MembersRemoved {
