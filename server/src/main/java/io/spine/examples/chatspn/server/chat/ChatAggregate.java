@@ -119,7 +119,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                 .newBuilder()
                 .setId(c.getId())
                 .setWhoAdds(c.getWhoAdds())
-                .addAllMember(c.getMemberList())
+                .addAllSuggestedMember(c.getMemberList())
                 .build();
     }
 

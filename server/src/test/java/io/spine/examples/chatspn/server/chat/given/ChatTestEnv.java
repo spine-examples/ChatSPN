@@ -205,7 +205,7 @@ public final class ChatTestEnv {
                 .newBuilder()
                 .setId(c.getId())
                 .setWhoAdds(c.getWhoAdds())
-                .addAllMember(c.getMemberList())
+                .addAllSuggestedMember(c.getMemberList())
                 .vBuild();
         return rejection;
     }

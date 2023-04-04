@@ -52,6 +52,6 @@ message MembersCannotBeAdded {
   // The user who originally tells to add new members.
   spine.core.UserId who_adds = 2 [(required) = true];
 
-  // Users who couldn't be added in the chat as members.
-  repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+  // The users that were originally suggested to be added to the chat as members.
+  repeated spine.core.UserId suggested_member = 3 [(required) = true, (distinct) = true];
 }
