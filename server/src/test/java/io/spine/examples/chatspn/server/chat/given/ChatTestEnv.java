@@ -32,11 +32,11 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.ExcludeMembers;
+import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
-import io.spine.examples.chatspn.chat.event.MembersExcluded;
+import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
-import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeExcluded;
+import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeRemoved;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
 
@@ -161,33 +161,33 @@ public final class ChatTestEnv {
         return chat;
     }
 
-    public static ExcludeMembers removeMembersCommandWith(Chat chat, UserId whoRemoves) {
-        ExcludeMembers command = ExcludeMembers
+    public static RemoveMembers removeMembersCommandWith(Chat chat, UserId whoRemoves) {
+        RemoveMembers command = RemoveMembers
                 .newBuilder()
                 .setId(chat.getId())
-                .setWhoExcludes(whoRemoves)
+                .setWhoRemoves(whoRemoves)
                 .addAllMember(ImmutableList.of(chat.getMember(1)))
                 .vBuild();
         return command;
     }
 
-    public static ExcludeMembers removeMembersCommandWith(Chat chat,
-                                                          List<UserId> membersToRemove) {
-        ExcludeMembers command = ExcludeMembers
+    public static RemoveMembers removeMembersCommandWith(Chat chat,
+                                                         List<UserId> membersToRemove) {
+        RemoveMembers command = RemoveMembers
                 .newBuilder()
                 .setId(chat.getId())
-                .setWhoExcludes(chat.getMember(0))
+                .setWhoRemoves(chat.getMember(0))
                 .addAllMember(membersToRemove)
                 .vBuild();
         return command;
     }
 
-    public static MembersExcluded membersRemovedFrom(ExcludeMembers command,
-                                                     List<UserId> remainingMembers) {
-        MembersExcluded event = MembersExcluded
+    public static MembersRemoved membersRemovedFrom(RemoveMembers command,
+                                                    List<UserId> remainingMembers) {
+        MembersRemoved event = MembersRemoved
                 .newBuilder()
                 .setId(command.getId())
-                .setWhoExcludes(command.getWhoExcludes())
+                .setWhoRemoved(command.getWhoRemoves())
                 .addAllRemainingMember(remainingMembers)
                 .vBuild();
         return event;
@@ -205,11 +205,11 @@ public final class ChatTestEnv {
         return state;
     }
 
-    public static MembersCannotBeExcluded membersCannotBeRemovedFrom(ExcludeMembers command) {
-        MembersCannotBeExcluded rejection = MembersCannotBeExcluded
+    public static MembersCannotBeRemoved membersCannotBeRemovedFrom(RemoveMembers command) {
+        MembersCannotBeRemoved rejection = MembersCannotBeRemoved
                 .newBuilder()
                 .setId(command.getId())
-                .setWhoRemoves(command.getWhoExcludes())
+                .setWhoRemoves(command.getWhoRemoves())
                 .addAllMember(command.getMemberList())
                 .vBuild();
         return rejection;

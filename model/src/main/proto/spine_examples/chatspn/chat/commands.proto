@@ -69,15 +69,15 @@ message CreateGroupChat {
     string name = 4 [(required) = true];
 }
 
-// Tells to exclude members from the chat.
-message ExcludeMembers {
+// Tells to remove members from the chat.
+message RemoveMembers {
 
-    // The ID of the chat to exclude members from.
+    // The ID of the chat to remove members from.
     ChatId id = 1;
 
-    // The user who tells to exclude members.
-    spine.core.UserId who_excludes = 2 [(required) = true];
+    // The user who tells to remove members.
+    spine.core.UserId who_removes = 2 [(required) = true];
 
-    // Members to exclude from the chat.
+    // Members to remove from the chat.
     repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }

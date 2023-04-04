@@ -32,11 +32,11 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.ExcludeMembers;
+import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
-import io.spine.examples.chatspn.chat.event.MembersExcluded;
+import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
-import io.spine.examples.chatspn.chat.rejection.MembersCannotBeExcluded;
+import io.spine.examples.chatspn.chat.rejection.MembersCannotBeRemoved;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
@@ -98,55 +98,56 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     }
 
     /**
-     * Handles the command to exclude members from the chat.
-     * The member who sent the command cannot be excluded.
+     * Handles the command to remove members from the chat.
+     * The member who sent the command cannot be removed.
      *
-     * @throws MembersCannotBeExcluded
+     * @return {@link MembersRemoved} if at least one member was removed
+     * @throws MembersCannotBeRemoved
      *         if chat isn't a group,
      *         or the user who sent the original command, is not a chat owner,
-     *         or all users to exclude already aren't the chat members
+     *         or all users to remove already aren't the chat members
      */
     @Assign
-    MembersExcluded handle(ExcludeMembers c) throws MembersCannotBeExcluded {
+    MembersRemoved handle(RemoveMembers c) throws MembersCannotBeRemoved {
         ImmutableList<UserId> remainingMembers = extractRemainingMembers(c);
-        if (checkExclusionPossibility(c, remainingMembers)) {
-            return MembersExcluded
+        if (checkRemovalPossibility(c, remainingMembers)) {
+            return MembersRemoved
                     .newBuilder()
                     .setId(c.getId())
-                    .setWhoExcludes(c.getWhoExcludes())
+                    .setWhoRemoved(c.getWhoRemoves())
                     .addAllRemainingMember(remainingMembers)
                     .vBuild();
         }
-        throw MembersCannotBeExcluded
+        throw MembersCannotBeRemoved
                 .newBuilder()
                 .setId(c.getId())
-                .setWhoRemoves(c.getWhoExcludes())
+                .setWhoRemoves(c.getWhoRemoves())
                 .addAllMember(c.getMemberList())
                 .build();
     }
 
     @Apply
-    private void event(MembersExcluded e) {
+    private void event(MembersRemoved e) {
         builder().clearMember()
                  .addAllMember(e.getRemainingMemberList());
     }
 
-    private boolean checkExclusionPossibility(ExcludeMembers command,
-                                              List<UserId> remainingMembers) {
+    private boolean checkRemovalPossibility(RemoveMembers command,
+                                            List<UserId> remainingMembers) {
         boolean isGroupChat = state().getType() == CT_GROUP;
-        boolean isUserWhoExcludesIsOwner = state().getOwner()
-                                                  .equals(command.getWhoExcludes());
-        boolean isSomeoneExcluded = remainingMembers.size() < state().getMemberCount();
-        return isGroupChat && isUserWhoExcludesIsOwner && isSomeoneExcluded;
+        boolean isUserWhoRemovesIsOwner = state().getOwner()
+                                                 .equals(command.getWhoRemoves());
+        boolean isSomeoneRemoved = remainingMembers.size() < state().getMemberCount();
+        return isGroupChat && isUserWhoRemovesIsOwner && isSomeoneRemoved;
     }
 
-    private ImmutableList<UserId> extractRemainingMembers(ExcludeMembers command) {
+    private ImmutableList<UserId> extractRemainingMembers(RemoveMembers command) {
         List<UserId> chatMembers = state().getMemberList();
         List<UserId> membersInCommand = command.getMemberList();
         ImmutableList<UserId> remainingMembers =
                 chatMembers.stream()
                            .filter(userId -> !membersInCommand.contains(userId) ||
-                                   userId.equals(command.getWhoExcludes()))
+                                   userId.equals(command.getWhoRemoves()))
                            .collect(toImmutableList());
         return remainingMembers;
     }

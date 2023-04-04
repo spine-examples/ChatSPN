@@ -69,15 +69,17 @@ message GroupChatCreated {
     string name = 4 [(required) = true];
 }
 
-// A members has been excluded from the chat.
-message MembersExcluded {
+// A members has been removed from the chat.
+// Emitted if at least one member was removed.
+//
+message MembersRemoved {
 
-    // The ID of the chat in which members were excluded.
+    // The ID of the chat in which members were removed.
     ChatId id = 1;
 
-    // The user who excluded members.
-    spine.core.UserId who_excludes = 2 [(required) = true];
+    // The user who removed members.
+    spine.core.UserId who_removed = 2 [(required) = true];
 
-    // Members who remained in the chat.
+    // Members remaining in the chat.
     repeated spine.core.UserId remaining_member = 3 [(required) = true, (distinct) = true];
 }

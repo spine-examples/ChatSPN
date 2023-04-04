@@ -31,11 +31,11 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.ExcludeMembers;
+import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
-import io.spine.examples.chatspn.chat.event.MembersExcluded;
+import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
-import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeExcluded;
+import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeRemoved;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
@@ -101,11 +101,11 @@ final class ChatTest extends ContextAwareTest {
                     ImmutableList.of(GivenUserId.generated(),
                                      chat.getMember(0),
                                      chat.getMember(1));
-            ExcludeMembers command = removeMembersCommandWith(chat, membersToRemove);
+            RemoveMembers command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
             ImmutableList<UserId> remainingMembers =
                     ImmutableList.of(chat.getMember(0));
-            MembersExcluded expected = membersRemovedFrom(command, remainingMembers);
+            MembersRemoved expected = membersRemovedFrom(command, remainingMembers);
 
             context().assertEvent(expected);
         }
@@ -118,7 +118,7 @@ final class ChatTest extends ContextAwareTest {
                     ImmutableList.of(GivenUserId.generated(),
                                      chat.getMember(0),
                                      chat.getMember(1));
-            ExcludeMembers command = removeMembersCommandWith(chat, membersToRemove);
+            RemoveMembers command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
             ImmutableList<UserId> remainingMembers =
                     ImmutableList.of(chat.getMember(0));
@@ -132,9 +132,9 @@ final class ChatTest extends ContextAwareTest {
                 "if the user who removes is not a chat owner")
         void rejectIfNotOwner() {
             Chat chat = createGroupChatIn(context());
-            ExcludeMembers command = removeMembersCommandWith(chat, chat.getMember(1));
+            RemoveMembers command = removeMembersCommandWith(chat, chat.getMember(1));
             context().receivesCommand(command);
-            MembersCannotBeExcluded expected = membersCannotBeRemovedFrom(command);
+            MembersCannotBeRemoved expected = membersCannotBeRemovedFrom(command);
 
             context().assertEvent(expected);
         }
@@ -144,9 +144,9 @@ final class ChatTest extends ContextAwareTest {
                 "if chat isn't a group")
         void rejectIfNotGroup() {
             Chat chat = createPersonalChatIn(context());
-            ExcludeMembers command = removeMembersCommandWith(chat, chat.getMember(0));
+            RemoveMembers command = removeMembersCommandWith(chat, chat.getMember(0));
             context().receivesCommand(command);
-            MembersCannotBeExcluded expected = membersCannotBeRemovedFrom(command);
+            MembersCannotBeRemoved expected = membersCannotBeRemovedFrom(command);
 
             context().assertEvent(expected);
         }
@@ -158,9 +158,9 @@ final class ChatTest extends ContextAwareTest {
             Chat chat = createGroupChatIn(context());
             ImmutableList<UserId> membersToRemove =
                     ImmutableList.of(GivenUserId.generated());
-            ExcludeMembers command = removeMembersCommandWith(chat, membersToRemove);
+            RemoveMembers command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
-            MembersCannotBeExcluded expected = membersCannotBeRemovedFrom(command);
+            MembersCannotBeRemoved expected = membersCannotBeRemovedFrom(command);
 
             context().assertEvent(expected);
         }

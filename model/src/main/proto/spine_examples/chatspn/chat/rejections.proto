@@ -37,21 +37,21 @@ import "spine/core/user_id.proto";
 import "spine/net/email_address.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// Members cannot be excluded from this chat.
+// Members cannot be removed from this chat.
 //
 // Emitted when:
 // - chat isn't a group;
 // - the user who sent the original command, is not a chat owner;
-// - all users to exclude already aren't the chat members.
+// - all users to remove already aren't the chat members.
 //
-message MembersCannotBeExcluded {
+message MembersCannotBeRemoved {
 
-  // The ID of the chat in which members couldn't be excluded.
+  // The ID of the chat in which members couldn't be removed.
   ChatId id = 1;
 
-  // The user who originally tells to exclude members.
+  // The user who originally tells to remove members.
   spine.core.UserId who_removes = 2 [(required) = true];
 
-  // Members who couldn't be excluded from the chat.
+  // Members who couldn't be removed from the chat.
   repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }
