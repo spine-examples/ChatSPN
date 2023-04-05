@@ -62,7 +62,8 @@ message MembersCannotBeAdded {
 // Emitted when:
 // - chat isn't a group;
 // - the user who sent the original command, is not a chat owner;
-// - all users to remove already aren't the chat members.
+// - all users to remove already aren't the chat members. If at least one member can be removed,
+//   this rejection will not be emitted.
 //
 message MembersCannotBeRemoved {
 
