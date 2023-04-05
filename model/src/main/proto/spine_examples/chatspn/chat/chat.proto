@@ -49,9 +49,6 @@ message Chat {
 
     // The type of the chat.
     //
-    // `Unspecified` is not a chat type, it is the default value,
-    // which will throw an exception during validation.
-    //
     // Personal chat is responsible for communication between only 2 users.
     // Personal chat doesn't have a name, avatar, etc.
     // Members in the personal chat have the same permissions.
