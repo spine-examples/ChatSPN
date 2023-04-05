@@ -30,12 +30,15 @@ import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeRemoved;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
@@ -161,6 +164,71 @@ public final class ChatTestEnv {
         return chat;
     }
 
+    public static AddMembers addMembersCommand(Chat chat) {
+        AddMembers command = AddMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoAdds(chat.getMember(0))
+                .addMember(GivenUserId.generated())
+                .vBuild();
+        return command;
+    }
+
+    public static AddMembers addMembersCommandWith(Chat chat,
+                                                   List<UserId> membersToAdd) {
+        AddMembers command = AddMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoAdds(chat.getMember(0))
+                .addAllMember(membersToAdd)
+                .vBuild();
+        return command;
+    }
+
+    public static AddMembers addMembersCommandWith(Chat chat,
+                                                   UserId whoAdds) {
+        AddMembers command = AddMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoAdds(whoAdds)
+                .addMember(GivenUserId.generated())
+                .vBuild();
+        return command;
+    }
+
+    public static MembersAdded membersAddedFrom(AddMembers c,
+                                                List<UserId> addedMembers) {
+        MembersAdded event = MembersAdded
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoAdded(c.getWhoAdds())
+                .addAllMember(addedMembers)
+                .vBuild();
+        return event;
+    }
+
+    public static MembersCannotBeAdded membersCannotBeAddedFrom(AddMembers c) {
+        MembersCannotBeAdded rejection = MembersCannotBeAdded
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoAdds(c.getWhoAdds())
+                .addAllSuggestedMember(c.getMemberList())
+                .vBuild();
+        return rejection;
+    }
+
+    public static Chat chatAfterAddition(Chat chat, List<UserId> addedMembers) {
+        Chat state = Chat
+                .newBuilder()
+                .setId(chat.getId())
+                .setType(chat.getType())
+                .setName(chat.getName())
+                .addAllMember(chat.getMemberList())
+                .addAllMember(addedMembers)
+                .vBuild();
+        return state;
+    }
+
     public static RemoveMembers removeMembersCommandWith(Chat chat, UserId whoRemoves) {
         RemoveMembers command = RemoveMembers
                 .newBuilder()
@@ -193,7 +261,7 @@ public final class ChatTestEnv {
         return event;
     }
 
-    public static Chat chatFrom(Chat chat, List<UserId> remainingMembers) {
+    public static Chat chatAfterRemoval(Chat chat, List<UserId> remainingMembers) {
         Chat state = Chat
                 .newBuilder()
                 .setId(chat.getId())

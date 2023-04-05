@@ -69,6 +69,22 @@ message GroupChatCreated {
     string name = 4 [(required) = true];
 }
 
+// New members have been added to the chat.
+//
+// Emitted if at least one new member was added.
+//
+message MembersAdded {
+
+    // The ID of the chat in which members were added.
+    ChatId id = 1;
+
+    // The user who added new members.
+    spine.core.UserId who_added = 2 [(required) = true];
+
+    // Users who were added to the chat as members.
+    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+}
+
 // Members have been removed from the chat.
 //
 // Emitted if at least one member was removed.

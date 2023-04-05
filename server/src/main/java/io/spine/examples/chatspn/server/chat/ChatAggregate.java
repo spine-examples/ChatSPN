@@ -30,12 +30,15 @@ import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.rejection.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.MembersCannotBeRemoved;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
@@ -151,5 +154,53 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                                    userId.equals(command.getWhoRemoves()))
                            .collect(toImmutableList());
         return remainingMembers;
+    }
+
+    /**
+     * Handles the command to add new members to the chat.
+     *
+     * @throws MembersCannotBeAdded
+     *         if chat isn't a group,
+     *         or the user who sent the original command, is not a chat member,
+     *         or all users to add already are the chat members
+     */
+    @Assign
+    MembersAdded handle(AddMembers c) throws MembersCannotBeAdded {
+        ImmutableList<UserId> newMembers = extractNewMembers(c.getMemberList());
+        if (checkAdditionPossibility(c, newMembers)) {
+            return MembersAdded
+                    .newBuilder()
+                    .setId(c.getId())
+                    .setWhoAdded(c.getWhoAdds())
+                    .addAllMember(newMembers)
+                    .vBuild();
+        }
+        throw MembersCannotBeAdded
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoAdds(c.getWhoAdds())
+                .addAllSuggestedMember(c.getMemberList())
+                .build();
+    }
+
+    @Apply
+    private void event(MembersAdded e) {
+        builder().addAllMember(e.getMemberList());
+    }
+
+    private boolean checkAdditionPossibility(AddMembers command, List<UserId> newMembers) {
+        boolean isGroupChat = state().getType() == CT_GROUP;
+        boolean isUserWhoAddsIsMember = state().getMemberList()
+                                               .contains(command.getWhoAdds());
+        return isGroupChat && isUserWhoAddsIsMember && !newMembers.isEmpty();
+    }
+
+    private ImmutableList<UserId> extractNewMembers(List<UserId> membersInCommand) {
+        List<UserId> chatMembers = state().getMemberList();
+        ImmutableList<UserId> newMembers =
+                membersInCommand.stream()
+                                .filter(userId -> !chatMembers.contains(userId))
+                                .collect(toImmutableList());
+        return newMembers;
     }
 }

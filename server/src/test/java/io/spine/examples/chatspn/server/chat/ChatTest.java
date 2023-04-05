@@ -29,14 +29,18 @@ package io.spine.examples.chatspn.server.chat;
 import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeRemoved;
 import io.spine.examples.chatspn.server.ChatsContext;
+import io.spine.examples.chatspn.server.chat.given.ChatTestEnv;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.ContextAwareTest;
@@ -44,12 +48,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommandWith;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatCreatedFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersAddedFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeAddedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersRemovedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatCreatedFrom;
@@ -162,6 +170,79 @@ final class ChatTest extends ContextAwareTest {
             RemoveMembers command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
             MembersCannotBeRemoved expected = membersCannotBeRemovedFrom(command);
+
+            context().assertEvent(expected);
+        }
+    }
+
+    @Nested
+    @DisplayName("handle `AddMembers` ")
+    class MembersAdditionHandlerBehaviour {
+
+        @Test
+        @DisplayName("and emit the `MembersAdded` if at least one member can be added")
+        void event() {
+            Chat chat = createGroupChatIn(context());
+            ImmutableList<UserId> membersToAdd =
+                    ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
+            AddMembers command = ChatTestEnv.addMembersCommandWith(chat, membersToAdd);
+            context().receivesCommand(command);
+            ImmutableList<UserId> addedMembers =
+                    ImmutableList.of(membersToAdd.get(0));
+            MembersAdded expected = membersAddedFrom(command, addedMembers);
+
+            context().assertEvent(expected);
+        }
+
+        @Test
+        @DisplayName("and change state to expected if at least one member can be added")
+        void state() {
+            Chat chat = createGroupChatIn(context());
+            ImmutableList<UserId> membersToAdd =
+                    ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
+            AddMembers command = ChatTestEnv.addMembersCommandWith(chat, membersToAdd);
+            context().receivesCommand(command);
+            ImmutableList<UserId> addedMembers =
+                    ImmutableList.of(membersToAdd.get(0));
+            Chat expected = chatFrom(chat, addedMembers);
+
+            context().assertState(chat.getId(), expected);
+        }
+
+        @Test
+        @DisplayName("and reject with the `MembersCannotBeAdded` " +
+                "if the user who adds is not a chat member")
+        void rejectIfNotMember() {
+            Chat chat = createGroupChatIn(context());
+            AddMembers command = addMembersCommandWith(chat, GivenUserId.generated());
+            context().receivesCommand(command);
+            MembersCannotBeAdded expected = membersCannotBeAddedFrom(command);
+
+            context().assertEvent(expected);
+        }
+
+        @Test
+        @DisplayName("and reject with the `MembersCannotBeAdded` " +
+                "if chat isn't a group")
+        void rejectIfNotGroup() {
+            Chat chat = createPersonalChatIn(context());
+            AddMembers command = addMembersCommand(chat);
+            context().receivesCommand(command);
+            MembersCannotBeAdded expected = membersCannotBeAddedFrom(command);
+
+            context().assertEvent(expected);
+        }
+
+        @Test
+        @DisplayName("and reject with the `MembersCannotBeAdded` " +
+                "if all members to add already in the chat")
+        void rejectIfAlreadyMembers() {
+            Chat chat = createGroupChatIn(context());
+            ImmutableList<UserId> membersToAdd =
+                    ImmutableList.of(chat.getMember(0), chat.getMember(1));
+            AddMembers command = ChatTestEnv.addMembersCommandWith(chat, membersToAdd);
+            context().receivesCommand(command);
+            MembersCannotBeAdded expected = membersCannotBeAddedFrom(command);
 
             context().assertEvent(expected);
         }

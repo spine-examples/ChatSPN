@@ -30,6 +30,7 @@ import io.spine.core.Subscribe;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.server.projection.Projection;
@@ -57,6 +58,15 @@ public final class ChatMembersProjection
     @Subscribe
     void on(MembersRemoved e) {
         builder().clearMember()
-                .addAllMember(e.getRemainingMemberList());
+                 .addAllMember(e.getRemainingMemberList());
+    }
+
+    @Subscribe
+    void on(MembersAdded e) {
+        e.getMemberList()
+         .stream()
+         .filter(member -> !state().getMemberList()
+                                   .contains(member))
+         .forEach(member -> builder().addMember(member));
     }
 }
