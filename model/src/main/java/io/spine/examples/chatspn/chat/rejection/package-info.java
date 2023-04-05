@@ -24,37 +24,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.given;
+/**
+ * Provides data types that describe rejections related to chat.
+ */
+@CheckReturnValue
+@ParametersAreNonnullByDefault
+package io.spine.examples.chatspn.chat.rejection;
 
-import io.spine.examples.chatspn.chat.ChatMembers;
-import io.spine.examples.chatspn.chat.command.CreateGroupChat;
-import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import com.google.errorprone.annotations.CheckReturnValue;
 
-public final class ChatMembersProjectionTestEnv {
-
-    /**
-     * Prevents class instantiation.
-     */
-    private ChatMembersProjectionTestEnv() {
-    }
-
-    public static ChatMembers chatMembersFrom(CreatePersonalChat c) {
-        ChatMembers state = ChatMembers
-                .newBuilder()
-                .setId(c.getId())
-                .addMember(c.getCreator())
-                .addMember(c.getMember())
-                .vBuild();
-        return state;
-    }
-
-    public static ChatMembers chatMembersFrom(CreateGroupChat c) {
-        ChatMembers state = ChatMembers
-                .newBuilder()
-                .setId(c.getId())
-                .addMember(c.getCreator())
-                .addAllMember(c.getMemberList())
-                .vBuild();
-        return state;
-    }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

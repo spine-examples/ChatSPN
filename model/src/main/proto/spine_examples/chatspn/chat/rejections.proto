@@ -30,57 +30,29 @@ package spine_examples.chatspn.chat;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat.event";
-option java_outer_classname = "EventsProto";
-option java_multiple_files = true;
+option java_package = "io.spine.examples.chatspn.chat.rejection";
+option java_multiple_files = false;
 
 import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// A new personal chat has been created.
-message PersonalChatCreated {
-
-    // The ID of the created chat.
-    ChatId id = 1;
-
-    // The user who created the chat.
-    spine.core.UserId creator = 2 [(required) = true];
-
-    // The second member into the created personal chat.
-    spine.core.UserId member = 3 [(required) = true];
-}
-
-// A new group chat has been created.
-message GroupChatCreated {
-
-    // The ID of the created chat.
-    ChatId id = 1;
-
-    // The user who created the chat.
-    spine.core.UserId creator = 2 [(required) = true];
-
-    // Users who are included in the chat as members.
-    //
-    // This list does not include a `creator`.
-    //
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
-
-    // The name of the created chat.
-    string name = 4 [(required) = true];
-}
-
-// New members have been added to the chat.
+// New members cannot be added to this chat.
 //
-// Emitted if at least one new member is added from the corresponding command.
+// Emitted when:
+// - chat isn't a group;
+// - the user who sent the original command, is not a chat member;
+// - all users to add already are the chat members. If at least one user can be added as a member,
+//   this rejection will not be emitted.
 //
-message MembersAdded {
+message MembersCannotBeAdded {
 
-    // The ID of the chat in which members were added.
-    ChatId id = 1;
+  // The ID of the chat in which members couldn't be added.
+  ChatId id = 1;
 
-    // The user who added new members.
-    spine.core.UserId who_added = 2 [(required) = true];
+  // The user who originally tells to add new members.
+  spine.core.UserId who_adds = 2 [(required) = true];
 
-    // Users who were added to the chat as members.
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+  // The users that were originally suggested to be added to the chat as members.
+  repeated spine.core.UserId suggested_member = 3 [(required) = true, (distinct) = true];
 }

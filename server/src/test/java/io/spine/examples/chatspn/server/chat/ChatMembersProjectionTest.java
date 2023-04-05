@@ -26,18 +26,22 @@
 
 package io.spine.examples.chatspn.server.chat;
 
+import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.examples.chatspn.server.given.ChatMembersProjectionTestEnv.chatMembersFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatMembersProjectionTestEnv.chatMembersFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommand;
 
 @DisplayName("`ChatMembersProjection` should")
 final class ChatMembersProjectionTest extends ContextAwareTest {
@@ -63,6 +67,17 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
         CreateGroupChat command = createGroupChatCommand();
         context().receivesCommand(command);
         ChatMembers expected = chatMembersFrom(command);
+
+        context().assertState(command.getId(), expected);
+    }
+
+    @Test
+    @DisplayName("update `ChatMembers`, as soon as `MembersAdded` is emitted")
+    void reactOnMembersAdded() {
+        Chat chat = createGroupChatIn(context());
+        AddMembers command = addMembersCommand(chat);
+        context().receivesCommand(command);
+        ChatMembers expected = chatMembersFrom(chat, command);
 
         context().assertState(command.getId(), expected);
     }
