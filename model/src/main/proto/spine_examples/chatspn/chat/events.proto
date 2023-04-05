@@ -71,7 +71,7 @@ message GroupChatCreated {
 
 // New members have been added to the chat.
 //
-// Emitted if at least one new member is added from the corresponding command.
+// Emitted if at least one new member was added.
 //
 message MembersAdded {
 
@@ -83,4 +83,20 @@ message MembersAdded {
 
     // Users who were added to the chat as members.
     repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+}
+
+// Members have been removed from the chat.
+//
+// Emitted if at least one member was removed.
+//
+message MembersRemoved {
+
+    // The ID of the chat in which members were removed.
+    ChatId id = 1;
+
+    // The user who removed members.
+    spine.core.UserId who_removed = 2 [(required) = true];
+
+    // Members remaining in the chat.
+    repeated spine.core.UserId remaining_member = 3 [(required) = true, (distinct) = true];
 }

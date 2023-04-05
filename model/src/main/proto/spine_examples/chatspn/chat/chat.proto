@@ -60,13 +60,17 @@ message Chat {
     // Members with the appropriate permissions can add new users to the group chat.
     // Members can leave a group chat, and the chat is only deleted when the last member has left.
     //
-    ChatType type = 3;
+    ChatType type = 3 [(required) = true];
 
     enum ChatType {
-        CT_PERSONAL = 0;
-        CT_GROUP = 1;
+        CT_UNSPECIFIED = 0;
+        CT_PERSONAL = 1;
+        CT_GROUP = 2;
     }
 
     // The name of the chat.
     string name = 4;
+
+    // The owner of the chat.
+    spine.core.UserId owner = 5;
 }

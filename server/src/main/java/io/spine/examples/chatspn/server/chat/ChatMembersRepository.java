@@ -31,6 +31,7 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
+import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.route.EventRouting;
@@ -49,6 +50,7 @@ public final class ChatMembersRepository
         super.setupEventRouting(routing);
         routing.route(PersonalChatCreated.class, (event, context) -> withId(event.getId()))
                .route(GroupChatCreated.class, (event, context) -> withId(event.getId()))
+               .route(MembersRemoved.class, (event, context) -> withId(event.getId()))
                .route(MembersAdded.class, (event, context) -> withId(event.getId()));
     }
 }

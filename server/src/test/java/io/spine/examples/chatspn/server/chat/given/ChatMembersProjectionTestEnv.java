@@ -26,11 +26,17 @@
 
 package io.spine.examples.chatspn.server.chat.given;
 
+import io.spine.core.UserId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.AddMembers;
+import io.spine.examples.chatspn.chat.command.RemoveMembers;
+
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 public final class ChatMembersProjectionTestEnv {
 
@@ -66,6 +72,21 @@ public final class ChatMembersProjectionTestEnv {
                 .setId(c.getId())
                 .addAllMember(chat.getMemberList())
                 .addAllMember(c.getMemberList())
+                .vBuild();
+        return state;
+    }
+
+    public static ChatMembers chatMembersFrom(Chat chat, RemoveMembers command) {
+        List<UserId> remainingMembers =
+                chat.getMemberList()
+                    .stream()
+                    .filter(userId -> !command.getMemberList()
+                                              .contains(userId))
+                    .collect(toList());
+        ChatMembers state = ChatMembers
+                .newBuilder()
+                .setId(command.getId())
+                .addAllMember(remainingMembers)
                 .vBuild();
         return state;
     }

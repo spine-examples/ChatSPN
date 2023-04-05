@@ -56,3 +56,23 @@ message MembersCannotBeAdded {
   // The users that were originally suggested to be added to the chat as members.
   repeated spine.core.UserId suggested_member = 3 [(required) = true, (distinct) = true];
 }
+
+// Members cannot be removed from this chat.
+//
+// Emitted when:
+// - chat isn't a group;
+// - the user who sent the original command, is not a chat owner;
+// - all users to remove already aren't the chat members. If at least one member can be removed,
+//   this rejection will not be emitted.
+//
+message MembersCannotBeRemoved {
+
+    // The ID of the chat in which members couldn't be removed.
+    ChatId id = 1;
+
+    // The user who originally tells to remove members.
+    spine.core.UserId who_removes = 2 [(required) = true];
+
+    // Members who couldn't be removed from the chat.
+    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+}

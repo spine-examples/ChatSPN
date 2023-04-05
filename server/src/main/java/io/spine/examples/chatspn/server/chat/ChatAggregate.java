@@ -33,10 +33,13 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
+import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.examples.chatspn.chat.rejection.MembersCannotBeAdded;
+import io.spine.examples.chatspn.chat.rejection.MembersCannotBeRemoved;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
@@ -93,7 +96,75 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                  .addMember(e.getCreator())
                  .addAllMember(e.getMemberList())
                  .setName(e.getName())
+                 .setOwner(e.getCreator())
                  .setType(CT_GROUP);
+    }
+
+    /**
+     * Handles the command to remove members from the chat.
+     *
+     * <p>The member who sent the command cannot be removed.</p>
+     *
+     * @return {@link MembersRemoved} if at least one member was removed
+     * @throws MembersCannotBeRemoved
+     *         if chat isn't a group,
+     *         or the user who sent the original command, is not a chat owner,
+     *         or all users to remove already aren't the chat members
+     */
+    @Assign
+    MembersRemoved handle(RemoveMembers c) throws MembersCannotBeRemoved {
+        ImmutableList<UserId> remainingMembers = extractRemainingMembers(c);
+        if (checkRemovalPossibility(c, remainingMembers)) {
+            return MembersRemoved
+                    .newBuilder()
+                    .setId(c.getId())
+                    .setWhoRemoved(c.getWhoRemoves())
+                    .addAllRemainingMember(remainingMembers)
+                    .vBuild();
+        }
+        throw MembersCannotBeRemoved
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoRemoves(c.getWhoRemoves())
+                .addAllMember(c.getMemberList())
+                .build();
+    }
+
+    @Apply
+    private void event(MembersRemoved e) {
+        builder().clearMember()
+                 .addAllMember(e.getRemainingMemberList());
+    }
+
+    /**
+     * Checks the possibility to remove members by those criteria:
+     *  <ul>
+     *      <li>chat is a group;</li>
+     *      <li>the user who sent the command is a chat owner;</li>
+     *      <li>at least one user from the command can be removed.</li>
+     *  </ul>
+     */
+    private boolean checkRemovalPossibility(RemoveMembers command,
+                                            List<UserId> remainingMembers) {
+        boolean isGroupChat = state().getType() == CT_GROUP;
+        boolean isUserWhoRemovesIsOwner = state().getOwner()
+                                                 .equals(command.getWhoRemoves());
+        boolean isSomeoneRemoved = remainingMembers.size() < state().getMemberCount();
+        return isGroupChat && isUserWhoRemovesIsOwner && isSomeoneRemoved;
+    }
+
+    /**
+     * Extracts the list of users who are members of the chat and can be removed.
+     */
+    private ImmutableList<UserId> extractRemainingMembers(RemoveMembers command) {
+        List<UserId> chatMembers = state().getMemberList();
+        List<UserId> membersInCommand = command.getMemberList();
+        ImmutableList<UserId> remainingMembers =
+                chatMembers.stream()
+                           .filter(userId -> !membersInCommand.contains(userId) ||
+                                   userId.equals(command.getWhoRemoves()))
+                           .collect(toImmutableList());
+        return remainingMembers;
     }
 
     /**
@@ -128,6 +199,14 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         builder().addAllMember(e.getMemberList());
     }
 
+    /**
+     * Checks the possibility to add new members by those criteria:
+     *  <ul>
+     *      <li>chat is a group;</li>
+     *      <li>the user who sent the command is a chat member;</li>
+     *      <li>at least one user from the command can be added.</li>
+     *  </ul>
+     */
     private boolean checkAdditionPossibility(AddMembers command, List<UserId> newMembers) {
         boolean isGroupChat = state().getType() == CT_GROUP;
         boolean isUserWhoAddsIsMember = state().getMemberList()
@@ -135,6 +214,9 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         return isGroupChat && isUserWhoAddsIsMember && !newMembers.isEmpty();
     }
 
+    /**
+     * Extracts the list of users who are not members of the chat.
+     */
     private ImmutableList<UserId> extractNewMembers(List<UserId> membersInCommand) {
         List<UserId> chatMembers = state().getMemberList();
         ImmutableList<UserId> newMembers =

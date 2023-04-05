@@ -26,6 +26,7 @@
 
 package io.spine.examples.chatspn.server.message.given;
 
+import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
@@ -35,6 +36,7 @@ import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
 
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.testing.TestValues.randomString;
 
 public final class MessageTestEnv {
@@ -46,11 +48,14 @@ public final class MessageTestEnv {
     }
 
     public static Chat createRandomChatIn(BlackBoxContext context) {
+        UserId owner = GivenUserId.generated();
         Chat chat = Chat
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setName(randomString())
-                .addMember(GivenUserId.generated())
+                .setType(CT_GROUP)
+                .setOwner(owner)
+                .addMember(owner)
                 .addMember(GivenUserId.generated())
                 .vBuild();
         CreateGroupChat command = CreateGroupChat
