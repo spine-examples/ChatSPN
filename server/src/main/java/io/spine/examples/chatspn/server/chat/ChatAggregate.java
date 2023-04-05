@@ -136,6 +136,14 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                  .addAllMember(e.getRemainingMemberList());
     }
 
+    /**
+     * Checks the possibility to remove members by those criteria:
+     *  <ul>
+     *      <li>chat is a group;</li>
+     *      <li>the user who sent the command is a chat owner;</li>
+     *      <li>at least one user from the command can be removed.</li>
+     *  </ul>
+     */
     private boolean checkRemovalPossibility(RemoveMembers command,
                                             List<UserId> remainingMembers) {
         boolean isGroupChat = state().getType() == CT_GROUP;
@@ -145,6 +153,9 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         return isGroupChat && isUserWhoRemovesIsOwner && isSomeoneRemoved;
     }
 
+    /**
+     * Extracts the list of users who are members of the chat and can be removed.
+     */
     private ImmutableList<UserId> extractRemainingMembers(RemoveMembers command) {
         List<UserId> chatMembers = state().getMemberList();
         List<UserId> membersInCommand = command.getMemberList();
@@ -188,6 +199,14 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         builder().addAllMember(e.getMemberList());
     }
 
+    /**
+     * Checks the possibility to add new members by those criteria:
+     *  <ul>
+     *      <li>chat is a group;</li>
+     *      <li>the user who sent the command is a chat member;</li>
+     *      <li>at least one user from the command can be added.</li>
+     *  </ul>
+     */
     private boolean checkAdditionPossibility(AddMembers command, List<UserId> newMembers) {
         boolean isGroupChat = state().getType() == CT_GROUP;
         boolean isUserWhoAddsIsMember = state().getMemberList()
@@ -195,6 +214,9 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         return isGroupChat && isUserWhoAddsIsMember && !newMembers.isEmpty();
     }
 
+    /**
+     * Extracts the list of users who are not members of the chat.
+     */
     private ImmutableList<UserId> extractNewMembers(List<UserId> membersInCommand) {
         List<UserId> chatMembers = state().getMemberList();
         ImmutableList<UserId> newMembers =
