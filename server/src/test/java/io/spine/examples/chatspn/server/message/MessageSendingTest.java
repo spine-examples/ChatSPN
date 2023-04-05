@@ -28,6 +28,7 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.event.MessageSent;
@@ -44,6 +45,7 @@ import static io.spine.examples.chatspn.server.message.given.MessageSendingTestE
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messageFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messagePostedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messageSentFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messageViewFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.randomSendMessageCommand;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.sendMessageCommandWith;
 import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.createRandomChatIn;
@@ -79,6 +81,19 @@ public final class MessageSendingTest extends ContextAwareTest {
         MessageCannotBeSent expected = messageCannotBeSentFrom(command);
 
         context().assertEvent(expected);
+    }
+
+    @Test
+    @DisplayName("produce `MessageView` with the expected state")
+    void messageViewState() {
+        Chat chat = createRandomChatIn(context());
+        SendMessage command = randomSendMessageCommand(chat);
+        context().receivesCommand(command);
+        MessageView expected = messageViewFrom(command);
+
+        context().assertState(expected.getId(), MessageView.class)
+                 .comparingExpectedFieldsOnly()
+                 .isEqualTo(expected);
     }
 
     @Nested

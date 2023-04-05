@@ -30,6 +30,7 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.event.MessageSent;
@@ -91,6 +92,17 @@ public final class MessageSendingTestEnv {
 
     public static Message messageFrom(SendMessage c) {
         Message state = Message
+                .newBuilder()
+                .setId(c.getId())
+                .setChat(c.getChat())
+                .setUser(c.getUser())
+                .setContent(c.getContent())
+                .buildPartial();
+        return state;
+    }
+
+    public static MessageView messageViewFrom(SendMessage c) {
+        MessageView state = MessageView
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
