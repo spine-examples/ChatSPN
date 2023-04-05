@@ -38,7 +38,7 @@ import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
 import "google/protobuf/timestamp.proto";
 
-// A message view in the chat.
+// A single message view in the chat.
 message MessageView {
   option (entity) = { kind: PROJECTION };
 
