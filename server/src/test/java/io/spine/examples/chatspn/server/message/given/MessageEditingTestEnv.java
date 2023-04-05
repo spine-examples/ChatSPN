@@ -29,6 +29,7 @@ package io.spine.examples.chatspn.server.message.given;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.EditMessage;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageEdited;
@@ -114,6 +115,17 @@ public final class MessageEditingTestEnv {
 
     public static Message messageFrom(EditMessage c) {
         Message state = Message
+                .newBuilder()
+                .setId(c.getId())
+                .setChat(c.getChat())
+                .setUser(c.getUser())
+                .setContent(c.getSuggestedContent())
+                .buildPartial();
+        return state;
+    }
+
+    public static MessageView messageViewFrom(EditMessage c) {
+        MessageView state = MessageView
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())

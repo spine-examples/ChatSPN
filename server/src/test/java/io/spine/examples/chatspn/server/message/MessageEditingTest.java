@@ -29,6 +29,7 @@ package io.spine.examples.chatspn.server.message;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.EditMessage;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageEdited;
@@ -52,6 +53,7 @@ import static io.spine.examples.chatspn.server.message.given.MessageEditingTestE
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageEditingFailedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.createRandomChatIn;
+import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageViewFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.sendRandomMessageTo;
 
 @DisplayName("`MessageEditing` should")
@@ -105,6 +107,20 @@ final class MessageEditingTest extends ContextAwareTest {
         context().assertEntity(expected.getId(), MessageEditingProcess.class)
                  .archivedFlag()
                  .isTrue();
+    }
+
+    @Test
+    @DisplayName("update a `MessageView` projection to the expected state")
+    void updateMessageView() {
+        Chat chat = createRandomChatIn(context());
+        Message message = sendRandomMessageTo(chat, context());
+        EditMessage command = editMessageCommand(message);
+        context().receivesCommand(command);
+        MessageView expected = messageViewFrom(command);
+
+        context().assertState(expected.getId(), MessageView.class)
+                 .comparingExpectedFieldsOnly()
+                 .isEqualTo(expected);
     }
 
     @Nested
