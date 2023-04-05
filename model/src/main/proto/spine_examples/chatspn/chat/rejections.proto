@@ -30,47 +30,49 @@ package spine_examples.chatspn.chat;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat";
-option java_outer_classname = "ChatProto";
-option java_multiple_files = true;
+option java_package = "io.spine.examples.chatspn.chat.rejection";
+option java_multiple_files = false;
 
 import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// A chat between two or more users.
-message Chat {
-    option (entity) = { kind: AGGREGATE };
+// New members cannot be added to this chat.
+//
+// Emitted when:
+// - chat isn't a group;
+// - the user who sent the original command, is not a chat member;
+// - all users to add already are the chat members. If at least one user can be added as a member,
+//   this rejection will not be emitted.
+//
+message MembersCannotBeAdded {
 
-    // The ID of the chat.
+  // The ID of the chat in which members couldn't be added.
+  ChatId id = 1;
+
+  // The user who originally tells to add new members.
+  spine.core.UserId who_adds = 2 [(required) = true];
+
+  // The users that were originally suggested to be added to the chat as members.
+  repeated spine.core.UserId suggested_member = 3 [(required) = true, (distinct) = true];
+}
+
+// Members cannot be removed from this chat.
+//
+// Emitted when:
+// - chat isn't a group;
+// - the user who sent the original command, is not a chat owner;
+// - all users to remove already aren't the chat members. If at least one member can be removed,
+//   this rejection will not be emitted.
+//
+message MembersCannotBeRemoved {
+
+    // The ID of the chat in which members couldn't be removed.
     ChatId id = 1;
 
-    // List of the chat members.
-    repeated spine.core.UserId member = 2 [(required) = true, (distinct) = true];
+    // The user who originally tells to remove members.
+    spine.core.UserId who_removes = 2 [(required) = true];
 
-    // The type of the chat.
-    //
-    // Personal chat is responsible for communication between only 2 users.
-    // Personal chat doesn't have a name, avatar, etc.
-    // Members in the personal chat have the same permissions.
-    // Members can't leave from personal chat, only delete it.
-    //
-    // Group chat is responsible for communication between 2 or more users.
-    // Group chat may have editable name, avatar, etc.
-    // Members in group chat may have different permissions.
-    // Members with the appropriate permissions can add new users to the group chat.
-    // Members can leave a group chat, and the chat is only deleted when the last member has left.
-    //
-    ChatType type = 3 [(required) = true];
-
-    enum ChatType {
-        CT_UNSPECIFIED = 0;
-        CT_PERSONAL = 1;
-        CT_GROUP = 2;
-    }
-
-    // The name of the chat.
-    string name = 4;
-
-    // The owner of the chat.
-    spine.core.UserId owner = 5;
+    // Members who couldn't be removed from the chat.
+    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }

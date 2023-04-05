@@ -26,13 +26,24 @@
 
 package io.spine.examples.chatspn.server.chat.given;
 
+import com.google.common.collect.ImmutableList;
+import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.MembersAdded;
+import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
+import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeRemoved;
 import io.spine.testing.core.given.GivenUserId;
+import io.spine.testing.server.blackbox.BlackBoxContext;
+
+import java.util.List;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
@@ -108,7 +119,167 @@ public final class ChatTestEnv {
                 .addMember(c.getCreator())
                 .addAllMember(c.getMemberList())
                 .setName(c.getName())
+                .setOwner(c.getCreator())
                 .vBuild();
         return state;
+    }
+
+    public static Chat createGroupChatIn(BlackBoxContext ctx) {
+        UserId owner = GivenUserId.generated();
+        Chat chat = Chat
+                .newBuilder()
+                .setId(ChatId.generate())
+                .setName(randomString())
+                .setType(CT_GROUP)
+                .setOwner(owner)
+                .addMember(owner)
+                .addMember(GivenUserId.generated())
+                .vBuild();
+        CreateGroupChat command = CreateGroupChat
+                .newBuilder()
+                .setId(chat.getId())
+                .setName(chat.getName())
+                .setCreator(chat.getMember(0))
+                .addMember(chat.getMember(1))
+                .vBuild();
+        ctx.receivesCommand(command);
+        return chat;
+    }
+
+    public static Chat createPersonalChatIn(BlackBoxContext ctx) {
+        Chat chat = Chat
+                .newBuilder()
+                .setId(ChatId.generate())
+                .setType(CT_PERSONAL)
+                .addMember(GivenUserId.generated())
+                .addMember(GivenUserId.generated())
+                .vBuild();
+        CreatePersonalChat command = CreatePersonalChat
+                .newBuilder()
+                .setId(chat.getId())
+                .setCreator(chat.getMember(0))
+                .setMember(chat.getMember(1))
+                .vBuild();
+        ctx.receivesCommand(command);
+        return chat;
+    }
+
+    public static AddMembers addMembersCommand(Chat chat) {
+        AddMembers command = AddMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoAdds(chat.getMember(0))
+                .addMember(GivenUserId.generated())
+                .vBuild();
+        return command;
+    }
+
+    public static AddMembers addMembersCommandWith(Chat chat,
+                                                   List<UserId> membersToAdd) {
+        AddMembers command = AddMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoAdds(chat.getMember(0))
+                .addAllMember(membersToAdd)
+                .vBuild();
+        return command;
+    }
+
+    public static AddMembers addMembersCommandWith(Chat chat,
+                                                   UserId whoAdds) {
+        AddMembers command = AddMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoAdds(whoAdds)
+                .addMember(GivenUserId.generated())
+                .vBuild();
+        return command;
+    }
+
+    public static MembersAdded membersAddedFrom(AddMembers c,
+                                                List<UserId> addedMembers) {
+        MembersAdded event = MembersAdded
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoAdded(c.getWhoAdds())
+                .addAllMember(addedMembers)
+                .vBuild();
+        return event;
+    }
+
+    public static MembersCannotBeAdded membersCannotBeAddedFrom(AddMembers c) {
+        MembersCannotBeAdded rejection = MembersCannotBeAdded
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoAdds(c.getWhoAdds())
+                .addAllSuggestedMember(c.getMemberList())
+                .vBuild();
+        return rejection;
+    }
+
+    public static Chat chatAfterAddition(Chat chat, List<UserId> addedMembers) {
+        Chat state = Chat
+                .newBuilder()
+                .setId(chat.getId())
+                .setType(chat.getType())
+                .setName(chat.getName())
+                .addAllMember(chat.getMemberList())
+                .addAllMember(addedMembers)
+                .vBuild();
+        return state;
+    }
+
+    public static RemoveMembers removeMembersCommandWith(Chat chat, UserId whoRemoves) {
+        RemoveMembers command = RemoveMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoRemoves(whoRemoves)
+                .addAllMember(ImmutableList.of(chat.getMember(1)))
+                .vBuild();
+        return command;
+    }
+
+    public static RemoveMembers removeMembersCommandWith(Chat chat,
+                                                         List<UserId> membersToRemove) {
+        RemoveMembers command = RemoveMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoRemoves(chat.getMember(0))
+                .addAllMember(membersToRemove)
+                .vBuild();
+        return command;
+    }
+
+    public static MembersRemoved membersRemovedFrom(RemoveMembers command,
+                                                    List<UserId> remainingMembers) {
+        MembersRemoved event = MembersRemoved
+                .newBuilder()
+                .setId(command.getId())
+                .setWhoRemoved(command.getWhoRemoves())
+                .addAllRemainingMember(remainingMembers)
+                .vBuild();
+        return event;
+    }
+
+    public static Chat chatAfterRemoval(Chat chat, List<UserId> remainingMembers) {
+        Chat state = Chat
+                .newBuilder()
+                .setId(chat.getId())
+                .setType(chat.getType())
+                .addAllMember(remainingMembers)
+                .setName(chat.getName())
+                .setOwner(chat.getOwner())
+                .vBuild();
+        return state;
+    }
+
+    public static MembersCannotBeRemoved membersCannotBeRemovedFrom(RemoveMembers command) {
+        MembersCannotBeRemoved rejection = MembersCannotBeRemoved
+                .newBuilder()
+                .setId(command.getId())
+                .setWhoRemoves(command.getWhoRemoves())
+                .addAllMember(command.getMemberList())
+                .vBuild();
+        return rejection;
     }
 }
