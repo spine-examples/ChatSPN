@@ -50,6 +50,8 @@ import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommandWith;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterAddition;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterRemoval;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
@@ -130,7 +132,7 @@ final class ChatTest extends ContextAwareTest {
             RemoveMembers command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
             ImmutableList<UserId> remainingMembers = ImmutableList.of(chatOwner);
-            Chat expected = chatFrom(chat, remainingMembers);
+            Chat expected = chatAfterRemoval(chat, remainingMembers);
 
             context().assertState(chat.getId(), expected);
         }
@@ -204,7 +206,7 @@ final class ChatTest extends ContextAwareTest {
             context().receivesCommand(command);
             ImmutableList<UserId> addedMembers =
                     ImmutableList.of(membersToAdd.get(0));
-            Chat expected = chatFrom(chat, addedMembers);
+            Chat expected = chatAfterAddition(chat, addedMembers);
 
             context().assertState(chat.getId(), expected);
         }
