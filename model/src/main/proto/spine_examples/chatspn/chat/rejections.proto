@@ -90,5 +90,5 @@ message ChatCannotBeDeleted {
     ChatId id = 1;
 
     // The user who originally tells to delete chat.
-    spine.core.UserId who_deleted = 2 [(required) = true];
+    spine.core.UserId who_deletes = 2 [(required) = true];
 }
