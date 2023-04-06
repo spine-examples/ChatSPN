@@ -94,3 +94,13 @@ message RemoveMembers {
     // Members to remove from the chat.
     repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }
+
+// The user's intention to leave the chat.
+message LeaveChat {
+
+    // The ID of the chat user wants to leave from.
+    ChatId id = 1;
+
+    // The user who wants to leave from the chat.
+    spine.core.UserId user = 2 [(required) = true];
+}

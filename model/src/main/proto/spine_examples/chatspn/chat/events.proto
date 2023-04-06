@@ -100,3 +100,13 @@ message MembersRemoved {
     // Members remaining in the chat.
     repeated spine.core.UserId remaining_member = 3 [(required) = true, (distinct) = true];
 }
+
+// User left the chat.
+message UserLeftChat {
+
+    // The ID of the chat the user left.
+    ChatId id = 1;
+
+    // The user who left the chat.
+    spine.core.UserId user = 2 [(required) = true];
+}
