@@ -78,6 +78,12 @@ message MembersCannotBeRemoved {
 }
 
 // The chat cannot be deleted.
+//
+// Emitted when:
+// - the user who told to delete personal chat isn't a chat member;
+// - the user who told to delete group chat isn't a chat owner;
+// - the chat has already been deleted.
+//
 message ChatCannotBeDeleted {
 
     // The ID of the chat that couldn't be deleted.
