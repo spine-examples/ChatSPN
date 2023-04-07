@@ -261,9 +261,9 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     /**
      * Checks the possibility to delete the chat by those criteria:
      * <ul>
-     *     <li>chat isn't already deleted.</li>
+     *     <li>chat isn't already deleted;</li>
      *     <li>if chat is a personal, user who send the command is a chat member;</li>
-     *     <li>if chat is a group, user who send the command is a chat owner;</li>
+     *     <li>if chat is a group, user who send the command is a chat owner.</li>
      * </ul>
      */
     private boolean checkDeletionPossibility(DeleteChat c) {
