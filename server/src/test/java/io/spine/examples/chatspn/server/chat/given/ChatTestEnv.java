@@ -33,11 +33,14 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
+import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.rejection.Rejections.ChatCannotBeDeleted;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeRemoved;
 import io.spine.testing.core.given.GivenUserId;
@@ -279,6 +282,33 @@ public final class ChatTestEnv {
                 .setId(command.getId())
                 .setWhoRemoves(command.getWhoRemoves())
                 .addAllMember(command.getMemberList())
+                .vBuild();
+        return rejection;
+    }
+
+    public static DeleteChat deleteChatCommand(Chat chat, UserId whoDeletes) {
+        DeleteChat command = DeleteChat
+                .newBuilder()
+                .setId(chat.getId())
+                .setWhoDeletes(whoDeletes)
+                .vBuild();
+        return command;
+    }
+
+    public static ChatDeleted chatDeletedFrom(DeleteChat c) {
+        ChatDeleted event = ChatDeleted
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoDeleted(c.getWhoDeletes())
+                .vBuild();
+        return event;
+    }
+
+    public static ChatCannotBeDeleted chatCannotBeDeletedFrom(DeleteChat c) {
+        ChatCannotBeDeleted rejection = ChatCannotBeDeleted
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
         return rejection;
     }
