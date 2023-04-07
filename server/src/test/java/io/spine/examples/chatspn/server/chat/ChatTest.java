@@ -284,7 +284,7 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("and reject with the `ChatConnotBeDeleted` " +
+        @DisplayName("and reject with the `ChatCannotBeDeleted` " +
                 "if chat is personal and the user who deletes is not a member")
         void rejectIfNotMemberInPersonal() {
             Chat chat = createPersonalChatIn(context());
@@ -296,7 +296,7 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("and reject with the `ChatConnotBeDeleted` " +
+        @DisplayName("and reject with the `ChatCannotBeDeleted` " +
                 "if chat is group and the user who deletes is not an owner")
         void rejectIfNotOwnerInGroup() {
             Chat chat = createGroupChatIn(context());
@@ -308,7 +308,7 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("and reject with the `MembersCannotBeAdded` " +
+        @DisplayName("and reject with the `ChatCannotBeDeleted` " +
                 "if chat is already deleted")
         void rejectIfAlreadyDeleted() {
             Chat chat = createGroupChatIn(context());
