@@ -257,7 +257,7 @@ final class ChatTest extends ContextAwareTest {
     }
 
     @Nested
-    @DisplayName("handle `DeleteChat` ")
+    @DisplayName("handle `DeleteChat`")
     class ChatDeletionBehaviour {
 
         @Test
