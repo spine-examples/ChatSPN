@@ -31,6 +31,7 @@ import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
+import io.spine.examples.chatspn.MessageRemovalOperationId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
@@ -87,6 +88,7 @@ public final class MessageRemovalProcess
                     .setId(messageId(c))
                     .setChat(c.getChat())
                     .setUser(c.getUser())
+                    .setProcess(removalProcess(c))
                     .vBuild();
         }
         throw MessageCannotBeRemoved
@@ -133,5 +135,12 @@ public final class MessageRemovalProcess
         return projectionReader
                 .read(ImmutableSet.of(id), ctx.getActorContext())
                 .get(0);
+    }
+
+    private static MessageRemovalOperationId removalProcess(RemoveMessage c) {
+        return MessageRemovalOperationId
+                .newBuilder()
+                .setMessageRemoval(c.getId())
+                .vBuild();
     }
 }
