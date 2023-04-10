@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
@@ -49,13 +50,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Coordinates the message removal.
  */
 public final class MessageRemovalProcess
-        extends ProcessManager<MessageId, MessageRemoval, MessageRemoval.Builder> {
+        extends ProcessManager<MessageRemovalId, MessageRemoval, MessageRemoval.Builder> {
 
     /**
      * Reads chat members per chat.
      */
     @MonotonicNonNull
     private ProjectionReader<ChatId, ChatMembers> projectionReader;
+
+    private static MessageId messageId(RemoveMessage e) {
+        return e.getId()
+                .getId();
+    }
+
+    private static MessageRemovalId removalId(MessageId id) {
+        return MessageRemovalId
+                .newBuilder()
+                .setId(id)
+                .vBuild();
+    }
 
     /**
      * Issues a command to mark message as deleted.
@@ -71,7 +84,7 @@ public final class MessageRemovalProcess
                        .contains(c.getUser())) {
             return MarkMessageAsDeleted
                     .newBuilder()
-                    .setId(c.getId())
+                    .setId(messageId(c))
                     .setChat(c.getChat())
                     .setUser(c.getUser())
                     .vBuild();
@@ -92,7 +105,7 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemoved
                 .newBuilder()
-                .setId(e.getId())
+                .setId(removalId(e.getId()))
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();
@@ -106,7 +119,7 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemovalFailed
                 .newBuilder()
-                .setId(e.getId())
+                .setId(removalId(e.getId()))
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();

@@ -33,14 +33,14 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.DeleteChat;
+import io.spine.examples.chatspn.chat.command.MarkChatAsDeleted;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
-import io.spine.examples.chatspn.chat.event.ChatDeleted;
+import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
-import io.spine.examples.chatspn.chat.rejection.ChatCannotBeDeleted;
+import io.spine.examples.chatspn.chat.rejection.ChatCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.rejection.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.MembersCannotBeRemoved;
 import io.spine.server.aggregate.Aggregate;
@@ -141,11 +141,11 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     /**
      * Checks the possibility to remove members by those criteria:
-     *  <ul>
-     *      <li>chat is a group;</li>
-     *      <li>the user who sent the command is a chat owner;</li>
-     *      <li>at least one user from the command can be removed.</li>
-     *  </ul>
+     * <ul>
+     *     <li>chat is a group;</li>
+     *     <li>the user who sent the command is a chat owner;</li>
+     *     <li>at least one user from the command can be removed.</li>
+     * </ul>
      */
     private boolean checkRemovalPossibility(RemoveMembers command,
                                             List<UserId> remainingMembers) {
@@ -204,11 +204,11 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     /**
      * Checks the possibility to add new members by those criteria:
-     *  <ul>
-     *      <li>chat is a group;</li>
-     *      <li>the user who sent the command is a chat member;</li>
-     *      <li>at least one user from the command can be added.</li>
-     *  </ul>
+     * <ul>
+     *     <li>chat is a group;</li>
+     *     <li>the user who sent the command is a chat member;</li>
+     *     <li>at least one user from the command can be added.</li>
+     * </ul>
      */
     private boolean checkAdditionPossibility(AddMembers command, List<UserId> newMembers) {
         boolean isGroupChat = state().getType() == CT_GROUP;
@@ -232,29 +232,29 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     /**
      * Handles the command to delete the chat.
      *
-     * @throws ChatCannotBeDeleted
+     * @throws ChatCannotBeMarkedAsDeleted
      *         if the user who told to delete personal chat isn't a chat member,
      *         or the user who told to delete group chat isn't a chat owner,
      *         or the chat has already been deleted.
      */
     @Assign
-    ChatDeleted handle(DeleteChat c) throws ChatCannotBeDeleted {
+    ChatMarkedAsDeleted handle(MarkChatAsDeleted c) throws ChatCannotBeMarkedAsDeleted {
         if (checkDeletionPossibility(c)) {
-            return ChatDeleted
+            return ChatMarkedAsDeleted
                     .newBuilder()
                     .setId(c.getId())
-                    .setWhoDeleted(c.getWhoDeletes())
+                    .setWhoDeleted(c.getWhoMarks())
                     .vBuild();
         }
-        throw ChatCannotBeDeleted
+        throw ChatCannotBeMarkedAsDeleted
                 .newBuilder()
                 .setId(c.getId())
-                .setWhoDeletes(c.getWhoDeletes())
+                .setWhoDeletes(c.getWhoMarks())
                 .build();
     }
 
     @Apply
-    private void event(ChatDeleted e) {
+    private void event(ChatMarkedAsDeleted e) {
         setDeleted(true);
     }
 
@@ -266,18 +266,18 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *     <li>if chat is a group, user who send the command is a chat owner.</li>
      * </ul>
      */
-    private boolean checkDeletionPossibility(DeleteChat c) {
+    private boolean checkDeletionPossibility(MarkChatAsDeleted c) {
         if (isDeleted()) {
             return false;
         }
         boolean isPersonalChat = state().getType() == CT_PERSONAL;
         boolean isMember = state().getMemberList()
-                                  .contains(c.getWhoDeletes());
+                                  .contains(c.getWhoMarks());
         if (isPersonalChat && isMember) {
             return true;
         }
         boolean isGroupChat = state().getType() == CT_GROUP;
-        boolean isOwner = c.getWhoDeletes()
+        boolean isOwner = c.getWhoMarks()
                            .equals(state().getOwner());
         return isGroupChat && isOwner;
     }
