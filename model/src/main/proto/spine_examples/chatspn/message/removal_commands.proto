@@ -43,8 +43,8 @@ import "spine_examples/chatspn/identifiers.proto";
 //
 message RemoveMessage {
 
-    // The ID of the message to remove.
-    MessageId id = 1;
+    // The ID of the message removal process.
+    MessageRemovalId id = 1;
 
     // The ID of the chat to remove the message in.
     ChatId chat = 2 [(required) = true];
@@ -67,4 +67,7 @@ message MarkMessageAsDeleted {
 
     // The ID of the user who tells to mark message as deleted.
     spine.core.UserId user = 3 [(required) = true];
+
+    // The ID of the process that tells to mark the message as deleted.
+    MessageRemovalOperationId process  = 4 [(required) = true];
 }

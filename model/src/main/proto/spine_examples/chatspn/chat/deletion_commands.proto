@@ -40,8 +40,8 @@ import "spine_examples/chatspn/identifiers.proto";
 // Tells to delete the chat.
 message DeleteChat {
 
-    // The ID of the chat to delete.
-    ChatId id = 1;
+    // The ID of the chat deletion process.
+    ChatDeletionId id = 1;
 
     // The user who tells to delete chat.
     spine.core.UserId who_deletes = 2 [(required) = true];

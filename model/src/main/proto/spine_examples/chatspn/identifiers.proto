@@ -40,10 +40,37 @@ message ChatId {
     string uuid = 1 [(required) = true];
 }
 
+// Identifies a chat deletion process.
+message ChatDeletionId {
+
+    ChatId id = 1 [(required) = true];
+}
+
 // Identifies a message.
 message MessageId {
 
     string uuid = 1 [(required) = true];
+}
+
+// Identifies a message removal process.
+message MessageRemovalId {
+
+    MessageId id = 1 [(required) = true];
+}
+
+// Identifies a message removal operation.
+message MessageRemovalOperationId {
+
+    oneof process {
+
+        // The ID of the `MessageRemoval` process
+        // that tells to remove message.
+        MessageRemovalId message_removal = 4;
+
+        // The ID of the `ChatDeletion` process
+        // that tells to remove message.
+        ChatDeletionId chat_deletion = 5;
+    }
 }
 
 // Identifies an account creation process.
