@@ -244,6 +244,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                     .newBuilder()
                     .setId(c.getId())
                     .setWhoDeleted(c.getWhoMarks())
+                    .addAllMember(state().getMemberList())
                     .vBuild();
         }
         throw ChatCannotBeMarkedAsDeleted
