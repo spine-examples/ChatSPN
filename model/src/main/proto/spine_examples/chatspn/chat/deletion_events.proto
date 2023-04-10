@@ -30,49 +30,45 @@ package spine_examples.chatspn.chat;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat.rejection";
-option java_multiple_files = false;
+option java_package = "io.spine.examples.chatspn.chat.event";
+option java_outer_classname = "DeletionEventsProto";
+option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
-import "spine/net/email_address.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// New members cannot be added to this chat.
-//
-// Emitted when:
-// - chat isn't a group;
-// - the user who sent the original command, is not a chat member;
-// - all users to add already are the chat members. If at least one user can be added as a member,
-//   this rejection will not be emitted.
-//
-message MembersCannotBeAdded {
+// The chat has been deleted.
+message ChatDeleted {
 
-  // The ID of the chat in which members couldn't be added.
+  // The ID of the deleted chat.
   ChatId id = 1;
 
-  // The user who originally tells to add new members.
-  spine.core.UserId who_adds = 2 [(required) = true];
+  // The user who deleted the chat.
+  spine.core.UserId who_deleted = 2 [(required) = true];
 
-  // The users that were originally suggested to be added to the chat as members.
-  repeated spine.core.UserId suggested_member = 3 [(required) = true, (distinct) = true];
+  // The members of the deleted chat.
+  repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }
 
-// Members cannot be removed from this chat.
-//
-// Emitted when:
-// - chat isn't a group;
-// - the user who sent the original command, is not a chat owner;
-// - all users to remove already aren't the chat members. If at least one member can be removed,
-//   this rejection will not be emitted.
-//
-message MembersCannotBeRemoved {
+// The chat has been marked as deleted.
+message ChatMarkedAsDeleted {
 
-    // The ID of the chat in which members couldn't be removed.
+  // The ID of the chat that was marked as deleted.
+  ChatId id = 1;
+
+  // The user who marked chat as deleted.
+  spine.core.UserId who_deleted = 2 [(required) = true];
+
+  // The members of the deleted chat.
+  repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+}
+
+// The chat deletion process failed.
+message ChatDeletionFailed {
+
+    // The ID of the chat that deletion failed.
     ChatId id = 1;
 
-    // The user who originally tells to remove members.
-    spine.core.UserId who_removes = 2 [(required) = true];
-
-    // Members who couldn't be removed from the chat.
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+    // The user who originally told to delete the chat.
+    spine.core.UserId who_deleted = 2 [(required) = true];
 }

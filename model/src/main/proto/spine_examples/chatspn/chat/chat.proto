@@ -74,3 +74,17 @@ message Chat {
     // The owner of the chat.
     spine.core.UserId owner = 5;
 }
+
+// The process of chat deletion.
+message ChatDeletion {
+    option (entity) = { kind: PROCESS_MANAGER };
+
+    // The ID of the chat to delete.
+    ChatId id = 1;
+
+    //The number of messages to delete in the chat.
+    int64 messages_to_delete = 2;
+
+    // The members of the deleted chat.
+    repeated spine.core.UserId member = 3 [(distinct) = true];
+}

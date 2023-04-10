@@ -94,13 +94,3 @@ message RemoveMembers {
     // Members to remove from the chat.
     repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }
-
-// Tells to delete the chat.
-message DeleteChat {
-
-    // The ID of the chat to delete.
-    ChatId id = 1;
-
-    // The user who tells to delete chat.
-    spine.core.UserId who_deletes = 2 [(required) = true];
-}
