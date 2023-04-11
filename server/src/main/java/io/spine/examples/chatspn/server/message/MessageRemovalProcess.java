@@ -26,8 +26,10 @@
 
 package io.spine.examples.chatspn.server.message;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.spine.core.CommandContext;
+import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
@@ -80,9 +82,8 @@ public final class MessageRemovalProcess
     @Command
     MarkMessageAsDeleted on(RemoveMessage c, CommandContext ctx) throws MessageCannotBeRemoved {
         builder().setId(c.getId());
-        ChatMembers chatMembers = readMembers(c.getChat(), ctx);
-        if (chatMembers.getMemberList()
-                       .contains(c.getUser())) {
+        ImmutableList<ChatMembers> projections = readProjections(c.getChat(), ctx);
+        if (!projections.isEmpty() && contains(projections, c.getUser())) {
             return MarkMessageAsDeleted
                     .newBuilder()
                     .setId(messageId(c))
@@ -131,10 +132,15 @@ public final class MessageRemovalProcess
         projectionReader = reader;
     }
 
-    private ChatMembers readMembers(ChatId id, CommandContext ctx) {
+    private ImmutableList<ChatMembers> readProjections(ChatId id, CommandContext ctx) {
         return projectionReader
-                .read(ImmutableSet.of(id), ctx.getActorContext())
-                .get(0);
+                .read(ImmutableSet.of(id), ctx.getActorContext());
+    }
+
+    private static boolean contains(ImmutableList<ChatMembers> projections, UserId user) {
+        return projections.get(0)
+                          .getMemberList()
+                          .contains(user);
     }
 
     private static MessageRemovalOperationId removalProcess(RemoveMessage c) {

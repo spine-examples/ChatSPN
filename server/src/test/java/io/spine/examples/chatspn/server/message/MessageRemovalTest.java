@@ -28,6 +28,7 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
@@ -43,6 +44,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageFrom;
@@ -85,6 +88,20 @@ final class MessageRemovalTest extends ContextAwareTest {
     void messageCannotBeRemovedRejection() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
+        RemoveMessage command = removeMessageCommandWith(message, GivenUserId.generated());
+        context().receivesCommand(command);
+        MessageCannotBeRemoved expected = messageCannotBeRemovedFrom(command);
+
+        context().assertEvent(expected);
+    }
+
+    @Test
+    @DisplayName("reject when the chat not exist or was removed")
+    void chatNotExist() {
+        Chat chat = createGroupChatIn(context());
+        Message message = sendRandomMessageTo(chat, context());
+        DeleteChat deleteChat = deleteChatCommand(chat, chat.getOwner());
+        context().receivesCommand(deleteChat);
         RemoveMessage command = removeMessageCommandWith(message, GivenUserId.generated());
         context().receivesCommand(command);
         MessageCannotBeRemoved expected = messageCannotBeRemovedFrom(command);
