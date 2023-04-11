@@ -35,7 +35,7 @@ import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.server.ProjectionReader;
 
 /**
- * Checker for user existence in chat as a member.
+ * Checker for the user's existence in the chat as a member.
  */
 final class MemberChecker {
 
