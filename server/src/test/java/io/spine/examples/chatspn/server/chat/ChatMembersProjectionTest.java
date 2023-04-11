@@ -39,12 +39,12 @@ import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatMembersProjectionTestEnv.chatMembersFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.deleteChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.removeMembersCommandWith;
 
 @DisplayName("`ChatMembersProjection` should")
@@ -98,14 +98,14 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("update `ChatMembersProjection`, as soon as `ChatDeleted` is emitted")
+    @DisplayName("update `ChatMembersProjection`, as soon as `ChatMarkedAsDeleted` is emitted")
     void reactOnChatDeleted() {
         Chat chat = createGroupChatIn(context());
         DeleteChat command = deleteChatCommand(chat, chat.getOwner());
         context().receivesCommand(command);
 
         context().assertEntity(chat.getId(), ChatMembersProjection.class)
-                .deletedFlag()
-                .isTrue();
+                 .deletedFlag()
+                 .isTrue();
     }
 }

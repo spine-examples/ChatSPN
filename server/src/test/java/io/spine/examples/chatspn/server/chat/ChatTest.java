@@ -32,14 +32,11 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
-import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
-import io.spine.examples.chatspn.chat.rejection.Rejections.ChatCannotBeDeleted;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeRemoved;
 import io.spine.examples.chatspn.server.ChatsContext;
@@ -55,14 +52,11 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembers
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommandWith;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterAddition;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterRemoval;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatCannotBeDeletedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatDeletedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatIn;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.deleteChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatCreatedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersAddedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeAddedFrom;
@@ -251,71 +245,6 @@ final class ChatTest extends ContextAwareTest {
             AddMembers command = ChatTestEnv.addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
             MembersCannotBeAdded expected = membersCannotBeAddedFrom(command);
-
-            context().assertEvent(expected);
-        }
-    }
-
-    @Nested
-    @DisplayName("handle `DeleteChat`")
-    class ChatDeletionBehaviour {
-
-        @Test
-        @DisplayName("and emit the `ChatDeleted` if chat can be deleted")
-        void event() {
-            Chat chat = createGroupChatIn(context());
-            DeleteChat command = deleteChatCommand(chat, chat.getOwner());
-            context().receivesCommand(command);
-            ChatDeleted expected = chatDeletedFrom(command);
-
-            context().assertEvent(expected);
-        }
-
-        @Test
-        @DisplayName("and change state to expected if chat can be deleted")
-        void state() {
-            Chat chat = createPersonalChatIn(context());
-            DeleteChat command = deleteChatCommand(chat, chat.getMember(1));
-            context().receivesCommand(command);
-
-            context().assertEntity(command.getId(), ChatAggregate.class)
-                     .deletedFlag()
-                     .isTrue();
-        }
-
-        @Test
-        @DisplayName("and reject with the `ChatCannotBeDeleted` " +
-                "if chat is personal and the user who deletes is not a member")
-        void rejectIfNotMemberInPersonal() {
-            Chat chat = createPersonalChatIn(context());
-            DeleteChat command = deleteChatCommand(chat, GivenUserId.generated());
-            context().receivesCommand(command);
-            ChatCannotBeDeleted expected = chatCannotBeDeletedFrom(command);
-
-            context().assertEvent(expected);
-        }
-
-        @Test
-        @DisplayName("and reject with the `ChatCannotBeDeleted` " +
-                "if chat is group and the user who deletes is not an owner")
-        void rejectIfNotOwnerInGroup() {
-            Chat chat = createGroupChatIn(context());
-            DeleteChat command = deleteChatCommand(chat, chat.getMember(1));
-            context().receivesCommand(command);
-            ChatCannotBeDeleted expected = chatCannotBeDeletedFrom(command);
-
-            context().assertEvent(expected);
-        }
-
-        @Test
-        @DisplayName("and reject with the `ChatCannotBeDeleted` " +
-                "if chat is already deleted")
-        void rejectIfAlreadyDeleted() {
-            Chat chat = createGroupChatIn(context());
-            DeleteChat command = deleteChatCommand(chat, chat.getOwner());
-            context().receivesCommand(command);
-            context().receivesCommand(command);
-            ChatCannotBeDeleted expected = chatCannotBeDeletedFrom(command);
 
             context().assertEvent(expected);
         }
