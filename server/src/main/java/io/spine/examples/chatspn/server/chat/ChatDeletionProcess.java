@@ -31,9 +31,7 @@ import io.spine.client.Filter;
 import io.spine.core.EventContext;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatDeletionId;
-import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.MessageRemovalOperationId;
 import io.spine.examples.chatspn.chat.ChatDeletion;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.MarkChatAsDeleted;
@@ -53,6 +51,9 @@ import java.util.List;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static io.spine.client.Filters.eq;
+import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatDeletionId;
+import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatId;
+import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageRemovalOperationId;
 
 public final class ChatDeletionProcess
         extends ProcessManager<ChatDeletionId, ChatDeletion, ChatDeletion.Builder> {
@@ -68,14 +69,14 @@ public final class ChatDeletionProcess
         builder().setId(c.getId());
         return MarkChatAsDeleted
                 .newBuilder()
-                .setId(chatId(c))
+                .setId(chatId(c.getId()))
                 .setWhoMarks(c.getWhoDeletes())
                 .vBuild();
     }
 
     @Command
     Iterable<MarkMessageAsDeleted> on(ChatDeleted e, EventContext ctx) {
-        Filter byChatId = eq(MessageView.Field.chat(), chatId(e));
+        Filter byChatId = eq(MessageView.Field.chat(), chatId(e.getId()));
         List<MessageView> messages = projectionReader.read(ctx.actorContext(), byChatId);
         ImmutableSet<MarkMessageAsDeleted> commands =
                 messages.stream()
@@ -89,7 +90,7 @@ public final class ChatDeletionProcess
     ChatDeleted on(ChatMarkedAsDeleted e) {
         return ChatDeleted
                 .newBuilder()
-                .setId(deletionId(e.getId()))
+                .setId(chatDeletionId(e.getId()))
                 .setWhoDeleted(e.getWhoDeleted())
                 .addAllMember(e.getMemberList())
                 .vBuild();
@@ -99,25 +100,8 @@ public final class ChatDeletionProcess
     ChatDeletionFailed on(ChatCannotBeMarkedAsDeleted e) {
         return ChatDeletionFailed
                 .newBuilder()
-                .setId(deletionId(e.getId()))
+                .setId(chatDeletionId(e.getId()))
                 .setWhoDeleted(e.getWhoDeletes())
-                .vBuild();
-    }
-
-    private static ChatId chatId(DeleteChat c) {
-        return c.getId()
-                .getId();
-    }
-
-    private static ChatId chatId(ChatDeleted c) {
-        return c.getId()
-                .getId();
-    }
-
-    private static ChatDeletionId deletionId(ChatId id) {
-        return ChatDeletionId
-                .newBuilder()
-                .setId(id)
                 .vBuild();
     }
 
@@ -128,14 +112,7 @@ public final class ChatDeletionProcess
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(user)
-                .setProcess(removalOperationId(message.getChat()))
-                .vBuild();
-    }
-
-    private static MessageRemovalOperationId removalOperationId(ChatId id) {
-        return MessageRemovalOperationId
-                .newBuilder()
-                .setChatDeletion(deletionId(id))
+                .setProcess(messageRemovalOperationId(message.getChat()))
                 .vBuild();
     }
 

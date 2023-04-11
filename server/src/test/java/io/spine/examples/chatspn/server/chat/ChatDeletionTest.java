@@ -42,10 +42,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatId;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatCannotBeMarkedAsDeletedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatDeletedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatDeletionFailedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatId;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatMarkedAsDeletedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.sendMessageTo;
@@ -111,7 +111,7 @@ final class ChatDeletionTest extends ContextAwareTest {
             DeleteChat command = deleteChatCommand(chat, chat.getMember(1));
             context().receivesCommand(command);
 
-            context().assertEntity(chatId(command), ChatAggregate.class)
+            context().assertEntity(chatId(command.getId()), ChatAggregate.class)
                      .deletedFlag()
                      .isTrue();
         }

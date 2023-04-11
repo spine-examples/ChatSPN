@@ -31,9 +31,7 @@ import com.google.common.collect.ImmutableSet;
 import io.spine.core.CommandContext;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
-import io.spine.examples.chatspn.MessageRemovalOperationId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
@@ -49,6 +47,10 @@ import io.spine.server.event.React;
 import io.spine.server.procman.ProcessManager;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
+import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageId;
+import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageRemovalId;
+import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageRemovalOperationId;
+
 /**
  * Coordinates the message removal.
  */
@@ -60,18 +62,6 @@ public final class MessageRemovalProcess
      */
     @MonotonicNonNull
     private ProjectionReader<ChatId, ChatMembers> projectionReader;
-
-    private static MessageId messageId(RemoveMessage e) {
-        return e.getId()
-                .getId();
-    }
-
-    private static MessageRemovalId removalId(MessageId id) {
-        return MessageRemovalId
-                .newBuilder()
-                .setId(id)
-                .vBuild();
-    }
 
     /**
      * Issues a command to mark message as deleted.
@@ -86,10 +76,10 @@ public final class MessageRemovalProcess
         if (!projections.isEmpty() && contains(projections, c.getUser())) {
             return MarkMessageAsDeleted
                     .newBuilder()
-                    .setId(messageId(c))
+                    .setId(messageId(c.getId()))
                     .setChat(c.getChat())
                     .setUser(c.getUser())
-                    .setProcess(removalProcess(c))
+                    .setProcess(messageRemovalOperationId(c.getId()))
                     .vBuild();
         }
         throw MessageCannotBeRemoved
@@ -108,7 +98,7 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemoved
                 .newBuilder()
-                .setId(removalId(e.getId()))
+                .setId(messageRemovalId(e.getId()))
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();
@@ -122,7 +112,7 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemovalFailed
                 .newBuilder()
-                .setId(removalId(e.getId()))
+                .setId(messageRemovalId(e.getId()))
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();
@@ -141,12 +131,5 @@ public final class MessageRemovalProcess
         return projections.get(0)
                           .getMemberList()
                           .contains(user);
-    }
-
-    private static MessageRemovalOperationId removalProcess(RemoveMessage c) {
-        return MessageRemovalOperationId
-                .newBuilder()
-                .setMessageRemoval(c.getId())
-                .vBuild();
     }
 }

@@ -28,7 +28,6 @@ package io.spine.examples.chatspn.server.chat;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.ChatDeletionId;
-import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatDeletion;
 import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
@@ -38,6 +37,7 @@ import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.procman.ProcessManagerRepository;
 import io.spine.server.route.EventRouting;
 
+import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatDeletionId;
 import static io.spine.server.route.EventRoute.withId;
 
 /**
@@ -51,18 +51,11 @@ public final class ChatDeletionRepository
     protected void setupEventRouting(EventRouting<ChatDeletionId> routing) {
         super.setupEventRouting(routing);
         routing.route(ChatMarkedAsDeleted.class,
-                      (event, context) -> withId(chatDeletion(event.getId())))
+                      (event, context) -> withId(chatDeletionId(event.getId())))
                .route(ChatCannotBeMarkedAsDeleted.class,
-                      (event, context) -> withId(chatDeletion(event.getId())))
+                      (event, context) -> withId(chatDeletionId(event.getId())))
                .route(ChatDeleted.class,
                       (event, context) -> withId(event.getId()));
-    }
-
-    private static ChatDeletionId chatDeletion(ChatId id) {
-        return ChatDeletionId
-                .newBuilder()
-                .setId(id)
-                .vBuild();
     }
 
     @OverridingMethodsMustInvokeSuper
