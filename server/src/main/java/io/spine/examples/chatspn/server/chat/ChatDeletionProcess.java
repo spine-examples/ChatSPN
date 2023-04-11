@@ -74,18 +74,6 @@ public final class ChatDeletionProcess
                 .vBuild();
     }
 
-    @Command
-    Iterable<MarkMessageAsDeleted> on(ChatDeleted e, EventContext ctx) {
-        Filter byChatId = eq(MessageView.Field.chat(), chatId(e.getId()));
-        List<MessageView> messages = projectionReader.read(ctx.actorContext(), byChatId);
-        ImmutableSet<MarkMessageAsDeleted> commands =
-                messages.stream()
-                        .map(message -> markMessageAsDeleted(message, e.getWhoDeleted()))
-                        .collect(toImmutableSet());
-        setArchived(true);
-        return commands;
-    }
-
     @React
     ChatDeleted on(ChatMarkedAsDeleted e) {
         return ChatDeleted
@@ -103,6 +91,18 @@ public final class ChatDeletionProcess
                 .setId(chatDeletionId(e.getId()))
                 .setWhoDeletes(e.getWhoDeletes())
                 .vBuild();
+    }
+
+    @Command
+    Iterable<MarkMessageAsDeleted> on(ChatDeleted e, EventContext ctx) {
+        Filter byChatId = eq(MessageView.Field.chat(), chatId(e.getId()));
+        List<MessageView> messages = projectionReader.read(ctx.actorContext(), byChatId);
+        ImmutableSet<MarkMessageAsDeleted> commands =
+                messages.stream()
+                        .map(message -> markMessageAsDeleted(message, e.getWhoDeleted()))
+                        .collect(toImmutableSet());
+        setArchived(true);
+        return commands;
     }
 
     private static MarkMessageAsDeleted
