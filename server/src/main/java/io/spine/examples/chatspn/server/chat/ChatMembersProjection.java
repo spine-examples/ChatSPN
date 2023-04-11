@@ -29,7 +29,7 @@ package io.spine.examples.chatspn.server.chat;
 import io.spine.core.Subscribe;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatMembers;
-import io.spine.examples.chatspn.chat.event.ChatDeleted;
+import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
@@ -72,7 +72,7 @@ public final class ChatMembersProjection
     }
 
     @Subscribe
-    void on(ChatDeleted e) {
+    void on(ChatMarkedAsDeleted e) {
         setDeleted(true);
     }
 }
