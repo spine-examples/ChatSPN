@@ -26,21 +26,17 @@
 
 package io.spine.examples.chatspn.server.chat;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.MessageRemovalOperationId;
 import io.spine.examples.chatspn.chat.ChatDeletion;
 import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
+import io.spine.examples.chatspn.chat.rejection.DeletionRejections.ChatCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.MessageView;
-import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.procman.ProcessManagerRepository;
 import io.spine.server.route.EventRouting;
-
-import java.util.Set;
 
 import static io.spine.server.route.EventRoute.withId;
 
@@ -56,17 +52,10 @@ public final class ChatDeletionRepository
         super.setupEventRouting(routing);
         routing.route(ChatMarkedAsDeleted.class,
                       (event, context) -> withId(chatDeletion(event.getId())))
-               .route(MessageMarkedAsDeleted.class,
-                      (event, context) -> withChatDeletionId(event.getProcess()))
+               .route(ChatCannotBeMarkedAsDeleted.class,
+                      (event, context) -> withId(chatDeletion(event.getId())))
                .route(ChatDeleted.class,
                       (event, context) -> withId(event.getId()));
-    }
-
-    private static Set<ChatDeletionId> withChatDeletionId(MessageRemovalOperationId id) {
-        if (id.hasChatDeletion()) {
-            return ImmutableSet.of(id.getChatDeletion());
-        }
-        return ImmutableSet.of();
     }
 
     private static ChatDeletionId chatDeletion(ChatId id) {
