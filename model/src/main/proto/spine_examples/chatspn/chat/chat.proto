@@ -81,10 +81,4 @@ message ChatDeletion {
 
     // The ID of the chat deletion process.
     ChatDeletionId id = 1;
-
-    //The number of messages to delete in the chat.
-    int64 messages_to_delete = 2;
-
-    // The members of the deleted chat.
-    repeated spine.core.UserId member = 3 [(distinct) = true];
 }
