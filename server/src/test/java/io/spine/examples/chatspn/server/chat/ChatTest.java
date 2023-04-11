@@ -53,6 +53,7 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembers
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterAddition;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterRemoval;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createDeletedGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
@@ -139,6 +140,18 @@ final class ChatTest extends ContextAwareTest {
 
         @Test
         @DisplayName("and reject with the `MembersCannotBeRemoved` " +
+                "if the chat deleted")
+        void rejectIfChatDeleted() {
+            Chat chat = createDeletedGroupChatIn(context());
+            RemoveMembers command = removeMembersCommandWith(chat, chat.getOwner());
+            context().receivesCommand(command);
+            MembersCannotBeRemoved expected = membersCannotBeRemovedFrom(command);
+
+            context().assertEvent(expected);
+        }
+
+        @Test
+        @DisplayName("and reject with the `MembersCannotBeRemoved` " +
                 "if the user who removes is not a chat owner")
         void rejectIfNotOwner() {
             Chat chat = createGroupChatIn(context());
@@ -209,6 +222,18 @@ final class ChatTest extends ContextAwareTest {
             Chat expected = chatAfterAddition(chat, addedMembers);
 
             context().assertState(chat.getId(), expected);
+        }
+
+        @Test
+        @DisplayName("and reject with the `MembersCannotBeAdded` " +
+                "if the chat deleted")
+        void rejectIfChatDeleted() {
+            Chat chat = createDeletedGroupChatIn(context());
+            AddMembers command = addMembersCommandWith(chat, GivenUserId.generated());
+            context().receivesCommand(command);
+            MembersCannotBeAdded expected = membersCannotBeAddedFrom(command);
+
+            context().assertEvent(expected);
         }
 
         @Test

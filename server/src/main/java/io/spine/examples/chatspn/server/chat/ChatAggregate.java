@@ -110,7 +110,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *
      * @return {@link MembersRemoved} if at least one member was removed
      * @throws MembersCannotBeRemoved
-     *         if chat isn't a group,
+     *         if chat deleted,
+     *         or chat isn't a group,
      *         or the user who sent the original command, is not a chat owner,
      *         or all users to remove already aren't the chat members
      */
@@ -142,6 +143,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     /**
      * Checks the possibility to remove members by those criteria:
      * <ul>
+     *     <li>chat isn't deleted;</li>
      *     <li>chat is a group;</li>
      *     <li>the user who sent the command is a chat owner;</li>
      *     <li>at least one user from the command can be removed.</li>
@@ -149,6 +151,9 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      */
     private boolean checkRemovalPossibility(RemoveMembers command,
                                             List<UserId> remainingMembers) {
+        if(isDeleted()){
+            return false;
+        }
         boolean isGroupChat = state().getType() == CT_GROUP;
         boolean isUserWhoRemovesIsOwner = state().getOwner()
                                                  .equals(command.getWhoRemoves());
@@ -174,7 +179,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * Handles the command to add new members to the chat.
      *
      * @throws MembersCannotBeAdded
-     *         if chat isn't a group,
+     *         if chat deleted,
+     *         or chat isn't a group,
      *         or the user who sent the original command, is not a chat member,
      *         or all users to add already are the chat members
      */
@@ -205,12 +211,16 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     /**
      * Checks the possibility to add new members by those criteria:
      * <ul>
+     *     <li>chat isn't deleted;</li>
      *     <li>chat is a group;</li>
      *     <li>the user who sent the command is a chat member;</li>
      *     <li>at least one user from the command can be added.</li>
      * </ul>
      */
     private boolean checkAdditionPossibility(AddMembers command, List<UserId> newMembers) {
+        if(isDeleted()){
+            return false;
+        }
         boolean isGroupChat = state().getType() == CT_GROUP;
         boolean isUserWhoAddsIsMember = state().getMemberList()
                                                .contains(command.getWhoAdds());

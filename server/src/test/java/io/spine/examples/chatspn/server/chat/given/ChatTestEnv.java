@@ -28,11 +28,13 @@ package io.spine.examples.chatspn.server.chat.given;
 
 import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
@@ -161,6 +163,19 @@ public final class ChatTestEnv {
                 .setMember(chat.getMember(1))
                 .vBuild();
         ctx.receivesCommand(command);
+        return chat;
+    }
+
+    public static Chat createDeletedGroupChatIn(BlackBoxContext ctx) {
+        Chat chat = createGroupChatIn(ctx);
+        DeleteChat deleteChat = DeleteChat
+                .newBuilder()
+                .setId(ChatDeletionId.newBuilder()
+                                     .setId(chat.getId())
+                                     .build())
+                .setWhoDeletes(chat.getOwner())
+                .vBuild();
+        ctx.receivesCommand(deleteChat);
         return chat;
     }
 
