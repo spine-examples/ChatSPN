@@ -55,6 +55,9 @@ import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConvert
 import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatId;
 import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageRemovalOperationId;
 
+/**
+ * Coordinates the chat deletion.
+ */
 public final class ChatDeletionProcess
         extends ProcessManager<ChatDeletionId, ChatDeletion, ChatDeletion.Builder> {
 
