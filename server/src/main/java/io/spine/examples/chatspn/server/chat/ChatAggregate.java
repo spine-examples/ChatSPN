@@ -253,14 +253,14 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
             return ChatMarkedAsDeleted
                     .newBuilder()
                     .setId(c.getId())
-                    .setWhoDeleted(c.getWhoMarks())
+                    .setWhoDeleted(c.getWhoDeletes())
                     .addAllMember(state().getMemberList())
                     .vBuild();
         }
         throw ChatCannotBeMarkedAsDeleted
                 .newBuilder()
                 .setId(c.getId())
-                .setWhoDeletes(c.getWhoMarks())
+                .setWhoDeletes(c.getWhoDeletes())
                 .build();
     }
 
@@ -283,12 +283,12 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         }
         boolean isPersonalChat = state().getType() == CT_PERSONAL;
         boolean isMember = state().getMemberList()
-                                  .contains(c.getWhoMarks());
+                                  .contains(c.getWhoDeletes());
         if (isPersonalChat && isMember) {
             return true;
         }
         boolean isGroupChat = state().getType() == CT_GROUP;
-        boolean isOwner = c.getWhoMarks()
+        boolean isOwner = c.getWhoDeletes()
                            .equals(state().getOwner());
         return isGroupChat && isOwner;
     }

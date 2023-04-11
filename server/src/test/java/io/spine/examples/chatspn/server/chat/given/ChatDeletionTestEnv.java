@@ -111,7 +111,7 @@ public final class ChatDeletionTestEnv {
         ChatDeletionFailed event = ChatDeletionFailed
                 .newBuilder()
                 .setId(c.getId())
-                .setWhoDeleted(c.getWhoDeletes())
+                .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
         return event;
     }

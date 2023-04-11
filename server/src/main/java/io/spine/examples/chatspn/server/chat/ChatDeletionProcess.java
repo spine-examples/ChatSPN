@@ -70,7 +70,7 @@ public final class ChatDeletionProcess
         return MarkChatAsDeleted
                 .newBuilder()
                 .setId(chatId(c.getId()))
-                .setWhoMarks(c.getWhoDeletes())
+                .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
     }
 
@@ -101,7 +101,7 @@ public final class ChatDeletionProcess
         return ChatDeletionFailed
                 .newBuilder()
                 .setId(chatDeletionId(e.getId()))
-                .setWhoDeleted(e.getWhoDeletes())
+                .setWhoDeletes(e.getWhoDeletes())
                 .vBuild();
     }
 

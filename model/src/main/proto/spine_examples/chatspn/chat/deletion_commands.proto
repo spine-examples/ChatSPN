@@ -54,5 +54,5 @@ message MarkChatAsDeleted {
     ChatId id = 1;
 
     // The user who tells to mark chat as deleted.
-    spine.core.UserId who_marks = 2 [(required) = true];
+    spine.core.UserId who_deletes = 2 [(required) = true];
 }
