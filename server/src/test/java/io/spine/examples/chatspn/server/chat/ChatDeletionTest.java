@@ -61,7 +61,7 @@ final class ChatDeletionTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit the `ChatDeleted` if chat can be deleted")
+    @DisplayName("emit the `ChatDeleted` and archive itself if the chat can be deleted")
     void event() {
         Chat chat = createGroupChatIn(context());
         DeleteChat command = deleteChatCommand(chat, chat.getOwner());
@@ -69,6 +69,9 @@ final class ChatDeletionTest extends ContextAwareTest {
         ChatDeleted expected = chatDeletedFrom(command, chat);
 
         context().assertEvent(expected);
+        context().assertEntity(command.getId(), ChatDeletionProcess.class)
+                .archivedFlag()
+                .isTrue();
     }
 
     @Test
@@ -89,7 +92,7 @@ final class ChatDeletionTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit the `ChatDeletionFailed` " +
+    @DisplayName("emit the `ChatDeletionFailed` and archive itself " +
             "if the `ChatAggregate` reject with the `ChatCannotBeMarkedAsDeleted`")
     void fail() {
         Chat chat = createPersonalChatIn(context());
@@ -98,6 +101,9 @@ final class ChatDeletionTest extends ContextAwareTest {
         ChatDeletionFailed expected = chatDeletionFailedFrom(command);
 
         context().assertEvent(expected);
+        context().assertEntity(command.getId(), ChatDeletionProcess.class)
+                 .archivedFlag()
+                 .isTrue();
     }
 
     @Nested

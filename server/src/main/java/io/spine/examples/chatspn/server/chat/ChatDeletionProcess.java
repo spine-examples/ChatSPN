@@ -86,6 +86,7 @@ public final class ChatDeletionProcess
 
     @React
     ChatDeletionFailed on(ChatCannotBeMarkedAsDeleted e) {
+        setArchived(true);
         return ChatDeletionFailed
                 .newBuilder()
                 .setId(chatDeletionId(e.getId()))
