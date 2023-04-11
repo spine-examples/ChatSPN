@@ -32,6 +32,7 @@ import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageRemovalOperationId;
 import io.spine.examples.chatspn.chat.ChatDeletion;
+import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
@@ -56,7 +57,9 @@ public final class ChatDeletionRepository
         routing.route(ChatMarkedAsDeleted.class,
                       (event, context) -> withId(chatDeletion(event.getId())))
                .route(MessageMarkedAsDeleted.class,
-                      (event, context) -> withChatDeletionId(event.getProcess()));
+                      (event, context) -> withChatDeletionId(event.getProcess()))
+               .route(ChatDeleted.class,
+                      (event, context) -> withId(event.getId()));
     }
 
     private static Set<ChatDeletionId> withChatDeletionId(MessageRemovalOperationId id) {

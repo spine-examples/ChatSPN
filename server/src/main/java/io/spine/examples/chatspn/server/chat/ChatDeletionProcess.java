@@ -43,8 +43,6 @@ import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.rejection.DeletionRejections.ChatCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
-import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
-import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
@@ -52,7 +50,6 @@ import io.spine.server.procman.ProcessManager;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static io.spine.client.Filters.eq;
@@ -77,16 +74,25 @@ public final class ChatDeletionProcess
     }
 
     @Command
-    Iterable<MarkMessageAsDeleted> on(ChatMarkedAsDeleted e, EventContext ctx) {
-        builder().addAllMember(e.getMemberList());
-        Filter byChatId = eq(MessageView.Field.chat(), e.getId());
+    Iterable<MarkMessageAsDeleted> on(ChatDeleted e, EventContext ctx) {
+        Filter byChatId = eq(MessageView.Field.chat(), chatId(e));
         List<MessageView> messages = projectionReader.read(ctx.actorContext(), byChatId);
         ImmutableSet<MarkMessageAsDeleted> commands =
                 messages.stream()
-                        .map(message -> markMessageAsDeletedCommand(message, e.getWhoDeleted()))
+                        .map(message -> markMessageAsDeleted(message, e.getWhoDeleted()))
                         .collect(toImmutableSet());
-        builder().setMessagesToDelete(commands.size());
+        setArchived(true);
         return commands;
+    }
+
+    @React
+    ChatDeleted on(ChatMarkedAsDeleted e) {
+        return ChatDeleted
+                .newBuilder()
+                .setId(deletionId(e.getId()))
+                .setWhoDeleted(e.getWhoDeleted())
+                .addAllMember(e.getMemberList())
+                .vBuild();
     }
 
     @React
@@ -94,33 +100,16 @@ public final class ChatDeletionProcess
         return ChatDeletionFailed
                 .newBuilder()
                 .setId(deletionId(e.getId()))
+                .setWhoDeleted(e.getWhoDeletes())
                 .vBuild();
     }
 
-    @React
-    Optional<ChatDeleted> on(MessageMarkedAsDeleted e) {
-        return handleMessageDeletion(e.getUser());
-    }
-
-    @React
-    Optional<ChatDeleted> on(MessageCannotBeMarkedAsDeleted e) {
-        return handleMessageDeletion(e.getUser());
-    }
-
-    /**
-     * Archives the process and returns {@link ChatDeleted} event if all message deletions handled.
-     */
-    private Optional<ChatDeleted> handleMessageDeletion(UserId user) {
-        long messages = state().getMessagesToDelete() - 1;
-        builder().setMessagesToDelete(messages);
-        if (messages > 0) {
-            return Optional.empty();
-        }
-        setArchived(true);
-        return Optional.of(chatDeleted(user));
-    }
-
     private static ChatId chatId(DeleteChat c) {
+        return c.getId()
+                .getId();
+    }
+
+    private static ChatId chatId(ChatDeleted c) {
         return c.getId()
                 .getId();
     }
@@ -133,22 +122,13 @@ public final class ChatDeletionProcess
     }
 
     private static MarkMessageAsDeleted
-    markMessageAsDeletedCommand(MessageView message, UserId user) {
+    markMessageAsDeleted(MessageView message, UserId user) {
         return MarkMessageAsDeleted
                 .newBuilder()
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(user)
                 .setProcess(removalOperationId(message.getChat()))
-                .vBuild();
-    }
-
-    private ChatDeleted chatDeleted(UserId user) {
-        return ChatDeleted
-                .newBuilder()
-                .setId(state().getId())
-                .setWhoDeleted(user)
-                .addAllMember(state().getMemberList())
                 .vBuild();
     }
 
