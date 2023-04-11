@@ -65,11 +65,11 @@ message MessageRemovalOperationId {
 
         // The ID of the `MessageRemoval` process
         // that tells to remove message.
-        MessageRemovalId message_removal = 4;
+        MessageRemovalId message_removal = 1;
 
         // The ID of the `ChatDeletion` process
         // that tells to remove message.
-        ChatDeletionId chat_deletion = 5;
+        ChatDeletionId chat_deletion = 2;
     }
 }
 
