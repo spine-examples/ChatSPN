@@ -26,10 +26,7 @@
 
 package io.spine.examples.chatspn.server.message;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import io.spine.core.CommandContext;
-import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.ChatMembers;
@@ -54,10 +51,10 @@ public final class MessageEditingProcess
         extends ProcessManager<MessageId, MessageEditing, MessageEditing.Builder> {
 
     /**
-     * Reads chat members per chat.
+     * Checker for user existence in chat as a member.
      */
     @MonotonicNonNull
-    private ProjectionReader<ChatId, ChatMembers> projectionReader;
+    private MemberChecker checker;
 
     /**
      * Issues a command to edit message content.
@@ -68,8 +65,7 @@ public final class MessageEditingProcess
     @Command
     UpdateMessageContent on(EditMessage c, CommandContext ctx) throws MessageCannotBeEdited {
         builder().setId(c.getId());
-        ImmutableList<ChatMembers> projections = readProjections(c.getChat(), ctx);
-        if (!projections.isEmpty() && contains(projections, c.getUser())) {
+        if (checker.checkMember(c.getChat(), c.getUser(), ctx)) {
             return UpdateMessageContent
                     .newBuilder()
                     .setId(c.getId())
@@ -117,18 +113,7 @@ public final class MessageEditingProcess
                 .vBuild();
     }
 
-    private ImmutableList<ChatMembers> readProjections(ChatId id, CommandContext ctx) {
-        return projectionReader
-                .read(ImmutableSet.of(id), ctx.getActorContext());
-    }
-
-    private static boolean contains(ImmutableList<ChatMembers> projections, UserId user) {
-        return projections.get(0)
-                          .getMemberList()
-                          .contains(user);
-    }
-
     void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        projectionReader = reader;
+        checker = new MemberChecker(reader);
     }
 }

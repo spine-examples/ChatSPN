@@ -26,10 +26,7 @@
 
 package io.spine.examples.chatspn.server.message;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import io.spine.core.CommandContext;
-import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.ChatMembers;
@@ -55,7 +52,7 @@ public final class MessageSendingProcess
      * Reads chat members per chat.
      */
     @MonotonicNonNull
-    private ProjectionReader<ChatId, ChatMembers> projectionReader;
+    private MemberChecker checker;
 
     /**
      * Issues a command to post message to the chat.
@@ -67,8 +64,7 @@ public final class MessageSendingProcess
     @Command
     PostMessage on(SendMessage c, CommandContext ctx) throws MessageCannotBeSent {
         builder().setId(c.getId());
-        ImmutableList<ChatMembers> projections = readProjections(c.getChat(), ctx);
-        if (!projections.isEmpty() && contains(projections, c.getUser())) {
+        if (checker.checkMember(c.getChat(), c.getUser(), ctx)) {
             return PostMessage
                     .newBuilder()
                     .setId(c.getId())
@@ -101,18 +97,7 @@ public final class MessageSendingProcess
                 .vBuild();
     }
 
-    private ImmutableList<ChatMembers> readProjections(ChatId id, CommandContext ctx) {
-        return projectionReader
-                .read(ImmutableSet.of(id), ctx.getActorContext());
-    }
-
-    private static boolean contains(ImmutableList<ChatMembers> projections, UserId user) {
-        return projections.get(0)
-                          .getMemberList()
-                          .contains(user);
-    }
-
     void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        projectionReader = reader;
+        checker = new MemberChecker(reader);
     }
 }
