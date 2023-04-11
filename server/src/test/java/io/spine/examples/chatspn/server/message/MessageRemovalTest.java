@@ -96,7 +96,8 @@ final class MessageRemovalTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("reject when the chat not exist or was removed")
+    @DisplayName("reject with the `MessageCannotBeRemoved` " +
+            "if the chat not exist or was removed")
     void chatNotExist() {
         Chat chat = createGroupChatIn(context());
         Message message = sendRandomMessageTo(chat, context());

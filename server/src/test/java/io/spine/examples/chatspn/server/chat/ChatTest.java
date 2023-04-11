@@ -140,7 +140,7 @@ final class ChatTest extends ContextAwareTest {
 
         @Test
         @DisplayName("and reject with the `MembersCannotBeRemoved` " +
-                "if the chat deleted")
+                "if the chat is deleted")
         void rejectIfChatDeleted() {
             Chat chat = createDeletedGroupChatIn(context());
             RemoveMembers command = removeMembersCommandWith(chat, chat.getOwner());
@@ -226,7 +226,7 @@ final class ChatTest extends ContextAwareTest {
 
         @Test
         @DisplayName("and reject with the `MembersCannotBeAdded` " +
-                "if the chat deleted")
+                "if the chat is deleted")
         void rejectIfChatDeleted() {
             Chat chat = createDeletedGroupChatIn(context());
             AddMembers command = addMembersCommandWith(chat, GivenUserId.generated());
