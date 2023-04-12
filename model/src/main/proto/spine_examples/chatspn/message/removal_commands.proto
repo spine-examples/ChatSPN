@@ -68,6 +68,6 @@ message MarkMessageAsDeleted {
     // The ID of the user who tells to mark message as deleted.
     spine.core.UserId user = 3 [(required) = true];
 
-    // The ID of the process that tells to mark the message as deleted.
-    MessageRemovalOperationId process  = 4 [(required) = true];
+    // The ID of the operation that tells to mark the message as deleted.
+    MessageRemovalOperationId operation  = 4 [(required) = true];
 }

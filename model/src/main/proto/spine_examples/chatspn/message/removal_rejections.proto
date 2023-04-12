@@ -68,6 +68,6 @@ message MessageCannotBeMarkedAsDeleted {
     // The ID of the user who originally asked to mark this message as deleted.
     spine.core.UserId user = 3 [(required) = true];
 
-    // The ID of the process that originally told to mark the message as deleted.
-    MessageRemovalOperationId process  = 4 [(required) = true];
+    // The ID of the operation that originally told to mark the message as deleted.
+    MessageRemovalOperationId operation  = 4 [(required) = true];
 }

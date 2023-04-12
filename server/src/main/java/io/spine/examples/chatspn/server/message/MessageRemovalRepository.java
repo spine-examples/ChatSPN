@@ -51,9 +51,9 @@ public final class MessageRemovalRepository
     protected void setupEventRouting(EventRouting<MessageRemovalId> routing) {
         super.setupEventRouting(routing);
         routing.route(MessageMarkedAsDeleted.class,
-                      (event, context) -> withMessageRemovalId(event.getProcess()))
+                      (event, context) -> withMessageRemovalId(event.getOperation()))
                .route(MessageCannotBeMarkedAsDeleted.class,
-                      (event, context) -> withMessageRemovalId(event.getProcess()));
+                      (event, context) -> withMessageRemovalId(event.getOperation()));
     }
 
     private static Set<MessageRemovalId> withMessageRemovalId(MessageRemovalOperationId id) {

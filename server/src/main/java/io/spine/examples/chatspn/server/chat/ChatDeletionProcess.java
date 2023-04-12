@@ -125,7 +125,7 @@ public final class ChatDeletionProcess
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(user)
-                .setProcess(messageRemovalOperationId(message.getChat()))
+                .setOperation(messageRemovalOperationId(message.getChat()))
                 .vBuild();
     }
 

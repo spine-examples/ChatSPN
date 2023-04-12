@@ -102,7 +102,7 @@ public final class MessageRemovalTestEnv {
                 .setId(messageId(c))
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setProcess(removalProcess(c))
+                .setOperation(removalProcess(c))
                 .vBuild();
         return event;
     }
@@ -134,7 +134,7 @@ public final class MessageRemovalTestEnv {
                 .setId(messageId(c))
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setProcess(removalProcess(c))
+                .setOperation(removalProcess(c))
                 .vBuild();
         return rejection;
     }
