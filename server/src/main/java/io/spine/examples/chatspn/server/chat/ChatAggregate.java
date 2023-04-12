@@ -33,21 +33,27 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.MarkChatAsDeleted;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
+import io.spine.examples.chatspn.chat.event.ChatDeletionRequested;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.examples.chatspn.chat.rejection.ChatCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.rejection.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.MembersCannotBeRemoved;
+import io.spine.examples.chatspn.chat.rejection.UserCannotLeaveChat;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
+import io.spine.server.tuple.Pair;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
@@ -151,7 +157,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      */
     private boolean checkRemovalPossibility(RemoveMembers command,
                                             List<UserId> remainingMembers) {
-        if(isDeleted()){
+        if (isDeleted()) {
             return false;
         }
         boolean isGroupChat = state().getType() == CT_GROUP;
@@ -218,7 +224,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * </ul>
      */
     private boolean checkAdditionPossibility(AddMembers command, List<UserId> newMembers) {
-        if(isDeleted()){
+        if (isDeleted()) {
             return false;
         }
         boolean isGroupChat = state().getType() == CT_GROUP;
@@ -291,5 +297,75 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         boolean isOwner = c.getWhoDeletes()
                            .equals(state().getOwner());
         return isGroupChat && isOwner;
+    }
+
+    /**
+     * Handles the command to leave the chat.
+     *
+     * <p>If the last member left the chat its deletion will be requested</p>
+     *
+     * @throws UserCannotLeaveChat
+     *         if chat deleted,
+     *         or chat isn't a group,
+     *         or user is already not a chat member.
+     */
+    @Assign
+    Pair<UserLeftChat, Optional<ChatDeletionRequested>> handle(LeaveChat c) throws
+                                                                            UserCannotLeaveChat {
+        if (!checkLeavingPossibility(c)) {
+            throw userCannotLeaveChat(c);
+        }
+        UserLeftChat userLeftChat = userLeftChat(c);
+        Optional<ChatDeletionRequested> chatDeletionRequested = Optional.empty();
+        if (state().getMemberList()
+                   .size() == 1) {
+            chatDeletionRequested = Optional.of(chatDeletionRequested(c));
+        }
+        return Pair.withOptional(userLeftChat, chatDeletionRequested);
+    }
+
+    @Apply
+    private void event(UserLeftChat e) {
+        state().getMemberList()
+               .remove(e.getUser());
+    }
+
+    /**
+     * Checks the possibility to leave the chat by those criteria:
+     * <ul>
+     *     <li>chat isn't deleted;</li>
+     *     <li>chat is a group;</li>
+     *     <li>the user who sent the command is a chat member.</li>
+     * </ul>
+     */
+    private boolean checkLeavingPossibility(LeaveChat command) {
+        boolean isGroupChat = state().getType() == CT_GROUP;
+        boolean isMember = state().getMemberList()
+                                  .contains(command.getUser());
+        return !isDeleted() && isGroupChat && isMember;
+    }
+
+    private static ChatDeletionRequested chatDeletionRequested(LeaveChat c) {
+        return ChatDeletionRequested
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoDeletes(c.getUser())
+                .vBuild();
+    }
+
+    private static UserLeftChat userLeftChat(LeaveChat c) {
+        return UserLeftChat
+                .newBuilder()
+                .setId(c.getId())
+                .setUser(c.getUser())
+                .vBuild();
+    }
+
+    private static UserCannotLeaveChat userCannotLeaveChat(LeaveChat c) {
+        return UserCannotLeaveChat
+                .newBuilder()
+                .setId(c.getId())
+                .setUser(c.getUser())
+                .build();
     }
 }
