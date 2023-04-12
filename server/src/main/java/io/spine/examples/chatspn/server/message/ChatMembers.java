@@ -31,17 +31,16 @@ import com.google.common.collect.ImmutableSet;
 import io.spine.core.CommandContext;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.server.ProjectionReader;
 
 /**
  * Checker for the user's existence in the chat as a member.
  */
-final class MemberChecker {
+final class ChatMembers {
 
-    private final ProjectionReader<ChatId, ChatMembers> reader;
+    private final ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader;
 
-    MemberChecker(ProjectionReader<ChatId, ChatMembers> reader) {
+    ChatMembers(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
         this.reader = reader;
     }
 
@@ -50,8 +49,8 @@ final class MemberChecker {
      *
      * <p> Returns true if the chat exists and the user is a member.
      */
-    boolean checkMember(ChatId id, UserId userId, CommandContext ctx) {
-        ImmutableList<ChatMembers> projections =
+    boolean isMember(ChatId id, UserId userId, CommandContext ctx) {
+        ImmutableList<io.spine.examples.chatspn.chat.ChatMembers> projections =
                 reader.read(ImmutableSet.of(id), ctx.getActorContext());
         if (projections.isEmpty()) {
             return false;

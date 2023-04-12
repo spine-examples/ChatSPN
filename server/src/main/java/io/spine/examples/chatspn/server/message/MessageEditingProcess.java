@@ -29,7 +29,6 @@ package io.spine.examples.chatspn.server.message;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageEditing;
 import io.spine.examples.chatspn.message.command.EditMessage;
 import io.spine.examples.chatspn.message.command.UpdateMessageContent;
@@ -54,7 +53,7 @@ public final class MessageEditingProcess
      * Checker for user existence in chat as a member.
      */
     @MonotonicNonNull
-    private MemberChecker checker;
+    private ChatMembers chatMembers;
 
     /**
      * Issues a command to edit message content.
@@ -65,7 +64,7 @@ public final class MessageEditingProcess
     @Command
     UpdateMessageContent on(EditMessage c, CommandContext ctx) throws MessageCannotBeEdited {
         builder().setId(c.getId());
-        if (checker.checkMember(c.getChat(), c.getUser(), ctx)) {
+        if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
             return UpdateMessageContent
                     .newBuilder()
                     .setId(c.getId())
@@ -113,7 +112,7 @@ public final class MessageEditingProcess
                 .vBuild();
     }
 
-    void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        checker = new MemberChecker(reader);
+    void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
+        chatMembers = new ChatMembers(reader);
     }
 }

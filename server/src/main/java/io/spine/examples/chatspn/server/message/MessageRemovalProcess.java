@@ -29,7 +29,6 @@ package io.spine.examples.chatspn.server.message;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageRemovalId;
-import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
@@ -58,7 +57,7 @@ public final class MessageRemovalProcess
      * Checker for user existence in chat as a member.
      */
     @MonotonicNonNull
-    private MemberChecker checker;
+    private ChatMembers chatMembers;
 
     /**
      * Issues a command to mark message as deleted.
@@ -69,7 +68,7 @@ public final class MessageRemovalProcess
     @Command
     MarkMessageAsDeleted on(RemoveMessage c, CommandContext ctx) throws MessageCannotBeRemoved {
         builder().setId(c.getId());
-        if (checker.checkMember(c.getChat(), c.getUser(), ctx)) {
+        if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
             return MarkMessageAsDeleted
                     .newBuilder()
                     .setId(messageId(c.getId()))
@@ -114,7 +113,7 @@ public final class MessageRemovalProcess
                 .vBuild();
     }
 
-    void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        checker = new MemberChecker(reader);
+    void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
+        chatMembers = new ChatMembers(reader);
     }
 }
