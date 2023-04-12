@@ -33,6 +33,7 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
@@ -47,6 +48,7 @@ import java.util.List;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
+import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatDeletionId;
 import static io.spine.testing.TestValues.randomString;
 
 public final class ChatTestEnv {
@@ -161,6 +163,17 @@ public final class ChatTestEnv {
                 .setMember(chat.getMember(1))
                 .vBuild();
         ctx.receivesCommand(command);
+        return chat;
+    }
+
+    public static Chat createDeletedGroupChatIn(BlackBoxContext ctx) {
+        Chat chat = createGroupChatIn(ctx);
+        DeleteChat deleteChat = DeleteChat
+                .newBuilder()
+                .setId(chatDeletionId(chat.getId()))
+                .setWhoDeletes(chat.getOwner())
+                .vBuild();
+        ctx.receivesCommand(deleteChat);
         return chat;
     }
 

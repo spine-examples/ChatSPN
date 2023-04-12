@@ -28,6 +28,7 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.EditMessage;
@@ -44,6 +45,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.editMessageCommand;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.editMessageCommandWith;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageCannotBeEditedFrom;
@@ -52,8 +55,8 @@ import static io.spine.examples.chatspn.server.message.given.MessageEditingTestE
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageEditedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageEditingFailedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageFrom;
-import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.createRandomChatIn;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageViewFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.createRandomChatIn;
 import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.sendRandomMessageTo;
 
 @DisplayName("`MessageEditing` should")
@@ -86,6 +89,21 @@ final class MessageEditingTest extends ContextAwareTest {
     void messageCannotBeEditedRejection() {
         Chat chat = createRandomChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
+        EditMessage command = editMessageCommandWith(message, GivenUserId.generated());
+        context().receivesCommand(command);
+        MessageCannotBeEdited expected = messageCannotBeEditedFrom(command);
+
+        context().assertEvent(expected);
+    }
+
+    @Test
+    @DisplayName("reject with the `MessageCannotBeEdited` " +
+            "if the chat not exist or was removed")
+    void chatNotExist() {
+        Chat chat = createGroupChatIn(context());
+        Message message = sendRandomMessageTo(chat, context());
+        DeleteChat deleteChat = deleteChatCommand(chat, chat.getOwner());
+        context().receivesCommand(deleteChat);
         EditMessage command = editMessageCommandWith(message, GivenUserId.generated());
         context().receivesCommand(command);
         MessageCannotBeEdited expected = messageCannotBeEditedFrom(command);

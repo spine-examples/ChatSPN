@@ -30,55 +30,45 @@ package spine_examples.chatspn.chat;
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat";
-option java_outer_classname = "ChatProto";
+option java_package = "io.spine.examples.chatspn.chat.event";
+option java_outer_classname = "DeletionEventsProto";
 option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// A chat between two or more users.
-message Chat {
-    option (entity) = { kind: AGGREGATE };
-
-    // The ID of the chat.
-    ChatId id = 1;
-
-    // List of the chat members.
-    repeated spine.core.UserId member = 2 [(required) = true, (distinct) = true];
-
-    // The type of the chat.
-    //
-    // Personal chat is responsible for communication between only 2 users.
-    // Personal chat doesn't have a name, avatar, etc.
-    // Members in the personal chat have the same permissions.
-    // Members can't leave from personal chat, only delete it.
-    //
-    // Group chat is responsible for communication between 2 or more users.
-    // Group chat may have editable name, avatar, etc.
-    // Members in group chat may have different permissions.
-    // Members with the appropriate permissions can add new users to the group chat.
-    // Members can leave a group chat, and the chat is only deleted when the last member has left.
-    //
-    ChatType type = 3 [(required) = true];
-
-    enum ChatType {
-        CT_UNSPECIFIED = 0;
-        CT_PERSONAL = 1;
-        CT_GROUP = 2;
-    }
-
-    // The name of the chat.
-    string name = 4;
-
-    // The owner of the chat.
-    spine.core.UserId owner = 5;
-}
-
-// The process of chat deletion.
-message ChatDeletion {
-    option (entity) = { kind: PROCESS_MANAGER };
+// The chat has been deleted.
+message ChatDeleted {
 
     // The ID of the chat deletion process.
     ChatDeletionId id = 1;
+
+    // The user who deleted the chat.
+    spine.core.UserId who_deleted = 2 [(required) = true];
+
+    // The members of the deleted chat.
+    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+}
+
+// The chat has been marked as deleted.
+message ChatMarkedAsDeleted {
+
+    // The ID of the chat that was marked as deleted.
+    ChatId id = 1;
+
+    // The user who marked chat as deleted.
+    spine.core.UserId who_deleted = 2 [(required) = true];
+
+    // The members of the deleted chat.
+    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+}
+
+// The chat deletion process failed.
+message ChatDeletionFailed {
+
+    // The ID of the chat deletion process.
+    ChatDeletionId id = 1;
+
+    // The user who originally told to delete the chat.
+    spine.core.UserId who_deletes = 2 [(required) = true];
 }

@@ -27,32 +27,41 @@
 package io.spine.examples.chatspn.server.chat;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
-import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.ChatDeletionId;
+import io.spine.examples.chatspn.chat.ChatDeletion;
+import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
-import io.spine.examples.chatspn.chat.event.GroupChatCreated;
-import io.spine.examples.chatspn.chat.event.MembersAdded;
-import io.spine.examples.chatspn.chat.event.MembersRemoved;
-import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
-import io.spine.server.projection.ProjectionRepository;
+import io.spine.examples.chatspn.chat.rejection.DeletionRejections.ChatCannotBeMarkedAsDeleted;
+import io.spine.examples.chatspn.message.MessageView;
+import io.spine.examples.chatspn.server.ProjectionReader;
+import io.spine.server.procman.ProcessManagerRepository;
 import io.spine.server.route.EventRouting;
 
+import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatDeletionId;
 import static io.spine.server.route.EventRoute.withId;
 
 /**
- * The repository for managing {@link ChatMembersProjection} instances.
+ * Manages instances of {@link ChatDeletionProcess}.
  */
-public final class ChatMembersRepository
-        extends ProjectionRepository<ChatId, ChatMembersProjection, ChatMembers> {
+public final class ChatDeletionRepository
+        extends ProcessManagerRepository<ChatDeletionId, ChatDeletionProcess, ChatDeletion> {
 
     @OverridingMethodsMustInvokeSuper
     @Override
-    protected void setupEventRouting(EventRouting<ChatId> routing) {
+    protected void setupEventRouting(EventRouting<ChatDeletionId> routing) {
         super.setupEventRouting(routing);
-        routing.route(PersonalChatCreated.class, (event, context) -> withId(event.getId()))
-               .route(GroupChatCreated.class, (event, context) -> withId(event.getId()))
-               .route(MembersRemoved.class, (event, context) -> withId(event.getId()))
-               .route(MembersAdded.class, (event, context) -> withId(event.getId()))
-               .route(ChatMarkedAsDeleted.class, (event, context) -> withId(event.getId()));
+        routing.route(ChatMarkedAsDeleted.class,
+                      (event, context) -> withId(chatDeletionId(event.getId())))
+               .route(ChatCannotBeMarkedAsDeleted.class,
+                      (event, context) -> withId(chatDeletionId(event.getId())))
+               .route(ChatDeleted.class,
+                      (event, context) -> withId(event.getId()));
+    }
+
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    protected void configure(ChatDeletionProcess p) {
+        super.configure(p);
+        p.inject(new ProjectionReader<>(context().stand(), MessageView.class));
     }
 }

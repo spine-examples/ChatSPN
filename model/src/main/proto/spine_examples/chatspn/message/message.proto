@@ -78,6 +78,6 @@ message MessageEditing {
 message MessageRemoval {
     option (entity) = { kind: PROCESS_MANAGER };
 
-    // The ID of the message to remove.
-    MessageId id = 1;
+    // The ID of the message removal process.
+    MessageRemovalId id = 1;
 }

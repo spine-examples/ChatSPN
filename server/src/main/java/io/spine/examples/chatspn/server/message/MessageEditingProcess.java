@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server.message;
 
-import com.google.common.collect.ImmutableSet;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
@@ -37,8 +36,8 @@ import io.spine.examples.chatspn.message.command.UpdateMessageContent;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageEdited;
 import io.spine.examples.chatspn.message.event.MessageEditingFailed;
-import io.spine.examples.chatspn.message.rejection.MessageCannotBeEdited;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageContentCannotBeUpdated;
+import io.spine.examples.chatspn.message.rejection.MessageCannotBeEdited;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
@@ -52,10 +51,10 @@ public final class MessageEditingProcess
         extends ProcessManager<MessageId, MessageEditing, MessageEditing.Builder> {
 
     /**
-     * Reads chat members per chat.
+     * Checker for user existence in chat as a member.
      */
     @MonotonicNonNull
-    private ProjectionReader<ChatId, ChatMembers> projectionReader;
+    private MemberChecker checker;
 
     /**
      * Issues a command to edit message content.
@@ -66,11 +65,7 @@ public final class MessageEditingProcess
     @Command
     UpdateMessageContent on(EditMessage c, CommandContext ctx) throws MessageCannotBeEdited {
         builder().setId(c.getId());
-        ChatMembers chatMembers = projectionReader
-                .read(ImmutableSet.of(c.getChat()), ctx.getActorContext())
-                .get(0);
-        if (chatMembers.getMemberList()
-                       .contains(c.getUser())) {
+        if (checker.checkMember(c.getChat(), c.getUser(), ctx)) {
             return UpdateMessageContent
                     .newBuilder()
                     .setId(c.getId())
@@ -119,6 +114,6 @@ public final class MessageEditingProcess
     }
 
     void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        projectionReader = reader;
+        checker = new MemberChecker(reader);
     }
 }

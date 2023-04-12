@@ -33,11 +33,14 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.MarkChatAsDeleted;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
+import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.rejection.ChatCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.rejection.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.MembersCannotBeRemoved;
 import io.spine.server.aggregate.Aggregate;
@@ -107,7 +110,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *
      * @return {@link MembersRemoved} if at least one member was removed
      * @throws MembersCannotBeRemoved
-     *         if chat isn't a group,
+     *         if chat deleted,
+     *         or chat isn't a group,
      *         or the user who sent the original command, is not a chat owner,
      *         or all users to remove already aren't the chat members
      */
@@ -138,14 +142,18 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     /**
      * Checks the possibility to remove members by those criteria:
-     *  <ul>
-     *      <li>chat is a group;</li>
-     *      <li>the user who sent the command is a chat owner;</li>
-     *      <li>at least one user from the command can be removed.</li>
-     *  </ul>
+     * <ul>
+     *     <li>chat isn't deleted;</li>
+     *     <li>chat is a group;</li>
+     *     <li>the user who sent the command is a chat owner;</li>
+     *     <li>at least one user from the command can be removed.</li>
+     * </ul>
      */
     private boolean checkRemovalPossibility(RemoveMembers command,
                                             List<UserId> remainingMembers) {
+        if(isDeleted()){
+            return false;
+        }
         boolean isGroupChat = state().getType() == CT_GROUP;
         boolean isUserWhoRemovesIsOwner = state().getOwner()
                                                  .equals(command.getWhoRemoves());
@@ -171,7 +179,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * Handles the command to add new members to the chat.
      *
      * @throws MembersCannotBeAdded
-     *         if chat isn't a group,
+     *         if chat deleted,
+     *         or chat isn't a group,
      *         or the user who sent the original command, is not a chat member,
      *         or all users to add already are the chat members
      */
@@ -201,13 +210,17 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     /**
      * Checks the possibility to add new members by those criteria:
-     *  <ul>
-     *      <li>chat is a group;</li>
-     *      <li>the user who sent the command is a chat member;</li>
-     *      <li>at least one user from the command can be added.</li>
-     *  </ul>
+     * <ul>
+     *     <li>chat isn't deleted;</li>
+     *     <li>chat is a group;</li>
+     *     <li>the user who sent the command is a chat member;</li>
+     *     <li>at least one user from the command can be added.</li>
+     * </ul>
      */
     private boolean checkAdditionPossibility(AddMembers command, List<UserId> newMembers) {
+        if(isDeleted()){
+            return false;
+        }
         boolean isGroupChat = state().getType() == CT_GROUP;
         boolean isUserWhoAddsIsMember = state().getMemberList()
                                                .contains(command.getWhoAdds());
@@ -224,5 +237,59 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                                 .filter(userId -> !chatMembers.contains(userId))
                                 .collect(toImmutableList());
         return newMembers;
+    }
+
+    /**
+     * Handles the command to delete the chat.
+     *
+     * @throws ChatCannotBeMarkedAsDeleted
+     *         if the user who told to delete personal chat isn't a chat member,
+     *         or the user who told to delete group chat isn't a chat owner,
+     *         or the chat has already been deleted.
+     */
+    @Assign
+    ChatMarkedAsDeleted handle(MarkChatAsDeleted c) throws ChatCannotBeMarkedAsDeleted {
+        if (checkDeletionPossibility(c)) {
+            return ChatMarkedAsDeleted
+                    .newBuilder()
+                    .setId(c.getId())
+                    .setWhoDeleted(c.getWhoDeletes())
+                    .addAllMember(state().getMemberList())
+                    .vBuild();
+        }
+        throw ChatCannotBeMarkedAsDeleted
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoDeletes(c.getWhoDeletes())
+                .build();
+    }
+
+    @Apply
+    private void event(ChatMarkedAsDeleted e) {
+        setDeleted(true);
+    }
+
+    /**
+     * Checks the possibility to delete the chat by those criteria:
+     * <ul>
+     *     <li>chat isn't already deleted;</li>
+     *     <li>if chat is a personal, user who send the command is a chat member;</li>
+     *     <li>if chat is a group, user who send the command is a chat owner.</li>
+     * </ul>
+     */
+    private boolean checkDeletionPossibility(MarkChatAsDeleted c) {
+        if (isDeleted()) {
+            return false;
+        }
+        boolean isPersonalChat = state().getType() == CT_PERSONAL;
+        boolean isMember = state().getMemberList()
+                                  .contains(c.getWhoDeletes());
+        if (isPersonalChat && isMember) {
+            return true;
+        }
+        boolean isGroupChat = state().getType() == CT_GROUP;
+        boolean isOwner = c.getWhoDeletes()
+                           .equals(state().getOwner());
+        return isGroupChat && isOwner;
     }
 }

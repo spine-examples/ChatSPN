@@ -31,6 +31,7 @@ import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
@@ -38,6 +39,7 @@ import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatMembersProjectionTestEnv.chatMembersFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
@@ -93,5 +95,17 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
         ChatMembers expected = chatMembersFrom(chat, command);
 
         context().assertState(command.getId(), expected);
+    }
+
+    @Test
+    @DisplayName("update `ChatMembersProjection`, as soon as `ChatMarkedAsDeleted` is emitted")
+    void reactOnChatDeleted() {
+        Chat chat = createGroupChatIn(context());
+        DeleteChat command = deleteChatCommand(chat, chat.getOwner());
+        context().receivesCommand(command);
+
+        context().assertEntity(chat.getId(), ChatMembersProjection.class)
+                 .deletedFlag()
+                 .isTrue();
     }
 }

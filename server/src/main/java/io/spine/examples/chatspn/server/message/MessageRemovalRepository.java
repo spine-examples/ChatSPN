@@ -26,8 +26,10 @@
 
 package io.spine.examples.chatspn.server.message;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
-import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.MessageRemovalId;
+import io.spine.examples.chatspn.MessageRemovalOperationId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
@@ -36,21 +38,29 @@ import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.procman.ProcessManagerRepository;
 import io.spine.server.route.EventRouting;
 
-import static io.spine.server.route.EventRoute.withId;
+import java.util.Set;
 
 /**
  * Manages instances of {@link MessageRemovalProcess}.
  */
 public final class MessageRemovalRepository
-        extends ProcessManagerRepository<MessageId, MessageRemovalProcess, MessageRemoval> {
+        extends ProcessManagerRepository<MessageRemovalId, MessageRemovalProcess, MessageRemoval> {
 
     @OverridingMethodsMustInvokeSuper
     @Override
-    protected void setupEventRouting(EventRouting<MessageId> routing) {
+    protected void setupEventRouting(EventRouting<MessageRemovalId> routing) {
         super.setupEventRouting(routing);
-        routing.route(MessageMarkedAsDeleted.class, (event, context) -> withId(event.getId()))
+        routing.route(MessageMarkedAsDeleted.class,
+                      (event, context) -> withMessageRemovalId(event.getProcess()))
                .route(MessageCannotBeMarkedAsDeleted.class,
-                      (event, context) -> withId(event.getId()));
+                      (event, context) -> withMessageRemovalId(event.getProcess()));
+    }
+
+    private static Set<MessageRemovalId> withMessageRemovalId(MessageRemovalOperationId id) {
+        if (id.hasMessageRemoval()) {
+            return ImmutableSet.of(id.getMessageRemoval());
+        }
+        return ImmutableSet.of();
     }
 
     @OverridingMethodsMustInvokeSuper
