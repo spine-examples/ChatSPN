@@ -67,6 +67,9 @@ public final class ChatDeletionProcess
     @MonotonicNonNull
     private ProjectionReader<MessageId, MessageView> projectionReader;
 
+    /**
+     * Issues a command to mark chat as deleted.
+     */
     @Command
     MarkChatAsDeleted handle(DeleteChat c) {
         builder().setId(c.getId());
@@ -87,6 +90,9 @@ public final class ChatDeletionProcess
                 .vBuild();
     }
 
+    /**
+     * Terminates a process if chat cannot be marked as deleted.
+     */
     @React
     ChatDeletionFailed on(ChatCannotBeMarkedAsDeleted e) {
         setArchived(true);
@@ -97,6 +103,9 @@ public final class ChatDeletionProcess
                 .vBuild();
     }
 
+    /**
+     * Issues commands to mark all chat messages as deleted if the chat was deleted successfully.
+     */
     @Command
     Iterable<MarkMessageAsDeleted> on(ChatDeleted e, EventContext ctx) {
         Filter byChatId = eq(MessageView.Field.chat(), chatId(e.getId()));
