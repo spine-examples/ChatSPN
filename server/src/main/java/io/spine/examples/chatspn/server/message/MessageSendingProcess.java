@@ -59,7 +59,7 @@ public final class MessageSendingProcess
      *
      * @throws MessageCannotBeSent
      *         if the message sender is not a chat member,
-     *         or chat not exist
+     *         or chat does not exist
      */
     @Command
     PostMessage on(SendMessage c, CommandContext ctx) throws MessageCannotBeSent {

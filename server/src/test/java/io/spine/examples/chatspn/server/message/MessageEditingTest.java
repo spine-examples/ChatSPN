@@ -98,7 +98,7 @@ final class MessageEditingTest extends ContextAwareTest {
 
     @Test
     @DisplayName("reject with the `MessageCannotBeEdited` " +
-            "if the chat not exist or was removed")
+            "if the chat does not exist or has been deleted")
     void chatNotExist() {
         Chat chat = createGroupChatIn(context());
         Message message = sendRandomMessageTo(chat, context());
