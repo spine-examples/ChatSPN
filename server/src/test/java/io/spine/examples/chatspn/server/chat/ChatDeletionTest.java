@@ -42,13 +42,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatId;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatCannotBeMarkedAsDeletedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatDeletedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatDeletionFailedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatMarkedAsDeletedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
-import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.sendMessageTo;
+import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.sendMessagesTo;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatIn;
 
@@ -70,25 +72,22 @@ final class ChatDeletionTest extends ContextAwareTest {
 
         context().assertEvent(expected);
         context().assertEntity(command.getId(), ChatDeletionProcess.class)
-                .archivedFlag()
-                .isTrue();
+                 .archivedFlag()
+                 .isTrue();
     }
 
     @Test
     @DisplayName("mark messages in the chat as deleted")
     void removeMessages() {
         Chat chat = createGroupChatIn(context());
-        Message message1 = sendMessageTo(chat, context());
-        Message message2 = sendMessageTo(chat, context());
+        List<Message> messages = sendMessagesTo(chat, context());
         DeleteChat command = deleteChatCommand(chat, chat.getOwner());
         context().receivesCommand(command);
 
-        context().assertEntity(message1.getId(), MessageAggregate.class)
-                 .deletedFlag()
-                 .isTrue();
-        context().assertEntity(message2.getId(), MessageAggregate.class)
-                 .deletedFlag()
-                 .isTrue();
+        messages.forEach((message ->
+                context().assertEntity(message.getId(), MessageAggregate.class)
+                         .deletedFlag()
+                         .isTrue()));
     }
 
     @Test

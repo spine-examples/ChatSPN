@@ -26,6 +26,7 @@
 
 package io.spine.examples.chatspn.server.chat.given;
 
+import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
@@ -37,6 +38,9 @@ import io.spine.examples.chatspn.chat.rejection.DeletionRejections.ChatCannotBeM
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.testing.server.blackbox.BlackBoxContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatDeletionId;
 import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatId;
@@ -50,23 +54,27 @@ public final class ChatDeletionTestEnv {
     private ChatDeletionTestEnv() {
     }
 
-    public static Message sendMessageTo(Chat chat, BlackBoxContext context) {
-        Message message = Message
-                .newBuilder()
-                .setId(MessageId.generate())
-                .setChat(chat.getId())
-                .setContent(randomString())
-                .setUser(chat.getMember(0))
-                .buildPartial();
-        SendMessage sendMessage = SendMessage
-                .newBuilder()
-                .setId(message.getId())
-                .setChat(message.getChat())
-                .setContent(message.getContent())
-                .setUser(message.getUser())
-                .vBuild();
-        context.receivesCommand(sendMessage);
-        return message;
+    public static List<Message> sendMessagesTo(Chat chat, BlackBoxContext context) {
+        List<Message> messages = new ArrayList<>();
+        for(int i = 0; i < 3; i++) {
+            Message message = Message
+                    .newBuilder()
+                    .setId(MessageId.generate())
+                    .setChat(chat.getId())
+                    .setContent(randomString())
+                    .setUser(chat.getMember(0))
+                    .buildPartial();
+            SendMessage sendMessage = SendMessage
+                    .newBuilder()
+                    .setId(message.getId())
+                    .setChat(message.getChat())
+                    .setContent(message.getContent())
+                    .setUser(message.getUser())
+                    .vBuild();
+            context.receivesCommand(sendMessage);
+            messages.add(message);
+        }
+        return ImmutableList.copyOf(messages);
     }
 
     public static DeleteChat deleteChatCommand(Chat chat, UserId whoDeletes) {
