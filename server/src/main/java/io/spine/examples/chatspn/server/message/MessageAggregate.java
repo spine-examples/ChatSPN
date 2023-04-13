@@ -117,7 +117,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
                     .setId(c.getId())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
-                    .setProcess(c.getProcess())
+                    .setOperation(c.getOperation())
                     .build();
         }
         return MessageMarkedAsDeleted
@@ -125,7 +125,7 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
                 .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setProcess(c.getProcess())
+                .setOperation(c.getOperation())
                 .vBuild();
     }
 

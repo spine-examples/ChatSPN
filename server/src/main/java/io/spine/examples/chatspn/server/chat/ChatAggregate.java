@@ -116,9 +116,9 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *
      * @return {@link MembersRemoved} if at least one member was removed
      * @throws MembersCannotBeRemoved
-     *         if chat deleted,
+     *         if chat is deleted,
      *         or chat isn't a group,
-     *         or the user who sent the original command, is not a chat owner,
+     *         or the user who sent the original command, was not a chat owner,
      *         or all users to remove already aren't the chat members
      */
     @Assign
@@ -151,7 +151,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * <ul>
      *     <li>chat isn't deleted;</li>
      *     <li>chat is a group;</li>
-     *     <li>the user who sent the command is a chat owner;</li>
+     *     <li>the user who sent the command was a chat owner;</li>
      *     <li>at least one user from the command can be removed.</li>
      * </ul>
      */
@@ -185,9 +185,9 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * Handles the command to add new members to the chat.
      *
      * @throws MembersCannotBeAdded
-     *         if chat deleted,
+     *         if chat is deleted,
      *         or chat isn't a group,
-     *         or the user who sent the original command, is not a chat member,
+     *         or the user who sent the original command, was not a chat member,
      *         or all users to add already are the chat members
      */
     @Assign
@@ -219,7 +219,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * <ul>
      *     <li>chat isn't deleted;</li>
      *     <li>chat is a group;</li>
-     *     <li>the user who sent the command is a chat member;</li>
+     *     <li>the user who sent the command was a chat member;</li>
      *     <li>at least one user from the command can be added.</li>
      * </ul>
      */
@@ -249,8 +249,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * Handles the command to delete the chat.
      *
      * @throws ChatCannotBeMarkedAsDeleted
-     *         if the user who told to delete personal chat isn't a chat member,
-     *         or the user who told to delete group chat isn't a chat owner,
+     *         if the user who told to delete personal chat wasn't a chat member,
+     *         or the user who told to delete group chat wasn't a chat owner,
      *         or the chat has already been deleted.
      */
     @Assign
@@ -280,7 +280,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * <ul>
      *     <li>chat isn't already deleted;</li>
      *     <li>if chat is a personal, user who send the command is a chat member;</li>
-     *     <li>if chat is a group, user who send the command is a chat owner.</li>
+     *     <li>if chat is a group, user who send the command was a chat owner.</li>
      * </ul>
      */
     private boolean checkDeletionPossibility(MarkChatAsDeleted c) {

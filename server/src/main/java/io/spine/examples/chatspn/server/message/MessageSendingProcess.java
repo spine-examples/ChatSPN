@@ -29,7 +29,6 @@ package io.spine.examples.chatspn.server.message;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageSending;
 import io.spine.examples.chatspn.message.command.PostMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
@@ -52,19 +51,19 @@ public final class MessageSendingProcess
      * Reads chat members per chat.
      */
     @MonotonicNonNull
-    private MemberChecker checker;
+    private ChatMembers chatMembers;
 
     /**
      * Issues a command to post message to the chat.
      *
      * @throws MessageCannotBeSent
      *         if the message sender is not a chat member,
-     *         or chat not exist
+     *         or chat does not exist
      */
     @Command
     PostMessage on(SendMessage c, CommandContext ctx) throws MessageCannotBeSent {
         builder().setId(c.getId());
-        if (checker.checkMember(c.getChat(), c.getUser(), ctx)) {
+        if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
             return PostMessage
                     .newBuilder()
                     .setId(c.getId())
@@ -97,7 +96,7 @@ public final class MessageSendingProcess
                 .vBuild();
     }
 
-    void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        checker = new MemberChecker(reader);
+    void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
+        chatMembers = new ChatMembers(reader);
     }
 }

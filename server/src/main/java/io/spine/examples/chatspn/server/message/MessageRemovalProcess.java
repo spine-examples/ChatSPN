@@ -29,7 +29,6 @@ package io.spine.examples.chatspn.server.message;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageRemovalId;
-import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
@@ -44,10 +43,6 @@ import io.spine.server.event.React;
 import io.spine.server.procman.ProcessManager;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageId;
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageRemovalId;
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageRemovalOperationId;
-
 /**
  * Coordinates the message removal.
  */
@@ -58,7 +53,7 @@ public final class MessageRemovalProcess
      * Checker for user existence in chat as a member.
      */
     @MonotonicNonNull
-    private MemberChecker checker;
+    private ChatMembers chatMembers;
 
     /**
      * Issues a command to mark message as deleted.
@@ -69,13 +64,13 @@ public final class MessageRemovalProcess
     @Command
     MarkMessageAsDeleted on(RemoveMessage c, CommandContext ctx) throws MessageCannotBeRemoved {
         builder().setId(c.getId());
-        if (checker.checkMember(c.getChat(), c.getUser(), ctx)) {
+        if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
             return MarkMessageAsDeleted
                     .newBuilder()
-                    .setId(messageId(c.getId()))
+                    .setId(c.message())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
-                    .setProcess(messageRemovalOperationId(c.getId()))
+                    .setOperation(c.messageRemovalOperation())
                     .vBuild();
         }
         throw MessageCannotBeRemoved
@@ -94,7 +89,7 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemoved
                 .newBuilder()
-                .setId(messageRemovalId(e.getId()))
+                .setId(e.messageRemoval())
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();
@@ -108,13 +103,13 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemovalFailed
                 .newBuilder()
-                .setId(messageRemovalId(e.getId()))
+                .setId(e.messageRemoval())
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();
     }
 
-    void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        checker = new MemberChecker(reader);
+    void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
+        chatMembers = new ChatMembers(reader);
     }
 }

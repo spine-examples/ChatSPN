@@ -26,7 +26,10 @@
 
 package io.spine.examples.chatspn.server.chat.given;
 
+import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.ChatDeletionId;
+import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
@@ -38,8 +41,9 @@ import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.testing.server.blackbox.BlackBoxContext;
 
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatDeletionId;
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatId;
+import java.util.ArrayList;
+import java.util.List;
+
 import static io.spine.testing.TestValues.randomString;
 
 public final class ChatDeletionTestEnv {
@@ -50,29 +54,33 @@ public final class ChatDeletionTestEnv {
     private ChatDeletionTestEnv() {
     }
 
-    public static Message sendMessageTo(Chat chat, BlackBoxContext context) {
-        Message message = Message
-                .newBuilder()
-                .setId(MessageId.generate())
-                .setChat(chat.getId())
-                .setContent(randomString())
-                .setUser(chat.getMember(0))
-                .buildPartial();
-        SendMessage sendMessage = SendMessage
-                .newBuilder()
-                .setId(message.getId())
-                .setChat(message.getChat())
-                .setContent(message.getContent())
-                .setUser(message.getUser())
-                .vBuild();
-        context.receivesCommand(sendMessage);
-        return message;
+    public static List<Message> sendMessagesTo(Chat chat, BlackBoxContext context) {
+        List<Message> messages = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Message message = Message
+                    .newBuilder()
+                    .setId(MessageId.generate())
+                    .setChat(chat.getId())
+                    .setContent(randomString())
+                    .setUser(chat.getMember(0))
+                    .buildPartial();
+            SendMessage sendMessage = SendMessage
+                    .newBuilder()
+                    .setId(message.getId())
+                    .setChat(message.getChat())
+                    .setContent(message.getContent())
+                    .setUser(message.getUser())
+                    .vBuild();
+            context.receivesCommand(sendMessage);
+            messages.add(message);
+        }
+        return ImmutableList.copyOf(messages);
     }
 
     public static DeleteChat deleteChatCommand(Chat chat, UserId whoDeletes) {
         DeleteChat command = DeleteChat
                 .newBuilder()
-                .setId(chatDeletionId(chat.getId()))
+                .setId(chatDeletionId(chat))
                 .setWhoDeletes(whoDeletes)
                 .vBuild();
         return command;
@@ -91,7 +99,7 @@ public final class ChatDeletionTestEnv {
     public static ChatMarkedAsDeleted chatMarkedAsDeletedFrom(DeleteChat c, Chat chat) {
         ChatMarkedAsDeleted event = ChatMarkedAsDeleted
                 .newBuilder()
-                .setId(chatId(c.getId()))
+                .setId(chatId(c))
                 .setWhoDeleted(c.getWhoDeletes())
                 .addAllMember(chat.getMemberList())
                 .vBuild();
@@ -101,7 +109,7 @@ public final class ChatDeletionTestEnv {
     public static ChatCannotBeMarkedAsDeleted chatCannotBeMarkedAsDeletedFrom(DeleteChat c) {
         ChatCannotBeMarkedAsDeleted rejection = ChatCannotBeMarkedAsDeleted
                 .newBuilder()
-                .setId(chatId(c.getId()))
+                .setId(chatId(c))
                 .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
         return rejection;
@@ -114,5 +122,17 @@ public final class ChatDeletionTestEnv {
                 .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
         return event;
+    }
+
+    static ChatDeletionId chatDeletionId(Chat chat) {
+        return ChatDeletionId
+                .newBuilder()
+                .setId(chat.getId())
+                .vBuild();
+    }
+
+    private static ChatId chatId(DeleteChat c) {
+        return c.getId()
+                .getId();
     }
 }

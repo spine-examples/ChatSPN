@@ -40,11 +40,12 @@ import "spine_examples/chatspn/identifiers.proto";
 // The chat cannot be deleted.
 //
 // Emitted when:
-// - the user who told to mark personal chat as deleted isn't a chat member;
-// - the user who told to mark group chat as deleted isn't a chat owner;
+// - the user who told to mark personal chat as deleted wasn't a chat member;
+// - the user who told to mark group chat as deleted wasn't a chat owner;
 // - the chat has already been marked as deleted.
 //
 message ChatCannotBeMarkedAsDeleted {
+    option (is).java_type = "io.spine.examples.chatspn.chat.ChatDeletionAware";
 
     // The ID of the chat that couldn't be marked as deleted.
     ChatId id = 1;

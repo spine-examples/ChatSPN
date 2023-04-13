@@ -23,58 +23,40 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn;
+package io.spine.examples.chatspn.server.message;
 
-import "spine/options.proto";
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import io.spine.core.CommandContext;
+import io.spine.core.UserId;
+import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.server.ProjectionReader;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn";
-option java_outer_classname = "IdentifiersProto";
-option java_multiple_files = true;
+/**
+ * Checker for the user's existence in the chat as a member.
+ */
+final class ChatMembers {
 
-// Identifies a chat.
-message ChatId {
+    private final ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader;
 
-    string uuid = 1 [(required) = true];
-}
-
-// Identifies a chat deletion process.
-message ChatDeletionId {
-
-    ChatId id = 1 [(required) = true];
-}
-
-// Identifies a message.
-message MessageId {
-
-    string uuid = 1 [(required) = true];
-}
-
-// Identifies a message removal process.
-message MessageRemovalId {
-
-    MessageId id = 1 [(required) = true];
-}
-
-// Identifies a message removal operation.
-message MessageRemovalOperationId {
-
-    oneof type {
-
-        // The ID of the `MessageRemoval` process
-        // that tells to remove message.
-        MessageRemovalId message_removal = 1;
-
-        // The ID of the `ChatDeletion` process
-        // that tells to remove message.
-        ChatDeletionId chat_deletion = 2;
+    ChatMembers(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
+        this.reader = reader;
     }
-}
 
-// Identifies an account creation process.
-message AccountCreationId {
-
-    string uuid = 1 [(required) = true];
+    /**
+     * Checks the user's existence in the chat as a member.
+     *
+     * <p> Returns true if the chat exists and the user is a member.
+     */
+    boolean isMember(ChatId id, UserId userId, CommandContext ctx) {
+        ImmutableList<io.spine.examples.chatspn.chat.ChatMembers> projections =
+                reader.read(ImmutableSet.of(id), ctx.getActorContext());
+        if (projections.isEmpty()) {
+            return false;
+        }
+        return projections.get(0)
+                          .getMemberList()
+                          .contains(userId);
+    }
 }

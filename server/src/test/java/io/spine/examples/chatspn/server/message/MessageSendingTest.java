@@ -86,7 +86,7 @@ public final class MessageSendingTest extends ContextAwareTest {
 
     @Test
     @DisplayName("reject with the `MessageCannotBeSent` " +
-            "if the chat not exist or was removed")
+            "if the chat does not exist or has been deleted")
     void chatNotExist() {
         Chat chat = createDeletedGroupChatIn(context());
         SendMessage command = sendMessageCommandWith(chat, chat.getOwner());

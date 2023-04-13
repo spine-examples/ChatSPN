@@ -24,40 +24,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.message;
+package io.spine.examples.chatspn.message;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import io.spine.core.CommandContext;
-import io.spine.core.UserId;
-import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.chat.ChatMembers;
-import io.spine.examples.chatspn.server.ProjectionReader;
+import com.google.errorprone.annotations.Immutable;
+import io.spine.annotation.GeneratedMixin;
+import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.MessageRemovalId;
+import io.spine.examples.chatspn.MessageRemovalOperationId;
 
 /**
- * Checker for the user's existence in the chat as a member.
+ * Common interface for signals directly involved in the message removal process.
+ * <p> As part of the message removal process have an {@link MessageRemovalId} as the primary ID.
  */
-final class MemberChecker {
+@Immutable
+@GeneratedMixin
+public interface MessageRemovalSignal {
 
-    private final ProjectionReader<ChatId, ChatMembers> reader;
+    MessageRemovalId getId();
 
-    MemberChecker(ProjectionReader<ChatId, ChatMembers> reader) {
-        this.reader = reader;
+    /**
+     * Retrieves {@code MessageId} from {@code MessageRemovalId}.
+     */
+    default MessageId message() {
+        return getId().getId();
     }
 
     /**
-     * Checks the user's existence in the chat as a member.
-     *
-     * <p> Returns true if the chat exists and the user is a member.
+     * Builds {@code MessageRemovalOperationId} from {@code MessageRemovalId}.
      */
-    boolean checkMember(ChatId id, UserId userId, CommandContext ctx) {
-        ImmutableList<ChatMembers> projections =
-                reader.read(ImmutableSet.of(id), ctx.getActorContext());
-        if (projections.isEmpty()) {
-            return false;
-        }
-        return projections.get(0)
-                          .getMemberList()
-                          .contains(userId);
+    default MessageRemovalOperationId messageRemovalOperation() {
+        return MessageRemovalOperationId
+                .newBuilder()
+                .setMessageRemoval(getId())
+                .vBuild();
     }
 }

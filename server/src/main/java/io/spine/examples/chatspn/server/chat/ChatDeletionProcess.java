@@ -32,6 +32,8 @@ import io.spine.core.EventContext;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.MessageRemovalId;
+import io.spine.examples.chatspn.MessageRemovalOperationId;
 import io.spine.examples.chatspn.chat.ChatDeletion;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.MarkChatAsDeleted;
@@ -51,9 +53,6 @@ import java.util.List;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static io.spine.client.Filters.eq;
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatDeletionId;
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatId;
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageRemovalOperationId;
 
 /**
  * Coordinates the chat deletion.
@@ -75,7 +74,7 @@ public final class ChatDeletionProcess
         builder().setId(c.getId());
         return MarkChatAsDeleted
                 .newBuilder()
-                .setId(chatId(c.getId()))
+                .setId(c.chat())
                 .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
     }
@@ -84,7 +83,7 @@ public final class ChatDeletionProcess
     ChatDeleted on(ChatMarkedAsDeleted e) {
         return ChatDeleted
                 .newBuilder()
-                .setId(chatDeletionId(e.getId()))
+                .setId(e.chatDeletion())
                 .setWhoDeleted(e.getWhoDeleted())
                 .addAllMember(e.getMemberList())
                 .vBuild();
@@ -98,7 +97,7 @@ public final class ChatDeletionProcess
         setArchived(true);
         return ChatDeletionFailed
                 .newBuilder()
-                .setId(chatDeletionId(e.getId()))
+                .setId(e.chatDeletion())
                 .setWhoDeletes(e.getWhoDeletes())
                 .vBuild();
     }
@@ -108,13 +107,13 @@ public final class ChatDeletionProcess
      */
     @Command
     Iterable<MarkMessageAsDeleted> on(ChatDeleted e, EventContext ctx) {
-        Filter byChatId = eq(MessageView.Field.chat(), chatId(e.getId()));
+        Filter byChatId = eq(MessageView.Field.chat(), e.chat());
         List<MessageView> messages = projectionReader.read(ctx.actorContext(), byChatId);
         ImmutableSet<MarkMessageAsDeleted> commands =
                 messages.stream()
                         .map(message -> markMessageAsDeleted(message, e.getWhoDeleted()))
                         .collect(toImmutableSet());
-        setArchived(true);
+        setDeleted(true);
         return commands;
     }
 
@@ -125,7 +124,18 @@ public final class ChatDeletionProcess
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(user)
-                .setProcess(messageRemovalOperationId(message.getChat()))
+                .setOperation(messageRemovalOperationId(message))
+                .vBuild();
+    }
+
+    private static MessageRemovalOperationId messageRemovalOperationId(MessageView m) {
+        MessageRemovalId removal = MessageRemovalId
+                .newBuilder()
+                .setId(m.getId())
+                .vBuild();
+        return MessageRemovalOperationId
+                .newBuilder()
+                .setMessageRemoval(removal)
                 .vBuild();
     }
 
