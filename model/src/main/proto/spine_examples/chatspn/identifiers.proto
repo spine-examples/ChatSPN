@@ -61,7 +61,7 @@ message MessageRemovalId {
 // Identifies a message removal operation.
 message MessageRemovalOperationId {
 
-    oneof process {
+    oneof type {
 
         // The ID of the `MessageRemoval` process
         // that tells to remove message.
