@@ -46,6 +46,13 @@ import java.util.Set;
 public final class MessageRemovalRepository
         extends ProcessManagerRepository<MessageRemovalId, MessageRemovalProcess, MessageRemoval> {
 
+    private static Set<MessageRemovalId> withMessageRemovalId(MessageRemovalOperationId id) {
+        if (id.hasMessageRemoval()) {
+            return ImmutableSet.of(id.getMessageRemoval());
+        }
+        return ImmutableSet.of();
+    }
+
     @OverridingMethodsMustInvokeSuper
     @Override
     protected void setupEventRouting(EventRouting<MessageRemovalId> routing) {
@@ -54,13 +61,6 @@ public final class MessageRemovalRepository
                       (event, context) -> withMessageRemovalId(event.getOperation()))
                .route(MessageCannotBeMarkedAsDeleted.class,
                       (event, context) -> withMessageRemovalId(event.getOperation()));
-    }
-
-    private static Set<MessageRemovalId> withMessageRemovalId(MessageRemovalOperationId id) {
-        if (id.hasMessageRemoval()) {
-            return ImmutableSet.of(id.getMessageRemoval());
-        }
-        return ImmutableSet.of();
     }
 
     @OverridingMethodsMustInvokeSuper

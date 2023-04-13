@@ -37,7 +37,6 @@ import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.procman.ProcessManagerRepository;
 import io.spine.server.route.EventRouting;
 
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.chatDeletionId;
 import static io.spine.server.route.EventRoute.withId;
 
 /**
@@ -51,9 +50,9 @@ public final class ChatDeletionRepository
     protected void setupEventRouting(EventRouting<ChatDeletionId> routing) {
         super.setupEventRouting(routing);
         routing.route(ChatMarkedAsDeleted.class,
-                      (event, context) -> withId(chatDeletionId(event.getId())))
+                      (event, context) -> withId(event.chatDeletion()))
                .route(ChatCannotBeMarkedAsDeleted.class,
-                      (event, context) -> withId(chatDeletionId(event.getId())))
+                      (event, context) -> withId(event.chatDeletion()))
                .route(ChatDeleted.class,
                       (event, context) -> withId(event.getId()));
     }

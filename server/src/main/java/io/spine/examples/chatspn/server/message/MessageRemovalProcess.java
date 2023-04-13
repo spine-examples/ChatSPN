@@ -43,10 +43,6 @@ import io.spine.server.event.React;
 import io.spine.server.procman.ProcessManager;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageId;
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageRemovalId;
-import static io.spine.examples.chatspn.message.MessageRemovalIdentifiersConverter.messageRemovalOperationId;
-
 /**
  * Coordinates the message removal.
  */
@@ -71,10 +67,10 @@ public final class MessageRemovalProcess
         if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
             return MarkMessageAsDeleted
                     .newBuilder()
-                    .setId(messageId(c.getId()))
+                    .setId(c.message())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
-                    .setOperation(messageRemovalOperationId(c.getId()))
+                    .setOperation(c.messageRemovalOperation())
                     .vBuild();
         }
         throw MessageCannotBeRemoved
@@ -93,7 +89,7 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemoved
                 .newBuilder()
-                .setId(messageRemovalId(e.getId()))
+                .setId(e.messageRemoval())
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();
@@ -107,7 +103,7 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemovalFailed
                 .newBuilder()
-                .setId(messageRemovalId(e.getId()))
+                .setId(e.messageRemoval())
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();
