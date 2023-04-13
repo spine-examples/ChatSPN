@@ -39,6 +39,7 @@ import "spine_examples/chatspn/identifiers.proto";
 
 // The chat has been deleted.
 message ChatDeleted {
+    option (is).java_type = "io.spine.examples.chatspn.chat.ChatDeletionSignal";
 
     // The ID of the chat deletion process.
     ChatDeletionId id = 1;
@@ -52,6 +53,7 @@ message ChatDeleted {
 
 // The chat has been marked as deleted.
 message ChatMarkedAsDeleted {
+    option (is).java_type = "io.spine.examples.chatspn.chat.ChatDeletionAware";
 
     // The ID of the chat that was marked as deleted.
     ChatId id = 1;
@@ -65,6 +67,7 @@ message ChatMarkedAsDeleted {
 
 // The chat deletion process failed.
 message ChatDeletionFailed {
+    option (is).java_type = "io.spine.examples.chatspn.chat.ChatDeletionSignal";
 
     // The ID of the chat deletion process.
     ChatDeletionId id = 1;

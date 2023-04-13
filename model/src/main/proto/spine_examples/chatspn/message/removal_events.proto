@@ -39,6 +39,7 @@ import "spine_examples/chatspn/identifiers.proto";
 
 // A message has been removed.
 message MessageRemoved {
+    option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalSignal";
 
     // The ID of the message removal process.
     MessageRemovalId id = 1;
@@ -56,6 +57,7 @@ message MessageRemoved {
 // or has already been marked as removed.
 //
 message MessageRemovalFailed {
+    option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalSignal";
 
     // The ID of the message removal process that failed.
     MessageRemovalId id = 1;
@@ -69,6 +71,7 @@ message MessageRemovalFailed {
 
 // The message has been marked as deleted.
 message MessageMarkedAsDeleted {
+    option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalAware";
 
     // The ID of the message that was marked as deleted.
     MessageId id = 1;
