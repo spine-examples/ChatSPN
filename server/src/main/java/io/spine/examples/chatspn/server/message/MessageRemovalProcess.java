@@ -29,6 +29,7 @@ package io.spine.examples.chatspn.server.message;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageRemovalId;
+import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
@@ -50,10 +51,10 @@ public final class MessageRemovalProcess
         extends ProcessManager<MessageRemovalId, MessageRemoval, MessageRemoval.Builder> {
 
     /**
-     * Checker for user existence in chat as a member.
+     * Provides access the {@link ChatMembers} projection.
      */
     @MonotonicNonNull
-    private ChatMembers chatMembers;
+    private ChatMembersAccessor chatMembers;
 
     /**
      * Issues a command to mark message as deleted.
@@ -110,6 +111,6 @@ public final class MessageRemovalProcess
     }
 
     void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
-        chatMembers = new ChatMembers(reader);
+        chatMembers = new ChatMembersAccessor(reader);
     }
 }

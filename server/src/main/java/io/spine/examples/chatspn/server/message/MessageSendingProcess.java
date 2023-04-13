@@ -29,6 +29,7 @@ package io.spine.examples.chatspn.server.message;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageSending;
 import io.spine.examples.chatspn.message.command.PostMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
@@ -48,10 +49,10 @@ public final class MessageSendingProcess
         extends ProcessManager<MessageId, MessageSending, MessageSending.Builder> {
 
     /**
-     * Reads chat members per chat.
+     * Provides access the {@link ChatMembers} projection.
      */
     @MonotonicNonNull
-    private ChatMembers chatMembers;
+    private ChatMembersAccessor chatMembers;
 
     /**
      * Issues a command to post message to the chat.
@@ -97,6 +98,6 @@ public final class MessageSendingProcess
     }
 
     void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
-        chatMembers = new ChatMembers(reader);
+        chatMembers = new ChatMembersAccessor(reader);
     }
 }
