@@ -113,7 +113,7 @@ public final class ChatDeletionProcess
                 messages.stream()
                         .map(message -> markMessageAsDeleted(message, e.getWhoDeleted()))
                         .collect(toImmutableSet());
-        setArchived(true);
+        setDeleted(true);
         return commands;
     }
 

@@ -71,7 +71,7 @@ final class ChatDeletionTest extends ContextAwareTest {
 
         context().assertEvent(expected);
         context().assertEntity(command.getId(), ChatDeletionProcess.class)
-                 .archivedFlag()
+                 .deletedFlag()
                  .isTrue();
     }
 
