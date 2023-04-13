@@ -56,7 +56,7 @@ public interface MessageRemovalSignal {
     /**
      * Builds ID of the message removal operation.
      */
-    default MessageRemovalOperationId messageRemovalOperation() {
+    default MessageRemovalOperationId operation() {
         return MessageRemovalOperationId
                 .newBuilder()
                 .setMessageRemoval(getId())

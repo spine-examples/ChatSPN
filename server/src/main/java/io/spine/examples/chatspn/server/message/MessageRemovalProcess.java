@@ -70,7 +70,7 @@ public final class MessageRemovalProcess
                     .setId(c.message())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
-                    .setOperation(c.messageRemovalOperation())
+                    .setOperation(c.operation())
                     .vBuild();
         }
         throw MessageCannotBeRemoved
