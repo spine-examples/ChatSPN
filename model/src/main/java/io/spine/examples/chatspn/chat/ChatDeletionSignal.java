@@ -33,16 +33,20 @@ import io.spine.examples.chatspn.ChatId;
 
 /**
  * Common interface for signals directly involved in the chat deletion process.
- * <p> As part of the chat deletion process have an {@link ChatDeletionId} as the primary ID.
+ *
+ * <p>As part of the chat deletion process have a {@link ChatDeletionId} as the primary ID.
  */
 @Immutable
 @GeneratedMixin
 public interface ChatDeletionSignal {
 
+    /**
+     * Returns the ID of the chat deletion process.
+     */
     ChatDeletionId getId();
 
     /**
-     * Retrieves {@code ChatId} from {@code ChatDeletionId}.
+     * Returns the ID of the chat, which is being deleted.
      */
     default ChatId chat() {
         return getId().getId();

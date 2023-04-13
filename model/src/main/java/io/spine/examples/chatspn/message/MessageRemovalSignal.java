@@ -34,23 +34,27 @@ import io.spine.examples.chatspn.MessageRemovalOperationId;
 
 /**
  * Common interface for signals directly involved in the message removal process.
- * <p> As part of the message removal process have an {@link MessageRemovalId} as the primary ID.
+ *
+ * <p>As part of the message removal process have a {@link MessageRemovalId} as the primary ID.
  */
 @Immutable
 @GeneratedMixin
 public interface MessageRemovalSignal {
 
+    /**
+     * Returns the ID of the message removal process.
+     */
     MessageRemovalId getId();
 
     /**
-     * Retrieves {@code MessageId} from {@code MessageRemovalId}.
+     * Returns the ID of the message, which is being removed.
      */
     default MessageId message() {
         return getId().getId();
     }
 
     /**
-     * Builds {@code MessageRemovalOperationId} from {@code MessageRemovalId}.
+     * Builds ID of the message removal operation.
      */
     default MessageRemovalOperationId messageRemovalOperation() {
         return MessageRemovalOperationId

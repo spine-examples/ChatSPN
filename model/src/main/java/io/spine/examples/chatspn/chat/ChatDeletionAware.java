@@ -38,10 +38,13 @@ import io.spine.examples.chatspn.ChatId;
 @GeneratedMixin
 public interface ChatDeletionAware {
 
+    /**
+     * Returns the ID of the chat, which is being deleted.
+     */
     ChatId getId();
 
     /**
-     * Builds {@code ChatDeletionId} from {@code ChatId}.
+     * Builds ID of the chat deletion process.
      */
     default ChatDeletionId chatDeletion() {
         return ChatDeletionId

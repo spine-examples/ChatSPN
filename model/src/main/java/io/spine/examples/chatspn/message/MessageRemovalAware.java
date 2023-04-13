@@ -39,6 +39,9 @@ import io.spine.examples.chatspn.MessageRemovalOperationId;
 @GeneratedMixin
 public interface MessageRemovalAware {
 
+    /**
+     * Returns the ID of the message removal operation.
+     */
     MessageRemovalOperationId getOperation();
 
     /**
@@ -47,8 +50,7 @@ public interface MessageRemovalAware {
      *
      * <p>In case when {@code MessageRemovalId} is not set
      * in the corresponding {@code MessageRemovalOperationId}, returns the
-     * <a href="https://protobuf.dev/reference/java/java-generated/#:~:text=static%20Foo%20getDefaultInstance,its%20newBuilderForType()%20method.">
-     * default instance</a> of {@code MessageRemovalId}.
+     * default instance of {@code MessageRemovalId}.
      */
     default MessageRemovalId messageRemoval() {
         return getOperation().getMessageRemoval();
@@ -60,8 +62,7 @@ public interface MessageRemovalAware {
      *
      * <p>In case when {@code ChatDeletionId} is not set
      * in the corresponding {@code MessageRemovalOperationId}, returns the
-     * <a href="https://protobuf.dev/reference/java/java-generated/#:~:text=static%20Foo%20getDefaultInstance,its%20newBuilderForType()%20method.">
-     * default instance</a> of {@code ChatDeletionId}.
+     * default instance of {@code ChatDeletionId}.
      */
     default ChatDeletionId chatDeletion() {
         return getOperation().getChatDeletion();
