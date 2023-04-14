@@ -64,7 +64,7 @@ public final class MessageRemovalRepository
     }
 
     private static Set<MessageRemovalId> withMessageRemovalId(MessageRemovalSignal signal) {
-        if (signal.hasMessageRemoval()) {
+        if (signal.isMessageRemovalPart()) {
             return ImmutableSet.of(signal.messageRemoval());
         }
         return ImmutableSet.of();

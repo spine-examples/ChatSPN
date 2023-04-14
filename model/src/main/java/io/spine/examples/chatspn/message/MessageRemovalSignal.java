@@ -150,7 +150,7 @@ public interface MessageRemovalSignal {
     /**
      * Checks the binding of this signal to the message removal process.
      */
-    default boolean hasMessageRemoval() {
+    default boolean isMessageRemovalPart() {
         if (hasChatDeletionIdField()) {
             return true;
         }
@@ -177,7 +177,7 @@ public interface MessageRemovalSignal {
     /**
      * Checks the binding of this signal to the chat deletion process.
      */
-    default boolean hasChatDeletion() {
+    default boolean isChatDeletionPart() {
         if (hasChatDeletionIdField()) {
             return true;
         }
