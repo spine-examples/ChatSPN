@@ -42,7 +42,7 @@ message DeleteChat {
     option (is).java_type = "io.spine.examples.chatspn.chat.ChatDeletionSignal";
 
     // The ID of the chat deletion process.
-    ChatDeletionId id = 1;
+    ChatDeletionId chat_deletion_id = 1;
 
     // The user who tells to delete chat.
     spine.core.UserId who_deletes = 2 [(required) = true];
@@ -50,10 +50,10 @@ message DeleteChat {
 
 // Tells to mark chat as deleted.
 message MarkChatAsDeleted {
-    option (is).java_type = "io.spine.examples.chatspn.chat.ChatDeletionAware";
+    option (is).java_type = "io.spine.examples.chatspn.chat.ChatDeletionSignal";
 
     // The ID of the chat to mark as deleted.
-    ChatId id = 1;
+    ChatId chat_id = 1;
 
     // The user who tells to mark chat as deleted.
     spine.core.UserId who_deletes = 2 [(required) = true];

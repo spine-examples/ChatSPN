@@ -44,7 +44,7 @@ message MessageCannotBeRemoved {
     option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalSignal";
 
     // The ID of the message removal process that could not be finished successfully.
-    MessageRemovalId id = 1 [(required) = true];
+    MessageRemovalId message_removal_id = 1 [(required) = true];
 
     // The ID of the chat where the message could not be removed.
     ChatId chat = 2 [(required) = true];
@@ -59,10 +59,10 @@ message MessageCannotBeRemoved {
 // or if it has already been marked deleted.
 //
 message MessageCannotBeMarkedAsDeleted {
-    option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalAware";
+    option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalSignal";
 
     // The ID of the message that could not be marked as deleted.
-    MessageId id = 1 [(required) = true];
+    MessageId message_id = 1 [(required) = true];
 
     // The ID of the chat in which message could not be marked as deleted.
     ChatId chat = 2 [(required) = true];
@@ -71,5 +71,5 @@ message MessageCannotBeMarkedAsDeleted {
     spine.core.UserId user = 3 [(required) = true];
 
     // The ID of the operation that originally told to mark the message as deleted.
-    MessageRemovalOperationId operation  = 4 [(required) = true];
+    MessageRemovalOperationId operation_id  = 4 [(required) = true];
 }
