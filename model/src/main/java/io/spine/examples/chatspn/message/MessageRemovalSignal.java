@@ -28,38 +28,195 @@ package io.spine.examples.chatspn.message;
 
 import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
+import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.MessageRemovalOperationId;
 
 /**
- * Common interface for signals directly involved in the message removal process.
- *
- * <p>As part of the message removal process have a {@link MessageRemovalId} as the primary ID.
+ * Common interface for signals aware of the message removal process.
  */
 @Immutable
 @GeneratedMixin
 public interface MessageRemovalSignal {
 
     /**
-     * Returns the ID of the message removal process.
+     * Returns the ID of the message
+     * or default instance if the field does not exist.
+     *
+     * <p> Use {@link MessageRemovalSignal#message()} instead of this method.
      */
-    MessageRemovalId getId();
-
-    /**
-     * Returns the ID of the message, which is being removed.
-     */
-    default MessageId message() {
-        return getId().getId();
+    default MessageId getMessageId() {
+        return MessageId.getDefaultInstance();
     }
 
     /**
-     * Builds ID of the message removal operation.
+     * Checks the existence of the {@code message_id} field in the signal.
+     */
+    default boolean hasMessageIdField() {
+        return !getMessageId().equals(MessageId.getDefaultInstance());
+    }
+
+    /**
+     * Returns the ID of the message removal process
+     * or default instance if the field does not exist.
+     *
+     * <p> Use {@link MessageRemovalSignal#messageRemoval()} instead of this method.
+     */
+    default MessageRemovalId getMessageRemovalId() {
+        return MessageRemovalId.getDefaultInstance();
+    }
+
+    /**
+     * Checks the existence of the {@code message_removal_id} field in the signal.
+     */
+    default boolean hasMessageRemovalIdField() {
+        return !getMessageRemovalId().equals(MessageRemovalId.getDefaultInstance());
+    }
+
+    /**
+     * Returns the ID of the chat deletion process
+     * or default instance if the field does not exist.
+     *
+     * <p> Use {@link MessageRemovalSignal#chatDeletion()} instead of this method.
+     */
+    default ChatDeletionId getChatDeletionId() {
+        return ChatDeletionId.getDefaultInstance();
+    }
+
+    /**
+     * Checks the existence of the {@code chat_deletion_id} field in the signal.
+     */
+    default boolean hasChatDeletionIdField() {
+        return !getChatDeletionId().equals(ChatDeletionId.getDefaultInstance());
+    }
+
+    /**
+     * Returns the ID of the message removal operation
+     * or default instance if the field does not exist.
+     *
+     * <p> Use {@link MessageRemovalSignal#operation()} instead of this method.
+     */
+    default MessageRemovalOperationId getOperationId() {
+        return MessageRemovalOperationId.getDefaultInstance();
+    }
+
+    /**
+     * Checks the existence of the {@code operation_id} field in the signal.
+     */
+    default boolean hasOperationIdField() {
+        return !getOperationId().equals(MessageRemovalOperationId.getDefaultInstance());
+    }
+
+    /**
+     * Returns the message ID
+     * or default instance if it is impossible to convert.
+     */
+    default MessageId message() {
+        if (hasMessageIdField()) {
+            return getMessageId();
+        }
+        if (hasMessageRemovalIdField()) {
+            return getMessageRemovalId().getId();
+        }
+        if (hasOperationIdField()) {
+            return getOperationId()
+                    .getMessageRemoval()
+                    .getId();
+        }
+        return MessageId.getDefaultInstance();
+    }
+
+    /**
+     * Returns the message removal process ID
+     * or default instance if it is impossible to convert.
+     */
+    default MessageRemovalId messageRemoval() {
+        if (hasMessageRemovalIdField()) {
+            return getMessageRemovalId();
+        }
+        if (hasOperationIdField()) {
+            return getOperationId().getMessageRemoval();
+        }
+        if (hasMessageIdField()) {
+            return MessageRemovalId
+                    .newBuilder()
+                    .setId(getMessageId())
+                    .vBuild();
+        }
+        return MessageRemovalId.getDefaultInstance();
+    }
+
+    /**
+     * Checks the binding of this signal to the message removal process.
+     */
+    default boolean hasMessageRemoval() {
+        if (hasChatDeletionIdField()) {
+            return true;
+        }
+        if (hasOperationIdField()) {
+            return getOperationId().hasMessageRemoval();
+        }
+        return false;
+    }
+
+    /**
+     * Returns the chat deletion process ID
+     * or default instance if it is impossible to convert.
+     */
+    default ChatDeletionId chatDeletion() {
+        if (hasChatDeletionIdField()) {
+            return getChatDeletionId();
+        }
+        if (hasOperationIdField()) {
+            return getOperationId().getChatDeletion();
+        }
+        return ChatDeletionId.getDefaultInstance();
+    }
+
+    /**
+     * Checks the binding of this signal to the chat deletion process.
+     */
+    default boolean hasChatDeletion() {
+        if (hasChatDeletionIdField()) {
+            return true;
+        }
+        if (hasOperationIdField()) {
+            return getOperationId().hasChatDeletion();
+        }
+        return false;
+    }
+
+    /**
+     * Returns the message removal operation ID
+     * or default instance if it is impossible to convert.
      */
     default MessageRemovalOperationId operation() {
-        return MessageRemovalOperationId
-                .newBuilder()
-                .setMessageRemoval(getId())
-                .vBuild();
+        if (hasOperationIdField()) {
+            return getOperationId();
+        }
+        if (hasMessageRemovalIdField()) {
+            return MessageRemovalOperationId
+                    .newBuilder()
+                    .setMessageRemoval(getMessageRemovalId())
+                    .vBuild();
+        }
+        if (hasChatDeletionIdField()) {
+            return MessageRemovalOperationId
+                    .newBuilder()
+                    .setChatDeletion(getChatDeletionId())
+                    .vBuild();
+        }
+        if (hasMessageIdField()) {
+            MessageRemovalId messageRemoval = MessageRemovalId
+                    .newBuilder()
+                    .setId(getMessageId())
+                    .vBuild();
+            return MessageRemovalOperationId
+                    .newBuilder()
+                    .setMessageRemoval(messageRemoval)
+                    .vBuild();
+        }
+        return MessageRemovalOperationId.getDefaultInstance();
     }
 }
