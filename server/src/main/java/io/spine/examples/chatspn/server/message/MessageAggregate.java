@@ -114,18 +114,18 @@ public final class MessageAggregate extends Aggregate<MessageId, Message, Messag
         if (!state().hasId() || isDeleted()) {
             throw MessageCannotBeMarkedAsDeleted
                     .newBuilder()
-                    .setId(c.getId())
+                    .setMessageId(c.message())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
-                    .setOperation(c.getOperation())
+                    .setOperationId(c.operation())
                     .build();
         }
         return MessageMarkedAsDeleted
                 .newBuilder()
-                .setId(c.getId())
+                .setMessageId(c.message())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setOperation(c.getOperation())
+                .setOperationId(c.operation())
                 .vBuild();
     }
 

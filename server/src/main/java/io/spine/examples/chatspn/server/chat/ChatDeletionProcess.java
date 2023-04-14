@@ -71,10 +71,10 @@ public final class ChatDeletionProcess
      */
     @Command
     MarkChatAsDeleted handle(DeleteChat c) {
-        builder().setId(c.getId());
+        builder().setId(c.chatDeletion());
         return MarkChatAsDeleted
                 .newBuilder()
-                .setId(c.chat())
+                .setChatId(c.chat())
                 .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
     }
@@ -83,7 +83,7 @@ public final class ChatDeletionProcess
     ChatDeleted on(ChatMarkedAsDeleted e) {
         return ChatDeleted
                 .newBuilder()
-                .setId(e.chatDeletion())
+                .setChatDeletionId(e.chatDeletion())
                 .setWhoDeleted(e.getWhoDeleted())
                 .addAllMember(e.getMemberList())
                 .vBuild();
@@ -97,7 +97,7 @@ public final class ChatDeletionProcess
         setArchived(true);
         return ChatDeletionFailed
                 .newBuilder()
-                .setId(e.chatDeletion())
+                .setChatDeletionId(e.chatDeletion())
                 .setWhoDeletes(e.getWhoDeletes())
                 .vBuild();
     }
@@ -121,10 +121,10 @@ public final class ChatDeletionProcess
     markMessageAsDeleted(MessageView message, UserId user) {
         return MarkMessageAsDeleted
                 .newBuilder()
-                .setId(message.getId())
+                .setMessageId(message.getId())
                 .setChat(message.getChat())
                 .setUser(user)
-                .setOperation(messageRemovalOperationId(message))
+                .setOperationId(messageRemovalOperationId(message))
                 .vBuild();
     }
 

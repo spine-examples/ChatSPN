@@ -170,7 +170,7 @@ public final class ChatTestEnv {
         Chat chat = createGroupChatIn(ctx);
         DeleteChat deleteChat = DeleteChat
                 .newBuilder()
-                .setId(chatDeletionId(chat))
+                .setChatDeletionId(chatDeletionId(chat))
                 .setWhoDeletes(chat.getOwner())
                 .vBuild();
         ctx.receivesCommand(deleteChat);

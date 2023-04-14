@@ -80,7 +80,7 @@ public final class ChatDeletionTestEnv {
     public static DeleteChat deleteChatCommand(Chat chat, UserId whoDeletes) {
         DeleteChat command = DeleteChat
                 .newBuilder()
-                .setId(chatDeletionId(chat))
+                .setChatDeletionId(chatDeletionId(chat))
                 .setWhoDeletes(whoDeletes)
                 .vBuild();
         return command;
@@ -89,7 +89,7 @@ public final class ChatDeletionTestEnv {
     public static ChatDeleted chatDeletedFrom(DeleteChat c, Chat chat) {
         ChatDeleted event = ChatDeleted
                 .newBuilder()
-                .setId(c.getId())
+                .setChatDeletionId(c.chatDeletion())
                 .setWhoDeleted(c.getWhoDeletes())
                 .addAllMember(chat.getMemberList())
                 .vBuild();
@@ -99,7 +99,7 @@ public final class ChatDeletionTestEnv {
     public static ChatMarkedAsDeleted chatMarkedAsDeletedFrom(DeleteChat c, Chat chat) {
         ChatMarkedAsDeleted event = ChatMarkedAsDeleted
                 .newBuilder()
-                .setId(chatId(c))
+                .setChatId(c.chat())
                 .setWhoDeleted(c.getWhoDeletes())
                 .addAllMember(chat.getMemberList())
                 .vBuild();
@@ -109,7 +109,7 @@ public final class ChatDeletionTestEnv {
     public static ChatCannotBeMarkedAsDeleted chatCannotBeMarkedAsDeletedFrom(DeleteChat c) {
         ChatCannotBeMarkedAsDeleted rejection = ChatCannotBeMarkedAsDeleted
                 .newBuilder()
-                .setId(chatId(c))
+                .setChatId(c.chat())
                 .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
         return rejection;
@@ -118,7 +118,7 @@ public final class ChatDeletionTestEnv {
     public static ChatDeletionFailed chatDeletionFailedFrom(DeleteChat c) {
         ChatDeletionFailed event = ChatDeletionFailed
                 .newBuilder()
-                .setId(c.getId())
+                .setChatDeletionId(c.chatDeletion())
                 .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
         return event;
@@ -129,10 +129,5 @@ public final class ChatDeletionTestEnv {
                 .newBuilder()
                 .setId(chat.getId())
                 .vBuild();
-    }
-
-    private static ChatId chatId(DeleteChat c) {
-        return c.getId()
-                .getId();
     }
 }

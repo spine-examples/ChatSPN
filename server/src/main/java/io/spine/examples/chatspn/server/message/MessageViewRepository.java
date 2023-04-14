@@ -49,6 +49,6 @@ public final class MessageViewRepository
         super.setupEventRouting(routing);
         routing.route(MessagePosted.class, (event, context) -> withId(event.getId()))
                .route(MessageContentUpdated.class, (event, context) -> withId(event.getId()))
-               .route(MessageMarkedAsDeleted.class, (event, context) -> withId(event.getId()));
+               .route(MessageMarkedAsDeleted.class, (event, context) -> withId(event.message()));
     }
 }

@@ -252,14 +252,14 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         if (checkDeletionPossibility(c)) {
             return ChatMarkedAsDeleted
                     .newBuilder()
-                    .setId(c.getId())
+                    .setChatId(c.chat())
                     .setWhoDeleted(c.getWhoDeletes())
                     .addAllMember(state().getMemberList())
                     .vBuild();
         }
         throw ChatCannotBeMarkedAsDeleted
                 .newBuilder()
-                .setId(c.getId())
+                .setChatId(c.chat())
                 .setWhoDeletes(c.getWhoDeletes())
                 .build();
     }

@@ -49,7 +49,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommand(Message message) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setId(removalId(message))
+                .setMessageRemovalId(removalId(message))
                 .setChat(message.getChat())
                 .setUser(message.getUser())
                 .vBuild();
@@ -59,7 +59,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommandWith(Message message, UserId userId) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setId(removalId(message))
+                .setMessageRemovalId(removalId(message))
                 .setChat(message.getChat())
                 .setUser(userId)
                 .vBuild();
@@ -69,7 +69,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommandWith(Message message, MessageId messageId) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setId(removalId(messageId))
+                .setMessageRemovalId(removalId(messageId))
                 .setChat(message.getChat())
                 .setUser(message.getUser())
                 .vBuild();
@@ -79,7 +79,7 @@ public final class MessageRemovalTestEnv {
     public static MessageRemoved messageRemovedFrom(RemoveMessage c) {
         MessageRemoved event = MessageRemoved
                 .newBuilder()
-                .setId(c.getId())
+                .setMessageRemovalId(c.messageRemoval())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .vBuild();
@@ -89,7 +89,7 @@ public final class MessageRemovalTestEnv {
     public static MessageRemovalFailed messageRemovalFailedFrom(RemoveMessage c) {
         MessageRemovalFailed event = MessageRemovalFailed
                 .newBuilder()
-                .setId(c.getId())
+                .setMessageRemovalId(c.messageRemoval())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .vBuild();
@@ -99,10 +99,10 @@ public final class MessageRemovalTestEnv {
     public static MessageMarkedAsDeleted messageMarkedAsDeletedFrom(RemoveMessage c) {
         MessageMarkedAsDeleted event = MessageMarkedAsDeleted
                 .newBuilder()
-                .setId(messageId(c))
+                .setMessageId(c.message())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setOperation(removalProcess(c))
+                .setOperationId(c.operation())
                 .vBuild();
         return event;
     }
@@ -110,7 +110,7 @@ public final class MessageRemovalTestEnv {
     public static Message messageFrom(RemoveMessage c) {
         Message state = Message
                 .newBuilder()
-                .setId(messageId(c))
+                .setId(c.message())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .buildPartial();
@@ -120,7 +120,7 @@ public final class MessageRemovalTestEnv {
     public static MessageCannotBeRemoved messageCannotBeRemovedFrom(RemoveMessage c) {
         MessageCannotBeRemoved rejection = MessageCannotBeRemoved
                 .newBuilder()
-                .setId(c.getId())
+                .setMessageRemovalId(c.messageRemoval())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .vBuild();
@@ -131,17 +131,12 @@ public final class MessageRemovalTestEnv {
             RemoveMessage c) {
         MessageCannotBeMarkedAsDeleted rejection = MessageCannotBeMarkedAsDeleted
                 .newBuilder()
-                .setId(messageId(c))
+                .setMessageId(c.message())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setOperation(removalProcess(c))
+                .setOperationId(c.operation())
                 .vBuild();
         return rejection;
-    }
-
-    public static MessageId messageId(RemoveMessage c) {
-        return c.getId()
-                .getId();
     }
 
     public static MessageRemovalId removalId(MessageId id) {
@@ -155,13 +150,6 @@ public final class MessageRemovalTestEnv {
         return MessageRemovalId
                 .newBuilder()
                 .setId(m.getId())
-                .vBuild();
-    }
-
-    public static MessageRemovalOperationId removalProcess(RemoveMessage c) {
-        return MessageRemovalOperationId
-                .newBuilder()
-                .setMessageRemoval(c.getId())
                 .vBuild();
     }
 }

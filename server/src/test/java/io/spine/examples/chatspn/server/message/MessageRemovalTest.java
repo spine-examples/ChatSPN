@@ -49,7 +49,6 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGrou
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageFrom;
-import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageId;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageMarkedAsDeletedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageRemovalFailedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageRemovedFrom;
@@ -77,7 +76,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         MessageRemoved expected = messageRemovedFrom(command);
 
         context().assertEvent(expected);
-        context().assertEntity(expected.getId(), MessageRemovalProcess.class)
+        context().assertEntity(expected.messageRemoval(), MessageRemovalProcess.class)
                  .archivedFlag()
                  .isTrue();
     }
@@ -121,7 +120,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         MessageRemovalFailed expected = messageRemovalFailedFrom(command);
 
         context().assertEvent(expected);
-        context().assertEntity(expected.getId(), MessageRemovalProcess.class)
+        context().assertEntity(expected.messageRemoval(), MessageRemovalProcess.class)
                  .archivedFlag()
                  .isTrue();
     }
@@ -134,7 +133,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         RemoveMessage command = removeMessageCommand(message);
         context().receivesCommand(command);
 
-        context().assertEntity(messageId(command), MessageViewProjection.class)
+        context().assertEntity(command.message(), MessageViewProjection.class)
                  .deletedFlag()
                  .isTrue();
     }

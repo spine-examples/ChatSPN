@@ -53,6 +53,6 @@ public final class ChatMembersRepository
                .route(GroupChatCreated.class, (event, context) -> withId(event.getId()))
                .route(MembersRemoved.class, (event, context) -> withId(event.getId()))
                .route(MembersAdded.class, (event, context) -> withId(event.getId()))
-               .route(ChatMarkedAsDeleted.class, (event, context) -> withId(event.getId()));
+               .route(ChatMarkedAsDeleted.class, (event, context) -> withId(event.chat()));
     }
 }

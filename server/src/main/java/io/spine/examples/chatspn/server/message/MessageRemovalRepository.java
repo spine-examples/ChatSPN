@@ -29,9 +29,9 @@ package io.spine.examples.chatspn.server.message;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.MessageRemovalId;
-import io.spine.examples.chatspn.MessageRemovalOperationId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
+import io.spine.examples.chatspn.message.MessageRemovalSignal;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.server.ProjectionReader;
@@ -46,21 +46,14 @@ import java.util.Set;
 public final class MessageRemovalRepository
         extends ProcessManagerRepository<MessageRemovalId, MessageRemovalProcess, MessageRemoval> {
 
-    private static Set<MessageRemovalId> withMessageRemovalId(MessageRemovalOperationId id) {
-        if (id.hasMessageRemoval()) {
-            return ImmutableSet.of(id.getMessageRemoval());
-        }
-        return ImmutableSet.of();
-    }
-
     @OverridingMethodsMustInvokeSuper
     @Override
     protected void setupEventRouting(EventRouting<MessageRemovalId> routing) {
         super.setupEventRouting(routing);
         routing.route(MessageMarkedAsDeleted.class,
-                      (event, context) -> withMessageRemovalId(event.getOperation()))
+                      (event, context) -> withMessageRemovalId(event))
                .route(MessageCannotBeMarkedAsDeleted.class,
-                      (event, context) -> withMessageRemovalId(event.getOperation()));
+                      (event, context) -> withMessageRemovalId(event));
     }
 
     @OverridingMethodsMustInvokeSuper
@@ -68,5 +61,12 @@ public final class MessageRemovalRepository
     protected void configure(MessageRemovalProcess p) {
         super.configure(p);
         p.inject(new ProjectionReader<>(context().stand(), ChatMembers.class));
+    }
+
+    private static Set<MessageRemovalId> withMessageRemovalId(MessageRemovalSignal signal) {
+        if (signal.hasMessageRemoval()) {
+            return ImmutableSet.of(signal.messageRemoval());
+        }
+        return ImmutableSet.of();
     }
 }
