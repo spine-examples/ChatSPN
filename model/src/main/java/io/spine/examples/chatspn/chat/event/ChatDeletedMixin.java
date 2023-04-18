@@ -30,10 +30,9 @@ import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.MessageRemovalOperationId;
 
 /**
- * Extended interface for {@code ChatDeleted} event.
+ * Defines custom operations for the {@link ChatDeleted} event.
  */
 @Immutable
 @GeneratedMixin
