@@ -64,19 +64,19 @@ public final class MessageRemovalProcess
      */
     @Command
     MarkMessageAsDeleted on(RemoveMessage c, CommandContext ctx) throws MessageCannotBeRemoved {
-        builder().setId(c.messageRemoval());
+        builder().setId(c.getId());
         if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
             return MarkMessageAsDeleted
                     .newBuilder()
-                    .setMessageId(c.message())
+                    .setId(c.message())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
-                    .setOperationId(c.operation())
+                    .setOperation(c.messageRemovalOperation())
                     .vBuild();
         }
         throw MessageCannotBeRemoved
                 .newBuilder()
-                .setMessageRemovalId(c.messageRemoval())
+                .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .build();
@@ -90,7 +90,7 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemoved
                 .newBuilder()
-                .setMessageRemovalId(e.messageRemoval())
+                .setId(e.messageRemoval())
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();
@@ -104,7 +104,7 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemovalFailed
                 .newBuilder()
-                .setMessageRemovalId(e.messageRemoval())
+                .setId(e.messageRemoval())
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();

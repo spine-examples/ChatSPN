@@ -71,10 +71,10 @@ public final class ChatDeletionProcess
      */
     @Command
     MarkChatAsDeleted handle(DeleteChat c) {
-        builder().setId(c.chatDeletion());
+        builder().setId(c.getId());
         return MarkChatAsDeleted
                 .newBuilder()
-                .setChatId(c.chat())
+                .setId(c.chat())
                 .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
     }
@@ -83,7 +83,7 @@ public final class ChatDeletionProcess
     ChatDeleted on(ChatMarkedAsDeleted e) {
         return ChatDeleted
                 .newBuilder()
-                .setChatDeletionId(e.chatDeletion())
+                .setId(e.chatDeletion())
                 .setWhoDeleted(e.getWhoDeleted())
                 .addAllMember(e.getMemberList())
                 .vBuild();
@@ -97,7 +97,7 @@ public final class ChatDeletionProcess
         setArchived(true);
         return ChatDeletionFailed
                 .newBuilder()
-                .setChatDeletionId(e.chatDeletion())
+                .setId(e.chatDeletion())
                 .setWhoDeletes(e.getWhoDeletes())
                 .vBuild();
     }
@@ -107,7 +107,7 @@ public final class ChatDeletionProcess
      */
     @Command
     Iterable<MarkMessageAsDeleted> on(ChatDeleted e, EventContext ctx) {
-        Filter byChatId = eq(MessageView.Field.chat(), e.chat());
+        Filter byChatId = eq(MessageView.Field.chat(), e.getId());
         List<MessageView> messages = projectionReader.read(ctx.actorContext(), byChatId);
         ImmutableSet<MarkMessageAsDeleted> commands =
                 messages.stream()
@@ -121,10 +121,10 @@ public final class ChatDeletionProcess
     markMessageAsDeleted(MessageView message, UserId user) {
         return MarkMessageAsDeleted
                 .newBuilder()
-                .setMessageId(message.getId())
+                .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(user)
-                .setOperationId(messageRemovalOperationId(message))
+                .setOperation(messageRemovalOperationId(message))
                 .vBuild();
     }
 

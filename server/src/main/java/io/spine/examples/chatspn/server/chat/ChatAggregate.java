@@ -151,7 +151,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      */
     private boolean checkRemovalPossibility(RemoveMembers command,
                                             List<UserId> remainingMembers) {
-        if(isDeleted()){
+        if (isDeleted()) {
             return false;
         }
         boolean isGroupChat = state().getType() == CT_GROUP;
@@ -218,7 +218,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * </ul>
      */
     private boolean checkAdditionPossibility(AddMembers command, List<UserId> newMembers) {
-        if(isDeleted()){
+        if (isDeleted()) {
             return false;
         }
         boolean isGroupChat = state().getType() == CT_GROUP;
@@ -252,14 +252,14 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         if (checkDeletionPossibility(c)) {
             return ChatMarkedAsDeleted
                     .newBuilder()
-                    .setChatId(c.chat())
+                    .setId(c.getId())
                     .setWhoDeleted(c.getWhoDeletes())
                     .addAllMember(state().getMemberList())
                     .vBuild();
         }
         throw ChatCannotBeMarkedAsDeleted
                 .newBuilder()
-                .setChatId(c.chat())
+                .setId(c.getId())
                 .setWhoDeletes(c.getWhoDeletes())
                 .build();
     }

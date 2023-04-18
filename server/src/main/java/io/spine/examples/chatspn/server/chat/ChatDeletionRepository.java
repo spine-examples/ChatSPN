@@ -54,7 +54,7 @@ public final class ChatDeletionRepository
                .route(ChatCannotBeMarkedAsDeleted.class,
                       (event, context) -> withId(event.chatDeletion()))
                .route(ChatDeleted.class,
-                      (event, context) -> withId(event.chatDeletion()));
+                      (event, context) -> withId(event.getId()));
     }
 
     @OverridingMethodsMustInvokeSuper
