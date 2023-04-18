@@ -30,67 +30,23 @@ import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.message.MessageRemovalSignal;
 
 /**
- * Common interface for signals aware of the chat deletion process.
+ * Extended interface for {@code DeleteChat} command.
  */
 @Immutable
 @GeneratedMixin
-public interface ChatDeletionSignal {
+public interface DeleteChatMixin {
 
     /**
-     * Returns the ID of the chat
-     * or default instance if the field does not exist.
+     * Returns the ID of the chat deletion process.
      */
-    default ChatId getChatId() {
-        return ChatId.getDefaultInstance();
-    }
-
-    /**
-     * Checks the existence of the {@code chat_id} field in the signal.
-     */
-    default boolean hasChatIdField() {
-        return !getChatId().equals(ChatId.getDefaultInstance());
-    }
-
-    /**
-     * Returns the ID of the chat deletion process
-     * or default instance if the field does not exist.
-     *
-     * <p> Use {@link ChatDeletionSignal#chatDeletion()} instead of this method.
-     */
-    default ChatDeletionId getChatDeletionId() {
-        return ChatDeletionId.getDefaultInstance();
-    }
-
-    /**
-     * Checks the existence of the {@code chat_deletion_id} field in the signal.
-     */
-    default boolean hasChatDeletionIdField() {
-        return !getChatDeletionId().equals(ChatDeletionId.getDefaultInstance());
-    }
+    ChatDeletionId getId();
 
     /**
      * Returns the chat ID.
      */
     default ChatId chat() {
-        if (hasChatIdField()) {
-            return getChatId();
-        }
-        return getChatDeletionId().getId();
-    }
-
-    /**
-     * Returns the chat deletion ID.
-     */
-    default ChatDeletionId chatDeletion() {
-        if (hasChatIdField()) {
-            return ChatDeletionId
-                    .newBuilder()
-                    .setId(getChatId())
-                    .vBuild();
-        }
-        return getChatDeletionId();
+        return getId().getId();
     }
 }

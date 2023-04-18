@@ -23,37 +23,33 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.chat;
+package io.spine.examples.chatspn.chat;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.Immutable;
+import io.spine.annotation.GeneratedMixin;
+import io.spine.examples.chatspn.ChatDeletionId;
+import io.spine.examples.chatspn.ChatId;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat.command";
-option java_outer_classname = "DeletionCommandsProto";
-option java_multiple_files = true;
+/**
+ * Extended interface for {@code ChatMarkedAsDeleted} event.
+ */
+@Immutable
+@GeneratedMixin
+public interface ChatMarkedAsDeletedMixin {
 
-import "spine/core/user_id.proto";
-import "spine_examples/chatspn/identifiers.proto";
+    /**
+     * Returns the ID of the chat.
+     */
+    ChatId getId();
 
-// Tells to delete the chat.
-message DeleteChat {
-    option (is).java_type = "io.spine.examples.chatspn.chat.DeleteChatMixin";
-
-    // The ID of the chat deletion process.
-    ChatDeletionId id = 1;
-
-    // The user who tells to delete chat.
-    spine.core.UserId who_deletes = 2 [(required) = true];
-}
-
-// Tells to mark chat as deleted.
-message MarkChatAsDeleted {
-
-    // The ID of the chat to mark as deleted.
-    ChatId id = 1;
-
-    // The user who tells to mark chat as deleted.
-    spine.core.UserId who_deletes = 2 [(required) = true];
+    /**
+     * Returns the chat deletion process ID.
+     */
+    default ChatDeletionId chatDeletion() {
+        return ChatDeletionId
+                .newBuilder()
+                .setId(getId())
+                .vBuild();
+    }
 }
