@@ -31,7 +31,7 @@ import io.spine.annotation.GeneratedMixin;
 import io.spine.examples.chatspn.ChatDeletionId;
 
 /**
- * Defines a convenience API for the {@link ChatMarkedAsDeleted} event.
+ * Defines a convenient API for the {@link ChatMarkedAsDeleted} event.
  */
 @Immutable
 @GeneratedMixin

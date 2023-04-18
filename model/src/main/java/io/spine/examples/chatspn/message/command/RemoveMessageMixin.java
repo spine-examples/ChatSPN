@@ -32,7 +32,7 @@ import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalOperationId;
 
 /**
- * Defines a convenience API for the {@link RemoveMessage} command.
+ * Defines a convenient API for the {@link RemoveMessage} command.
  */
 @Immutable
 @GeneratedMixin

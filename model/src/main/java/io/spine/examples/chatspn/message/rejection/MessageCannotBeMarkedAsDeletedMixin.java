@@ -32,7 +32,7 @@ import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeletedOrBuilder;
 
 /**
- * Defines a convenience API for the {@link MessageCannotBeMarkedAsDeleted} rejection.
+ * Defines a convenient API for the {@link MessageCannotBeMarkedAsDeleted} rejection.
  */
 @Immutable
 @GeneratedMixin
