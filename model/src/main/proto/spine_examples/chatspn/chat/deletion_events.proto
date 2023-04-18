@@ -39,7 +39,7 @@ import "spine_examples/chatspn/identifiers.proto";
 
 // The chat has been deleted.
 message ChatDeleted {
-    option (is).java_type = "io.spine.examples.chatspn.chat.ChatDeletedMixin";
+    option (is).java_type = "ChatDeletedMixin";
 
     // The ID of the chat deletion process.
     ChatDeletionId id = 1;
@@ -53,7 +53,7 @@ message ChatDeleted {
 
 // The chat has been marked as deleted.
 message ChatMarkedAsDeleted {
-    option (is).java_type = "io.spine.examples.chatspn.chat.ChatMarkedAsDeletedMixin";
+    option (is).java_type = "ChatMarkedAsDeletedMixin";
 
     // The ID of the chat that was marked as deleted.
     ChatId id = 1;
