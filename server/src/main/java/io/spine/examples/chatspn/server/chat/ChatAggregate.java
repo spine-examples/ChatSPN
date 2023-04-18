@@ -314,8 +314,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *         or user is already not a chat member.
      */
     @Assign
-    Pair<UserLeftChat, Optional<ChatDeletionRequested>> handle(LeaveChat c) throws
-                                                                            UserCannotLeaveChat {
+    Pair<UserLeftChat, Optional<ChatDeletionRequested>> handle(LeaveChat c)
+            throws UserCannotLeaveChat {
         if (!checkLeavingPossibility(c)) {
             throw userCannotLeaveChat(c);
         }
@@ -329,9 +329,14 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     }
 
     @Apply
+    private void event(ChatDeletionRequested e){
+    }
+
+    @Apply
     private void event(UserLeftChat e) {
-        state().getMemberList()
-               .remove(e.getUser());
+        int userIndex = state().getMemberList()
+                               .indexOf(e.getUser());
+        builder().removeMember(userIndex);
     }
 
     /**

@@ -29,6 +29,7 @@ package io.spine.examples.chatspn.server.chat;
 import com.google.common.collect.ImmutableSet;
 import io.spine.client.Filter;
 import io.spine.core.EventContext;
+import io.spine.core.Subscribe;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.MessageId;
@@ -94,12 +95,12 @@ public final class ChatDeletionProcess
      * Issues a command to mark chat as deleted.
      */
     @Command
-    MarkChatAsDeleted on(ChatDeletionRequested c) {
-        builder().setId(c.chatDeletion());
+    MarkChatAsDeleted on(ChatDeletionRequested e) {
+        builder().setId(e.chatDeletion());
         return MarkChatAsDeleted
                 .newBuilder()
-                .setId(c.getId())
-                .setWhoDeletes(c.getWhoDeletes())
+                .setId(e.getId())
+                .setWhoDeletes(e.getWhoDeletes())
                 .vBuild();
     }
 
