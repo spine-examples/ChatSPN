@@ -48,7 +48,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommand(Message message) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setId(removalId(message))
+                .setId(removalId(message.getId()))
                 .setChat(message.getChat())
                 .setUser(message.getUser())
                 .vBuild();
@@ -58,7 +58,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommandWith(Message message, UserId userId) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setId(removalId(message))
+                .setId(removalId(message.getId()))
                 .setChat(message.getChat())
                 .setUser(userId)
                 .vBuild();
@@ -142,13 +142,6 @@ public final class MessageRemovalTestEnv {
         return MessageRemovalId
                 .newBuilder()
                 .setId(id)
-                .vBuild();
-    }
-
-    public static MessageRemovalId removalId(Message m) {
-        return MessageRemovalId
-                .newBuilder()
-                .setId(m.getId())
                 .vBuild();
     }
 }
