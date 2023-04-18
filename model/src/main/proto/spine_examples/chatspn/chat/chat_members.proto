@@ -45,5 +45,5 @@ message ChatMembers {
     ChatId id = 1;
 
     // List of the chat members.
-    repeated spine.core.UserId member = 2 [(required) = true, (distinct) = true];
+    repeated spine.core.UserId member = 2 [(distinct) = true];
 }
