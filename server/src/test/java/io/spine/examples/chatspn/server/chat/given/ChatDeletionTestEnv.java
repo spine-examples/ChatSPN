@@ -29,7 +29,6 @@ package io.spine.examples.chatspn.server.chat.given;
 import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatDeletionId;
-import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
@@ -99,7 +98,7 @@ public final class ChatDeletionTestEnv {
     public static ChatMarkedAsDeleted chatMarkedAsDeletedFrom(DeleteChat c, Chat chat) {
         ChatMarkedAsDeleted event = ChatMarkedAsDeleted
                 .newBuilder()
-                .setId(chatId(c))
+                .setId(c.chat())
                 .setWhoDeleted(c.getWhoDeletes())
                 .addAllMember(chat.getMemberList())
                 .vBuild();
@@ -109,7 +108,7 @@ public final class ChatDeletionTestEnv {
     public static ChatCannotBeMarkedAsDeleted chatCannotBeMarkedAsDeletedFrom(DeleteChat c) {
         ChatCannotBeMarkedAsDeleted rejection = ChatCannotBeMarkedAsDeleted
                 .newBuilder()
-                .setId(chatId(c))
+                .setId(c.chat())
                 .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
         return rejection;
@@ -129,10 +128,5 @@ public final class ChatDeletionTestEnv {
                 .newBuilder()
                 .setId(chat.getId())
                 .vBuild();
-    }
-
-    private static ChatId chatId(DeleteChat c) {
-        return c.getId()
-                .getId();
     }
 }

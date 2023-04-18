@@ -62,7 +62,7 @@ final class ChatDeletionTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("emit the `ChatDeleted` and archive itself if the chat can be deleted")
+    @DisplayName("emit the `ChatDeleted` event and delete itself if the chat can be deleted")
     void event() {
         Chat chat = createGroupChatIn(context());
         DeleteChat command = deleteChatCommand(chat, chat.getOwner());
@@ -84,13 +84,13 @@ final class ChatDeletionTest extends ContextAwareTest {
         context().receivesCommand(command);
 
         messages.forEach(message ->
-                context().assertEntity(message.getId(), MessageAggregate.class)
-                         .deletedFlag()
-                         .isTrue());
+                                 context().assertEntity(message.getId(), MessageAggregate.class)
+                                          .deletedFlag()
+                                          .isTrue());
     }
 
     @Test
-    @DisplayName("emit the `ChatDeletionFailed` and archive itself " +
+    @DisplayName("emit the `ChatDeletionFailed` event and archive itself " +
             "if the `ChatAggregate` reject with the `ChatCannotBeMarkedAsDeleted`")
     void fail() {
         Chat chat = createPersonalChatIn(context());
@@ -133,7 +133,7 @@ final class ChatDeletionTest extends ContextAwareTest {
 
         @Test
         @DisplayName("the `ChatCannotBeMarkedAsDeleted` rejection " +
-                "if chat is personal and the user who deletes is not a member")
+                "if the chat is personal and the user who deletes is not a member")
         void rejectIfNotMemberInPersonal() {
             Chat chat = createPersonalChatIn(context());
             DeleteChat command = deleteChatCommand(chat, GivenUserId.generated());
@@ -146,7 +146,7 @@ final class ChatDeletionTest extends ContextAwareTest {
 
         @Test
         @DisplayName("the `ChatCannotBeMarkedAsDeleted` rejection " +
-                "if chat is group and the user who deletes is not an owner")
+                "if the chat is a group and the user who deletes is not an owner")
         void rejectIfNotOwnerInGroup() {
             Chat chat = createGroupChatIn(context());
             DeleteChat command = deleteChatCommand(chat, chat.getMember(1));
@@ -159,7 +159,7 @@ final class ChatDeletionTest extends ContextAwareTest {
 
         @Test
         @DisplayName("the `ChatCannotBeMarkedAsDeleted` rejection " +
-                "if chat is already deleted")
+                "if the chat is already deleted")
         void rejectIfAlreadyDeleted() {
             Chat chat = createGroupChatIn(context());
             DeleteChat command = deleteChatCommand(chat, chat.getOwner());

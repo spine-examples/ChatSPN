@@ -24,46 +24,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.message;
+package io.spine.examples.chatspn.message.rejection;
 
 import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
-import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.MessageRemovalId;
-import io.spine.examples.chatspn.MessageRemovalOperationId;
+import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeletedOrBuilder;
 
 /**
- * Common interface for signals that are aware of the message removal operation.
+ * Defines a convenient API for the {@link MessageCannotBeMarkedAsDeleted} rejection.
  */
 @Immutable
 @GeneratedMixin
-public interface MessageRemovalAware {
-
-    MessageRemovalOperationId getOperation();
+public interface MessageCannotBeMarkedAsDeletedMixin
+        extends MessageCannotBeMarkedAsDeletedOrBuilder {
 
     /**
-     * Retrieves {@code MessageRemovalId} from {@code MessageRemovalOperationId}
-     * without checking for its existence.
-     *
-     * <p>In case when {@code MessageRemovalId} is not set
-     * in the corresponding {@code MessageRemovalOperationId}, returns the
-     * <a href="https://protobuf.dev/reference/java/java-generated/#:~:text=static%20Foo%20getDefaultInstance,its%20newBuilderForType()%20method.">
-     * default instance</a> of {@code MessageRemovalId}.
+     * Returns the ID of the message removal process, or default instance
+     * if message removal operation doesn't have a message removal process.
      */
     default MessageRemovalId messageRemoval() {
         return getOperation().getMessageRemoval();
-    }
-
-    /**
-     * Retrieves {@code ChatDeletionId} from {@code MessageRemovalOperationId}
-     * without checking for its existence.
-     *
-     * <p>In case when {@code ChatDeletionId} is not set
-     * in the corresponding {@code MessageRemovalOperationId}, returns the
-     * <a href="https://protobuf.dev/reference/java/java-generated/#:~:text=static%20Foo%20getDefaultInstance,its%20newBuilderForType()%20method.">
-     * default instance</a> of {@code ChatDeletionId}.
-     */
-    default ChatDeletionId chatDeletion() {
-        return getOperation().getChatDeletion();
     }
 }

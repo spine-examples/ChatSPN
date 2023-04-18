@@ -24,29 +24,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.chat;
+package io.spine.examples.chatspn.server.message;
 
-import com.google.errorprone.annotations.Immutable;
-import io.spine.annotation.GeneratedMixin;
-import io.spine.examples.chatspn.ChatDeletionId;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import io.spine.core.CommandContext;
+import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.server.ProjectionReader;
 
 /**
- * Common interface for signals that are aware of the chat deletion process.
+ * Provides an API to read the {@link ChatMembers} projection.
  */
-@Immutable
-@GeneratedMixin
-public interface ChatDeletionAware {
+final class ChatMembersReader {
 
-    ChatId getId();
+    private final ProjectionReader<ChatId, ChatMembers> reader;
+
+    ChatMembersReader(ProjectionReader<ChatId, ChatMembers> reader) {
+        this.reader = reader;
+    }
 
     /**
-     * Builds {@code ChatDeletionId} from {@code ChatId}.
+     * Tells whether the given user is a member of the specified chat.
+     *
+     * <p>If the chat with the provided ID does not exist, just returns {@code false}.
+     *
+     * @return {@code true} in case user is a member of the chat, {@code false} otherwise
      */
-    default ChatDeletionId chatDeletion() {
-        return ChatDeletionId
-                .newBuilder()
-                .setId(getId())
-                .vBuild();
+    boolean isMember(ChatId id, UserId userId, CommandContext ctx) {
+        ImmutableList<ChatMembers> projections =
+                reader.read(ImmutableSet.of(id), ctx.getActorContext());
+        if (projections.isEmpty()) {
+            return false;
+        }
+        boolean isMember = projections.get(0)
+                                      .getMemberList()
+                                      .contains(userId);
+        return isMember;
     }
 }

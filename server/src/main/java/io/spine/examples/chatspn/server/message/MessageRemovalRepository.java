@@ -46,13 +46,6 @@ import java.util.Set;
 public final class MessageRemovalRepository
         extends ProcessManagerRepository<MessageRemovalId, MessageRemovalProcess, MessageRemoval> {
 
-    private static Set<MessageRemovalId> withMessageRemovalId(MessageRemovalOperationId id) {
-        if (id.hasMessageRemoval()) {
-            return ImmutableSet.of(id.getMessageRemoval());
-        }
-        return ImmutableSet.of();
-    }
-
     @OverridingMethodsMustInvokeSuper
     @Override
     protected void setupEventRouting(EventRouting<MessageRemovalId> routing) {
@@ -68,5 +61,12 @@ public final class MessageRemovalRepository
     protected void configure(MessageRemovalProcess p) {
         super.configure(p);
         p.inject(new ProjectionReader<>(context().stand(), ChatMembers.class));
+    }
+
+    private static Set<MessageRemovalId> withMessageRemovalId(MessageRemovalOperationId id) {
+        if (id.hasMessageRemoval()) {
+            return ImmutableSet.of(id.getMessageRemoval());
+        }
+        return ImmutableSet.of();
     }
 }

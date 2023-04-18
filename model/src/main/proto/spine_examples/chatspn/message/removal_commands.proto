@@ -42,7 +42,7 @@ import "spine_examples/chatspn/identifiers.proto";
 // The command can be sent by a chat member who wants to remove a message.
 //
 message RemoveMessage {
-    option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalSignal";
+    option (is).java_type = "RemoveMessageMixin";
 
     // The ID of the message removal process.
     MessageRemovalId id = 1;
@@ -59,7 +59,6 @@ message RemoveMessage {
 // The command is typically posted by the corresponding `MessageRemovalProcess`.
 //
 message MarkMessageAsDeleted {
-    option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalAware";
 
     // The ID of the message to be marked as deleted.
     MessageId id = 1;

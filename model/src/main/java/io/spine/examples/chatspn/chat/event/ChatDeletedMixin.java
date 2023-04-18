@@ -24,38 +24,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.message;
+package io.spine.examples.chatspn.chat.event;
 
 import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
-import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.MessageRemovalId;
-import io.spine.examples.chatspn.MessageRemovalOperationId;
+import io.spine.examples.chatspn.ChatId;
 
 /**
- * Common interface for signals directly involved in the message removal process.
- * <p> As part of the message removal process have an {@link MessageRemovalId} as the primary ID.
+ * Defines a convenient API for the {@link ChatDeleted} event.
  */
 @Immutable
 @GeneratedMixin
-public interface MessageRemovalSignal {
-
-    MessageRemovalId getId();
+public interface ChatDeletedMixin extends ChatDeletedOrBuilder {
 
     /**
-     * Retrieves {@code MessageId} from {@code MessageRemovalId}.
+     * Returns the ID of the chat.
      */
-    default MessageId message() {
+    default ChatId chat() {
         return getId().getId();
-    }
-
-    /**
-     * Builds {@code MessageRemovalOperationId} from {@code MessageRemovalId}.
-     */
-    default MessageRemovalOperationId messageRemovalOperation() {
-        return MessageRemovalOperationId
-                .newBuilder()
-                .setMessageRemoval(getId())
-                .vBuild();
     }
 }

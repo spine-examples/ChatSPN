@@ -23,33 +23,24 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.chat;
+package io.spine.examples.chatspn.chat.command;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.Immutable;
+import io.spine.annotation.GeneratedMixin;
+import io.spine.examples.chatspn.ChatId;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat.rejection";
-option java_multiple_files = false;
+/**
+ * Defines a convenient API for the {@link DeleteChat} command.
+ */
+@Immutable
+@GeneratedMixin
+public interface DeleteChatMixin extends DeleteChatOrBuilder {
 
-import "spine/core/user_id.proto";
-import "spine/net/email_address.proto";
-import "spine_examples/chatspn/identifiers.proto";
-
-// The chat cannot be deleted.
-//
-// Emitted when:
-// - the user who told to mark personal chat as deleted wasn't a chat member;
-// - the user who told to mark group chat as deleted wasn't a chat owner;
-// - the chat has already been marked as deleted.
-//
-message ChatCannotBeMarkedAsDeleted {
-    option (is).java_type = "ChatCannotBeMarkedAsDeletedMixin";
-
-    // The ID of the chat that couldn't be marked as deleted.
-    ChatId id = 1;
-
-    // The user who originally tells to mark chat as deleted.
-    spine.core.UserId who_deletes = 2 [(required) = true];
+    /**
+     * Returns the chat ID.
+     */
+    default ChatId chat() {
+        return getId().getId();
+    }
 }

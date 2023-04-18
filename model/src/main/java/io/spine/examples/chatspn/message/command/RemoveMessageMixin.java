@@ -24,39 +24,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.message;
+package io.spine.examples.chatspn.message.command;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import io.spine.core.CommandContext;
-import io.spine.core.UserId;
-import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.server.ProjectionReader;
+import com.google.errorprone.annotations.Immutable;
+import io.spine.annotation.GeneratedMixin;
+import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.MessageRemovalOperationId;
 
 /**
- * Checker for the user's existence in the chat as a member.
+ * Defines a convenient API for the {@link RemoveMessage} command.
  */
-final class ChatMembers {
+@Immutable
+@GeneratedMixin
+public interface RemoveMessageMixin extends RemoveMessageOrBuilder {
 
-    private final ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader;
-
-    ChatMembers(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
-        this.reader = reader;
+    /**
+     * Returns the ID of the message.
+     */
+    default MessageId message() {
+        return getId().getId();
     }
 
     /**
-     * Checks the user's existence in the chat as a member.
-     *
-     * <p> Returns true if the chat exists and the user is a member.
+     * Returns the ID of the message removal operation.
      */
-    boolean isMember(ChatId id, UserId userId, CommandContext ctx) {
-        ImmutableList<io.spine.examples.chatspn.chat.ChatMembers> projections =
-                reader.read(ImmutableSet.of(id), ctx.getActorContext());
-        if (projections.isEmpty()) {
-            return false;
-        }
-        return projections.get(0)
-                          .getMemberList()
-                          .contains(userId);
+    default MessageRemovalOperationId messageRemovalOperation() {
+        return MessageRemovalOperationId
+                .newBuilder()
+                .setMessageRemoval(getId())
+                .vBuild();
     }
 }

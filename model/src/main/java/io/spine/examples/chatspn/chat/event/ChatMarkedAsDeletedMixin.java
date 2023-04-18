@@ -24,27 +24,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.chat;
+package io.spine.examples.chatspn.chat.event;
 
 import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.examples.chatspn.ChatDeletionId;
-import io.spine.examples.chatspn.ChatId;
 
 /**
- * Common interface for signals directly involved in the chat deletion process.
- * <p> As part of the chat deletion process have an {@link ChatDeletionId} as the primary ID.
+ * Defines a convenient API for the {@link ChatMarkedAsDeleted} event.
  */
 @Immutable
 @GeneratedMixin
-public interface ChatDeletionSignal {
-
-    ChatDeletionId getId();
+public interface ChatMarkedAsDeletedMixin extends ChatMarkedAsDeletedOrBuilder {
 
     /**
-     * Retrieves {@code ChatId} from {@code ChatDeletionId}.
+     * Returns the chat deletion process ID.
      */
-    default ChatId chat() {
-        return getId().getId();
+    default ChatDeletionId chatDeletion() {
+        return ChatDeletionId
+                .newBuilder()
+                .setId(getId())
+                .vBuild();
     }
 }

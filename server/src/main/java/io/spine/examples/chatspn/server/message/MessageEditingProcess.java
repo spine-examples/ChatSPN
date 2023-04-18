@@ -29,6 +29,7 @@ package io.spine.examples.chatspn.server.message;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageEditing;
 import io.spine.examples.chatspn.message.command.EditMessage;
 import io.spine.examples.chatspn.message.command.UpdateMessageContent;
@@ -50,10 +51,10 @@ public final class MessageEditingProcess
         extends ProcessManager<MessageId, MessageEditing, MessageEditing.Builder> {
 
     /**
-     * Checker for user existence in chat as a member.
+     * Reads the {@link ChatMembers} projection.
      */
     @MonotonicNonNull
-    private ChatMembers chatMembers;
+    private ChatMembersReader chatMembers;
 
     /**
      * Issues a command to edit message content.
@@ -112,7 +113,7 @@ public final class MessageEditingProcess
                 .vBuild();
     }
 
-    void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
-        chatMembers = new ChatMembers(reader);
+    void inject(ProjectionReader<ChatId, ChatMembers> reader) {
+        chatMembers = new ChatMembersReader(reader);
     }
 }
