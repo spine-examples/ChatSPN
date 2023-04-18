@@ -29,6 +29,7 @@ package io.spine.examples.chatspn.chat.event;
 import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.examples.chatspn.ChatDeletionId;
+import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageRemovalOperationId;
 
 /**
@@ -44,12 +45,9 @@ public interface ChatDeletedMixin {
     ChatDeletionId getId();
 
     /**
-     * Returns the message removal operation ID.
+     * Returns the ID of the chat.
      */
-    default MessageRemovalOperationId messageRemovalOperation() {
-        return MessageRemovalOperationId
-                .newBuilder()
-                .setChatDeletion(getId())
-                .vBuild();
+    default ChatId chat() {
+        return getId().getId();
     }
 }

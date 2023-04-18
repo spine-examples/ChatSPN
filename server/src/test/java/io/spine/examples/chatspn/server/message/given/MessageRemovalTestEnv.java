@@ -29,7 +29,6 @@ package io.spine.examples.chatspn.server.message.given;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
-import io.spine.examples.chatspn.MessageRemovalOperationId;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
@@ -49,7 +48,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommand(Message message) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setMessageRemovalId(removalId(message))
+                .setId(removalId(message))
                 .setChat(message.getChat())
                 .setUser(message.getUser())
                 .vBuild();
@@ -59,7 +58,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommandWith(Message message, UserId userId) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setMessageRemovalId(removalId(message))
+                .setId(removalId(message))
                 .setChat(message.getChat())
                 .setUser(userId)
                 .vBuild();
@@ -69,7 +68,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommandWith(Message message, MessageId messageId) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setMessageRemovalId(removalId(messageId))
+                .setId(removalId(messageId))
                 .setChat(message.getChat())
                 .setUser(message.getUser())
                 .vBuild();
@@ -79,7 +78,7 @@ public final class MessageRemovalTestEnv {
     public static MessageRemoved messageRemovedFrom(RemoveMessage c) {
         MessageRemoved event = MessageRemoved
                 .newBuilder()
-                .setMessageRemovalId(c.messageRemoval())
+                .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .vBuild();
@@ -89,7 +88,7 @@ public final class MessageRemovalTestEnv {
     public static MessageRemovalFailed messageRemovalFailedFrom(RemoveMessage c) {
         MessageRemovalFailed event = MessageRemovalFailed
                 .newBuilder()
-                .setMessageRemovalId(c.messageRemoval())
+                .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .vBuild();
@@ -99,10 +98,10 @@ public final class MessageRemovalTestEnv {
     public static MessageMarkedAsDeleted messageMarkedAsDeletedFrom(RemoveMessage c) {
         MessageMarkedAsDeleted event = MessageMarkedAsDeleted
                 .newBuilder()
-                .setMessageId(c.message())
+                .setId(c.message())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setOperationId(c.operation())
+                .setOperation(c.messageRemovalOperation())
                 .vBuild();
         return event;
     }
@@ -120,7 +119,7 @@ public final class MessageRemovalTestEnv {
     public static MessageCannotBeRemoved messageCannotBeRemovedFrom(RemoveMessage c) {
         MessageCannotBeRemoved rejection = MessageCannotBeRemoved
                 .newBuilder()
-                .setMessageRemovalId(c.messageRemoval())
+                .setId(c.getId())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .vBuild();
@@ -131,10 +130,10 @@ public final class MessageRemovalTestEnv {
             RemoveMessage c) {
         MessageCannotBeMarkedAsDeleted rejection = MessageCannotBeMarkedAsDeleted
                 .newBuilder()
-                .setMessageId(c.message())
+                .setId(c.message())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
-                .setOperationId(c.operation())
+                .setOperation(c.messageRemovalOperation())
                 .vBuild();
         return rejection;
     }

@@ -107,7 +107,7 @@ public final class ChatDeletionProcess
      */
     @Command
     Iterable<MarkMessageAsDeleted> on(ChatDeleted e, EventContext ctx) {
-        Filter byChatId = eq(MessageView.Field.chat(), e.getId());
+        Filter byChatId = eq(MessageView.Field.chat(), e.chat());
         List<MessageView> messages = projectionReader.read(ctx.actorContext(), byChatId);
         ImmutableSet<MarkMessageAsDeleted> commands =
                 messages.stream()

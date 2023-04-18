@@ -70,7 +70,7 @@ final class ChatDeletionTest extends ContextAwareTest {
         ChatDeleted expected = chatDeletedFrom(command, chat);
 
         context().assertEvent(expected);
-        context().assertEntity(command.chatDeletion(), ChatDeletionProcess.class)
+        context().assertEntity(command.getId(), ChatDeletionProcess.class)
                  .deletedFlag()
                  .isTrue();
     }
@@ -84,9 +84,9 @@ final class ChatDeletionTest extends ContextAwareTest {
         context().receivesCommand(command);
 
         messages.forEach(message ->
-                context().assertEntity(message.getId(), MessageAggregate.class)
-                         .deletedFlag()
-                         .isTrue());
+                                 context().assertEntity(message.getId(), MessageAggregate.class)
+                                          .deletedFlag()
+                                          .isTrue());
     }
 
     @Test
@@ -99,7 +99,7 @@ final class ChatDeletionTest extends ContextAwareTest {
         ChatDeletionFailed expected = chatDeletionFailedFrom(command);
 
         context().assertEvent(expected);
-        context().assertEntity(command.chatDeletion(), ChatDeletionProcess.class)
+        context().assertEntity(command.getId(), ChatDeletionProcess.class)
                  .archivedFlag()
                  .isTrue();
     }

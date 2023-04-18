@@ -76,7 +76,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         MessageRemoved expected = messageRemovedFrom(command);
 
         context().assertEvent(expected);
-        context().assertEntity(expected.messageRemoval(), MessageRemovalProcess.class)
+        context().assertEntity(expected.getId(), MessageRemovalProcess.class)
                  .archivedFlag()
                  .isTrue();
     }
@@ -120,7 +120,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         MessageRemovalFailed expected = messageRemovalFailedFrom(command);
 
         context().assertEvent(expected);
-        context().assertEntity(expected.messageRemoval(), MessageRemovalProcess.class)
+        context().assertEntity(expected.getId(), MessageRemovalProcess.class)
                  .archivedFlag()
                  .isTrue();
     }
