@@ -32,7 +32,7 @@ import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 
 /**
- * Extended interface for {@code DeleteChat} command.
+ * Defines custom operations for the {@link DeleteChat} command.
  */
 @Immutable
 @GeneratedMixin
