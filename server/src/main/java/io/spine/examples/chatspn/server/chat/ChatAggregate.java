@@ -306,7 +306,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     /**
      * Handles the command to leave the chat.
      *
-     * <p>If the last member left the chat its deletion will be requested</p>
+     * <p>If the last member left the chat its deletion will be requested
      *
      * @throws UserCannotLeaveChat
      *         if chat deleted,
