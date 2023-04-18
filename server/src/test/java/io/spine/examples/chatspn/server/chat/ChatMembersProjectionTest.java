@@ -32,6 +32,7 @@ import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
+import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
@@ -45,6 +46,7 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembers
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.leaveChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.removeMembersCommandWith;
 
 @DisplayName("`ChatMembersProjection` should")
@@ -107,5 +109,16 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
         context().assertEntity(chat.getId(), ChatMembersProjection.class)
                  .deletedFlag()
                  .isTrue();
+    }
+
+    @Test
+    @DisplayName("update `ChatMembersProjection`, as soon as `UserLeftChat` is emitted")
+    void reactOnUserLeftChat() {
+        Chat chat = createGroupChatIn(context());
+        LeaveChat command = leaveChatCommand(chat, chat.getMember(0));
+        context().receivesCommand(command);
+        ChatMembers expected = chatMembersFrom(chat, command);
+
+        context().assertState(chat.getId(), expected);
     }
 }
