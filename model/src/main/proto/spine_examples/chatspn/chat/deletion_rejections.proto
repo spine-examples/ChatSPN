@@ -48,7 +48,7 @@ message ChatCannotBeMarkedAsDeleted {
     option (is).java_type = "io.spine.examples.chatspn.chat.ChatDeletionSignal";
 
     // The ID of the chat that couldn't be marked as deleted.
-    ChatId chat_id = 1;
+    ChatId id = 1;
 
     // The user who originally tells to mark chat as deleted.
     spine.core.UserId who_deletes = 2 [(required) = true];

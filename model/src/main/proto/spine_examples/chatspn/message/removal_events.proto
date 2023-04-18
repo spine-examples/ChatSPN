@@ -42,7 +42,7 @@ message MessageRemoved {
     option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalSignal";
 
     // The ID of the message removal process.
-    MessageRemovalId message_removal_id = 1;
+    MessageRemovalId id = 1;
 
     // The ID of the chat in which the message was removed.
     ChatId chat = 2 [(required) = true];
@@ -60,7 +60,7 @@ message MessageRemovalFailed {
     option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalSignal";
 
     // The ID of the message removal process that failed.
-    MessageRemovalId message_removal_id = 1;
+    MessageRemovalId id = 1;
 
     // The ID of the chat in which the message failed to be removed.
     ChatId chat = 2 [(required) = true];
@@ -74,7 +74,7 @@ message MessageMarkedAsDeleted {
     option (is).java_type = "io.spine.examples.chatspn.message.MessageRemovalSignal";
 
     // The ID of the message that was marked as deleted.
-    MessageId message_id = 1;
+    MessageId id = 1;
 
     // The ID of the chat in which the message was marked as deleted.
     ChatId chat = 2 [(required) = true];
