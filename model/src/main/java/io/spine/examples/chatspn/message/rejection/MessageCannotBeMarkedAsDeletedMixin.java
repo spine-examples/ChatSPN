@@ -50,11 +50,4 @@ public interface MessageCannotBeMarkedAsDeletedMixin {
     default MessageRemovalId messageRemoval() {
         return getOperation().getMessageRemoval();
     }
-
-    /**
-     * Returns true if a message removal operation has a message removal process.
-     */
-    default boolean hasMessageRemoval() {
-        return getOperation().hasMessageRemoval();
-    }
 }
