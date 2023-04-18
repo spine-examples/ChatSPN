@@ -51,10 +51,10 @@ public final class MessageEditingProcess
         extends ProcessManager<MessageId, MessageEditing, MessageEditing.Builder> {
 
     /**
-     * Provides access to the {@link ChatMembers} projection.
+     * Reads the {@link ChatMembers} projection.
      */
     @MonotonicNonNull
-    private ChatMembersAccessor chatMembers;
+    private ChatMembersReader chatMembers;
 
     /**
      * Issues a command to edit message content.
@@ -114,6 +114,6 @@ public final class MessageEditingProcess
     }
 
     void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
-        chatMembers = new ChatMembersAccessor(reader);
+        chatMembers = new ChatMembersReader(reader);
     }
 }

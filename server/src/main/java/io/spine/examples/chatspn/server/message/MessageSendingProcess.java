@@ -49,10 +49,10 @@ public final class MessageSendingProcess
         extends ProcessManager<MessageId, MessageSending, MessageSending.Builder> {
 
     /**
-     * Provides access to the {@link ChatMembers} projection.
+     * Reads the {@link ChatMembers} projection.
      */
     @MonotonicNonNull
-    private ChatMembersAccessor chatMembers;
+    private ChatMembersReader chatMembers;
 
     /**
      * Issues a command to post message to the chat.
@@ -98,6 +98,6 @@ public final class MessageSendingProcess
     }
 
     void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
-        chatMembers = new ChatMembersAccessor(reader);
+        chatMembers = new ChatMembersReader(reader);
     }
 }

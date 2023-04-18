@@ -51,10 +51,10 @@ public final class MessageRemovalProcess
         extends ProcessManager<MessageRemovalId, MessageRemoval, MessageRemoval.Builder> {
 
     /**
-     * Provides access to the {@link ChatMembers} projection.
+     * Reads the {@link ChatMembers} projection.
      */
     @MonotonicNonNull
-    private ChatMembersAccessor chatMembers;
+    private ChatMembersReader chatMembers;
 
     /**
      * Issues a command to mark message as deleted.
@@ -111,6 +111,6 @@ public final class MessageRemovalProcess
     }
 
     void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
-        chatMembers = new ChatMembersAccessor(reader);
+        chatMembers = new ChatMembersReader(reader);
     }
 }

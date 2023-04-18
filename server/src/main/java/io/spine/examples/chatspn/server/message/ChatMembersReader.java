@@ -35,20 +35,22 @@ import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.server.ProjectionReader;
 
 /**
- * Provides an API to access the {@link ChatMembers} projection.
+ * Provides an API to read the {@link ChatMembers} projection.
  */
-final class ChatMembersAccessor {
+final class ChatMembersReader {
 
     private final ProjectionReader<ChatId, ChatMembers> reader;
 
-    ChatMembersAccessor(ProjectionReader<ChatId, ChatMembers> reader) {
+    ChatMembersReader(ProjectionReader<ChatId, ChatMembers> reader) {
         this.reader = reader;
     }
 
     /**
-     * Checks the user's existence in the chat as a member.
+     * Tells whether the given user is a member of the specified chat.
      *
-     * <p>Returns true if the chat exists and the user is a member.
+     * <p>If the chat with the provided ID does not exist, just returns {@code false}.
+     *
+     * @return {@code true} in case user is a member of the chat, {@code false} otherwise
      */
     boolean isMember(ChatId id, UserId userId, CommandContext ctx) {
         ImmutableList<ChatMembers> projections =
@@ -56,8 +58,9 @@ final class ChatMembersAccessor {
         if (projections.isEmpty()) {
             return false;
         }
-        return projections.get(0)
-                          .getMemberList()
-                          .contains(userId);
+        boolean isMember = projections.get(0)
+                                      .getMemberList()
+                                      .contains(userId);
+        return isMember;
     }
 }
