@@ -250,7 +250,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *
      * @throws ChatCannotBeMarkedAsDeleted
      *         if the user who told to delete personal chat wasn't a chat member,
-     *         or the user who told to delete group chat wasn't a chat owner,
+     *         or the user who told to delete group chat wasn't a chat owner / last member,
      *         or the chat has already been deleted.
      */
     @Assign
@@ -280,7 +280,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * <ul>
      *     <li>chat isn't already deleted;</li>
      *     <li>if chat is a personal, user who send the command is a chat member;</li>
-     *     <li>if chat is a group, user who send the command was a chat owner.</li>
+     *     <li>if chat is a group, user who send the command was a chat owner or the last member.</li>
      * </ul>
      */
     private boolean checkDeletionPossibility(MarkChatAsDeleted c) {
@@ -296,7 +296,11 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         boolean isGroupChat = state().getType() == CT_GROUP;
         boolean isOwner = c.getWhoDeletes()
                            .equals(state().getOwner());
-        return isGroupChat && isOwner;
+        boolean isLastMember = isMember &&
+                state().getMemberList()
+                       .size() == 1;
+        boolean result = isGroupChat && (isOwner || isLastMember);
+        return result;
     }
 
     /**
@@ -342,7 +346,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         boolean isGroupChat = state().getType() == CT_GROUP;
         boolean isMember = state().getMemberList()
                                   .contains(command.getUser());
-        return !isDeleted() && isGroupChat && isMember;
+        boolean result = !isDeleted() && isGroupChat && isMember;
+        return result;
     }
 
     private static ChatDeletionRequested chatDeletionRequested(LeaveChat c) {

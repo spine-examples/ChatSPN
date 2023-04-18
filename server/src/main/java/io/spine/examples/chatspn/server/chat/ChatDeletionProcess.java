@@ -39,6 +39,7 @@ import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.MarkChatAsDeleted;
 import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.ChatDeletionFailed;
+import io.spine.examples.chatspn.chat.event.ChatDeletionRequested;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.rejection.DeletionRejections.ChatCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.MessageView;
@@ -86,6 +87,19 @@ public final class ChatDeletionProcess
                 .setId(e.chatDeletion())
                 .setWhoDeleted(e.getWhoDeleted())
                 .addAllMember(e.getMemberList())
+                .vBuild();
+    }
+
+    /**
+     * Issues a command to mark chat as deleted.
+     */
+    @Command
+    MarkChatAsDeleted on(ChatDeletionRequested c) {
+        builder().setId(c.chatDeletion());
+        return MarkChatAsDeleted
+                .newBuilder()
+                .setId(c.getId())
+                .setWhoDeletes(c.getWhoDeletes())
                 .vBuild();
     }
 
