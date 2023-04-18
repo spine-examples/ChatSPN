@@ -29,20 +29,14 @@ package io.spine.examples.chatspn.message.command;
 import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.MessageRemovalOperationId;
 
 /**
- * Defines custom operations for the {@link RemoveMessage} command.
+ * Defines convenience API for the {@link RemoveMessage} command.
  */
 @Immutable
 @GeneratedMixin
-public interface RemoveMessageMixin {
-
-    /**
-     * Returns the ID of the message removal process.
-     */
-    MessageRemovalId getId();
+public interface RemoveMessageMixin extends RemoveMessageOrBuilder {
 
     /**
      * Returns the ID of the message.
@@ -50,7 +44,6 @@ public interface RemoveMessageMixin {
     default MessageId message() {
         return getId().getId();
     }
-
 
     /**
      * Returns the ID of the message removal operation.

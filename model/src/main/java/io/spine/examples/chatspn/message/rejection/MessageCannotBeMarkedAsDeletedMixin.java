@@ -29,19 +29,15 @@ package io.spine.examples.chatspn.message.rejection;
 import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.examples.chatspn.MessageRemovalId;
-import io.spine.examples.chatspn.MessageRemovalOperationId;
+import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeletedOrBuilder;
 
 /**
- * Defines custom operations for the {@link MessageCannotBeMarkedAsDeleted} rejection.
+ * Defines convenience API for the {@link MessageCannotBeMarkedAsDeleted} rejection.
  */
 @Immutable
 @GeneratedMixin
-public interface MessageCannotBeMarkedAsDeletedMixin {
-
-    /**
-     * Returns the ID of the message removal operation.
-     */
-    MessageRemovalOperationId getOperation();
+public interface MessageCannotBeMarkedAsDeletedMixin
+        extends MessageCannotBeMarkedAsDeletedOrBuilder {
 
     /**
      * Returns the ID of the message removal process, or default instance
