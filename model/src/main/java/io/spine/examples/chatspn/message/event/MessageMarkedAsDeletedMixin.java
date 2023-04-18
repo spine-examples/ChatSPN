@@ -32,7 +32,7 @@ import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.MessageRemovalOperationId;
 
 /**
- * Defines custom operations for the {@link MessageMarkedAsDeleted} command.
+ * Defines custom operations for the {@link MessageMarkedAsDeleted} event.
  */
 @Immutable
 @GeneratedMixin

@@ -49,7 +49,7 @@ public final class MessageSendingProcess
         extends ProcessManager<MessageId, MessageSending, MessageSending.Builder> {
 
     /**
-     * Provides access the {@link ChatMembers} projection.
+     * Provides access to the {@link ChatMembers} projection.
      */
     @MonotonicNonNull
     private ChatMembersAccessor chatMembers;

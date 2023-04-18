@@ -51,7 +51,7 @@ public final class MessageEditingProcess
         extends ProcessManager<MessageId, MessageEditing, MessageEditing.Builder> {
 
     /**
-     * Provides access the {@link ChatMembers} projection.
+     * Provides access to the {@link ChatMembers} projection.
      */
     @MonotonicNonNull
     private ChatMembersAccessor chatMembers;
