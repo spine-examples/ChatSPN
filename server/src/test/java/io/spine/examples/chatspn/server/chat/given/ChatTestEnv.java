@@ -28,6 +28,7 @@ package io.spine.examples.chatspn.server.chat.given;
 
 import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
@@ -36,6 +37,7 @@ import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
+import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.ChatDeletionRequested;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
@@ -324,6 +326,19 @@ public final class ChatTestEnv {
                 .newBuilder()
                 .setId(c.getChat())
                 .setWhoDeletes(c.getUser())
+                .vBuild();
+        return event;
+    }
+
+    public static ChatDeleted chatDeletedFrom(LeaveChat c) {
+        ChatDeletionId deletionId = ChatDeletionId
+                .newBuilder()
+                .setId(c.getChat())
+                .vBuild();
+        ChatDeleted event = ChatDeleted
+                .newBuilder()
+                .setId(deletionId)
+                .setWhoDeleted(c.getUser())
                 .vBuild();
         return event;
     }
