@@ -353,7 +353,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     private static ChatDeletionRequested chatDeletionRequested(LeaveChat c) {
         return ChatDeletionRequested
                 .newBuilder()
-                .setId(c.getId())
+                .setId(c.getChat())
                 .setWhoDeletes(c.getUser())
                 .vBuild();
     }
@@ -361,7 +361,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     private static UserLeftChat userLeftChat(LeaveChat c) {
         return UserLeftChat
                 .newBuilder()
-                .setId(c.getId())
+                .setChat(c.getChat())
                 .setUser(c.getUser())
                 .vBuild();
     }
@@ -369,7 +369,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     private static UserCannotLeaveChat userCannotLeaveChat(LeaveChat c) {
         return UserCannotLeaveChat
                 .newBuilder()
-                .setId(c.getId())
+                .setChat(c.getChat())
                 .setUser(c.getUser())
                 .build();
     }

@@ -86,7 +86,7 @@ message MembersCannotBeRemoved {
 message UserCannotLeaveChat {
 
     // The ID of the chat from which the user cannot leave.
-    ChatId id = 1;
+    ChatId chat = 1;
 
     // The user who originally wanted to leave the chat.
     spine.core.UserId user = 2 [(required) = true];

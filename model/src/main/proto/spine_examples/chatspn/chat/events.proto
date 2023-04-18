@@ -105,7 +105,7 @@ message MembersRemoved {
 message UserLeftChat {
 
     // The ID of the chat the user left.
-    ChatId id = 1;
+    ChatId chat = 1;
 
     // The user who left the chat.
     spine.core.UserId user = 2 [(required) = true];

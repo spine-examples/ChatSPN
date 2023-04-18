@@ -99,7 +99,7 @@ message RemoveMembers {
 message LeaveChat {
 
     // The ID of the chat user wants to leave from.
-    ChatId id = 1;
+    ChatId chat = 1;
 
     // The user who wants to leave from the chat.
     spine.core.UserId user = 2 [(required) = true];
