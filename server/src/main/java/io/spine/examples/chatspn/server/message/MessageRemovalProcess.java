@@ -110,7 +110,7 @@ public final class MessageRemovalProcess
                 .vBuild();
     }
 
-    void inject(ProjectionReader<ChatId, io.spine.examples.chatspn.chat.ChatMembers> reader) {
+    void inject(ProjectionReader<ChatId, ChatMembers> reader) {
         chatMembers = new ChatMembersReader(reader);
     }
 }
