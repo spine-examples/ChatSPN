@@ -48,7 +48,7 @@ final class ChatMembersAccessor {
     /**
      * Checks the user's existence in the chat as a member.
      *
-     * <p> Returns true if the chat exists and the user is a member.
+     * <p>Returns true if the chat exists and the user is a member.
      */
     boolean isMember(ChatId id, UserId userId, CommandContext ctx) {
         ImmutableList<ChatMembers> projections =
