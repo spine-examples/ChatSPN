@@ -316,9 +316,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     @Assign
     Pair<UserLeftChat, Optional<ChatDeletionRequested>> handle(LeaveChat c)
             throws UserCannotLeaveChat {
-        if (!checkLeavingPossibility(c)) {
-            throw userCannotLeaveChat(c);
-        }
+        checkLeavingPossibility(c);
         UserLeftChat userLeftChat = userLeftChat(c);
         Optional<ChatDeletionRequested> chatDeletionRequested = Optional.empty();
         if (state().getMemberList()
@@ -329,7 +327,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     }
 
     @Apply
-    private void event(ChatDeletionRequested e){
+    private void event(ChatDeletionRequested e) {
     }
 
     @Apply
@@ -347,12 +345,18 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *     <li>the user who sent the command is a chat member.</li>
      * </ul>
      */
-    private boolean checkLeavingPossibility(LeaveChat command) {
+    private void checkLeavingPossibility(LeaveChat c) throws UserCannotLeaveChat {
         boolean isGroupChat = state().getType() == CT_GROUP;
         boolean isMember = state().getMemberList()
-                                  .contains(command.getUser());
-        boolean result = !isDeleted() && isGroupChat && isMember;
-        return result;
+                                  .contains(c.getUser());
+        boolean canLeave = !isDeleted() && isGroupChat && isMember;
+        if (!canLeave) {
+            throw UserCannotLeaveChat
+                    .newBuilder()
+                    .setChat(c.getChat())
+                    .setUser(c.getUser())
+                    .build();
+        }
     }
 
     private static ChatDeletionRequested chatDeletionRequested(LeaveChat c) {
@@ -369,13 +373,5 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .vBuild();
-    }
-
-    private static UserCannotLeaveChat userCannotLeaveChat(LeaveChat c) {
-        return UserCannotLeaveChat
-                .newBuilder()
-                .setChat(c.getChat())
-                .setUser(c.getUser())
-                .build();
     }
 }
