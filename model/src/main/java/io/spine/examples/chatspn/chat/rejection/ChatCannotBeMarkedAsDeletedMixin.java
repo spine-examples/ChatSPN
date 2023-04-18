@@ -32,7 +32,7 @@ import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 
 /**
- * Defines custom operations for the {@link  ChatCannotBeMarkedAsDeleted} rejection.
+ * Defines custom operations for the {@link ChatCannotBeMarkedAsDeleted} rejection.
  */
 @Immutable
 @GeneratedMixin

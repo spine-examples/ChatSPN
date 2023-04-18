@@ -33,7 +33,7 @@ import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.MessageRemovalOperationId;
 
 /**
- * Defines custom operations for the {@link  RemoveMessage} command.
+ * Defines custom operations for the {@link RemoveMessage} command.
  */
 @Immutable
 @GeneratedMixin
