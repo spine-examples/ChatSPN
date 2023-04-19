@@ -32,7 +32,7 @@ import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 
 /**
- * Defines a convenient API for the {@link ChatDeletionRequested} event.
+ * Defines a convenience API for the {@link ChatDeletionRequested} event.
  */
 @Immutable
 @GeneratedMixin
