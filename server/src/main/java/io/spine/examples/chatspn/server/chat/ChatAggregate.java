@@ -36,7 +36,7 @@ import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.MarkChatAsDeleted;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
-import io.spine.examples.chatspn.chat.event.ChatDeletionRequested;
+import io.spine.examples.chatspn.chat.event.NoMembersLeftInChat;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
@@ -314,20 +314,20 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *         or user is already not a chat member.
      */
     @Assign
-    Pair<UserLeftChat, Optional<ChatDeletionRequested>> handle(LeaveChat c)
+    Pair<UserLeftChat, Optional<NoMembersLeftInChat>> handle(LeaveChat c)
             throws UserCannotLeaveChat {
         checkLeavingPossibility(c);
         UserLeftChat userLeftChat = userLeftChat(c);
-        Optional<ChatDeletionRequested> chatDeletionRequested = Optional.empty();
+        Optional<NoMembersLeftInChat> chatDeletionRequested = Optional.empty();
         if (state().getMemberList()
                    .size() == 1) {
-            chatDeletionRequested = Optional.of(chatDeletionRequested(c));
+            chatDeletionRequested = Optional.of(noMembersLeftInChat(c));
         }
         return Pair.withOptional(userLeftChat, chatDeletionRequested);
     }
 
     @Apply
-    private void event(ChatDeletionRequested e) {
+    private void event(NoMembersLeftInChat e) {
     }
 
     @Apply
@@ -359,8 +359,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         }
     }
 
-    private static ChatDeletionRequested chatDeletionRequested(LeaveChat c) {
-        return ChatDeletionRequested
+    private static NoMembersLeftInChat noMembersLeftInChat(LeaveChat c) {
+        return NoMembersLeftInChat
                 .newBuilder()
                 .setId(c.getChat())
                 .setWhoDeletes(c.getUser())

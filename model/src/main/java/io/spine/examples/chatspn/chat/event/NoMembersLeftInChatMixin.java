@@ -29,14 +29,13 @@ package io.spine.examples.chatspn.chat.event;
 import com.google.errorprone.annotations.Immutable;
 import io.spine.annotation.GeneratedMixin;
 import io.spine.examples.chatspn.ChatDeletionId;
-import io.spine.examples.chatspn.ChatId;
 
 /**
- * Defines a convenience API for the {@link ChatDeletionRequested} event.
+ * Defines a convenience API for the {@link NoMembersLeftInChat} event.
  */
 @Immutable
 @GeneratedMixin
-public interface ChatDeletionRequestedMixin extends ChatDeletionRequestedOrBuilder {
+public interface NoMembersLeftInChatMixin extends NoMembersLeftInChatOrBuilder {
 
     /**
      * Returns the ID of the chat deletion process.

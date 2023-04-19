@@ -35,10 +35,10 @@ import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.ChatDeleted;
-import io.spine.examples.chatspn.chat.event.ChatDeletionRequested;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
+import io.spine.examples.chatspn.chat.event.NoMembersLeftInChat;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
@@ -58,7 +58,6 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterAddition;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterRemoval;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatDeleted;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatDeletionRequested;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createDeletedGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
@@ -70,6 +69,7 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersAdd
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeAddedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersRemovedFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.noMembersLeftInChat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatCreatedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.removeMembersCommandWith;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userCannotLeaveChat;
@@ -313,7 +313,7 @@ final class ChatTest extends ContextAwareTest {
         @Test
         @DisplayName("and additionally delete the chat" +
                 " if the last member leaves the chat")
-        void chatDeletionRequest() {
+        void lastMemberLeftTheChat() {
             Chat chat = createGroupChatIn(context());
             RemoveMembers removeMembers =
                     removeMembersCommandWith(chat,
@@ -321,12 +321,12 @@ final class ChatTest extends ContextAwareTest {
             context().receivesCommand(removeMembers);
             LeaveChat command = leaveChat(chat, chat.getMember(0));
             context().receivesCommand(command);
-            ChatDeletionRequested chatDeletionRequested = chatDeletionRequested(command);
+            NoMembersLeftInChat noMembersLeftInChat = noMembersLeftInChat(command);
             ChatDeleted chatDeleted = chatDeleted(command);
             UserLeftChat userLeftChat = userLeftChat(command);
 
             context().assertEvent(userLeftChat);
-            context().assertEvent(chatDeletionRequested);
+            context().assertEvent(noMembersLeftInChat);
             context().assertEvent(chatDeleted);
             context().assertEntity(chat.getId(), ChatAggregate.class)
                      .deletedFlag()

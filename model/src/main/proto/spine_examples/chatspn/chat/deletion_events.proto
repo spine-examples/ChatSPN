@@ -75,11 +75,14 @@ message ChatDeletionFailed {
     spine.core.UserId who_deletes = 2 [(required) = true];
 }
 
-// The chat deletion requested.
-message ChatDeletionRequested {
-    option (is).java_type = "ChatDeletionRequestedMixin";
+// No members left in the chat.
+//
+// Emitted when the last member leaves the chat.
+//
+message NoMembersLeftInChat {
+    option (is).java_type = "NoMembersLeftInChatMixin";
 
-    // The ID of the chat which deletion was requested.
+    // The ID of the chat that has no members left.
     ChatId id = 1;
 
     // The user who requested the chat deletion.
