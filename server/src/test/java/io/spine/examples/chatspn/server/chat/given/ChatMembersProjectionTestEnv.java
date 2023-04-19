@@ -47,7 +47,7 @@ public final class ChatMembersProjectionTestEnv {
     private ChatMembersProjectionTestEnv() {
     }
 
-    public static ChatMembers chatMembersFrom(CreatePersonalChat c) {
+    public static ChatMembers chatMembers(CreatePersonalChat c) {
         ChatMembers state = ChatMembers
                 .newBuilder()
                 .setId(c.getId())
@@ -57,7 +57,7 @@ public final class ChatMembersProjectionTestEnv {
         return state;
     }
 
-    public static ChatMembers chatMembersFrom(CreateGroupChat c) {
+    public static ChatMembers chatMembers(CreateGroupChat c) {
         ChatMembers state = ChatMembers
                 .newBuilder()
                 .setId(c.getId())
@@ -67,7 +67,7 @@ public final class ChatMembersProjectionTestEnv {
         return state;
     }
 
-    public static ChatMembers chatMembersFrom(Chat chat, AddMembers c) {
+    public static ChatMembers chatMembers(Chat chat, AddMembers c) {
         ChatMembers state = ChatMembers
                 .newBuilder()
                 .setId(c.getId())
@@ -77,7 +77,7 @@ public final class ChatMembersProjectionTestEnv {
         return state;
     }
 
-    public static ChatMembers chatMembersFrom(Chat chat, RemoveMembers command) {
+    public static ChatMembers chatMembers(Chat chat, RemoveMembers command) {
         List<UserId> remainingMembers =
                 chat.getMemberList()
                     .stream()
@@ -92,7 +92,7 @@ public final class ChatMembersProjectionTestEnv {
         return state;
     }
 
-    public static ChatMembers chatMembersFrom(Chat chat, LeaveChat c) {
+    public static ChatMembers chatMembers(Chat chat, LeaveChat c) {
         List<UserId> newMemberList =
                 chat.getMemberList()
                     .stream()

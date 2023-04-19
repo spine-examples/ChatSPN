@@ -41,12 +41,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
-import static io.spine.examples.chatspn.server.chat.given.ChatMembersProjectionTestEnv.chatMembersFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatMembersProjectionTestEnv.chatMembers;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.leaveChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.leaveChat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.removeMembersCommandWith;
 
 @DisplayName("`ChatMembersProjection` should")
@@ -62,7 +62,7 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     void reactOnPersonalChatCreation() {
         CreatePersonalChat command = createPersonalChatCommand();
         context().receivesCommand(command);
-        ChatMembers expected = chatMembersFrom(command);
+        ChatMembers expected = chatMembers(command);
 
         context().assertState(command.getId(), expected);
     }
@@ -72,7 +72,7 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     void reactOnGroupChatCreation() {
         CreateGroupChat command = createGroupChatCommand();
         context().receivesCommand(command);
-        ChatMembers expected = chatMembersFrom(command);
+        ChatMembers expected = chatMembers(command);
 
         context().assertState(command.getId(), expected);
     }
@@ -83,7 +83,7 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
         Chat chat = createGroupChatIn(context());
         RemoveMembers command = removeMembersCommandWith(chat, chat.getOwner());
         context().receivesCommand(command);
-        ChatMembers expected = chatMembersFrom(chat, command);
+        ChatMembers expected = chatMembers(chat, command);
 
         context().assertState(command.getId(), expected);
     }
@@ -94,7 +94,7 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
         Chat chat = createGroupChatIn(context());
         AddMembers command = addMembersCommand(chat);
         context().receivesCommand(command);
-        ChatMembers expected = chatMembersFrom(chat, command);
+        ChatMembers expected = chatMembers(chat, command);
 
         context().assertState(command.getId(), expected);
     }
@@ -115,9 +115,9 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     @DisplayName("update `ChatMembersProjection`, as soon as `UserLeftChat` is emitted")
     void reactOnUserLeftChat() {
         Chat chat = createGroupChatIn(context());
-        LeaveChat command = leaveChatCommand(chat, chat.getMember(0));
+        LeaveChat command = leaveChat(chat, chat.getMember(0));
         context().receivesCommand(command);
-        ChatMembers expected = chatMembersFrom(chat, command);
+        ChatMembers expected = chatMembers(chat, command);
 
         context().assertState(chat.getId(), expected);
     }

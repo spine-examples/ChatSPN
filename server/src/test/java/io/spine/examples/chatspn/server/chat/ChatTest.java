@@ -54,26 +54,26 @@ import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembersCommandWith;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterAddition;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterRemoval;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatDeletedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatDeletionRequestedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatDeleted;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatDeletionRequested;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createDeletedGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatCreatedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.leaveChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.leaveChat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersAddedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeAddedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersRemovedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatCreatedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.removeMembersCommandWith;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userCannotLeaveChatFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userLeftChatFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userCannotLeaveChat;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userLeftChat;
 
 @DisplayName("`Chat` should")
 final class ChatTest extends ContextAwareTest {
@@ -90,7 +90,7 @@ final class ChatTest extends ContextAwareTest {
         context().receivesCommand(command);
 
         PersonalChatCreated expectedEvent = personalChatCreatedFrom(command);
-        Chat expectedState = chatFrom(command);
+        Chat expectedState = chat(command);
 
         context().assertEvent(expectedEvent);
         context().assertState(command.getId(), expectedState);
@@ -103,7 +103,7 @@ final class ChatTest extends ContextAwareTest {
         context().receivesCommand(command);
 
         GroupChatCreated expectedEvent = groupChatCreatedFrom(command);
-        Chat expectedState = chatFrom(command);
+        Chat expectedState = chat(command);
 
         context().assertEvent(expectedEvent);
         context().assertState(command.getId(), expectedState);
@@ -292,9 +292,9 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and emit the `UserLeftChat` if the chat is a group and the user is a member")
         void event() {
             Chat chat = createGroupChatIn(context());
-            LeaveChat command = leaveChatCommand(chat, chat.getMember(1));
+            LeaveChat command = leaveChat(chat, chat.getMember(1));
             context().receivesCommand(command);
-            UserLeftChat expected = userLeftChatFrom(command);
+            UserLeftChat expected = userLeftChat(command);
 
             context().assertEvent(expected);
         }
@@ -303,9 +303,9 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and change state to the expected")
         void state() {
             Chat chat = createGroupChatIn(context());
-            LeaveChat command = leaveChatCommand(chat, chat.getMember(1));
+            LeaveChat command = leaveChat(chat, chat.getMember(1));
             context().receivesCommand(command);
-            Chat expected = chatFrom(chat, command);
+            Chat expected = chat(chat, command);
 
             context().assertState(expected.getId(), expected);
         }
@@ -319,11 +319,11 @@ final class ChatTest extends ContextAwareTest {
                     removeMembersCommandWith(chat,
                                              ImmutableList.of(chat.getMember(1)));
             context().receivesCommand(removeMembers);
-            LeaveChat command = leaveChatCommand(chat, chat.getMember(0));
+            LeaveChat command = leaveChat(chat, chat.getMember(0));
             context().receivesCommand(command);
-            ChatDeletionRequested chatDeletionRequested = chatDeletionRequestedFrom(command);
-            ChatDeleted chatDeleted = chatDeletedFrom(command);
-            UserLeftChat userLeftChat = userLeftChatFrom(command);
+            ChatDeletionRequested chatDeletionRequested = chatDeletionRequested(command);
+            ChatDeleted chatDeleted = chatDeleted(command);
+            UserLeftChat userLeftChat = userLeftChat(command);
 
             context().assertEvent(userLeftChat);
             context().assertEvent(chatDeletionRequested);
@@ -338,9 +338,9 @@ final class ChatTest extends ContextAwareTest {
                 "if the user is not a member")
         void rejectIfNotMember() {
             Chat chat = createGroupChatIn(context());
-            LeaveChat command = leaveChatCommand(chat, GivenUserId.generated());
+            LeaveChat command = leaveChat(chat, GivenUserId.generated());
             context().receivesCommand(command);
-            UserCannotLeaveChat expected = userCannotLeaveChatFrom(command);
+            UserCannotLeaveChat expected = userCannotLeaveChat(command);
 
             context().assertEvent(expected);
         }
@@ -350,9 +350,9 @@ final class ChatTest extends ContextAwareTest {
                 "if the chat is not a group")
         void rejectIfNotGroup() {
             Chat chat = createPersonalChatIn(context());
-            LeaveChat command = leaveChatCommand(chat, chat.getMember(0));
+            LeaveChat command = leaveChat(chat, chat.getMember(0));
             context().receivesCommand(command);
-            UserCannotLeaveChat expected = userCannotLeaveChatFrom(command);
+            UserCannotLeaveChat expected = userCannotLeaveChat(command);
 
             context().assertEvent(expected);
         }

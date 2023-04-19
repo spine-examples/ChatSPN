@@ -86,7 +86,7 @@ public final class ChatTestEnv {
         return event;
     }
 
-    public static Chat chatFrom(CreatePersonalChat c) {
+    public static Chat chat(CreatePersonalChat c) {
         Chat state = Chat
                 .newBuilder()
                 .setId(c.getId())
@@ -120,7 +120,7 @@ public final class ChatTestEnv {
         return event;
     }
 
-    public static Chat chatFrom(CreateGroupChat c) {
+    public static Chat chat(CreateGroupChat c) {
         Chat state = Chat
                 .newBuilder()
                 .setId(c.getId())
@@ -303,7 +303,7 @@ public final class ChatTestEnv {
         return rejection;
     }
 
-    public static LeaveChat leaveChatCommand(Chat chat, UserId user) {
+    public static LeaveChat leaveChat(Chat chat, UserId user) {
         LeaveChat command = LeaveChat
                 .newBuilder()
                 .setChat(chat.getId())
@@ -312,7 +312,7 @@ public final class ChatTestEnv {
         return command;
     }
 
-    public static UserLeftChat userLeftChatFrom(LeaveChat c) {
+    public static UserLeftChat userLeftChat(LeaveChat c) {
         UserLeftChat event = UserLeftChat
                 .newBuilder()
                 .setChat(c.getChat())
@@ -321,7 +321,7 @@ public final class ChatTestEnv {
         return event;
     }
 
-    public static ChatDeletionRequested chatDeletionRequestedFrom(LeaveChat c) {
+    public static ChatDeletionRequested chatDeletionRequested(LeaveChat c) {
         ChatDeletionRequested event = ChatDeletionRequested
                 .newBuilder()
                 .setId(c.getChat())
@@ -330,7 +330,7 @@ public final class ChatTestEnv {
         return event;
     }
 
-    public static ChatDeleted chatDeletedFrom(LeaveChat c) {
+    public static ChatDeleted chatDeleted(LeaveChat c) {
         ChatDeletionId deletionId = ChatDeletionId
                 .newBuilder()
                 .setId(c.getChat())
@@ -343,7 +343,7 @@ public final class ChatTestEnv {
         return event;
     }
 
-    public static UserCannotLeaveChat userCannotLeaveChatFrom(LeaveChat c) {
+    public static UserCannotLeaveChat userCannotLeaveChat(LeaveChat c) {
         UserCannotLeaveChat rejection = UserCannotLeaveChat
                 .newBuilder()
                 .setChat(c.getChat())
@@ -352,7 +352,7 @@ public final class ChatTestEnv {
         return rejection;
     }
 
-    public static Chat chatFrom(Chat chat, LeaveChat c) {
+    public static Chat chat(Chat chat, LeaveChat c) {
         List<UserId> newMemberList =
                 chat.getMemberList()
                     .stream()
