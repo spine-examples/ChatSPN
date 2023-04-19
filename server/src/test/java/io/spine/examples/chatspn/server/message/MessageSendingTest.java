@@ -41,6 +41,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createDeletedGroupChatIn;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messageCannotBeSentFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messageFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messagePostedFrom;
@@ -74,9 +75,21 @@ public final class MessageSendingTest extends ContextAwareTest {
 
     @Test
     @DisplayName("reject when the message sender is not the chat member")
-    void rejection() {
+    void senderNotMember() {
         Chat chat = createRandomChatIn(context());
         SendMessage command = sendMessageCommandWith(chat, GivenUserId.generated());
+        context().receivesCommand(command);
+        MessageCannotBeSent expected = messageCannotBeSentFrom(command);
+
+        context().assertEvent(expected);
+    }
+
+    @Test
+    @DisplayName("reject with the `MessageCannotBeSent` " +
+            "if the chat does not exist or has been deleted")
+    void chatNotExist() {
+        Chat chat = createDeletedGroupChatIn(context());
+        SendMessage command = sendMessageCommandWith(chat, chat.getOwner());
         context().receivesCommand(command);
         MessageCannotBeSent expected = messageCannotBeSentFrom(command);
 

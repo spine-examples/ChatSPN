@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server.message;
 
-import com.google.common.collect.ImmutableSet;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
@@ -50,25 +49,22 @@ public final class MessageSendingProcess
         extends ProcessManager<MessageId, MessageSending, MessageSending.Builder> {
 
     /**
-     * Reads chat members per chat.
+     * Reads the {@link ChatMembers} projection.
      */
     @MonotonicNonNull
-    private ProjectionReader<ChatId, ChatMembers> projectionReader;
+    private ChatMembersReader chatMembers;
 
     /**
      * Issues a command to post message to the chat.
      *
      * @throws MessageCannotBeSent
-     *         if the message sender is not a chat member
+     *         if the message sender is not a chat member,
+     *         or chat does not exist
      */
     @Command
     PostMessage on(SendMessage c, CommandContext ctx) throws MessageCannotBeSent {
         builder().setId(c.getId());
-        ChatMembers chatMembers = projectionReader
-                .read(ImmutableSet.of(c.getChat()), ctx.getActorContext())
-                .get(0);
-        if (chatMembers.getMemberList()
-                       .contains(c.getUser())) {
+        if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
             return PostMessage
                     .newBuilder()
                     .setId(c.getId())
@@ -102,6 +98,6 @@ public final class MessageSendingProcess
     }
 
     void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        projectionReader = reader;
+        chatMembers = new ChatMembersReader(reader);
     }
 }

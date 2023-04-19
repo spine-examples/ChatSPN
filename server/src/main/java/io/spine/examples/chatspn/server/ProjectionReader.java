@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.spine.base.EntityState;
 import io.spine.client.ActorRequestFactory;
+import io.spine.client.Filter;
 import io.spine.client.Query;
 import io.spine.client.QueryFactory;
 import io.spine.client.QueryResponse;
@@ -69,6 +70,21 @@ public final class ProjectionReader<I, S extends EntityState> {
                 .fromContext(ctx)
                 .query();
         Query query = queryFactory.byIds(stateClass, ids);
+        return executeAndUnpackResponse(query);
+    }
+
+    /**
+     * Reads projections that match the filter on behalf of the actor from the context.
+     */
+    public ImmutableList<S> read(ActorContext ctx, Filter... filters) {
+        checkNotNull(ctx);
+        QueryFactory queryFactory = ActorRequestFactory
+                .fromContext(ctx)
+                .query();
+        Query query = queryFactory
+                .select(stateClass)
+                .where(filters)
+                .build();
         return executeAndUnpackResponse(query);
     }
 

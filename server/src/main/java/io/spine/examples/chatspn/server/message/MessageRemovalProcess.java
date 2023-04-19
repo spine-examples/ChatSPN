@@ -26,10 +26,9 @@
 
 package io.spine.examples.chatspn.server.message;
 
-import com.google.common.collect.ImmutableSet;
 import io.spine.core.CommandContext;
 import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
@@ -49,13 +48,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Coordinates the message removal.
  */
 public final class MessageRemovalProcess
-        extends ProcessManager<MessageId, MessageRemoval, MessageRemoval.Builder> {
+        extends ProcessManager<MessageRemovalId, MessageRemoval, MessageRemoval.Builder> {
 
     /**
-     * Reads chat members per chat.
+     * Reads the {@link ChatMembers} projection.
      */
     @MonotonicNonNull
-    private ProjectionReader<ChatId, ChatMembers> projectionReader;
+    private ChatMembersReader chatMembers;
 
     /**
      * Issues a command to mark message as deleted.
@@ -66,14 +65,13 @@ public final class MessageRemovalProcess
     @Command
     MarkMessageAsDeleted on(RemoveMessage c, CommandContext ctx) throws MessageCannotBeRemoved {
         builder().setId(c.getId());
-        ChatMembers chatMembers = readMembers(c.getChat(), ctx);
-        if (chatMembers.getMemberList()
-                       .contains(c.getUser())) {
+        if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
             return MarkMessageAsDeleted
                     .newBuilder()
-                    .setId(c.getId())
+                    .setId(c.message())
                     .setChat(c.getChat())
                     .setUser(c.getUser())
+                    .setOperation(c.messageRemovalOperation())
                     .vBuild();
         }
         throw MessageCannotBeRemoved
@@ -92,7 +90,7 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemoved
                 .newBuilder()
-                .setId(e.getId())
+                .setId(e.messageRemoval())
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();
@@ -106,19 +104,13 @@ public final class MessageRemovalProcess
         setArchived(true);
         return MessageRemovalFailed
                 .newBuilder()
-                .setId(e.getId())
+                .setId(e.messageRemoval())
                 .setChat(e.getChat())
                 .setUser(e.getUser())
                 .vBuild();
     }
 
     void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        projectionReader = reader;
-    }
-
-    private ChatMembers readMembers(ChatId id, CommandContext ctx) {
-        return projectionReader
-                .read(ImmutableSet.of(id), ctx.getActorContext())
-                .get(0);
+        chatMembers = new ChatMembersReader(reader);
     }
 }

@@ -28,6 +28,7 @@ package io.spine.examples.chatspn.server.message.given;
 
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
@@ -47,7 +48,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommand(Message message) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setId(message.getId())
+                .setId(removalId(message.getId()))
                 .setChat(message.getChat())
                 .setUser(message.getUser())
                 .vBuild();
@@ -57,7 +58,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommandWith(Message message, UserId userId) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setId(message.getId())
+                .setId(removalId(message.getId()))
                 .setChat(message.getChat())
                 .setUser(userId)
                 .vBuild();
@@ -67,7 +68,7 @@ public final class MessageRemovalTestEnv {
     public static RemoveMessage removeMessageCommandWith(Message message, MessageId messageId) {
         RemoveMessage command = RemoveMessage
                 .newBuilder()
-                .setId(messageId)
+                .setId(removalId(messageId))
                 .setChat(message.getChat())
                 .setUser(message.getUser())
                 .vBuild();
@@ -97,9 +98,10 @@ public final class MessageRemovalTestEnv {
     public static MessageMarkedAsDeleted messageMarkedAsDeletedFrom(RemoveMessage c) {
         MessageMarkedAsDeleted event = MessageMarkedAsDeleted
                 .newBuilder()
-                .setId(c.getId())
+                .setId(c.message())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
+                .setOperation(c.messageRemovalOperation())
                 .vBuild();
         return event;
     }
@@ -107,7 +109,7 @@ public final class MessageRemovalTestEnv {
     public static Message messageFrom(RemoveMessage c) {
         Message state = Message
                 .newBuilder()
-                .setId(c.getId())
+                .setId(c.message())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
                 .buildPartial();
@@ -128,10 +130,18 @@ public final class MessageRemovalTestEnv {
             RemoveMessage c) {
         MessageCannotBeMarkedAsDeleted rejection = MessageCannotBeMarkedAsDeleted
                 .newBuilder()
-                .setId(c.getId())
+                .setId(c.message())
                 .setChat(c.getChat())
                 .setUser(c.getUser())
+                .setOperation(c.messageRemovalOperation())
                 .vBuild();
         return rejection;
+    }
+
+    public static MessageRemovalId removalId(MessageId id) {
+        return MessageRemovalId
+                .newBuilder()
+                .setId(id)
+                .vBuild();
     }
 }

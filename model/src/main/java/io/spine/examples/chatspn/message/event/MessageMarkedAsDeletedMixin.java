@@ -23,58 +23,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn;
+package io.spine.examples.chatspn.message.event;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.Immutable;
+import io.spine.annotation.GeneratedMixin;
+import io.spine.examples.chatspn.MessageRemovalId;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn";
-option java_outer_classname = "IdentifiersProto";
-option java_multiple_files = true;
+/**
+ * Defines a convenience API for the {@link MessageMarkedAsDeleted} event.
+ */
+@Immutable
+@GeneratedMixin
+public interface MessageMarkedAsDeletedMixin extends MessageMarkedAsDeletedOrBuilder {
 
-// Identifies a chat.
-message ChatId {
-
-    string uuid = 1 [(required) = true];
-}
-
-// Identifies a chat deletion process.
-message ChatDeletionId {
-
-    ChatId id = 1 [(required) = true];
-}
-
-// Identifies a message.
-message MessageId {
-
-    string uuid = 1 [(required) = true];
-}
-
-// Identifies a message removal process.
-message MessageRemovalId {
-
-    MessageId id = 1 [(required) = true];
-}
-
-// Identifies a message removal operation.
-message MessageRemovalOperationId {
-
-    oneof type {
-
-        // The ID of the `MessageRemoval` process
-        // that tells to remove message.
-        MessageRemovalId message_removal = 1;
-
-        // The ID of the `ChatDeletion` process
-        // that tells to remove message.
-        ChatDeletionId chat_deletion = 2;
+    /**
+     * Returns the ID of the message removal process, or default instance
+     * if message removal operation doesn't have a message removal process.
+     */
+    default MessageRemovalId messageRemoval() {
+        return getOperation().getMessageRemoval();
     }
-}
-
-// Identifies an account creation process.
-message AccountCreationId {
-
-    string uuid = 1 [(required) = true];
 }

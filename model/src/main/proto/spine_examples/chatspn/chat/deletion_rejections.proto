@@ -25,50 +25,31 @@
  */
 syntax = "proto3";
 
-package spine_examples.chatspn.message;
+package spine_examples.chatspn.chat;
 
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.message.rejection";
+option java_package = "io.spine.examples.chatspn.chat.rejection";
 option java_multiple_files = false;
 
 import "spine/core/user_id.proto";
+import "spine/net/email_address.proto";
 import "spine_examples/chatspn/identifiers.proto";
 
-// A message cannot be removed.
+// The chat cannot be deleted.
 //
-// Emitted when the user who sent the original command, is not a chat member.
+// Emitted when:
+// - the user who told to mark personal chat as deleted wasn't a chat member;
+// - the user who told to mark group chat as deleted wasn't a chat owner;
+// - the chat has already been marked as deleted.
 //
-message MessageCannotBeRemoved {
+message ChatCannotBeMarkedAsDeleted {
+    option (is).java_type = "ChatCannotBeMarkedAsDeletedMixin";
 
-    // The ID of the message removal process that could not be finished successfully.
-    MessageRemovalId id = 1 [(required) = true];
+    // The ID of the chat that couldn't be marked as deleted.
+    ChatId id = 1;
 
-    // The ID of the chat where the message could not be removed.
-    ChatId chat = 2 [(required) = true];
-
-    // The ID of the user who originally asked to remove this message.
-    spine.core.UserId user = 3 [(required) = true];
-}
-
-// A message cannot be marked as deleted.
-//
-// Typically emitted if the message with the specified ID does not exist,
-// or if it has already been marked deleted.
-//
-message MessageCannotBeMarkedAsDeleted {
-    option (is).java_type = "MessageCannotBeMarkedAsDeletedMixin";
-
-    // The ID of the message that could not be marked as deleted.
-    MessageId id = 1 [(required) = true];
-
-    // The ID of the chat in which message could not be marked as deleted.
-    ChatId chat = 2 [(required) = true];
-
-    // The ID of the user who originally asked to mark this message as deleted.
-    spine.core.UserId user = 3 [(required) = true];
-
-    // The ID of the operation that originally told to mark the message as deleted.
-    MessageRemovalOperationId operation  = 4 [(required) = true];
+    // The user who originally tells to mark chat as deleted.
+    spine.core.UserId who_deletes = 2 [(required) = true];
 }

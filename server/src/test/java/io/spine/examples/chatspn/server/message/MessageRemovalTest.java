@@ -28,6 +28,7 @@ package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
@@ -43,6 +44,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageFrom;
@@ -92,6 +95,21 @@ final class MessageRemovalTest extends ContextAwareTest {
     }
 
     @Test
+    @DisplayName("reject with the `MessageCannotBeRemoved` " +
+            "if the chat does not exist or has been deleted")
+    void chatNotExist() {
+        Chat chat = createGroupChatIn(context());
+        Message message = sendRandomMessageTo(chat, context());
+        DeleteChat deleteChat = deleteChatCommand(chat, chat.getOwner());
+        context().receivesCommand(deleteChat);
+        RemoveMessage command = removeMessageCommandWith(message, GivenUserId.generated());
+        context().receivesCommand(command);
+        MessageCannotBeRemoved expected = messageCannotBeRemovedFrom(command);
+
+        context().assertEvent(expected);
+    }
+
+    @Test
     @DisplayName("emit a `MessageRemovalFailed` event " +
             "if message cannot be marked as deleted, and archive itself")
     void messageRemovalFailedEvent() {
@@ -115,7 +133,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         RemoveMessage command = removeMessageCommand(message);
         context().receivesCommand(command);
 
-        context().assertEntity(command.getId(), MessageViewProjection.class)
+        context().assertEntity(command.message(), MessageViewProjection.class)
                  .deletedFlag()
                  .isTrue();
     }

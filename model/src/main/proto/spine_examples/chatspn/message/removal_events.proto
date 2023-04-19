@@ -40,8 +40,8 @@ import "spine_examples/chatspn/identifiers.proto";
 // A message has been removed.
 message MessageRemoved {
 
-    // The ID of the removed message.
-    MessageId id = 1;
+    // The ID of the message removal process.
+    MessageRemovalId id = 1;
 
     // The ID of the chat in which the message was removed.
     ChatId chat = 2 [(required) = true];
@@ -57,8 +57,8 @@ message MessageRemoved {
 //
 message MessageRemovalFailed {
 
-    // The ID of the message that failed to be removed.
-    MessageId id = 1;
+    // The ID of the message removal process that failed.
+    MessageRemovalId id = 1;
 
     // The ID of the chat in which the message failed to be removed.
     ChatId chat = 2 [(required) = true];
@@ -69,6 +69,7 @@ message MessageRemovalFailed {
 
 // The message has been marked as deleted.
 message MessageMarkedAsDeleted {
+    option (is).java_type = "MessageMarkedAsDeletedMixin";
 
     // The ID of the message that was marked as deleted.
     MessageId id = 1;
@@ -78,4 +79,7 @@ message MessageMarkedAsDeleted {
 
     // The ID of the user who marked the message as deleted.
     spine.core.UserId user = 3 [(required) = true];
+
+    // The ID of the operation that marked the message as deleted.
+    MessageRemovalOperationId operation  = 4 [(required) = true];
 }
