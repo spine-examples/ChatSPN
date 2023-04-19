@@ -38,7 +38,7 @@ import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
-import io.spine.examples.chatspn.chat.event.NoMembersLeftInChat;
+import io.spine.examples.chatspn.chat.event.LastMemberLeftChat;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
@@ -69,7 +69,7 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersAdd
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeAddedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersRemovedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.noMembersLeftInChat;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.lastMemberLeftChat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatCreatedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.removeMembersCommandWith;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userCannotLeaveChat;
@@ -321,12 +321,12 @@ final class ChatTest extends ContextAwareTest {
             context().receivesCommand(removeMembers);
             LeaveChat command = leaveChat(chat, chat.getMember(0));
             context().receivesCommand(command);
-            NoMembersLeftInChat noMembersLeftInChat = noMembersLeftInChat(command);
+            LastMemberLeftChat lastMemberLeftChat = lastMemberLeftChat(command);
             ChatDeleted chatDeleted = chatDeleted(command);
             UserLeftChat userLeftChat = userLeftChat(command);
 
             context().assertEvent(userLeftChat);
-            context().assertEvent(noMembersLeftInChat);
+            context().assertEvent(lastMemberLeftChat);
             context().assertEvent(chatDeleted);
             context().assertEntity(chat.getId(), ChatAggregate.class)
                      .deletedFlag()

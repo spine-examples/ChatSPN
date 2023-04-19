@@ -31,11 +31,11 @@ import io.spine.annotation.GeneratedMixin;
 import io.spine.examples.chatspn.ChatDeletionId;
 
 /**
- * Defines a convenience API for the {@link NoMembersLeftInChat} event.
+ * Defines a convenience API for the {@link LastMemberLeftChat} event.
  */
 @Immutable
 @GeneratedMixin
-public interface NoMembersLeftInChatMixin extends NoMembersLeftInChatOrBuilder {
+public interface LastMemberLeftChatMixin extends LastMemberLeftChatOrBuilder {
 
     /**
      * Returns the ID of the chat deletion process.

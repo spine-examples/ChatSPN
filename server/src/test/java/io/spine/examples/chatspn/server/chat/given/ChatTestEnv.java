@@ -38,7 +38,7 @@ import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.ChatDeleted;
-import io.spine.examples.chatspn.chat.event.NoMembersLeftInChat;
+import io.spine.examples.chatspn.chat.event.LastMemberLeftChat;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
@@ -321,11 +321,11 @@ public final class ChatTestEnv {
         return event;
     }
 
-    public static NoMembersLeftInChat noMembersLeftInChat(LeaveChat c) {
-        NoMembersLeftInChat event = NoMembersLeftInChat
+    public static LastMemberLeftChat lastMemberLeftChat(LeaveChat c) {
+        LastMemberLeftChat event = LastMemberLeftChat
                 .newBuilder()
                 .setId(c.getChat())
-                .setWhoDeletes(c.getUser())
+                .setLastMember(c.getUser())
                 .vBuild();
         return event;
     }

@@ -36,9 +36,9 @@ import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.MarkChatAsDeleted;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
-import io.spine.examples.chatspn.chat.event.NoMembersLeftInChat;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.LastMemberLeftChat;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
@@ -280,12 +280,18 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * <ul>
      *     <li>chat isn't already deleted;</li>
      *     <li>if chat is a personal, user who send the command is a chat member;</li>
-     *     <li>if chat is a group, user who send the command was a chat owner or the last member.</li>
+     *     <li>if chat is a group, user who send the command was a chat owner.</li>
      * </ul>
+     *
+     * <p>Empty chat always can be deleted.
      */
     private boolean checkDeletionPossibility(MarkChatAsDeleted c) {
         if (isDeleted()) {
             return false;
+        }
+        if (state().getMemberList()
+                   .isEmpty()) {
+            return true;
         }
         boolean isPersonalChat = state().getType() == CT_PERSONAL;
         boolean isMember = state().getMemberList()
@@ -296,11 +302,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         boolean isGroupChat = state().getType() == CT_GROUP;
         boolean isOwner = c.getWhoDeletes()
                            .equals(state().getOwner());
-        boolean isLastMember = isMember &&
-                state().getMemberList()
-                       .size() == 1;
-        boolean result = isGroupChat && (isOwner || isLastMember);
-        return result;
+        return isGroupChat && isOwner;
     }
 
     /**
@@ -314,20 +316,20 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *         or user is already not a chat member.
      */
     @Assign
-    Pair<UserLeftChat, Optional<NoMembersLeftInChat>> handle(LeaveChat c)
+    Pair<UserLeftChat, Optional<LastMemberLeftChat>> handle(LeaveChat c)
             throws UserCannotLeaveChat {
         checkLeavingPossibility(c);
         UserLeftChat userLeftChat = userLeftChat(c);
-        Optional<NoMembersLeftInChat> chatDeletionRequested = Optional.empty();
+        Optional<LastMemberLeftChat> lastMemberLeftChat = Optional.empty();
         if (state().getMemberList()
                    .size() == 1) {
-            chatDeletionRequested = Optional.of(noMembersLeftInChat(c));
+            lastMemberLeftChat = Optional.of(lastMemberLeftChat(c));
         }
-        return Pair.withOptional(userLeftChat, chatDeletionRequested);
+        return Pair.withOptional(userLeftChat, lastMemberLeftChat);
     }
 
     @Apply
-    private void event(NoMembersLeftInChat e) {
+    private void event(LastMemberLeftChat e) {
     }
 
     @Apply
@@ -359,11 +361,11 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         }
     }
 
-    private static NoMembersLeftInChat noMembersLeftInChat(LeaveChat c) {
-        return NoMembersLeftInChat
+    private static LastMemberLeftChat lastMemberLeftChat(LeaveChat c) {
+        return LastMemberLeftChat
                 .newBuilder()
                 .setId(c.getChat())
-                .setWhoDeletes(c.getUser())
+                .setLastMember(c.getUser())
                 .vBuild();
     }
 
