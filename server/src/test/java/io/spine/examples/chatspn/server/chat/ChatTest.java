@@ -329,8 +329,8 @@ final class ChatTest extends ContextAwareTest {
             context().assertEvent(chatDeletionRequested);
             context().assertEvent(chatDeleted);
             context().assertEntity(chat.getId(), ChatAggregate.class)
-                    .deletedFlag()
-                    .isTrue();
+                     .deletedFlag()
+                     .isTrue();
         }
 
         @Test
