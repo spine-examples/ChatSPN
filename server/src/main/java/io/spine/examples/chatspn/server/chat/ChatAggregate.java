@@ -311,7 +311,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * <p>If the last member left the chat its deletion will be requested
      *
      * @throws UserCannotLeaveChat
-     *         if chat deleted,
+     *         if chat is deleted,
      *         or chat isn't a group,
      *         or user is already not a chat member.
      */

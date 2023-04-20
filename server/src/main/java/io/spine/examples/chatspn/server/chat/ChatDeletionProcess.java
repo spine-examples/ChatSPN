@@ -31,16 +31,16 @@ import io.spine.client.Filter;
 import io.spine.core.EventContext;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatDeletionId;
+import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.MessageRemovalOperationId;
 import io.spine.examples.chatspn.chat.ChatDeletion;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.chat.command.MarkChatAsDeleted;
 import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.ChatDeletionFailed;
-import io.spine.examples.chatspn.chat.event.LastMemberLeftChat;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
+import io.spine.examples.chatspn.chat.event.LastMemberLeftChat;
 import io.spine.examples.chatspn.chat.rejection.DeletionRejections.ChatCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
@@ -125,31 +125,31 @@ public final class ChatDeletionProcess
         List<MessageView> messages = projectionReader.read(ctx.actorContext(), byChatId);
         ImmutableSet<MarkMessageAsDeleted> commands =
                 messages.stream()
-                        .map(message -> markMessageAsDeleted(message, e.getWhoDeleted()))
+                        .map(message -> markMessageAsDeleted(message, e))
                         .collect(toImmutableSet());
         setDeleted(true);
         return commands;
     }
 
     private static MarkMessageAsDeleted
-    markMessageAsDeleted(MessageView message, UserId user) {
+    markMessageAsDeleted(MessageView message, ChatDeleted event) {
         return MarkMessageAsDeleted
                 .newBuilder()
                 .setId(message.getId())
                 .setChat(message.getChat())
-                .setUser(user)
-                .setOperation(messageRemovalOperationId(message))
+                .setUser(event.getWhoDeleted())
+                .setOperation(messageRemovalOperationId(event.chat()))
                 .vBuild();
     }
 
-    private static MessageRemovalOperationId messageRemovalOperationId(MessageView m) {
-        MessageRemovalId removal = MessageRemovalId
+    private static MessageRemovalOperationId messageRemovalOperationId(ChatId chatId) {
+        ChatDeletionId removal = ChatDeletionId
                 .newBuilder()
-                .setId(m.getId())
+                .setId(chatId)
                 .vBuild();
         return MessageRemovalOperationId
                 .newBuilder()
-                .setMessageRemoval(removal)
+                .setChatDeletion(removal)
                 .vBuild();
     }
 
