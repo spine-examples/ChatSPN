@@ -28,19 +28,25 @@ package io.spine.examples.chatspn.server.chat.given;
 
 import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
+import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
+import io.spine.examples.chatspn.chat.event.ChatDeleted;
+import io.spine.examples.chatspn.chat.event.LastMemberLeftChat;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeRemoved;
+import io.spine.examples.chatspn.chat.rejection.Rejections.UserCannotLeaveChat;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
 
@@ -50,6 +56,7 @@ import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatDeletionId;
 import static io.spine.testing.TestValues.randomString;
+import static java.util.stream.Collectors.toList;
 
 public final class ChatTestEnv {
 
@@ -79,7 +86,7 @@ public final class ChatTestEnv {
         return event;
     }
 
-    public static Chat chatFrom(CreatePersonalChat c) {
+    public static Chat chat(CreatePersonalChat c) {
         Chat state = Chat
                 .newBuilder()
                 .setId(c.getId())
@@ -113,7 +120,7 @@ public final class ChatTestEnv {
         return event;
     }
 
-    public static Chat chatFrom(CreateGroupChat c) {
+    public static Chat chat(CreateGroupChat c) {
         Chat state = Chat
                 .newBuilder()
                 .setId(c.getId())
@@ -294,5 +301,68 @@ public final class ChatTestEnv {
                 .addAllMember(command.getMemberList())
                 .vBuild();
         return rejection;
+    }
+
+    public static LeaveChat leaveChat(Chat chat, UserId user) {
+        LeaveChat command = LeaveChat
+                .newBuilder()
+                .setChat(chat.getId())
+                .setUser(user)
+                .vBuild();
+        return command;
+    }
+
+    public static UserLeftChat userLeftChat(LeaveChat c) {
+        UserLeftChat event = UserLeftChat
+                .newBuilder()
+                .setChat(c.getChat())
+                .setUser(c.getUser())
+                .vBuild();
+        return event;
+    }
+
+    public static LastMemberLeftChat lastMemberLeftChat(LeaveChat c) {
+        LastMemberLeftChat event = LastMemberLeftChat
+                .newBuilder()
+                .setId(c.getChat())
+                .setLastMember(c.getUser())
+                .vBuild();
+        return event;
+    }
+
+    public static ChatDeleted chatDeleted(LeaveChat c) {
+        ChatDeletionId deletionId = ChatDeletionId
+                .newBuilder()
+                .setId(c.getChat())
+                .vBuild();
+        ChatDeleted event = ChatDeleted
+                .newBuilder()
+                .setId(deletionId)
+                .setWhoDeleted(c.getUser())
+                .vBuild();
+        return event;
+    }
+
+    public static UserCannotLeaveChat userCannotLeaveChat(LeaveChat c) {
+        UserCannotLeaveChat rejection = UserCannotLeaveChat
+                .newBuilder()
+                .setChat(c.getChat())
+                .setUser(c.getUser())
+                .vBuild();
+        return rejection;
+    }
+
+    public static Chat chat(Chat chat, LeaveChat c) {
+        List<UserId> newMemberList =
+                chat.getMemberList()
+                    .stream()
+                    .filter(member -> !member.equals(c.getUser()))
+                    .collect(toList());
+        Chat state = chat
+                .toBuilder()
+                .clearMember()
+                .addAllMember(newMemberList)
+                .vBuild();
+        return state;
     }
 }

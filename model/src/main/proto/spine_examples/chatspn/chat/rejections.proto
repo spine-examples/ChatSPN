@@ -76,3 +76,18 @@ message MembersCannotBeRemoved {
     // Members who couldn't be removed from the chat.
     repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
 }
+
+// User cannot leave the chat.
+//
+// Emitted when:
+// - chat isn't a group;
+// - the user is already not a chat member.
+//
+message UserCannotLeaveChat {
+
+    // The ID of the chat from which the user cannot leave.
+    ChatId chat = 1;
+
+    // The user who originally wanted to leave the chat.
+    spine.core.UserId user = 2 [(required) = true];
+}

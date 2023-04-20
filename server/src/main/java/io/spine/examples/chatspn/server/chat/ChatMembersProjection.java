@@ -34,6 +34,7 @@ import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.server.projection.Projection;
 
 /**
@@ -60,6 +61,13 @@ public final class ChatMembersProjection
     void on(MembersRemoved e) {
         builder().clearMember()
                  .addAllMember(e.getRemainingMemberList());
+    }
+
+    @Subscribe
+    void on(UserLeftChat e) {
+        int userIndex = state().getMemberList()
+                               .indexOf(e.getUser());
+        builder().removeMember(userIndex);
     }
 
     @Subscribe

@@ -33,21 +33,27 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.MarkChatAsDeleted;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.LastMemberLeftChat;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.examples.chatspn.chat.rejection.ChatCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.rejection.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.MembersCannotBeRemoved;
+import io.spine.examples.chatspn.chat.rejection.UserCannotLeaveChat;
 import io.spine.server.aggregate.Aggregate;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
+import io.spine.server.tuple.Pair;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
@@ -244,7 +250,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *
      * @throws ChatCannotBeMarkedAsDeleted
      *         if the user who told to delete personal chat wasn't a chat member,
-     *         or the user who told to delete group chat wasn't a chat owner,
+     *         or the user who told to delete group chat wasn't a chat owner or the last member,
      *         or the chat has already been deleted.
      */
     @Assign
@@ -276,10 +282,16 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *     <li>if chat is a personal, user who send the command is a chat member;</li>
      *     <li>if chat is a group, user who send the command was a chat owner.</li>
      * </ul>
+     *
+     * <p>Empty chat always can be deleted.
      */
     private boolean checkDeletionPossibility(MarkChatAsDeleted c) {
         if (isDeleted()) {
             return false;
+        }
+        if (state().getMemberList()
+                   .isEmpty()) {
+            return true;
         }
         boolean isPersonalChat = state().getType() == CT_PERSONAL;
         boolean isMember = state().getMemberList()
@@ -291,5 +303,77 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         boolean isOwner = c.getWhoDeletes()
                            .equals(state().getOwner());
         return isGroupChat && isOwner;
+    }
+
+    /**
+     * Handles the command to leave the chat.
+     *
+     * <p>If the last member left the chat its deletion will be requested
+     *
+     * @throws UserCannotLeaveChat
+     *         if chat is deleted,
+     *         or chat isn't a group,
+     *         or user is already not a chat member.
+     */
+    @Assign
+    Pair<UserLeftChat, Optional<LastMemberLeftChat>> handle(LeaveChat c)
+            throws UserCannotLeaveChat {
+        checkLeavingPossibility(c);
+        UserLeftChat userLeftChat = userLeftChat(c);
+        Optional<LastMemberLeftChat> lastMemberLeftChat = Optional.empty();
+        if (state().getMemberList()
+                   .size() == 1) {
+            lastMemberLeftChat = Optional.of(lastMemberLeftChat(c));
+        }
+        return Pair.withOptional(userLeftChat, lastMemberLeftChat);
+    }
+
+    @Apply
+    private void event(LastMemberLeftChat e) {
+    }
+
+    @Apply
+    private void event(UserLeftChat e) {
+        int userIndex = state().getMemberList()
+                               .indexOf(e.getUser());
+        builder().removeMember(userIndex);
+    }
+
+    /**
+     * Checks the possibility to leave the chat by those criteria:
+     * <ul>
+     *     <li>chat isn't deleted;</li>
+     *     <li>chat is a group;</li>
+     *     <li>the user who sent the command is a chat member.</li>
+     * </ul>
+     */
+    private void checkLeavingPossibility(LeaveChat c) throws UserCannotLeaveChat {
+        boolean isGroupChat = state().getType() == CT_GROUP;
+        boolean isMember = state().getMemberList()
+                                  .contains(c.getUser());
+        boolean canLeave = !isDeleted() && isGroupChat && isMember;
+        if (!canLeave) {
+            throw UserCannotLeaveChat
+                    .newBuilder()
+                    .setChat(c.getChat())
+                    .setUser(c.getUser())
+                    .build();
+        }
+    }
+
+    private static LastMemberLeftChat lastMemberLeftChat(LeaveChat c) {
+        return LastMemberLeftChat
+                .newBuilder()
+                .setId(c.getChat())
+                .setLastMember(c.getUser())
+                .vBuild();
+    }
+
+    private static UserLeftChat userLeftChat(LeaveChat c) {
+        return UserLeftChat
+                .newBuilder()
+                .setChat(c.getChat())
+                .setUser(c.getUser())
+                .vBuild();
     }
 }

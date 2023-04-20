@@ -32,6 +32,7 @@ import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
+import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public final class ChatMembersProjectionTestEnv {
     private ChatMembersProjectionTestEnv() {
     }
 
-    public static ChatMembers chatMembersFrom(CreatePersonalChat c) {
+    public static ChatMembers chatMembers(CreatePersonalChat c) {
         ChatMembers state = ChatMembers
                 .newBuilder()
                 .setId(c.getId())
@@ -56,7 +57,7 @@ public final class ChatMembersProjectionTestEnv {
         return state;
     }
 
-    public static ChatMembers chatMembersFrom(CreateGroupChat c) {
+    public static ChatMembers chatMembers(CreateGroupChat c) {
         ChatMembers state = ChatMembers
                 .newBuilder()
                 .setId(c.getId())
@@ -66,7 +67,7 @@ public final class ChatMembersProjectionTestEnv {
         return state;
     }
 
-    public static ChatMembers chatMembersFrom(Chat chat, AddMembers c) {
+    public static ChatMembers chatMembers(Chat chat, AddMembers c) {
         ChatMembers state = ChatMembers
                 .newBuilder()
                 .setId(c.getId())
@@ -76,7 +77,7 @@ public final class ChatMembersProjectionTestEnv {
         return state;
     }
 
-    public static ChatMembers chatMembersFrom(Chat chat, RemoveMembers command) {
+    public static ChatMembers chatMembers(Chat chat, RemoveMembers command) {
         List<UserId> remainingMembers =
                 chat.getMemberList()
                     .stream()
@@ -87,6 +88,20 @@ public final class ChatMembersProjectionTestEnv {
                 .newBuilder()
                 .setId(command.getId())
                 .addAllMember(remainingMembers)
+                .vBuild();
+        return state;
+    }
+
+    public static ChatMembers chatMembers(Chat chat, LeaveChat c) {
+        List<UserId> newMemberList =
+                chat.getMemberList()
+                    .stream()
+                    .filter(member -> !member.equals(c.getUser()))
+                    .collect(toList());
+        ChatMembers state = ChatMembers
+                .newBuilder()
+                .setId(chat.getId())
+                .addAllMember(newMemberList)
                 .vBuild();
         return state;
     }

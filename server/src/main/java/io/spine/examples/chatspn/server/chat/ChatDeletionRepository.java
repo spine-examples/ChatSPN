@@ -30,6 +30,7 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.chat.ChatDeletion;
 import io.spine.examples.chatspn.chat.event.ChatDeleted;
+import io.spine.examples.chatspn.chat.event.LastMemberLeftChat;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.rejection.DeletionRejections.ChatCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.MessageView;
@@ -54,7 +55,9 @@ public final class ChatDeletionRepository
                .route(ChatCannotBeMarkedAsDeleted.class,
                       (event, context) -> withId(event.chatDeletion()))
                .route(ChatDeleted.class,
-                      (event, context) -> withId(event.getId()));
+                      (event, context) -> withId(event.getId()))
+               .route(LastMemberLeftChat.class,
+                      (event, context) -> withId(event.chatDeletion()));
     }
 
     @OverridingMethodsMustInvokeSuper
