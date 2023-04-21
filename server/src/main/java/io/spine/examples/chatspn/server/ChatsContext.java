@@ -26,6 +26,7 @@
 
 package io.spine.examples.chatspn.server;
 
+import io.spine.examples.chatspn.BoundedContextName;
 import io.spine.examples.chatspn.server.account.AccountCreationRepository;
 import io.spine.examples.chatspn.server.account.ReservedEmailAggregate;
 import io.spine.examples.chatspn.server.account.UserAggregate;
@@ -49,8 +50,6 @@ import io.spine.server.DefaultRepository;
  */
 public final class ChatsContext {
 
-    static final String NAME = "Chats";
-
     /**
      * Prevents instantiation of this class.
      */
@@ -63,7 +62,7 @@ public final class ChatsContext {
      */
     public static BoundedContextBuilder newBuilder() {
         return BoundedContext
-                .singleTenant(NAME)
+                .singleTenant(BoundedContextName.CHATS)
                 .add(DefaultRepository.of(UserAggregate.class))
                 .add(DefaultRepository.of(ChatAggregate.class))
                 .add(DefaultRepository.of(MessageAggregate.class))

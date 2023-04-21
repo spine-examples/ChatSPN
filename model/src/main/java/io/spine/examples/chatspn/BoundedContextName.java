@@ -24,15 +24,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * This package contains basic data types of the ChatSPN application.
- */
-@BoundedContext(BoundedContextName.CHATS)
-@CheckReturnValue
-@ParametersAreNonnullByDefault
 package io.spine.examples.chatspn;
 
-import com.google.errorprone.annotations.CheckReturnValue;
-import io.spine.core.BoundedContext;
+/**
+ * Constant store for the {@link io.spine.server.BoundedContext} names in the ChatSPN.
+ */
+public final class BoundedContextName {
 
-import javax.annotation.ParametersAreNonnullByDefault;
+    public static final String CHATS = "Chats";
+
+    private BoundedContextName() {
+    }
+}

@@ -27,12 +27,13 @@
 /**
  * Provides server-side code of the ChatSPN application.
  */
-@BoundedContext(ChatsContext.NAME)
+@BoundedContext(BoundedContextName.CHATS)
 @CheckReturnValue
 @ParametersAreNonnullByDefault
 package io.spine.examples.chatspn.server;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 import io.spine.core.BoundedContext;
+import io.spine.examples.chatspn.BoundedContextName;
 
 import javax.annotation.ParametersAreNonnullByDefault;
