@@ -1,0 +1,102 @@
+/*
+ * Copyright 2023, TeamDev. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Redistribution and use in source and/or binary forms, with or without
+ * modification, must retain the above copyright notice and the following
+ * disclaimer.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+syntax = "proto3";
+
+package spine_examples.chatspn.chat;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.chatspn.spine.io";
+option java_package = "io.spine.examples.chatspn.chat";
+option java_outer_classname = "ChatPreviewProto";
+option java_multiple_files = true;
+
+import "spine/core/user_id.proto";
+import "spine_examples/chatspn/identifiers.proto";
+import "spine_examples/chatspn/chat/chat.proto";
+import "spine_examples/chatspn/account/user_profile.proto";
+import "spine_examples/chatspn/message/message.proto";
+import "google/protobuf/timestamp.proto";
+
+// Single chat preview.
+message ChatPreview {
+    option (entity) = { kind: PROJECTION };
+
+    // The ID of the chat.
+    ChatId id = 1;
+
+    // The last posted message in this chat.
+    MessagePreview last_message = 2;
+
+    // Primary view of the chat (e.g. name).
+    //
+    // May be:
+    // - personal, store view info about two members to display
+    //   a view of another member for each user;
+    // - group, store same view info for all members.
+    oneof view {
+
+        PersonalChatView personal_chat_view = 3;
+
+        GroupChatView group_chat_view = 4;
+    }
+
+    message PersonalChatView {
+
+        // The ID of the creator.
+        spine.core.UserId creator_id = 1;
+
+        // The name of the creator.
+        string creator_name = 2;
+
+        // The ID of the member in the personal chat.
+        spine.core.UserId member_id = 3;
+
+        // The name of the second member in the personal chat.
+        string member_name = 4;
+    }
+
+    message GroupChatView {
+
+        // Group chat name.
+        string name = 1;
+    }
+
+    message MessagePreview {
+
+        // The ID of the message.
+        MessageId id = 1 [(required) = true];
+
+        // The ID of the user who posted this message.
+        spine.core.UserId user = 2 [(required) = true];
+
+        // The message text content.
+        string content = 3 [(required) = true];
+
+        // Time when this message was posted.
+        google.protobuf.Timestamp when_posted = 4 [(required) = true];
+    }
+}

@@ -29,10 +29,12 @@ package io.spine.examples.chatspn.server;
 import io.spine.examples.chatspn.server.account.AccountCreationRepository;
 import io.spine.examples.chatspn.server.account.ReservedEmailAggregate;
 import io.spine.examples.chatspn.server.account.UserAggregate;
+import io.spine.examples.chatspn.server.account.UserChatsRepository;
 import io.spine.examples.chatspn.server.account.UserProfileRepository;
 import io.spine.examples.chatspn.server.chat.ChatAggregate;
 import io.spine.examples.chatspn.server.chat.ChatDeletionRepository;
 import io.spine.examples.chatspn.server.chat.ChatMembersRepository;
+import io.spine.examples.chatspn.server.chat.ChatPreviewRepository;
 import io.spine.examples.chatspn.server.message.MessageAggregate;
 import io.spine.examples.chatspn.server.message.MessageEditingRepository;
 import io.spine.examples.chatspn.server.message.MessageRemovalRepository;
@@ -73,6 +75,8 @@ public final class ChatsContext {
                 .add(DefaultRepository.of(ReservedEmailAggregate.class))
                 .add(new AccountCreationRepository())
                 .add(new MessageViewRepository())
-                .add(new ChatDeletionRepository());
+                .add(new ChatDeletionRepository())
+                .add(new ChatPreviewRepository())
+                .add(new UserChatsRepository());
     }
 }
