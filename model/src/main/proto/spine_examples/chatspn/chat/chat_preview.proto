@@ -67,16 +67,10 @@ message ChatPreview {
     message PersonalChatView {
 
         // The ID of the creator.
-        spine.core.UserId creator_id = 1;
-
-        // The name of the creator.
-        string creator_name = 2;
+        spine.core.UserId creator = 1 [(required) = true];
 
         // The ID of the member in the personal chat.
-        spine.core.UserId member_id = 3;
-
-        // The name of the second member in the personal chat.
-        string member_name = 4;
+        spine.core.UserId member = 2 [(required) = true];
     }
 
     message GroupChatView {

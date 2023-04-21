@@ -32,6 +32,7 @@ import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.chat.ChatPreview.GroupChatView;
 import io.spine.examples.chatspn.chat.ChatPreview.MessagePreview;
 import io.spine.examples.chatspn.chat.ChatPreview.PersonalChatView;
+import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
@@ -49,10 +50,8 @@ public final class ChatPreviewProjection
     void on(PersonalChatCreated e) {
         PersonalChatView view = PersonalChatView
                 .newBuilder()
-                .setCreatorId(e.getCreator())
-                //TODO: creator_name
-                .setMemberId(e.getMember())
-                //TODO: member_name
+                .setCreator(e.getCreator())
+                .setMember(e.getMember())
                 .vBuild();
         builder().setId(e.getId())
                  .setPersonalChatView(view);
@@ -103,5 +102,10 @@ public final class ChatPreviewProjection
               .equals(lastMessage.getId())) {
             builder().setLastMessage(MessagePreview.getDefaultInstance());
         }
+    }
+
+    @Subscribe
+    void on(ChatMarkedAsDeleted e) {
+        setDeleted(true);
     }
 }
