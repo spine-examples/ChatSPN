@@ -36,9 +36,9 @@ import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.chat.event.ChatDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.LastMemberLeftChat;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
-import io.spine.examples.chatspn.chat.event.LastMemberLeftChat;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
 import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
@@ -64,12 +64,12 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGrou
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatCreatedFrom;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.lastMemberLeftChat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.leaveChat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersAddedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeAddedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeRemovedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersRemovedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.lastMemberLeftChat;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersRemoved;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatCreatedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.removeMembersCommandWith;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userCannotLeaveChat;
@@ -125,7 +125,8 @@ final class ChatTest extends ContextAwareTest {
             RemoveMembers command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
             ImmutableList<UserId> remainingMembers = ImmutableList.of(chatOwner);
-            MembersRemoved expected = membersRemovedFrom(command, remainingMembers);
+            ImmutableList<UserId> removedMembers = ImmutableList.of(commonChatMember);
+            MembersRemoved expected = membersRemoved(command, remainingMembers, removedMembers);
 
             context().assertEvent(expected);
         }
