@@ -26,26 +26,45 @@
 
 package io.spine.examples.chatspn.server.account;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.core.EventContext;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.account.UserChats;
+import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.ChatPreview;
+import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
+import io.spine.examples.chatspn.chat.event.MembersRemoved;
+import io.spine.examples.chatspn.chat.event.UserLeftChat;
+import io.spine.examples.chatspn.server.ChatMembersReader;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.projection.ProjectionRepository;
+import io.spine.server.route.EventRouting;
 import io.spine.server.route.StateUpdateRouting;
 
-import java.util.List;
 import java.util.Set;
+
+import static io.spine.server.route.EventRoute.withId;
 
 /**
  * The repository for managing {@link UserChatsProjection} instances.
  */
 public final class UserChatsRepository
         extends ProjectionRepository<UserId, UserChatsProjection, UserChats> {
+
+    @OverridingMethodsMustInvokeSuper
+    @Override
+    protected void setupEventRouting(EventRouting<UserId> routing) {
+        super.setupEventRouting(routing);
+        routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()))
+               .route(UserLeftChat.class, (event, context) -> withId(event.getUser()))
+               .route(MembersRemoved.class,
+                      (event, context) -> ImmutableSet.copyOf(event.getRemainingMemberList()))
+               .route(ChatMarkedAsDeleted.class,
+                      (event, context) -> ImmutableSet.copyOf(event.getMemberList()));
+    }
 
     @Override
     protected void setupStateRouting(StateUpdateRouting<UserId> routing) {
@@ -56,13 +75,7 @@ public final class UserChatsRepository
     private Set<UserId> getChatMembers(ChatId chatId, EventContext ctx) {
         ProjectionReader<ChatId, ChatMembers> reader =
                 new ProjectionReader<>(context().stand(), ChatMembers.class);
-        ImmutableList<ChatMembers> projections =
-                reader.read(ImmutableSet.of(chatId), ctx.getImportContext());
-        if (projections.isEmpty()) {
-            return ImmutableSet.of();
-        }
-        List<UserId> members = projections.get(0)
-                                          .getMemberList();
-        return ImmutableSet.copyOf(members);
+        ChatMembersReader chatMembers = new ChatMembersReader(reader);
+        return ImmutableSet.copyOf(chatMembers.members(chatId, ctx.actorContext()));
     }
 }

@@ -26,13 +26,15 @@
 
 package io.spine.examples.chatspn.server.account;
 
-import io.spine.core.External;
 import io.spine.core.Subscribe;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.examples.chatspn.chat.ChatPreview;
+import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
+import io.spine.examples.chatspn.chat.event.MembersRemoved;
+import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.server.projection.Projection;
 
 import java.util.Optional;
@@ -48,9 +50,40 @@ public final class UserChatsProjection extends Projection<UserId, UserChats, Use
     }
 
     @Subscribe
-    void onUpdate(ChatPreview state) {
+    void onUpdate(ChatPreview s) {
+        Optional<Integer> index = findChatIndex(s.getId());
+        if (index.isPresent()) {
+            builder().setChat(index.get(), s);
+        } else {
+            builder().addChat(s);
+        }
     }
 
+    @Subscribe
+    void on(ChatMarkedAsDeleted e) {
+        removeChat(e.getId());
+    }
+
+    @Subscribe
+    void on(UserLeftChat e) {
+        removeChat(e.getChat());
+    }
+
+    @Subscribe
+    void on(MembersRemoved e) {
+        removeChat(e.getId());
+    }
+
+    private void removeChat(ChatId id) {
+        Optional<Integer> optionalIndex = findChatIndex(id);
+        optionalIndex.ifPresent(index -> builder().removeChat(index));
+    }
+
+    /**
+     * Returns the index of the chat in the list from the state.
+     *
+     * <p>Returns {@code Optional.empty()} if the chat doesn't exist.
+     */
     private Optional<Integer> findChatIndex(ChatId chatId) {
         Optional<ChatPreview> optionalChat =
                 state().getChatList()
