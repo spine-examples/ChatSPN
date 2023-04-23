@@ -26,7 +26,9 @@
 
 package io.spine.examples.chatspn.server.message;
 
+import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.SendMessage;
@@ -42,6 +44,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createDeletedGroupChatIn;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userChats;
+import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.chatPreview;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messageCannotBeSentFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messageFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messagePostedFrom;
@@ -107,6 +111,19 @@ public final class MessageSendingTest extends ContextAwareTest {
         context().assertState(expected.getId(), MessageView.class)
                  .comparingExpectedFieldsOnly()
                  .isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("update last message in `ChatPreview` and `UserChats` projections")
+    void updateLastMessage() {
+        Chat chat = createRandomChatIn(context());
+        SendMessage command = randomSendMessageCommand(chat);
+        context().receivesCommand(command);
+        ChatPreview chatPreview = chatPreview(chat, command);
+        UserChats userChats = userChats(chatPreview, chat.getMember(0));
+
+        context().assertState(chatPreview.getId(), chatPreview);
+        context().assertState(userChats.getId(), userChats);
     }
 
     @Nested

@@ -29,6 +29,8 @@ package io.spine.examples.chatspn.server.message.given;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.ChatPreview;
+import io.spine.examples.chatspn.chat.ChatPreview.MessagePreview;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.SendMessage;
@@ -36,6 +38,7 @@ import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.event.MessageSent;
 import io.spine.examples.chatspn.message.rejection.SendingRejections.MessageCannotBeSent;
 
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatView;
 import static io.spine.testing.TestValues.randomString;
 
 public final class MessageSendingTestEnv {
@@ -121,5 +124,21 @@ public final class MessageSendingTestEnv {
                 .setContent(c.getContent())
                 .vBuild();
         return rejection;
+    }
+
+    public static ChatPreview chatPreview(Chat chat, SendMessage command) {
+        MessagePreview messagePreview = MessagePreview
+                .newBuilder()
+                .setId(command.getId())
+                .setUser(command.getUser())
+                .setContent(command.getContent())
+                .buildPartial();
+        ChatPreview state = ChatPreview
+                .newBuilder()
+                .setId(chat.getId())
+                .setGroupChatView(groupChatView(chat.getName()))
+                .setLastMessage(messagePreview)
+                .vBuild();
+        return state;
     }
 }

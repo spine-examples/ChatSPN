@@ -30,7 +30,11 @@ import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.ChatPreview;
+import io.spine.examples.chatspn.chat.ChatPreview.GroupChatView;
+import io.spine.examples.chatspn.chat.ChatPreview.PersonalChatView;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
@@ -366,6 +370,72 @@ public final class ChatTestEnv {
                 .toBuilder()
                 .clearMember()
                 .addAllMember(newMemberList)
+                .vBuild();
+        return state;
+    }
+
+    public static ChatPreview personalChatPreview(CreatePersonalChat c) {
+        PersonalChatView view = PersonalChatView
+                .newBuilder()
+                .setCreator(c.getCreator())
+                .setMember(c.getMember())
+                .vBuild();
+        ChatPreview state = ChatPreview
+                .newBuilder()
+                .setId(c.getId())
+                .setPersonalChatView(view)
+                .vBuild();
+        return state;
+    }
+
+    public static ChatPreview groupChatPreview(CreateGroupChat c) {
+        ChatPreview state = ChatPreview
+                .newBuilder()
+                .setId(c.getId())
+                .setGroupChatView(groupChatView(c.getName()))
+                .vBuild();
+        return state;
+    }
+
+    public static ChatPreview groupChatPreview(Chat chat) {
+        ChatPreview state = ChatPreview
+                .newBuilder()
+                .setId(chat.getId())
+                .setGroupChatView(groupChatView(chat.getName()))
+                .vBuild();
+        return state;
+    }
+
+    public static GroupChatView groupChatView(String name) {
+        GroupChatView view = GroupChatView
+                .newBuilder()
+                .setName(name)
+                .vBuild();
+        return view;
+    }
+
+    public static UserChats userChats(ChatPreview chatPreview, UserId user) {
+        UserChats state = UserChats
+                .newBuilder()
+                .setId(user)
+                .addChat(chatPreview)
+                .vBuild();
+        return state;
+    }
+
+    public static UserChats userChats(Chat groupChat, UserId user) {
+        UserChats state = UserChats
+                .newBuilder()
+                .setId(user)
+                .addChat(groupChatPreview(groupChat))
+                .vBuild();
+        return state;
+    }
+
+    public static UserChats emptyUserChats(UserId user) {
+        UserChats state = UserChats
+                .newBuilder()
+                .setId(user)
                 .vBuild();
         return state;
     }

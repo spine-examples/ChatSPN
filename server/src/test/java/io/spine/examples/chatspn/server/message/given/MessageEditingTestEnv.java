@@ -28,6 +28,8 @@ package io.spine.examples.chatspn.server.message.given;
 
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.EditMessage;
@@ -37,6 +39,7 @@ import io.spine.examples.chatspn.message.event.MessageEditingFailed;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageCannotBeEdited;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageContentCannotBeUpdated;
 
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatView;
 import static io.spine.testing.TestValues.randomString;
 
 public final class MessageEditingTestEnv {
@@ -155,5 +158,21 @@ public final class MessageEditingTestEnv {
                 .setSuggestedContent(c.getSuggestedContent())
                 .vBuild();
         return rejection;
+    }
+
+    public static ChatPreview chatPreview(Chat chat, EditMessage command) {
+        ChatPreview.MessagePreview messageView = ChatPreview.MessagePreview
+                .newBuilder()
+                .setId(command.getId())
+                .setUser(command.getUser())
+                .setContent(command.getSuggestedContent())
+                .buildPartial();
+        ChatPreview state = ChatPreview
+                .newBuilder()
+                .setId(chat.getId())
+                .setGroupChatView(groupChatView(chat.getName()))
+                .setLastMessage(messageView)
+                .vBuild();
+        return state;
     }
 }
