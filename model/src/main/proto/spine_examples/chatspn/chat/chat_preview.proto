@@ -69,7 +69,7 @@ message ChatPreview {
         // The ID of the creator.
         spine.core.UserId creator = 1 [(required) = true];
 
-        // The ID of the member in the personal chat.
+        // The ID of the second member in the personal chat.
         spine.core.UserId member = 2 [(required) = true];
     }
 

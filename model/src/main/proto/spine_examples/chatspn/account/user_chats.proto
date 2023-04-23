@@ -39,13 +39,13 @@ import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
 import "spine_examples/chatspn/chat/chat_preview.proto";
 
-// Previews of chats in which the user is a member.
+// Chats in which the user is a member.
 message UserChats {
     option (entity) = { kind: PROJECTION };
 
     // The ID of the user.
     spine.core.UserId id = 1;
 
-    // Chats the user is a member of.
+    // Previews of chats in which the user is a member.
     repeated spine_examples.chatspn.chat.ChatPreview chat = 2 [(distinct) = true];
 }

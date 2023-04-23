@@ -40,7 +40,7 @@ import io.spine.server.route.EventRouting;
 import static io.spine.server.route.EventRoute.withId;
 
 /**
- * The repository for managing {@link ChatMembersProjection} instances.
+ * The repository for managing {@link ChatPreviewProjection} instances.
  */
 public final class ChatPreviewRepository
         extends ProjectionRepository<ChatId, ChatPreviewProjection, ChatPreview> {

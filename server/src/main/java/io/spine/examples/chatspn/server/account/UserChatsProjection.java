@@ -42,7 +42,7 @@ import io.spine.server.projection.Projection;
 import java.util.Optional;
 
 /**
- * Previews of chats in which the user is a member.
+ * Projection of chats in which the user is a member.
  */
 public final class UserChatsProjection extends Projection<UserId, UserChats, UserChats.Builder> {
 
@@ -53,9 +53,9 @@ public final class UserChatsProjection extends Projection<UserId, UserChats, Use
 
     @Subscribe
     void onUpdate(ChatPreview s) {
-        Optional<Integer> index = findChatIndex(s.getId());
-        if (index.isPresent()) {
-            builder().setChat(index.get(), s);
+        Optional<Integer> chatIndex = findChatIndex(s.getId());
+        if (chatIndex.isPresent()) {
+            builder().setChat(chatIndex.get(), s);
         } else {
             builder().addChat(s);
         }
