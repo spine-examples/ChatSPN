@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server;
 
-import io.spine.examples.chatspn.BoundedContextName;
 import io.spine.examples.chatspn.server.account.AccountCreationRepository;
 import io.spine.examples.chatspn.server.account.ReservedEmailAggregate;
 import io.spine.examples.chatspn.server.account.UserAggregate;
@@ -45,6 +44,8 @@ import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
 
+import static io.spine.examples.chatspn.BoundedContextName.CHATS;
+
 /**
  * Configures Chats Bounded Context with repositories.
  */
@@ -62,7 +63,7 @@ public final class ChatsContext {
      */
     public static BoundedContextBuilder newBuilder() {
         return BoundedContext
-                .singleTenant(BoundedContextName.CHATS)
+                .singleTenant(CHATS)
                 .add(DefaultRepository.of(UserAggregate.class))
                 .add(DefaultRepository.of(ChatAggregate.class))
                 .add(DefaultRepository.of(MessageAggregate.class))
