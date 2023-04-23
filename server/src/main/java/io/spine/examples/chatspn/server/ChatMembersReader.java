@@ -24,24 +24,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.message;
+package io.spine.examples.chatspn.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import io.spine.core.ActorContext;
 import io.spine.core.CommandContext;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatMembers;
-import io.spine.examples.chatspn.server.ProjectionReader;
 
 /**
  * Provides an API to read the {@link ChatMembers} projection.
  */
-final class ChatMembersReader {
+public final class ChatMembersReader {
 
     private final ProjectionReader<ChatId, ChatMembers> reader;
 
-    ChatMembersReader(ProjectionReader<ChatId, ChatMembers> reader) {
+    public ChatMembersReader(ProjectionReader<ChatId, ChatMembers> reader) {
         this.reader = reader;
     }
 
@@ -52,7 +52,7 @@ final class ChatMembersReader {
      *
      * @return {@code true} in case user is a member of the chat, {@code false} otherwise
      */
-    boolean isMember(ChatId id, UserId userId, CommandContext ctx) {
+    public boolean isMember(ChatId id, UserId userId, CommandContext ctx) {
         ImmutableList<ChatMembers> projections =
                 reader.read(ImmutableSet.of(id), ctx.getActorContext());
         if (projections.isEmpty()) {
@@ -62,5 +62,20 @@ final class ChatMembersReader {
                                       .getMemberList()
                                       .contains(userId);
         return isMember;
+    }
+
+    /**
+     * Returns a list of chat members.
+     *
+     * <p>If the chat with the provided ID does not exist, just returns empty list.
+     */
+    public ImmutableList<UserId> members(ChatId chat, ActorContext ctx) {
+        ImmutableList<ChatMembers> projections = reader
+                .read(ImmutableSet.of(chat), ctx);
+        if (projections.isEmpty()) {
+            return ImmutableList.of();
+        }
+        return ImmutableList.copyOf(projections.get(0)
+                                               .getMemberList());
     }
 }

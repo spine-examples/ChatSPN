@@ -36,6 +36,7 @@ import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.event.MessageSent;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeSent;
+import io.spine.examples.chatspn.server.ChatMembersReader;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;

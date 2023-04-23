@@ -38,6 +38,7 @@ import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
 import io.spine.examples.chatspn.message.event.MessageRemoved;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeRemoved;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
+import io.spine.examples.chatspn.server.ChatMembersReader;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
