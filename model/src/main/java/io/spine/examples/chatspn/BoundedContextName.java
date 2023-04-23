@@ -27,7 +27,7 @@
 package io.spine.examples.chatspn;
 
 /**
- * Constant store for the {@link io.spine.server.BoundedContext} names in the ChatSPN.
+ * Names for the {@link io.spine.server.BoundedContext}s in the ChatSPN.
  */
 public final class BoundedContextName {
 
