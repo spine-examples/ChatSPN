@@ -36,6 +36,7 @@ import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
+import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.examples.chatspn.server.ChatMembersReader;
@@ -60,6 +61,8 @@ public final class UserChatsRepository
         super.setupEventRouting(routing);
         routing.route(UserRegistered.class, (event, context) -> withId(event.getUser()))
                .route(UserLeftChat.class, (event, context) -> withId(event.getUser()))
+               .route(MembersAdded.class,
+                      (event, context) -> ImmutableSet.copyOf(event.getMemberList()))
                .route(MembersRemoved.class,
                       (event, context) -> ImmutableSet.copyOf(event.getRemainingMemberList()))
                .route(ChatMarkedAsDeleted.class,

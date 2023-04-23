@@ -32,7 +32,9 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.examples.chatspn.chat.ChatPreview;
+import io.spine.examples.chatspn.chat.ChatPreview.GroupChatView;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
+import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.server.projection.Projection;
@@ -67,6 +69,23 @@ public final class UserChatsProjection extends Projection<UserId, UserChats, Use
     @Subscribe
     void on(UserLeftChat e) {
         removeChat(e.getChat());
+    }
+
+    @Subscribe
+    void on(MembersAdded e) {
+        Optional<Integer> chatIndex = findChatIndex(e.getId());
+        if (!chatIndex.isPresent()) {
+            GroupChatView view = GroupChatView
+                    .newBuilder()
+                    .setName(e.getChatName())
+                    .vBuild();
+            ChatPreview chatPreview = ChatPreview
+                    .newBuilder()
+                    .setId(e.getId())
+                    .setGroupChatView(view)
+                    .vBuild();
+            builder().addChat(chatPreview);
+        }
     }
 
     @Subscribe
