@@ -216,11 +216,13 @@ public final class ChatTestEnv {
         return command;
     }
 
-    public static MembersAdded membersAddedFrom(AddMembers c,
-                                                List<UserId> addedMembers) {
+    public static MembersAdded membersAdded(AddMembers c,
+                                            Chat chat,
+                                            List<UserId> addedMembers) {
         MembersAdded event = MembersAdded
                 .newBuilder()
                 .setId(c.getId())
+                .setChatName(chat.getName())
                 .setWhoAdded(c.getWhoAdds())
                 .addAllMember(addedMembers)
                 .vBuild();

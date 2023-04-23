@@ -213,6 +213,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
             return MembersAdded
                     .newBuilder()
                     .setId(c.getId())
+                    .setChatName(state().getName())
                     .setWhoAdded(c.getWhoAdds())
                     .addAllMember(newMembers)
                     .vBuild();

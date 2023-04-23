@@ -214,7 +214,7 @@ final class ChatTest extends ContextAwareTest {
             context().receivesCommand(command);
             ImmutableList<UserId> addedMembers =
                     ImmutableList.of(membersToAdd.get(0));
-            MembersAdded expected = membersAddedFrom(command, addedMembers);
+            MembersAdded expected = membersAdded(command, chat, addedMembers);
 
             context().assertEvent(expected);
         }
