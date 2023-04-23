@@ -98,7 +98,7 @@ public final class ChatPreviewProjection
     @Subscribe
     void on(MessageMarkedAsDeleted e) {
         MessagePreview lastMessage = state().getLastMessage();
-        if (!e.getId()
+        if (e.getId()
               .equals(lastMessage.getId())) {
             builder().setLastMessage(MessagePreview.getDefaultInstance());
         }
