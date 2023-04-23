@@ -64,7 +64,7 @@ public final class UserChatsRepository
                .route(MembersAdded.class,
                       (event, context) -> ImmutableSet.copyOf(event.getMemberList()))
                .route(MembersRemoved.class,
-                      (event, context) -> ImmutableSet.copyOf(event.getRemainingMemberList()))
+                      (event, context) -> ImmutableSet.copyOf(event.getRemovedMemberList()))
                .route(ChatMarkedAsDeleted.class,
                       (event, context) -> ImmutableSet.copyOf(event.getMemberList()));
     }
