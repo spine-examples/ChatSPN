@@ -33,8 +33,8 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.ChatPreview.GroupChatView;
-import io.spine.examples.chatspn.chat.ChatPreview.PersonalChatView;
+import io.spine.examples.chatspn.chat.GroupChatView;
+import io.spine.examples.chatspn.chat.PersonalChatView;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
@@ -383,7 +383,7 @@ public final class ChatTestEnv {
         ChatPreview state = ChatPreview
                 .newBuilder()
                 .setId(c.getId())
-                .setPersonalChatView(view)
+                .setPersonalChat(view)
                 .vBuild();
         return state;
     }
@@ -392,7 +392,7 @@ public final class ChatTestEnv {
         ChatPreview state = ChatPreview
                 .newBuilder()
                 .setId(c.getId())
-                .setGroupChatView(groupChatView(c.getName()))
+                .setGroupChat(groupChatView(c.getName()))
                 .vBuild();
         return state;
     }
@@ -401,7 +401,7 @@ public final class ChatTestEnv {
         ChatPreview state = ChatPreview
                 .newBuilder()
                 .setId(chat.getId())
-                .setGroupChatView(groupChatView(chat.getName()))
+                .setGroupChat(groupChatView(chat.getName()))
                 .vBuild();
         return state;
     }

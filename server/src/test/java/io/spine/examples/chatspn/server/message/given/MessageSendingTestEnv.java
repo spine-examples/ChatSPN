@@ -30,7 +30,7 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.ChatPreview.MessagePreview;
+import io.spine.examples.chatspn.chat.MessagePreview;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.SendMessage;
@@ -136,7 +136,7 @@ public final class MessageSendingTestEnv {
         ChatPreview state = ChatPreview
                 .newBuilder()
                 .setId(chat.getId())
-                .setGroupChatView(groupChatView(chat.getName()))
+                .setGroupChat(groupChatView(chat.getName()))
                 .setLastMessage(messagePreview)
                 .vBuild();
         return state;

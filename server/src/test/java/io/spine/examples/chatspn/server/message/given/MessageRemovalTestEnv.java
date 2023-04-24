@@ -31,7 +31,7 @@ import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.ChatPreview.MessagePreview;
+import io.spine.examples.chatspn.chat.MessagePreview;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
@@ -154,8 +154,8 @@ public final class MessageRemovalTestEnv {
         ChatPreview state = ChatPreview
                 .newBuilder()
                 .setId(chat.getId())
-                .setGroupChatView(groupChatView(chat.getName()))
-                .setLastMessage(ChatPreview.MessagePreview.getDefaultInstance())
+                .setGroupChat(groupChatView(chat.getName()))
+                .setLastMessage(MessagePreview.getDefaultInstance())
                 .vBuild();
         return state;
     }
@@ -170,7 +170,7 @@ public final class MessageRemovalTestEnv {
         ChatPreview state = ChatPreview
                 .newBuilder()
                 .setId(chat.getId())
-                .setGroupChatView(groupChatView(chat.getName()))
+                .setGroupChat(groupChatView(chat.getName()))
                 .setLastMessage(messageView)
                 .vBuild();
         return state;

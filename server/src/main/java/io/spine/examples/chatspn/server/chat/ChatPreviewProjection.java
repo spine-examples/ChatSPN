@@ -29,9 +29,9 @@ package io.spine.examples.chatspn.server.chat;
 import io.spine.core.Subscribe;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.ChatPreview.GroupChatView;
-import io.spine.examples.chatspn.chat.ChatPreview.MessagePreview;
-import io.spine.examples.chatspn.chat.ChatPreview.PersonalChatView;
+import io.spine.examples.chatspn.chat.GroupChatView;
+import io.spine.examples.chatspn.chat.MessagePreview;
+import io.spine.examples.chatspn.chat.PersonalChatView;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
@@ -54,7 +54,7 @@ public final class ChatPreviewProjection
                 .setMember(e.getMember())
                 .vBuild();
         builder().setId(e.getId())
-                 .setPersonalChatView(view);
+                 .setPersonalChat(view);
     }
 
     @Subscribe
@@ -64,7 +64,7 @@ public final class ChatPreviewProjection
                 .setName(e.getName())
                 .vBuild();
         builder().setId(e.getId())
-                 .setGroupChatView(view);
+                 .setGroupChat(view);
     }
 
     @Subscribe

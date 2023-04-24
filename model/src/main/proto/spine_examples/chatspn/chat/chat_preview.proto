@@ -54,40 +54,45 @@ message ChatPreview {
     // View of the chat.
     oneof view {
 
-        // Store view info about two members to display a view of another member for each user;
-        PersonalChatView personal_chat_view = 3;
+        // Store view info about two members to display a view of another member for each user.
+        PersonalChatView personal_chat = 3;
 
-        // Store same view info for all members.
-        GroupChatView group_chat_view = 4;
+        // Store the same view info of the group chat for all members.
+        GroupChatView group_chat = 4;
     }
+}
 
-    message PersonalChatView {
+// View of the group chat.
+message GroupChatView {
 
-        // The ID of the creator.
-        spine.core.UserId creator = 1 [(required) = true];
+    // Group chat name.
+    string name = 1;
+}
 
-        // The ID of the second member in the personal chat.
-        spine.core.UserId member = 2 [(required) = true];
-    }
+// View info about two members to display a view of another member
+// for each user in the personal chat.
+//
+message PersonalChatView {
 
-    message GroupChatView {
+    // The ID of the creator.
+    spine.core.UserId creator = 1 [(required) = true];
 
-        // Group chat name.
-        string name = 1;
-    }
+    // The ID of the second member in the personal chat.
+    spine.core.UserId member = 2 [(required) = true];
+}
 
-    message MessagePreview {
+// Single message preview.
+message MessagePreview {
 
-        // The ID of the message.
-        MessageId id = 1 [(required) = true];
+    // The ID of the message.
+    MessageId id = 1 [(required) = true];
 
-        // The ID of the user who posted this message.
-        spine.core.UserId user = 2 [(required) = true];
+    // The ID of the user who posted this message.
+    spine.core.UserId user = 2 [(required) = true];
 
-        // The message text content.
-        string content = 3 [(required) = true];
+    // The message text content.
+    string content = 3 [(required) = true];
 
-        // Time when this message was posted.
-        google.protobuf.Timestamp when_posted = 4 [(required) = true];
-    }
+    // Time when this message was posted.
+    google.protobuf.Timestamp when_posted = 4 [(required) = true];
 }

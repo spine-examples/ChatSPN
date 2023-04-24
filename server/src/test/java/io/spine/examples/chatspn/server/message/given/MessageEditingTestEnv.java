@@ -30,6 +30,7 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatPreview;
+import io.spine.examples.chatspn.chat.MessagePreview;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.EditMessage;
@@ -161,7 +162,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static ChatPreview chatPreview(Chat chat, EditMessage command) {
-        ChatPreview.MessagePreview messageView = ChatPreview.MessagePreview
+        MessagePreview messageView = MessagePreview
                 .newBuilder()
                 .setId(command.getId())
                 .setUser(command.getUser())
@@ -170,7 +171,7 @@ public final class MessageEditingTestEnv {
         ChatPreview state = ChatPreview
                 .newBuilder()
                 .setId(chat.getId())
-                .setGroupChatView(groupChatView(chat.getName()))
+                .setGroupChat(groupChatView(chat.getName()))
                 .setLastMessage(messageView)
                 .vBuild();
         return state;

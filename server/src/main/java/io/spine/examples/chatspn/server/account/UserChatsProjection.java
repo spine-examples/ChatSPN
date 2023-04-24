@@ -32,7 +32,7 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.account.event.UserRegistered;
 import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.ChatPreview.GroupChatView;
+import io.spine.examples.chatspn.chat.GroupChatView;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
 import io.spine.examples.chatspn.chat.event.MembersRemoved;
@@ -82,7 +82,7 @@ public final class UserChatsProjection extends Projection<UserId, UserChats, Use
             ChatPreview chatPreview = ChatPreview
                     .newBuilder()
                     .setId(e.getId())
-                    .setGroupChatView(view)
+                    .setGroupChat(view)
                     .vBuild();
             builder().addChat(chatPreview);
         }
