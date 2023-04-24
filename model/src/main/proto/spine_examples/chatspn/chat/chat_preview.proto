@@ -51,16 +51,13 @@ message ChatPreview {
     // The last posted message in this chat.
     MessagePreview last_message = 2;
 
-    // Primary view of the chat (e.g. name).
-    //
-    // May be:
-    // - personal, store view info about two members to display
-    //   a view of another member for each user;
-    // - group, store same view info for all members.
+    // View of the chat.
     oneof view {
 
+        // Store view info about two members to display a view of another member for each user;
         PersonalChatView personal_chat_view = 3;
 
+        // Store same view info for all members.
         GroupChatView group_chat_view = 4;
     }
 

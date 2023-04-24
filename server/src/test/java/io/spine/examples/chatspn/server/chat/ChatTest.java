@@ -103,7 +103,7 @@ final class ChatTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("create a `ChatPreview` projection and update the `UserChats` projection" +
+    @DisplayName("create a `ChatPreview` projection and update the `UserChats` projection " +
             "after personal chat creation")
     void updateProjectionsAfterPersonalChatCreation() {
         CreatePersonalChat command = createPersonalChatCommand();
@@ -131,7 +131,7 @@ final class ChatTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("create a `ChatPreview` projection and update the `UserChats` projection" +
+    @DisplayName("create a `ChatPreview` projection and update the `UserChats` projection " +
             "after group chat creation")
     void updateProjectionsAfterGroupChatCreation() {
         CreateGroupChat command = createGroupChatCommand();
