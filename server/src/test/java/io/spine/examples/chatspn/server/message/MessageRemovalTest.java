@@ -27,7 +27,9 @@
 package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
@@ -46,6 +48,9 @@ import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userChats;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.chatPreview;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.chatPreviewWithMessage;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageFrom;
@@ -136,6 +141,35 @@ final class MessageRemovalTest extends ContextAwareTest {
         context().assertEntity(command.message(), MessageViewProjection.class)
                  .deletedFlag()
                  .isTrue();
+    }
+
+    @Test
+    @DisplayName("update the last message in `ChatPreview` and `UserChats` projections " +
+            "if the removed message was the last one")
+    void updateLastMessage() {
+        Chat chat = createRandomChatIn(context());
+        Message message = sendRandomMessageTo(chat, context());
+        RemoveMessage command = removeMessageCommand(message);
+        context().receivesCommand(command);
+        ChatPreview chatPreview = chatPreview(chat);
+        UserChats userChats = userChats(chatPreview, chat.getMember(0));
+
+        context().assertState(chatPreview.getId(), chatPreview);
+        context().assertState(userChats.getId(), userChats);
+    }
+
+    @Test
+    @DisplayName("not update the last message in the `ChatPreview` projection " +
+            "if the removed message wasn't the last one")
+    void notUpdateLastMessage() {
+        Chat chat = createRandomChatIn(context());
+        Message message = sendRandomMessageTo(chat, context());
+        Message lastMessage = sendRandomMessageTo(chat, context());
+        RemoveMessage command = removeMessageCommand(message);
+        context().receivesCommand(command);
+        ChatPreview chatPreview = chatPreviewWithMessage(chat, lastMessage);
+
+        context().assertState(chatPreview.getId(), chatPreview);
     }
 
     @Nested

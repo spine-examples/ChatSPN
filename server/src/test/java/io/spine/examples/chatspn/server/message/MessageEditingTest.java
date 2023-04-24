@@ -27,7 +27,9 @@
 package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
@@ -47,6 +49,8 @@ import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userChats;
+import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.chatPreview;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.editMessageCommand;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.editMessageCommandWith;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageCannotBeEditedFrom;
@@ -56,6 +60,7 @@ import static io.spine.examples.chatspn.server.message.given.MessageEditingTestE
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageEditingFailedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageViewFrom;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.chatPreviewWithMessage;
 import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.createRandomChatIn;
 import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.sendRandomMessageTo;
 
@@ -139,6 +144,35 @@ final class MessageEditingTest extends ContextAwareTest {
         context().assertState(expected.getId(), MessageView.class)
                  .comparingExpectedFieldsOnly()
                  .isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("update the last message in `ChatPreview` and `UserChats` projections " +
+            "if the edited message was the last one")
+    void updateLastMessage() {
+        Chat chat = createRandomChatIn(context());
+        Message message = sendRandomMessageTo(chat, context());
+        EditMessage command = editMessageCommand(message);
+        context().receivesCommand(command);
+        ChatPreview chatPreview = chatPreview(chat, command);
+        UserChats userChats = userChats(chatPreview, chat.getMember(0));
+
+        context().assertState(chatPreview.getId(), chatPreview);
+        context().assertState(userChats.getId(), userChats);
+    }
+
+    @Test
+    @DisplayName("not update the last message in the `ChatPreview` projection " +
+            "if the edited message wasn't the last one")
+    void notUpdateLastMessage() {
+        Chat chat = createRandomChatIn(context());
+        Message message = sendRandomMessageTo(chat, context());
+        Message lastMessage = sendRandomMessageTo(chat, context());
+        EditMessage command = editMessageCommand(message);
+        context().receivesCommand(command);
+        ChatPreview chatPreview = chatPreviewWithMessage(chat, lastMessage);
+
+        context().assertState(chatPreview.getId(), chatPreview);
     }
 
     @Nested

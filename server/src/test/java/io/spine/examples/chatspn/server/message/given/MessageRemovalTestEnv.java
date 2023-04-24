@@ -29,6 +29,9 @@ package io.spine.examples.chatspn.server.message.given;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
+import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.ChatPreview;
+import io.spine.examples.chatspn.chat.MessagePreview;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
@@ -36,6 +39,8 @@ import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
 import io.spine.examples.chatspn.message.event.MessageRemoved;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeRemoved;
+
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatView;
 
 public final class MessageRemovalTestEnv {
 
@@ -143,5 +148,31 @@ public final class MessageRemovalTestEnv {
                 .newBuilder()
                 .setId(id)
                 .vBuild();
+    }
+
+    public static ChatPreview chatPreview(Chat chat) {
+        ChatPreview state = ChatPreview
+                .newBuilder()
+                .setId(chat.getId())
+                .setGroupChat(groupChatView(chat.getName()))
+                .setLastMessage(MessagePreview.getDefaultInstance())
+                .vBuild();
+        return state;
+    }
+
+    public static ChatPreview chatPreviewWithMessage(Chat chat, Message message) {
+        MessagePreview messageView = MessagePreview
+                .newBuilder()
+                .setId(message.getId())
+                .setUser(message.getUser())
+                .setContent(message.getContent())
+                .buildPartial();
+        ChatPreview state = ChatPreview
+                .newBuilder()
+                .setId(chat.getId())
+                .setGroupChat(groupChatView(chat.getName()))
+                .setLastMessage(messageView)
+                .vBuild();
+        return state;
     }
 }

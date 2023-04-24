@@ -124,12 +124,14 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     @Assign
     MembersRemoved handle(RemoveMembers c) throws MembersCannotBeRemoved {
         ImmutableList<UserId> remainingMembers = extractRemainingMembers(c);
+        ImmutableList<UserId> membersToRemove = extractMembersToRemove(c);
         if (checkRemovalPossibility(c, remainingMembers)) {
             return MembersRemoved
                     .newBuilder()
                     .setId(c.getId())
                     .setWhoRemoved(c.getWhoRemoves())
                     .addAllRemainingMember(remainingMembers)
+                    .addAllRemovedMember(membersToRemove)
                     .vBuild();
         }
         throw MembersCannotBeRemoved
@@ -168,7 +170,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     }
 
     /**
-     * Extracts the list of users who are members of the chat and can be removed.
+     * Extracts the list of users who will remain after members removal.
      */
     private ImmutableList<UserId> extractRemainingMembers(RemoveMembers command) {
         List<UserId> chatMembers = state().getMemberList();
@@ -179,6 +181,20 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                                    userId.equals(command.getWhoRemoves()))
                            .collect(toImmutableList());
         return remainingMembers;
+    }
+
+    /**
+     * Extracts the list of users who are members of the chat and can be removed.
+     */
+    private ImmutableList<UserId> extractMembersToRemove(RemoveMembers command) {
+        List<UserId> chatMembers = state().getMemberList();
+        List<UserId> membersInCommand = command.getMemberList();
+        ImmutableList<UserId> membersToRemove =
+                membersInCommand.stream()
+                        .filter(userId -> chatMembers.contains(userId) &&
+                                !userId.equals(command.getWhoRemoves()))
+                        .collect(toImmutableList());
+        return membersToRemove;
     }
 
     /**
@@ -197,6 +213,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
             return MembersAdded
                     .newBuilder()
                     .setId(c.getId())
+                    .setChatName(state().getName())
                     .setWhoAdded(c.getWhoAdds())
                     .addAllMember(newMembers)
                     .vBuild();
