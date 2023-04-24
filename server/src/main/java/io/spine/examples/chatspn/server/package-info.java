@@ -37,4 +37,4 @@ import io.spine.core.BoundedContext;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import static io.spine.examples.chatspn.BoundedContextName.CHATS;
+import static io.spine.examples.chatspn.BoundedContextNames.CHATS;

@@ -44,7 +44,7 @@ import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
 
-import static io.spine.examples.chatspn.BoundedContextName.CHATS;
+import static io.spine.examples.chatspn.BoundedContextNames.CHATS;
 
 /**
  * Configures Chats Bounded Context with repositories.

@@ -29,10 +29,10 @@ package io.spine.examples.chatspn;
 /**
  * Names for the {@link io.spine.server.BoundedContext}s in the ChatSPN.
  */
-public final class BoundedContextName {
+public final class BoundedContextNames {
 
     public static final String CHATS = "Chats";
 
-    private BoundedContextName() {
+    private BoundedContextNames() {
     }
 }
