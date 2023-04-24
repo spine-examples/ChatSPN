@@ -67,7 +67,7 @@ public final class ChatMembersReader {
     /**
      * Returns a list of chat members.
      *
-     * <p>If the chat with the provided ID does not exist, just returns empty list.
+     * <p>If the chat with the provided ID does not exist, returns an empty list.
      */
     public ImmutableList<UserId> members(ChatId chat, ActorContext ctx) {
         ImmutableList<ChatMembers> projections = reader
