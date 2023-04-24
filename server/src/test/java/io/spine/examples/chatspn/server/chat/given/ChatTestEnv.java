@@ -221,12 +221,12 @@ public final class ChatTestEnv {
     }
 
     public static MembersAdded membersAdded(AddMembers c,
-                                            Chat chat,
+                                            String chatName,
                                             List<UserId> addedMembers) {
         MembersAdded event = MembersAdded
                 .newBuilder()
                 .setId(c.getId())
-                .setChatName(chat.getName())
+                .setChatName(chatName)
                 .setWhoAdded(c.getWhoAdds())
                 .addAllMember(addedMembers)
                 .vBuild();
