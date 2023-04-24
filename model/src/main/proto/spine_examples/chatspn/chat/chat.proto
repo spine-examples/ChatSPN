@@ -45,6 +45,10 @@ message Chat {
     ChatId id = 1;
 
     // List of the chat members.
+    //
+    // It may be empty when the last member left the chat.
+    // In this case, the chat will be deleted.
+    //
     repeated spine.core.UserId member = 2 [(distinct) = true];
 
     // The type of the chat.
