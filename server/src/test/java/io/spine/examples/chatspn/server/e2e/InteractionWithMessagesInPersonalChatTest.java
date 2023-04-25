@@ -109,7 +109,7 @@ final class InteractionWithMessagesInPersonalChatTest extends ClientAwareTest {
         assertThat(editedLastMessage).isEqualTo(expectedLastMessage);
         assertThat(chatPreview).isEqualTo(expectedChatPreview);
 
-        //Message removal.
+        // Messages removal.
         removeMessage(lastMessage, client());
         removeMessage(firstMessage, client());
         expectedChatPreview = emptyChatPreview(chatPreview);
@@ -121,7 +121,7 @@ final class InteractionWithMessagesInPersonalChatTest extends ClientAwareTest {
         Truth.assertThat(chatMessages.size())
              .isEqualTo(0);
 
-        //Chat deletion.
+        // Chat deletion.
         deleteChat(chatPreview.getId(), vlad.getId(), client());
         UserChats vladExpectedChats = userChats(vlad.getId());
         UserChats artemExpectedChats = userChats(artem.getId());
