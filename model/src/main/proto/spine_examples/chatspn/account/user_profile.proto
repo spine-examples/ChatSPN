@@ -49,7 +49,7 @@ message UserProfile {
     string name = 2 [(required) = true];
 
     // The user's email address.
-    spine.net.EmailAddress email = 3 [(required) = true];
+    spine.net.EmailAddress email = 3 [(required) = true, (column) = true];
 
     // A time of last user activity.
     google.protobuf.Timestamp when_last_active = 4;
