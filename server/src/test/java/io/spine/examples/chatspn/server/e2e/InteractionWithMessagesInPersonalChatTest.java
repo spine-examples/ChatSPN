@@ -26,8 +26,7 @@
 
 package io.spine.examples.chatspn.server.e2e;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.truth.Truth;
+import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.account.UserProfile;
 import io.spine.examples.chatspn.chat.ChatPreview;
@@ -35,101 +34,82 @@ import io.spine.examples.chatspn.message.MessageView;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
+import java.util.ArrayList;
+import java.util.List;
+
+import static io.spine.examples.chatspn.server.ExpectedOnlyAssertions.assertExpectedFieldsEqual;
 import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.chatPreview;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.createPersonalChat;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.createRandomAccount;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.deleteChat;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.editMessage;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.emptyChatPreview;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.findChatPreview;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.findMessageView;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.findProfile;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.findUserChats;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.readMessagesInChat;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.removeMessage;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.sendMessage;
 import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.userChats;
 
-final class InteractionWithMessagesInPersonalChatTest extends ClientAwareTest {
+final class InteractionWithMessagesInPersonalChatTest extends ServerRunningTest {
 
     @Test
     @DisplayName("Users should be able to create account, personal chat, send messages, " +
             "edit messages, remove messages, and delete a chat.")
-    void messageInteractionInPersonalChat() {
-        // Accounts creation.
-        UserProfile vladExpectedProfile = createRandomAccount(client());
-        UserProfile artemExpectedProfile = createRandomAccount(client());
+    void messageInteractionInPersonalChat() throws InterruptedException {
+        // Vlad and Artem passed registration.
+        TestUser vlad = new TestUser();
+        TestUser artem = new TestUser();
 
-        UserProfile vlad = findProfile(vladExpectedProfile.getEmail(), client());
-        UserProfile artem = findProfile(artemExpectedProfile.getEmail(), client());
+        // Vlad finds Artem, creates personal chat, and sees it preview in `UserChats`.
+        UserProfile artemProfile = vlad.findUserBy(artem.email());
+        assertExpectedFieldsEqual(artemProfile, artem.profile());
+        ChatPreview expectedChat = vlad.createPersonalChatWith(artemProfile.getId());
+        ChatPreview chatVladView = vlad.readChats()
+                                       .getChat(0);
+        assertExpectedFieldsEqual(chatVladView, expectedChat);
 
-        assertThat(vlad).comparingExpectedFieldsOnly()
-                        .isEqualTo(vladExpectedProfile);
-        assertThat(artem).comparingExpectedFieldsOnly()
-                         .isEqualTo(artemExpectedProfile);
+        // Vlad sends messages and sees them in chat.
+        List<MessageView> expectedMessages = new ArrayList<>();
+        expectedMessages.add(vlad.sendMessageTo(chatVladView.getId()));
+        expectedMessages.add(vlad.sendMessageTo(chatVladView.getId()));
+        expectedMessages.add(vlad.sendMessageTo(chatVladView.getId()));
+        assertMessagesInChatEquality(vlad, chatVladView.getId(), expectedMessages);
 
-        // Chat creation.
-        ChatPreview expectedChatPreview = createPersonalChat(vlad.getId(), artem.getId(), client());
+        // The last message will be shown in the chat preview.
+        expectedChat = chatPreview(expectedChat, expectedMessages.get(2));
+        chatVladView = vlad.readChats()
+                           .getChat(0);
+        assertExpectedFieldsEqual(chatVladView, expectedChat);
 
-        ChatPreview chatPreview = findChatPreview(expectedChatPreview.getId(), client());
-        UserChats vladChats = findUserChats(vlad.getId(), client());
-        UserChats artemChats = findUserChats(artem.getId(), client());
+        // Artem reads messages in the chat.
+        ChatPreview chatArtemView = artem.readChats()
+                                         .getChat(0);
+        assertExpectedFieldsEqual(chatArtemView, expectedChat);
+        assertMessagesInChatEquality(artem, chatArtemView.getId(), expectedMessages);
 
-        assertThat(chatPreview).isEqualTo(expectedChatPreview);
-        assertThat(vladChats).isEqualTo(userChats(vlad.getId(), expectedChatPreview));
-        assertThat(artemChats).isEqualTo(userChats(artem.getId(), expectedChatPreview));
+        // Artem sends a message to the chat. Both Vlad and Artem will see the new message.
+        expectedMessages.add(artem.sendMessageTo(chatArtemView.getId()));
+        assertMessagesInChatEquality(vlad, chatVladView.getId(), expectedMessages);
+        assertMessagesInChatEquality(artem, chatArtemView.getId(), expectedMessages);
 
-        // Messages sending.
-        MessageView expectedFirstMessage = sendMessage(chatPreview.getId(), vlad.getId(), client());
-        MessageView expectedLastMessage = sendMessage(chatPreview.getId(), artem.getId(), client());
-        expectedChatPreview = chatPreview(chatPreview, expectedLastMessage);
+        // Artem edits the last message. Both Vlad and Artem will see changes.
+        MessageView editedMessage = artem.editMessage(expectedMessages.get(3));
+        expectedMessages.set(3, editedMessage);
+        assertMessagesInChatEquality(vlad, chatVladView.getId(), expectedMessages);
+        assertMessagesInChatEquality(artem, chatArtemView.getId(), expectedMessages);
 
-        MessageView firstMessage = findMessageView(expectedFirstMessage.getId(), client());
-        MessageView lastMessage = findMessageView(expectedLastMessage.getId(), client());
-        chatPreview = findChatPreview(chatPreview.getId(), client());
+        // Vlad removes the first message. Both Vlad and Artem will see changes.
+        vlad.removeMessage(expectedMessages.get(0));
+        expectedMessages.remove(0);
+        assertMessagesInChatEquality(vlad, chatVladView.getId(), expectedMessages);
+        assertMessagesInChatEquality(artem, chatArtemView.getId(), expectedMessages);
 
-        assertThat(firstMessage).comparingExpectedFieldsOnly()
-                                .isEqualTo(expectedFirstMessage);
-        assertThat(lastMessage).comparingExpectedFieldsOnly()
-                               .isEqualTo(expectedLastMessage);
-        assertThat(chatPreview).comparingExpectedFieldsOnly()
-                               .isEqualTo(expectedChatPreview);
+        // Artem deletes the chat. Chat will disappear from both `UserChats`.
+        artem.deleteChat(chatArtemView.getId());
+        UserChats expectedVladChats = userChats(vlad.userId());
+        UserChats expectedArtemChats = userChats(artem.userId());
+        assertExpectedFieldsEqual(vlad.readChats(), expectedVladChats);
+        assertExpectedFieldsEqual(artem.readChats(), expectedArtemChats);
 
-        // Messages editing.
-        expectedLastMessage = editMessage(lastMessage, client());
-        expectedFirstMessage = editMessage(firstMessage, client());
-        expectedChatPreview = chatPreview(chatPreview, expectedLastMessage);
+        // Vlad and Artem close their connections to the server.
+        vlad.closeConnection();
+        artem.closeConnection();
+    }
 
-        MessageView editedFirstMessage = findMessageView(expectedFirstMessage.getId(), client());
-        MessageView editedLastMessage = findMessageView(expectedLastMessage.getId(), client());
-        chatPreview = findChatPreview(chatPreview.getId(), client());
-
-        assertThat(editedFirstMessage).isEqualTo(expectedFirstMessage);
-        assertThat(editedLastMessage).isEqualTo(expectedLastMessage);
-        assertThat(chatPreview).isEqualTo(expectedChatPreview);
-
-        // Messages removal.
-        removeMessage(lastMessage, client());
-        removeMessage(firstMessage, client());
-        expectedChatPreview = emptyChatPreview(chatPreview);
-
-        chatPreview = findChatPreview(chatPreview.getId(), client());
-        ImmutableList<MessageView> chatMessages = readMessagesInChat(chatPreview.getId(), client());
-
-        assertThat(chatPreview).isEqualTo(expectedChatPreview);
-        Truth.assertThat(chatMessages.size())
-             .isEqualTo(0);
-
-        // Chat deletion.
-        deleteChat(chatPreview.getId(), vlad.getId(), client());
-        UserChats vladExpectedChats = userChats(vlad.getId());
-        UserChats artemExpectedChats = userChats(artem.getId());
-
-        vladChats = findUserChats(vlad.getId(), client());
-        artemChats = findUserChats(artem.getId(), client());
-
-        assertThat(vladChats).isEqualTo(vladExpectedChats);
-        assertThat(artemChats).isEqualTo(artemExpectedChats);
+    private static void assertMessagesInChatEquality(TestUser user, ChatId chat,
+                                                     List<MessageView> expectedMessages) {
+        List<MessageView> messagesUserView = user.readMessagesIn(chat);
+        assertExpectedFieldsEqual(messagesUserView, expectedMessages);
     }
 }
