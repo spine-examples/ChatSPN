@@ -47,11 +47,11 @@ final class InteractionWithMessagesInPersonalChatTest extends ServerRunningTest 
     @DisplayName("Users should be able to create account, personal chat, send messages, " +
             "edit messages, remove messages, and delete a chat.")
     void messageInteractionInPersonalChat() throws InterruptedException {
-        // Vlad and Artem passed registration.
+        // Vlad and Artem passes registration.
         TestUser vlad = new TestUser();
         TestUser artem = new TestUser();
 
-        // Vlad finds Artem, creates personal chat, and sees it preview in `UserChats`.
+        // Vlad finds Artem, creates a personal chat, and sees the chat's preview in `UserChats`.
         UserProfile artemProfile = vlad.findUserBy(artem.email());
         assertExpectedFieldsEqual(artemProfile, artem.profile());
         ChatPreview expectedChat = vlad.createPersonalChatWith(artemProfile.getId());
@@ -59,14 +59,14 @@ final class InteractionWithMessagesInPersonalChatTest extends ServerRunningTest 
                                        .getChat(0);
         assertExpectedFieldsEqual(chatVladView, expectedChat);
 
-        // Vlad sends messages and sees them in chat.
+        // Vlad sends messages and sees them in the chat.
         List<MessageView> expectedMessages = new ArrayList<>();
         expectedMessages.add(vlad.sendMessageTo(chatVladView.getId()));
         expectedMessages.add(vlad.sendMessageTo(chatVladView.getId()));
         expectedMessages.add(vlad.sendMessageTo(chatVladView.getId()));
         assertMessagesInChatEquality(vlad, chatVladView.getId(), expectedMessages);
 
-        // The last message will be shown in the chat preview.
+        // The last message will be shown in the chat's preview.
         expectedChat = chatPreview(expectedChat, expectedMessages.get(2));
         chatVladView = vlad.readChats()
                            .getChat(0);
