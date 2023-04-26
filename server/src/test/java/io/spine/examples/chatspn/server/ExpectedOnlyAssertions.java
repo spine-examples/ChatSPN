@@ -31,7 +31,7 @@ import com.google.protobuf.Message;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 
 /**
- * Provide convince API for assertions with expected fields only.
+ * Provide convince API for proto messages assertions with expected fields only.
  */
 public final class ExpectedOnlyAssertions {
 
