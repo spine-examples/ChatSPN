@@ -26,9 +26,6 @@
 
 package io.spine.examples.chatspn.server.e2e;
 
-import io.grpc.ManagedChannel;
-import io.grpc.StatusRuntimeException;
-import io.spine.client.Client;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.Server;
 import org.junit.jupiter.api.AfterEach;
@@ -36,55 +33,26 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 
-import static io.grpc.ManagedChannelBuilder.forAddress;
-import static io.grpc.Status.CANCELLED;
-import static io.spine.client.Client.usingChannel;
 import static io.spine.server.Server.atPort;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Abstract base for test suites based on interaction with {@link Client}.
+ * Abstract base for test suites that need the connection to the {@link Server}.
  */
-abstract class ClientAwareTest {
+abstract class ServerRunningTest {
 
-    private static final String ADDRESS = "localhost";
-    private static final int PORT = 4242;
-    private Client client;
+    public static final int TEST_SERVER_PORT = 4242;
     private Server server;
-    private ManagedChannel channel;
 
     @BeforeEach
     void startAndConnect() throws IOException {
-        channel = forAddress(ADDRESS, PORT)
-                .usePlaintext()
-                .build();
-        server = atPort(PORT)
+        server = atPort(TEST_SERVER_PORT)
                 .add(ChatsContext.newBuilder())
                 .build();
         server.start();
-        client = usingChannel(channel).build();
     }
 
     @AfterEach
-    void stopAndDisconnect() throws InterruptedException {
-        try {
-            client.close();
-        } catch (StatusRuntimeException e) {
-            if (e.getStatus()
-                 .equals(CANCELLED)) {
-                fail(e);
-            }
-        }
+    void stopAndDisconnect() {
         server.shutdown();
-        channel.shutdown();
-        channel.awaitTermination(1, SECONDS);
-    }
-
-    /**
-     * Returns configured {@link Client}.
-     */
-    protected final Client client() {
-        return client;
     }
 }
