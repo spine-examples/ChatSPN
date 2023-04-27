@@ -55,48 +55,48 @@ final class InteractionWithMessagesInPersonalChatTest extends ServerRunningTest 
         UserProfile artemProfile = vlad.findUserBy(artem.email());
         assertExpectedFieldsEqual(artemProfile, artem.profile());
         ChatPreview expectedChat = vlad.createPersonalChatWith(artemProfile.getId());
-        ChatPreview chatVladView = vlad.readChats()
+        ChatPreview vladChatView = vlad.readChats()
                                        .getChat(0);
-        assertExpectedFieldsEqual(chatVladView, expectedChat);
+        assertExpectedFieldsEqual(vladChatView, expectedChat);
 
         // Vlad sends messages and sees them in the chat.
         List<MessageView> expectedMessages = new ArrayList<>();
-        expectedMessages.add(vlad.sendMessageTo(chatVladView.getId()));
-        expectedMessages.add(vlad.sendMessageTo(chatVladView.getId()));
-        expectedMessages.add(vlad.sendMessageTo(chatVladView.getId()));
-        assertMessagesInChatEquality(vlad, chatVladView.getId(), expectedMessages);
+        expectedMessages.add(vlad.sendMessageTo(vladChatView.getId()));
+        expectedMessages.add(vlad.sendMessageTo(vladChatView.getId()));
+        expectedMessages.add(vlad.sendMessageTo(vladChatView.getId()));
+        assertMessagesInChatEquality(vlad, vladChatView.getId(), expectedMessages);
 
         // The last message will be shown in the chat's preview.
         expectedChat = chatPreview(expectedChat, expectedMessages.get(2));
-        chatVladView = vlad.readChats()
+        vladChatView = vlad.readChats()
                            .getChat(0);
-        assertExpectedFieldsEqual(chatVladView, expectedChat);
+        assertExpectedFieldsEqual(vladChatView, expectedChat);
 
         // Artem reads messages in the chat.
-        ChatPreview chatArtemView = artem.readChats()
+        ChatPreview artemChatView = artem.readChats()
                                          .getChat(0);
-        assertExpectedFieldsEqual(chatArtemView, expectedChat);
-        assertMessagesInChatEquality(artem, chatArtemView.getId(), expectedMessages);
+        assertExpectedFieldsEqual(artemChatView, expectedChat);
+        assertMessagesInChatEquality(artem, artemChatView.getId(), expectedMessages);
 
         // Artem sends a message to the chat. Both Vlad and Artem will see the new message.
-        expectedMessages.add(artem.sendMessageTo(chatArtemView.getId()));
-        assertMessagesInChatEquality(vlad, chatVladView.getId(), expectedMessages);
-        assertMessagesInChatEquality(artem, chatArtemView.getId(), expectedMessages);
+        expectedMessages.add(artem.sendMessageTo(artemChatView.getId()));
+        assertMessagesInChatEquality(vlad, vladChatView.getId(), expectedMessages);
+        assertMessagesInChatEquality(artem, artemChatView.getId(), expectedMessages);
 
         // Artem edits the last message. Both Vlad and Artem will see changes.
         MessageView editedMessage = artem.editMessage(expectedMessages.get(3));
         expectedMessages.set(3, editedMessage);
-        assertMessagesInChatEquality(vlad, chatVladView.getId(), expectedMessages);
-        assertMessagesInChatEquality(artem, chatArtemView.getId(), expectedMessages);
+        assertMessagesInChatEquality(vlad, vladChatView.getId(), expectedMessages);
+        assertMessagesInChatEquality(artem, artemChatView.getId(), expectedMessages);
 
         // Vlad removes the first message. Both Vlad and Artem will see changes.
         vlad.removeMessage(expectedMessages.get(0));
         expectedMessages.remove(0);
-        assertMessagesInChatEquality(vlad, chatVladView.getId(), expectedMessages);
-        assertMessagesInChatEquality(artem, chatArtemView.getId(), expectedMessages);
+        assertMessagesInChatEquality(vlad, vladChatView.getId(), expectedMessages);
+        assertMessagesInChatEquality(artem, artemChatView.getId(), expectedMessages);
 
         // Artem deletes the chat. Chat will disappear from both `UserChats`.
-        artem.deleteChat(chatArtemView.getId());
+        artem.deleteChat(artemChatView.getId());
         UserChats expectedVladChats = userChats(vlad.userId());
         UserChats expectedArtemChats = userChats(artem.userId());
         assertExpectedFieldsEqual(vlad.readChats(), expectedVladChats);
