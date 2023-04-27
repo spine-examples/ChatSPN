@@ -48,6 +48,9 @@ import static io.spine.testing.TestValues.randomString;
 
 public class TestUserEnv {
 
+    /**
+     * Prevents class instantiation.
+     */
     private TestUserEnv() {
     }
 

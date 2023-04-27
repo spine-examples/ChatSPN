@@ -35,6 +35,9 @@ import io.spine.examples.chatspn.message.MessageView;
 
 public final class PersonalChatTestEnv {
 
+    /**
+     * Prevents class instantiation.
+     */
     private PersonalChatTestEnv() {
     }
 
