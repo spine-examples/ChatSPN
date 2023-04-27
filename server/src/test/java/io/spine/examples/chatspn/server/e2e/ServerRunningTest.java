@@ -40,7 +40,7 @@ import static io.spine.server.Server.atPort;
  */
 abstract class ServerRunningTest {
 
-    public static final int TEST_SERVER_PORT = 4242;
+    private static final int TEST_SERVER_PORT = 4242;
     private Server server;
 
     @BeforeEach
@@ -54,5 +54,9 @@ abstract class ServerRunningTest {
     @AfterEach
     void stopAndDisconnect() {
         server.shutdown();
+    }
+
+    public static int port() {
+        return TEST_SERVER_PORT;
     }
 }

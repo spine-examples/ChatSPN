@@ -51,7 +51,7 @@ import static io.grpc.Status.CANCELLED;
 import static io.spine.client.Client.usingChannel;
 import static io.spine.client.OrderBy.Direction.ASCENDING;
 import static io.spine.client.QueryFilter.eq;
-import static io.spine.examples.chatspn.server.e2e.ServerRunningTest.TEST_SERVER_PORT;
+import static io.spine.examples.chatspn.server.e2e.ServerRunningTest.port;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.chatPreview;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.createAccount;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.createPersonalChat;
@@ -75,7 +75,7 @@ public class TestUser {
     private final UserProfile user;
 
     public TestUser() {
-        channel = forAddress(ADDRESS, TEST_SERVER_PORT)
+        channel = forAddress(ADDRESS, port())
                 .usePlaintext()
                 .build();
         client = usingChannel(channel).build();
