@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.spine.examples.chatspn.server.ExpectedOnlyAssertions.assertExpectedFieldsEqual;
+import static io.spine.examples.chatspn.server.ExpectedOnlyAssertions.assertExpectedFields;
 import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.chatPreview;
 import static io.spine.examples.chatspn.server.e2e.given.PersonalChatTestEnv.userChats;
 
@@ -53,11 +53,11 @@ final class InteractionWithMessagesInPersonalChatTest extends ServerRunningTest 
 
         // Vlad finds Artem, creates a personal chat, and sees the chat's preview in `UserChats`.
         UserProfile artemProfile = vlad.findUserBy(artem.email());
-        assertExpectedFieldsEqual(artemProfile, artem.profile());
+        assertExpectedFields(artemProfile, artem.profile());
         ChatPreview expectedChat = vlad.createPersonalChatWith(artemProfile.getId());
         ChatPreview vladChatView = vlad.readChats()
                                        .getChat(0);
-        assertExpectedFieldsEqual(vladChatView, expectedChat);
+        assertExpectedFields(vladChatView, expectedChat);
 
         // Vlad sends messages and sees them in the chat.
         List<MessageView> expectedMessages = new ArrayList<>();
@@ -70,12 +70,12 @@ final class InteractionWithMessagesInPersonalChatTest extends ServerRunningTest 
         expectedChat = chatPreview(expectedChat, expectedMessages.get(2));
         vladChatView = vlad.readChats()
                            .getChat(0);
-        assertExpectedFieldsEqual(vladChatView, expectedChat);
+        assertExpectedFields(vladChatView, expectedChat);
 
         // Artem reads messages in the chat.
         ChatPreview artemChatView = artem.readChats()
                                          .getChat(0);
-        assertExpectedFieldsEqual(artemChatView, expectedChat);
+        assertExpectedFields(artemChatView, expectedChat);
         assertMessagesInChatEquality(artem, artemChatView.getId(), expectedMessages);
 
         // Artem sends a message to the chat. Both Vlad and Artem will see the new message.
@@ -99,8 +99,8 @@ final class InteractionWithMessagesInPersonalChatTest extends ServerRunningTest 
         artem.deleteChat(artemChatView.getId());
         UserChats expectedVladChats = userChats(vlad.userId());
         UserChats expectedArtemChats = userChats(artem.userId());
-        assertExpectedFieldsEqual(vlad.readChats(), expectedVladChats);
-        assertExpectedFieldsEqual(artem.readChats(), expectedArtemChats);
+        assertExpectedFields(vlad.readChats(), expectedVladChats);
+        assertExpectedFields(artem.readChats(), expectedArtemChats);
 
         // Vlad and Artem close their connections to the server.
         vlad.closeConnection();
@@ -110,6 +110,6 @@ final class InteractionWithMessagesInPersonalChatTest extends ServerRunningTest 
     private static void assertMessagesInChatEquality(TestUser user, ChatId chat,
                                                      List<MessageView> expectedMessages) {
         List<MessageView> messagesUserView = user.readMessagesIn(chat);
-        assertExpectedFieldsEqual(messagesUserView, expectedMessages);
+        assertExpectedFields(messagesUserView, expectedMessages);
     }
 }
