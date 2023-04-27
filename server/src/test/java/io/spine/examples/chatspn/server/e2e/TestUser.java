@@ -135,20 +135,32 @@ public class TestUser {
     }
 
     public ImmutableList<MessageView> readMessagesIn(ChatId chat) {
+        String chatField = MessageView.Field
+                .chat()
+                .getField()
+                .toString();
+        String whenPostedField = MessageView.Field
+                .whenPosted()
+                .getField()
+                .toString();
         ImmutableList<MessageView> userChatsList = client
                 .onBehalfOf(userId())
                 .select(MessageView.class)
-                .where(eq(new EntityColumn("chat"), chat))
-                .orderBy(new EntityColumn("when_posted"), ASCENDING)
+                .where(eq(new EntityColumn(chatField), chat))
+                .orderBy(new EntityColumn(whenPostedField), ASCENDING)
                 .run();
         return userChatsList;
     }
 
     public UserProfile findUserBy(EmailAddress email) {
+        String emailField = UserProfile.Field
+                .email()
+                .getField()
+                .toString();
         ImmutableList<UserProfile> profiles = client
                 .onBehalfOf(userId())
                 .select(UserProfile.class)
-                .where(eq(new EntityColumn("email"), email))
+                .where(eq(new EntityColumn(emailField), email))
                 .run();
         return profiles.get(0);
     }
