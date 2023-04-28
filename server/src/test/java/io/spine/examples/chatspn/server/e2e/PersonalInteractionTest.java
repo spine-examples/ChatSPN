@@ -46,14 +46,14 @@ final class PersonalInteractionTest extends ServerRunningTest {
 
     @Test
     @DisplayName("Users should be able to create account, personal chat, send messages, " +
-            "edit messages, remove messages, and delete a chat.")
+            "edit messages, and delete a chat.")
     void messageInteractionInPersonalChat() {
         // Vlad and Artem passes registration.
         TestUser vlad = new TestUser(createClient());
         TestUser artem = new TestUser(createClient());
 
-        // Vlad opens app, `UserChats` loaded and observer set.
-        UserChats vladChats = vlad.readChats();
+        // Vlad opens the app. `UserChats` are loaded and the observer is set.
+        UserChats vladReadChats = vlad.readChats();
         Observer<UserChats> vladChatsObserver = vlad.observeChats();
 
         // Vlad finds Artem and create personal chat.
@@ -72,12 +72,12 @@ final class PersonalInteractionTest extends ServerRunningTest {
         vlad.sendMessageTo(vladChatView.getId());
         vlad.sendMessageTo(vladChatView.getId());
 
-        // Artem opens app, `UserChats` loaded and observer set.
-        UserChats artemChats = artem.readChats();
+        // Artem opens the app. `UserChats` loaded and the observer is set.
+        UserChats artemReadChats = artem.readChats();
         Observer<UserChats> artemChatsObserver = artem.observeChats();
 
         // Artem opens chat with Vlad. Chat messages loaded and observer on their changes set.
-        ChatPreview artemChatView = artemChats.getChat(0);
+        ChatPreview artemChatView = artemReadChats.getChat(0);
         List<MessageView> artemReadMessages = artem.readMessagesIn(artemChatView.getId());
         Observer<MessageView> artemMessageObserver = artem.observeMessagesIn(artemChatView.getId());
 
@@ -89,13 +89,13 @@ final class PersonalInteractionTest extends ServerRunningTest {
         List<MessageView> vladMessages = chatMessages(vladReadMessages, vladMessageObserver);
         vlad.editMessage(vladMessages.get(0));
 
-        // Assert that messages for both Artem and Vlad are expected and equal.
+        // Checking that the messages for both Artem and Vlad are expected and equal.
         assertExpectedFields(chatMessages(artemReadMessages, artemMessageObserver),
                              conversation.messages());
         assertExpectedFields(chatMessages(vladReadMessages, vladMessageObserver),
                              conversation.messages());
 
-        // Vlad deletes the chat. Chat disappeared in both `UserChats`.
+        // Vlad deletes the chat. Chat disappears from both Artem and Vlad.
         vlad.deleteChat(vladChatView.getId());
         assertExpectedFields(vladChatsObserver.lastState(), userChats(vlad.userId()));
         assertExpectedFields(artemChatsObserver.lastState(), userChats(artem.userId()));
