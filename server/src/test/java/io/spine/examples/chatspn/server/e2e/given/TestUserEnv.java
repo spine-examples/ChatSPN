@@ -31,7 +31,6 @@ import io.spine.examples.chatspn.AccountCreationId;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.account.command.CreateAccount;
 import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.chat.PersonalChatView;
@@ -39,14 +38,13 @@ import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.EditMessage;
-import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.testing.core.given.GivenUserId;
 
 import static io.spine.examples.chatspn.server.given.GivenEmailAddress.randomEmailAddress;
 import static io.spine.testing.TestValues.randomString;
 
-public class TestUserEnv {
+public final class TestUserEnv {
 
     /**
      * Prevents class instantiation.
@@ -131,20 +129,6 @@ public class TestUserEnv {
                 .setContent(command.getSuggestedContent())
                 .buildPartial();
         return messageView;
-    }
-
-    public static RemoveMessage removeMessageCommand(MessageView message) {
-        MessageRemovalId removalId = MessageRemovalId
-                .newBuilder()
-                .setId(message.getId())
-                .vBuild();
-        RemoveMessage removeMessage = RemoveMessage
-                .newBuilder()
-                .setId(removalId)
-                .setChat(message.getChat())
-                .setUser(message.getUser())
-                .vBuild();
-        return removeMessage;
     }
 
     public static DeleteChat deleteChatCommand(ChatId chat, UserId user) {
