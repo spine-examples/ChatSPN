@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server.e2e;
 
-import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.account.UserProfile;
 import io.spine.examples.chatspn.chat.ChatPreview;
@@ -100,11 +99,5 @@ final class PersonalInteractionTest extends ServerRunningTest {
         vlad.deleteChat(vladChatView.getId());
         assertExpectedFields(vladChatsObserver.lastState(), userChats(vlad.userId()));
         assertExpectedFields(artemChatsObserver.lastState(), userChats(artem.userId()));
-    }
-
-    private static void assertMessagesInChat(TestUser user, ChatId chat,
-                                             List<MessageView> expectedMessages) {
-        List<MessageView> messagesUserView = user.readMessagesIn(chat);
-        assertExpectedFields(messagesUserView, expectedMessages);
     }
 }
