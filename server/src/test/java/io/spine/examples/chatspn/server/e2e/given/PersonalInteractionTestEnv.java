@@ -28,17 +28,23 @@ package io.spine.examples.chatspn.server.e2e.given;
 
 import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.chat.MessagePreview;
 import io.spine.examples.chatspn.message.MessageView;
+import io.spine.examples.chatspn.server.e2e.TestUser.Observer;
 
-public final class PersonalChatTestEnv {
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public final class PersonalInteractionTestEnv {
 
     /**
      * Prevents class instantiation.
      */
-    private PersonalChatTestEnv() {
+    private PersonalInteractionTestEnv() {
     }
 
     public static UserChats userChats(UserId userId, ChatPreview... chats) {
@@ -63,5 +69,14 @@ public final class PersonalChatTestEnv {
                 .setLastMessage(messagePreview)
                 .vBuild();
         return chatPreview;
+    }
+
+    public static List<MessageView> chatMessages(List<MessageView> loadedMessages,
+                                                 Observer<MessageView> observer) {
+        Map<MessageId, MessageView> messages = new LinkedHashMap<>();
+        loadedMessages.forEach(message -> messages.put(message.getId(), message));
+        observer.allStates()
+                .forEach(message -> messages.put(message.getId(), message));
+        return ImmutableList.copyOf(messages.values());
     }
 }
