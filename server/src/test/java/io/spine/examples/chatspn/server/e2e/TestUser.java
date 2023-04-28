@@ -345,7 +345,7 @@ public final class TestUser {
         private final List<Observer<MessageView>> observers = new ArrayList<>();
 
         /**
-         * Prevents instantiation from outside the parent class.
+         * Prevents instantiation outside the parent class.
          */
         private Conversation() {
         }
