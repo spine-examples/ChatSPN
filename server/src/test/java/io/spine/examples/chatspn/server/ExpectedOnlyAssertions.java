@@ -41,8 +41,8 @@ public final class ExpectedOnlyAssertions {
     /**
      * Asserts that expected fields in provided messages are equal.
      */
-    public static void assertExpectedFields(Message current, Message expected) {
-        assertThat(current).comparingExpectedFieldsOnly()
+    public static void assertExpectedFields(Message actual, Message expected) {
+        assertThat(actual).comparingExpectedFieldsOnly()
                            .isEqualTo(expected);
     }
 
@@ -50,8 +50,8 @@ public final class ExpectedOnlyAssertions {
      * Asserts that expected fields in messages from the provided collections are equal.
      */
     public static <M extends Message> void
-    assertExpectedFields(Iterable<M> current, Iterable<M> expected) {
-        assertThat(current).comparingExpectedFieldsOnly()
+    assertExpectedFields(Iterable<M> actual, Iterable<M> expected) {
+        assertThat(actual).comparingExpectedFieldsOnly()
                            .containsAtLeastElementsIn(expected);
     }
 }
