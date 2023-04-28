@@ -26,14 +26,22 @@
 
 package io.spine.examples.chatspn.server.e2e;
 
+import io.grpc.ManagedChannel;
+import io.spine.client.Client;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.Server;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import static io.grpc.ManagedChannelBuilder.forAddress;
+import static io.spine.client.Client.usingChannel;
 import static io.spine.server.Server.atPort;
+import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Abstract base for test suites that need the connection to the {@link Server}.
@@ -41,22 +49,51 @@ import static io.spine.server.Server.atPort;
 abstract class ServerRunningTest {
 
     private static final int TEST_SERVER_PORT = 4242;
+    private static final String ADDRESS = "localhost";
+
+    private final List<ManagedChannel> channels = new ArrayList<>();
+    private final List<Client> clients = new ArrayList<>();
+
     private Server server;
 
+    /**
+     * Starts the server before each test case.
+     */
     @BeforeEach
-    void startAndConnect() throws IOException {
+    void startServer() throws IOException {
+        channels.clear();
+        clients.clear();
         server = atPort(TEST_SERVER_PORT)
                 .add(ChatsContext.newBuilder())
                 .build();
         server.start();
     }
 
+    /**
+     * Shutdowns the server after each test case.
+     */
     @AfterEach
-    void stopAndDisconnect() {
+    void stopServer() {
+        clients.forEach(Client::close);
+        channels.forEach(channel -> {
+            channel.shutdown();
+            try {
+                channel.awaitTermination(1, SECONDS);
+            } catch (InterruptedException e) {
+                throw newIllegalStateException(e, "Channel can't be terminated");
+            }
+        });
         server.shutdown();
     }
 
-    public static int port() {
-        return TEST_SERVER_PORT;
+    protected Client createClient() {
+        ManagedChannel channel = forAddress(ADDRESS, TEST_SERVER_PORT)
+                .usePlaintext()
+                .build();
+        Client client = usingChannel(channel).build();
+        channels.add(channel);
+        clients.add(client);
+        return client;
     }
+
 }
