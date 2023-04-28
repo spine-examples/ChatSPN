@@ -46,7 +46,6 @@ import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.EditMessage;
-import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.net.EmailAddress;
 
@@ -68,7 +67,6 @@ import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.createPerso
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.deleteChatCommand;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.editMessageCommand;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.messageView;
-import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.removeMessageCommand;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.sendMessage;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -144,16 +142,6 @@ public final class TestUser {
                      .edit(messageView);
         postCommand(command);
         return messageView;
-    }
-
-    /**
-     * Removes the provided message on behalf of this user.
-     */
-    public void removeMessage(MessageView message) {
-        RemoveMessage command = removeMessageCommand(message);
-        conversations.get(message.getChat())
-                     .remove(message.getId());
-        postCommand(command);
     }
 
     /**
@@ -293,7 +281,8 @@ public final class TestUser {
         /**
          * Updates the observer's state in response to an observed entity update.
          *
-         * @implNote Even if entity update is not expected the observer's state will be updated.
+         * @implNote Even if entity update is not expected the observer's state will be
+         *         updated.
          */
         private void observationAction(S state) {
             if (futureList.isEmpty() || futureList.get(futureList.size() - 1)
@@ -365,7 +354,7 @@ public final class TestUser {
          * Subscribes observer on the conversation changes.
          *
          * <p>Subscribed observers will be forced to expect updates after each
-         *         command that updates the conversation.
+         * command that updates the conversation.
          */
         private void subscribe(Observer<MessageView> observer) {
             observers.add(observer);
@@ -384,14 +373,6 @@ public final class TestUser {
          */
         private void edit(MessageView messageView) {
             messages.put(messageView.getId(), messageView);
-            observers.forEach(Observer::expectUpdate);
-        }
-
-        /**
-         * Update conversation by the message removed.
-         */
-        private void remove(MessageId messageId) {
-            messages.remove(messageId);
             observers.forEach(Observer::expectUpdate);
         }
 
