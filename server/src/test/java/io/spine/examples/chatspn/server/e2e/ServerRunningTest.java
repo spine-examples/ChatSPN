@@ -53,7 +53,6 @@ abstract class ServerRunningTest {
 
     private final List<ManagedChannel> channels = new ArrayList<>();
     private final List<Client> clients = new ArrayList<>();
-
     private Server server;
 
     /**
@@ -95,5 +94,4 @@ abstract class ServerRunningTest {
         clients.add(client);
         return client;
     }
-
 }
