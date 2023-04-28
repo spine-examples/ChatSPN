@@ -257,7 +257,7 @@ public final class TestUser {
         private final AtomicInteger lastCompletedIndex = new AtomicInteger(-1);
 
         /**
-         * Creates an observer on the entity with provided ID.
+         * Creates an observer for the entity with the provided ID.
          */
         private <I extends Message> Observer(Class<S> type, I id) {
             client.onBehalfOf(userId())
@@ -268,7 +268,7 @@ public final class TestUser {
         }
 
         /**
-         * Creates an observer on the entity that passed provided filters.
+         * Creates an observer for the entity that passed provided filters.
          */
         private Observer(Class<S> type, EntityStateFilter... filters) {
             client.onBehalfOf(userId())
@@ -281,8 +281,8 @@ public final class TestUser {
         /**
          * Updates the observer's state in response to an observed entity update.
          *
-         * @implNote Even if entity update is not expected the observer's state will be
-         *         updated.
+         * <p>Even if entity update is not expected the observer's state
+         * will be updated.
          */
         private void observationAction(S state) {
             if (futureList.isEmpty() || futureList.get(futureList.size() - 1)
@@ -338,6 +338,8 @@ public final class TestUser {
 
     /**
      * Expected state of messages in the chat.
+     *
+     * <p>It must be only one for each chat and updated before the real chat.
      */
     public final class Conversation {
 
@@ -354,14 +356,14 @@ public final class TestUser {
          * Subscribes observer on the conversation changes.
          *
          * <p>Subscribed observers will be forced to expect updates after each
-         * command that updates the conversation.
+         * update of the conversation.
          */
         private void subscribe(Observer<MessageView> observer) {
             observers.add(observer);
         }
 
         /**
-         * Update conversation by the new message sent.
+         * Update conversation with new message.
          */
         private void send(MessageView messageView) {
             messages.put(messageView.getId(), messageView);
@@ -369,7 +371,7 @@ public final class TestUser {
         }
 
         /**
-         * Update conversation by the message edited.
+         * Update conversation with edited message.
          */
         private void edit(MessageView messageView) {
             messages.put(messageView.getId(), messageView);
