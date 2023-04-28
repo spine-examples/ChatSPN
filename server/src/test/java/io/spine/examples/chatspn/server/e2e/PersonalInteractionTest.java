@@ -56,12 +56,14 @@ final class PersonalInteractionTest extends ServerRunningTest {
         UserChats vladReadChats = vlad.readChats();
         Observer<UserChats> vladChatsObserver = vlad.observeChats();
 
-        // Vlad finds Artem and create personal chat.
+        // Vlad finds Artem and creates a personal chat.
         UserProfile artemProfile = vlad.findUserBy(artem.email());
         assertThat(artemProfile).isEqualTo(artem.profile());
         Conversation conversation = vlad.createPersonalChatWith(artem);
 
-        // Vlad opens chat with Artem. Chat messages loaded and observer on their changes set.
+        // Vlad opens a chat with Artem.
+        // Chat messages are loaded and an observer of their changes is set.
+        //
         ChatPreview vladChatView = vladChatsObserver.lastState()
                                                     .getChat(0);
         List<MessageView> vladReadMessages = vlad.readMessagesIn(vladChatView.getId());
@@ -76,7 +78,9 @@ final class PersonalInteractionTest extends ServerRunningTest {
         UserChats artemReadChats = artem.readChats();
         Observer<UserChats> artemChatsObserver = artem.observeChats();
 
-        // Artem opens chat with Vlad. Chat messages loaded and observer on their changes set.
+        // Artem opens chat with Vlad.
+        // Chat messages are loaded and an observer of their changes is set.
+        //
         ChatPreview artemChatView = artemReadChats.getChat(0);
         List<MessageView> artemReadMessages = artem.readMessagesIn(artemChatView.getId());
         Observer<MessageView> artemMessageObserver = artem.observeMessagesIn(artemChatView.getId());
@@ -85,7 +89,7 @@ final class PersonalInteractionTest extends ServerRunningTest {
         artem.sendMessageTo(artemChatView.getId());
         artem.sendMessageTo(artemChatView.getId());
 
-        // Vlad edits first message;
+        // Vlad edits the first message.
         List<MessageView> vladMessages = chatMessages(vladReadMessages, vladMessageObserver);
         vlad.editMessage(vladMessages.get(0));
 
@@ -95,7 +99,7 @@ final class PersonalInteractionTest extends ServerRunningTest {
         assertExpectedFields(chatMessages(vladReadMessages, vladMessageObserver),
                              conversation.messages());
 
-        // Vlad deletes the chat. Chat disappears from both Artem and Vlad.
+        // Vlad deletes the chat. Chat disappears for both Artem and Vlad.
         vlad.deleteChat(vladChatView.getId());
         assertExpectedFields(vladChatsObserver.lastState(), userChats(vlad.userId()));
         assertExpectedFields(artemChatsObserver.lastState(), userChats(artem.userId()));
