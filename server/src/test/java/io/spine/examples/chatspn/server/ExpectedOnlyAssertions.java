@@ -35,6 +35,9 @@ import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
  */
 public final class ExpectedOnlyAssertions {
 
+    /**
+     * Prevents the class instantiation.
+     */
     private ExpectedOnlyAssertions() {
     }
 
