@@ -28,6 +28,7 @@ import io.spine.examples.chatspn.dependency.Grpc
 import io.spine.examples.chatspn.dependency.Guava
 import io.spine.examples.chatspn.dependency.JUnit
 import io.spine.examples.chatspn.dependency.Truth
+import io.spine.examples.chatspn.dependency.Javax
 
 /**
  * Configures repositories, adds dependencies and forces transitive dependencies.
@@ -55,6 +56,7 @@ repositories {
 
 dependencies {
     implementation(Guava.lib)
+    implementation(Javax.lib)
     runtimeOnly(Grpc.lib)
 
     testImplementation(JUnit.Params.lib)
@@ -67,6 +69,7 @@ configurations {
         resolutionStrategy {
             force(
                 Guava.lib,
+                Javax.lib,
                 Truth.lib,
                 Truth.Extensions.Java8.lib,
                 Truth.Extensions.Proto.lib

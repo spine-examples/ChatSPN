@@ -24,32 +24,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Configures the `Javac`.
- *
- * This plugin performs the following configuration:
- * - sets source and target compatibility to Java 8;
- * - states the encoding of source files;
- * - enables warnings about deprecated and unchecked code.
- */
+package io.spine.examples.chatspn.dependency
 
-plugins {
-    java
-}
-
-val javaVersion = JavaVersion.VERSION_11
-java {
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-}
-
-tasks.withType<JavaCompile> {
-    with(options) {
-        /*
-         * Explicitly state the encoding of the source files, ensuring the correct
-         * execution of the `javac` task.
-         */
-        encoding = "UTF-8"
-        compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
-    }
+// https://jcp.org/en/jsr/detail?id=250
+object Javax {
+    const val version = "1.3.2"
+    const val lib = "javax.annotation:javax.annotation-api:${version}"
 }
