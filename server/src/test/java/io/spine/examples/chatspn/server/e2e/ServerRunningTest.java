@@ -86,10 +86,10 @@ abstract class ServerRunningTest {
     }
 
     protected Client createClient() {
-        ManagedChannel channel = forAddress(ADDRESS, TEST_SERVER_PORT)
+        var channel = forAddress(ADDRESS, TEST_SERVER_PORT)
                 .usePlaintext()
                 .build();
-        Client client = usingChannel(channel).build();
+        var client = usingChannel(channel).build();
         channels.add(channel);
         clients.add(client);
         return client;

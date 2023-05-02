@@ -27,18 +27,8 @@
 package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.account.UserChats;
-import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
-import io.spine.examples.chatspn.message.command.EditMessage;
-import io.spine.examples.chatspn.message.event.MessageContentUpdated;
-import io.spine.examples.chatspn.message.event.MessageEdited;
-import io.spine.examples.chatspn.message.event.MessageEditingFailed;
-import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageCannotBeEdited;
-import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageContentCannotBeUpdated;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
@@ -76,11 +66,11 @@ final class MessageEditingTest extends ContextAwareTest {
     @DisplayName("emit a `MessageEdited` event " +
             "if the process is finished successfully, and archive itself")
     void messageEditedEvent() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        EditMessage command = editMessageCommand(message);
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var command = editMessageCommand(message);
         context().receivesCommand(command);
-        MessageEdited expected = messageEditedFrom(command);
+        var expected = messageEditedFrom(command);
 
         context().assertEvent(expected);
         context().assertEntity(expected.getId(), MessageEditingProcess.class)
@@ -92,11 +82,11 @@ final class MessageEditingTest extends ContextAwareTest {
     @DisplayName("reject with the `MessageCannotBeEdited` " +
             "if the message editor is not the chat member")
     void messageCannotBeEditedRejection() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        EditMessage command = editMessageCommandWith(message, GivenUserId.generated());
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var command = editMessageCommandWith(message, GivenUserId.generated());
         context().receivesCommand(command);
-        MessageCannotBeEdited expected = messageCannotBeEditedFrom(command);
+        var expected = messageCannotBeEditedFrom(command);
 
         context().assertEvent(expected);
     }
@@ -105,13 +95,13 @@ final class MessageEditingTest extends ContextAwareTest {
     @DisplayName("reject with the `MessageCannotBeEdited` " +
             "if the chat does not exist or has been deleted")
     void chatNotExist() {
-        Chat chat = createGroupChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        DeleteChat deleteChat = deleteChatCommand(chat, chat.getOwner());
+        var chat = createGroupChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var deleteChat = deleteChatCommand(chat, chat.getOwner());
         context().receivesCommand(deleteChat);
-        EditMessage command = editMessageCommandWith(message, GivenUserId.generated());
+        var command = editMessageCommandWith(message, GivenUserId.generated());
         context().receivesCommand(command);
-        MessageCannotBeEdited expected = messageCannotBeEditedFrom(command);
+        var expected = messageCannotBeEditedFrom(command);
 
         context().assertEvent(expected);
     }
@@ -120,11 +110,11 @@ final class MessageEditingTest extends ContextAwareTest {
     @DisplayName("emit a `MessageEditingFailed` event " +
             "if message content cannot be edited, and archive itself")
     void messageNotEditedEvent() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        EditMessage command = editMessageCommandWith(message, MessageId.generate());
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var command = editMessageCommandWith(message, MessageId.generate());
         context().receivesCommand(command);
-        MessageEditingFailed expected = messageEditingFailedFrom(command);
+        var expected = messageEditingFailedFrom(command);
 
         context().assertEvent(expected);
         context().assertEntity(expected.getId(), MessageEditingProcess.class)
@@ -135,11 +125,11 @@ final class MessageEditingTest extends ContextAwareTest {
     @Test
     @DisplayName("update a `MessageView` projection to the expected state")
     void updateMessageView() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        EditMessage command = editMessageCommand(message);
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var command = editMessageCommand(message);
         context().receivesCommand(command);
-        MessageView expected = messageViewFrom(command);
+        var expected = messageViewFrom(command);
 
         context().assertState(expected.getId(), MessageView.class)
                  .comparingExpectedFieldsOnly()
@@ -150,12 +140,12 @@ final class MessageEditingTest extends ContextAwareTest {
     @DisplayName("update the last message in `ChatPreview` and `UserChats` projections " +
             "if the edited message was the last one")
     void updateLastMessage() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        EditMessage command = editMessageCommand(message);
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var command = editMessageCommand(message);
         context().receivesCommand(command);
-        ChatPreview chatPreview = chatPreview(chat, command);
-        UserChats userChats = userChats(chatPreview, chat.getMember(0));
+        var chatPreview = chatPreview(chat, command);
+        var userChats = userChats(chatPreview, chat.getMember(0));
 
         context().assertState(chatPreview.getId(), chatPreview);
         context().assertState(userChats.getId(), userChats);
@@ -165,12 +155,12 @@ final class MessageEditingTest extends ContextAwareTest {
     @DisplayName("not update the last message in the `ChatPreview` projection " +
             "if the edited message wasn't the last one")
     void notUpdateLastMessage() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        Message lastMessage = sendRandomMessageTo(chat, context());
-        EditMessage command = editMessageCommand(message);
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var lastMessage = sendRandomMessageTo(chat, context());
+        var command = editMessageCommand(message);
         context().receivesCommand(command);
-        ChatPreview chatPreview = chatPreviewWithMessage(chat, lastMessage);
+        var chatPreview = chatPreviewWithMessage(chat, lastMessage);
 
         context().assertState(chatPreview.getId(), chatPreview);
     }
@@ -182,11 +172,11 @@ final class MessageEditingTest extends ContextAwareTest {
         @Test
         @DisplayName("update the state as expected")
         void state() {
-            Chat chat = createRandomChatIn(context());
-            Message message = sendRandomMessageTo(chat, context());
-            EditMessage command = editMessageCommand(message);
+            var chat = createRandomChatIn(context());
+            var message = sendRandomMessageTo(chat, context());
+            var command = editMessageCommand(message);
             context().receivesCommand(command);
-            Message expected = messageFrom(command);
+            var expected = messageFrom(command);
 
             context().assertState(expected.getId(), Message.class)
                      .comparingExpectedFieldsOnly()
@@ -196,11 +186,11 @@ final class MessageEditingTest extends ContextAwareTest {
         @Test
         @DisplayName("emission of the `MessageContentUpdated` event")
         void event() {
-            Chat chat = createRandomChatIn(context());
-            Message message = sendRandomMessageTo(chat, context());
-            EditMessage command = editMessageCommand(message);
+            var chat = createRandomChatIn(context());
+            var message = sendRandomMessageTo(chat, context());
+            var command = editMessageCommand(message);
             context().receivesCommand(command);
-            MessageContentUpdated expected = messageContentUpdatedFrom(command);
+            var expected = messageContentUpdatedFrom(command);
 
             context().assertEvent(expected);
         }
@@ -209,12 +199,11 @@ final class MessageEditingTest extends ContextAwareTest {
         @DisplayName("emission of the `MessageContentCannotBeUpdated` rejection " +
                 "if message with the given ID doesn't exist")
         void rejectBecauseNotExist() {
-            Chat chat = createRandomChatIn(context());
-            Message message = sendRandomMessageTo(chat, context());
-            EditMessage command = editMessageCommandWith(message, MessageId.generate());
+            var chat = createRandomChatIn(context());
+            var message = sendRandomMessageTo(chat, context());
+            var command = editMessageCommandWith(message, MessageId.generate());
             context().receivesCommand(command);
-            MessageContentCannotBeUpdated expected =
-                    messageContentCannotBeUpdatedFrom(command);
+            var expected = messageContentCannotBeUpdatedFrom(command);
 
             context().assertEvent(expected);
         }
@@ -223,12 +212,11 @@ final class MessageEditingTest extends ContextAwareTest {
         @DisplayName("emission of the `MessageContentCannotBeUpdated` rejection " +
                 "if non-owner tries to edit message")
         void rejectBecauseEditorNonOwner() {
-            Chat chat = createRandomChatIn(context());
-            Message message = sendRandomMessageTo(chat, context());
-            EditMessage command = editMessageCommandWith(message, chat.getMember(1));
+            var chat = createRandomChatIn(context());
+            var message = sendRandomMessageTo(chat, context());
+            var command = editMessageCommandWith(message, chat.getMember(1));
             context().receivesCommand(command);
-            MessageContentCannotBeUpdated expected =
-                    messageContentCannotBeUpdatedFrom(command);
+            var expected = messageContentCannotBeUpdatedFrom(command);
 
             context().assertEvent(expected);
         }

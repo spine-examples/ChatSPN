@@ -65,8 +65,9 @@ public final class ChatMembersProjection
 
     @Subscribe
     void on(UserLeftChat e) {
-        int userIndex = state().getMemberList()
-                               .indexOf(e.getUser());
+        var userIndex = state()
+                .getMemberList()
+                .indexOf(e.getUser());
         builder().removeMember(userIndex);
     }
 
@@ -74,8 +75,9 @@ public final class ChatMembersProjection
     void on(MembersAdded e) {
         e.getMemberList()
          .stream()
-         .filter(member -> !state().getMemberList()
-                                   .contains(member))
+         .filter(member -> !state()
+                 .getMemberList()
+                 .contains(member))
          .forEach(member -> builder().addMember(member));
     }
 

@@ -48,7 +48,7 @@ public final class PersonalInteractionTestEnv {
     }
 
     public static UserChats userChats(UserId userId, ChatPreview... chats) {
-        UserChats userChats = UserChats
+        var userChats = UserChats
                 .newBuilder()
                 .setId(userId)
                 .addAllChat(ImmutableList.copyOf(chats))
@@ -57,14 +57,14 @@ public final class PersonalInteractionTestEnv {
     }
 
     public static ChatPreview chatPreview(ChatPreview chat, MessageView message) {
-        MessagePreview messagePreview = MessagePreview
+        var messagePreview = MessagePreview
                 .newBuilder()
                 .setId(message.getId())
                 .setUser(message.getUser())
                 .setContent(message.getContent())
                 .setWhenPosted(message.getWhenPosted())
                 .buildPartial();
-        ChatPreview chatPreview = chat
+        var chatPreview = chat
                 .toBuilder()
                 .setLastMessage(messagePreview)
                 .vBuild();

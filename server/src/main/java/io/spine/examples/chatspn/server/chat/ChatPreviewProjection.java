@@ -48,7 +48,7 @@ public final class ChatPreviewProjection
 
     @Subscribe
     void on(PersonalChatCreated e) {
-        PersonalChatView view = PersonalChatView
+        var view = PersonalChatView
                 .newBuilder()
                 .setCreator(e.getCreator())
                 .setMember(e.getMember())
@@ -59,7 +59,7 @@ public final class ChatPreviewProjection
 
     @Subscribe
     void on(GroupChatCreated e) {
-        GroupChatView view = GroupChatView
+        var view = GroupChatView
                 .newBuilder()
                 .setName(e.getName())
                 .vBuild();
@@ -69,7 +69,7 @@ public final class ChatPreviewProjection
 
     @Subscribe
     void on(MessagePosted e) {
-        MessagePreview message = MessagePreview
+        var message = MessagePreview
                 .newBuilder()
                 .setId(e.getId())
                 .setUser(e.getUser())
@@ -81,10 +81,10 @@ public final class ChatPreviewProjection
 
     @Subscribe
     void on(MessageContentUpdated e) {
-        MessagePreview lastMessage = state().getLastMessage();
+        var lastMessage = state().getLastMessage();
         if (e.getId()
              .equals(lastMessage.getId())) {
-            MessagePreview message = MessagePreview
+            var message = MessagePreview
                     .newBuilder()
                     .setId(e.getId())
                     .setUser(e.getUser())
@@ -97,9 +97,9 @@ public final class ChatPreviewProjection
 
     @Subscribe
     void on(MessageMarkedAsDeleted e) {
-        MessagePreview lastMessage = state().getLastMessage();
+        var lastMessage = state().getLastMessage();
         if (e.getId()
-              .equals(lastMessage.getId())) {
+             .equals(lastMessage.getId())) {
             builder().setLastMessage(MessagePreview.getDefaultInstance());
         }
     }

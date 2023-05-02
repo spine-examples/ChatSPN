@@ -26,13 +26,6 @@
 
 package io.spine.examples.chatspn.server.chat;
 
-import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.command.DeleteChat;
-import io.spine.examples.chatspn.chat.event.ChatDeleted;
-import io.spine.examples.chatspn.chat.event.ChatDeletionFailed;
-import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
-import io.spine.examples.chatspn.chat.rejection.DeletionRejections.ChatCannotBeMarkedAsDeleted;
-import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.examples.chatspn.server.message.MessageAggregate;
 import io.spine.server.BoundedContextBuilder;
@@ -41,8 +34,6 @@ import io.spine.testing.server.blackbox.ContextAwareTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatCannotBeMarkedAsDeletedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatDeletedFrom;
@@ -64,10 +55,10 @@ final class ChatDeletionTest extends ContextAwareTest {
     @Test
     @DisplayName("emit the `ChatDeleted` event and delete itself if the chat can be deleted")
     void event() {
-        Chat chat = createGroupChatIn(context());
-        DeleteChat command = deleteChatCommand(chat, chat.getOwner());
+        var chat = createGroupChatIn(context());
+        var command = deleteChatCommand(chat, chat.getOwner());
         context().receivesCommand(command);
-        ChatDeleted expected = chatDeletedFrom(command, chat);
+        var expected = chatDeletedFrom(command, chat);
 
         context().assertEvent(expected);
         context().assertEntity(command.getId(), ChatDeletionProcess.class)
@@ -78,25 +69,24 @@ final class ChatDeletionTest extends ContextAwareTest {
     @Test
     @DisplayName("mark messages in the chat as deleted")
     void removeMessages() {
-        Chat chat = createGroupChatIn(context());
-        List<Message> messages = sendMessagesTo(chat, context());
-        DeleteChat command = deleteChatCommand(chat, chat.getOwner());
+        var chat = createGroupChatIn(context());
+        var messages = sendMessagesTo(chat, context());
+        var command = deleteChatCommand(chat, chat.getOwner());
         context().receivesCommand(command);
 
-        messages.forEach(message ->
-                                 context().assertEntity(message.getId(), MessageAggregate.class)
-                                          .deletedFlag()
-                                          .isTrue());
+        messages.forEach(message -> context().assertEntity(message.getId(), MessageAggregate.class)
+                                             .deletedFlag()
+                                             .isTrue());
     }
 
     @Test
     @DisplayName("emit the `ChatDeletionFailed` event and archive itself " +
             "if the `ChatAggregate` reject with the `ChatCannotBeMarkedAsDeleted`")
     void fail() {
-        Chat chat = createPersonalChatIn(context());
-        DeleteChat command = deleteChatCommand(chat, GivenUserId.generated());
+        var chat = createPersonalChatIn(context());
+        var command = deleteChatCommand(chat, GivenUserId.generated());
         context().receivesCommand(command);
-        ChatDeletionFailed expected = chatDeletionFailedFrom(command);
+        var expected = chatDeletionFailedFrom(command);
 
         context().assertEvent(expected);
         context().assertEntity(command.getId(), ChatDeletionProcess.class)
@@ -111,8 +101,8 @@ final class ChatDeletionTest extends ContextAwareTest {
         @Test
         @DisplayName("update the state as expected")
         void state() {
-            Chat chat = createPersonalChatIn(context());
-            DeleteChat command = deleteChatCommand(chat, chat.getMember(1));
+            var chat = createPersonalChatIn(context());
+            var command = deleteChatCommand(chat, chat.getMember(1));
             context().receivesCommand(command);
 
             context().assertEntity(command.chat(), ChatAggregate.class)
@@ -123,10 +113,10 @@ final class ChatDeletionTest extends ContextAwareTest {
         @Test
         @DisplayName("emission of the `ChatMarkedAsDeleted` event")
         void event() {
-            Chat chat = createGroupChatIn(context());
-            DeleteChat command = deleteChatCommand(chat, chat.getOwner());
+            var chat = createGroupChatIn(context());
+            var command = deleteChatCommand(chat, chat.getOwner());
             context().receivesCommand(command);
-            ChatMarkedAsDeleted expected = chatMarkedAsDeletedFrom(command, chat);
+            var expected = chatMarkedAsDeletedFrom(command, chat);
 
             context().assertEvent(expected);
         }
@@ -135,11 +125,10 @@ final class ChatDeletionTest extends ContextAwareTest {
         @DisplayName("the `ChatCannotBeMarkedAsDeleted` rejection " +
                 "if the chat is personal and the user who deletes is not a member")
         void rejectIfNotMemberInPersonal() {
-            Chat chat = createPersonalChatIn(context());
-            DeleteChat command = deleteChatCommand(chat, GivenUserId.generated());
+            var chat = createPersonalChatIn(context());
+            var command = deleteChatCommand(chat, GivenUserId.generated());
             context().receivesCommand(command);
-            ChatCannotBeMarkedAsDeleted expected =
-                    chatCannotBeMarkedAsDeletedFrom(command);
+            var expected = chatCannotBeMarkedAsDeletedFrom(command);
 
             context().assertEvent(expected);
         }
@@ -148,11 +137,10 @@ final class ChatDeletionTest extends ContextAwareTest {
         @DisplayName("the `ChatCannotBeMarkedAsDeleted` rejection " +
                 "if the chat is a group and the user who deletes is not an owner")
         void rejectIfNotOwnerInGroup() {
-            Chat chat = createGroupChatIn(context());
-            DeleteChat command = deleteChatCommand(chat, chat.getMember(1));
+            var chat = createGroupChatIn(context());
+            var command = deleteChatCommand(chat, chat.getMember(1));
             context().receivesCommand(command);
-            ChatCannotBeMarkedAsDeleted expected =
-                    chatCannotBeMarkedAsDeletedFrom(command);
+            var expected = chatCannotBeMarkedAsDeletedFrom(command);
 
             context().assertEvent(expected);
         }
@@ -161,12 +149,11 @@ final class ChatDeletionTest extends ContextAwareTest {
         @DisplayName("the `ChatCannotBeMarkedAsDeleted` rejection " +
                 "if the chat is already deleted")
         void rejectIfAlreadyDeleted() {
-            Chat chat = createGroupChatIn(context());
-            DeleteChat command = deleteChatCommand(chat, chat.getOwner());
+            var chat = createGroupChatIn(context());
+            var command = deleteChatCommand(chat, chat.getOwner());
             context().receivesCommand(command);
             context().receivesCommand(command);
-            ChatCannotBeMarkedAsDeleted expected =
-                    chatCannotBeMarkedAsDeletedFrom(command);
+            var expected = chatCannotBeMarkedAsDeletedFrom(command);
 
             context().assertEvent(expected);
         }

@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server.message.given;
 
-import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
@@ -48,8 +47,8 @@ public final class MessageTestEnv {
     }
 
     public static Chat createRandomChatIn(BlackBoxContext context) {
-        UserId owner = GivenUserId.generated();
-        Chat chat = Chat
+        var owner = GivenUserId.generated();
+        var chat = Chat
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setName(randomString())
@@ -58,7 +57,7 @@ public final class MessageTestEnv {
                 .addMember(owner)
                 .addMember(GivenUserId.generated())
                 .vBuild();
-        CreateGroupChat command = CreateGroupChat
+        var command = CreateGroupChat
                 .newBuilder()
                 .setId(chat.getId())
                 .setName(chat.getName())
@@ -70,14 +69,14 @@ public final class MessageTestEnv {
     }
 
     public static Message sendRandomMessageTo(Chat chat, BlackBoxContext context) {
-        Message message = Message
+        var message = Message
                 .newBuilder()
                 .setId(MessageId.generate())
                 .setChat(chat.getId())
                 .setUser(chat.getMember(0))
                 .setContent(randomString())
                 .buildPartial();
-        SendMessage command = SendMessage
+        var command = SendMessage
                 .newBuilder()
                 .setId(message.getId())
                 .setChat(message.getChat())

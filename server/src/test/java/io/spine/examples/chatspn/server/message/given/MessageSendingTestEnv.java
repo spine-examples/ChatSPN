@@ -50,7 +50,7 @@ public final class MessageSendingTestEnv {
     }
 
     public static SendMessage randomSendMessageCommand(Chat chat) {
-        SendMessage command = SendMessage
+        var command = SendMessage
                 .newBuilder()
                 .setId(MessageId.generate())
                 .setUser(chat.getMember(0))
@@ -61,7 +61,7 @@ public final class MessageSendingTestEnv {
     }
 
     public static SendMessage sendMessageCommandWith(Chat chat, UserId userId) {
-        SendMessage command = SendMessage
+        var command = SendMessage
                 .newBuilder()
                 .setId(MessageId.generate())
                 .setUser(userId)
@@ -72,7 +72,7 @@ public final class MessageSendingTestEnv {
     }
 
     public static MessageSent messageSentFrom(SendMessage c) {
-        MessageSent event = MessageSent
+        var event = MessageSent
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -83,7 +83,7 @@ public final class MessageSendingTestEnv {
     }
 
     public static MessagePosted messagePostedFrom(SendMessage c) {
-        MessagePosted event = MessagePosted
+        var event = MessagePosted
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -94,7 +94,7 @@ public final class MessageSendingTestEnv {
     }
 
     public static Message messageFrom(SendMessage c) {
-        Message state = Message
+        var state = Message
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -105,7 +105,7 @@ public final class MessageSendingTestEnv {
     }
 
     public static MessageView messageViewFrom(SendMessage c) {
-        MessageView state = MessageView
+        var state = MessageView
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -116,7 +116,7 @@ public final class MessageSendingTestEnv {
     }
 
     public static MessageCannotBeSent messageCannotBeSentFrom(SendMessage c) {
-        MessageCannotBeSent rejection = MessageCannotBeSent
+        var rejection = MessageCannotBeSent
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -127,13 +127,13 @@ public final class MessageSendingTestEnv {
     }
 
     public static ChatPreview chatPreview(Chat chat, SendMessage command) {
-        MessagePreview messagePreview = MessagePreview
+        var messagePreview = MessagePreview
                 .newBuilder()
                 .setId(command.getId())
                 .setUser(command.getUser())
                 .setContent(command.getContent())
                 .buildPartial();
-        ChatPreview state = ChatPreview
+        var state = ChatPreview
                 .newBuilder()
                 .setId(chat.getId())
                 .setGroupChat(groupChatView(chat.getName()))

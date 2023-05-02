@@ -46,7 +46,7 @@ public final class ExpectedOnlyAssertions {
      */
     public static void assertExpectedFields(Message actual, Message expected) {
         assertThat(actual).comparingExpectedFieldsOnly()
-                           .isEqualTo(expected);
+                          .isEqualTo(expected);
     }
 
     /**
@@ -55,6 +55,6 @@ public final class ExpectedOnlyAssertions {
     public static <M extends Message> void
     assertExpectedFields(Iterable<M> actual, Iterable<M> expected) {
         assertThat(actual).comparingExpectedFieldsOnly()
-                           .containsAtLeastElementsIn(expected);
+                          .containsAtLeastElementsIn(expected);
     }
 }

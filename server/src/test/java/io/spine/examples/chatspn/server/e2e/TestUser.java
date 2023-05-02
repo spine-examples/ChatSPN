@@ -32,7 +32,6 @@ import io.spine.base.CommandMessage;
 import io.spine.base.EntityColumn;
 import io.spine.base.EntityState;
 import io.spine.base.EntityStateField;
-import io.spine.base.Field;
 import io.spine.client.Client;
 import io.spine.client.EntityStateFilter;
 import io.spine.core.UserId;
@@ -40,13 +39,7 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.account.UserProfile;
-import io.spine.examples.chatspn.account.command.CreateAccount;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.MessageView;
-import io.spine.examples.chatspn.message.command.EditMessage;
-import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.net.EmailAddress;
 
 import java.util.ArrayList;
@@ -111,10 +104,10 @@ public final class TestUser {
      * Creates personal chat with provided user.
      */
     public Conversation createPersonalChatWith(TestUser user) {
-        CreatePersonalChat command = createPersonalChat(userId(), user.userId());
+        var command = createPersonalChat(userId(), user.userId());
         postCommand(command);
-        ChatPreview chatPreview = chatPreview(command);
-        Conversation conversation = new Conversation();
+        var chatPreview = chatPreview(command);
+        var conversation = new Conversation();
         conversations.put(chatPreview.getId(), conversation);
         user.conversations.put(chatPreview.getId(), conversation);
         return conversation;
@@ -124,8 +117,8 @@ public final class TestUser {
      * Sends random message to the provided chat on behalf of this user.
      */
     public MessageView sendMessageTo(ChatId chat) {
-        SendMessage command = sendMessage(chat, userId());
-        MessageView messageView = messageView(command);
+        var command = sendMessage(chat, userId());
+        var messageView = messageView(command);
         conversations.get(chat)
                      .send(messageView);
         postCommand(command);
@@ -136,8 +129,8 @@ public final class TestUser {
      * Changes content of the provided message to random on behalf of this user.
      */
     public MessageView editMessage(MessageView message) {
-        EditMessage command = editMessageCommand(message);
-        MessageView messageView = messageView(command);
+        var command = editMessageCommand(message);
+        var messageView = messageView(command);
         conversations.get(message.getChat())
                      .edit(messageView);
         postCommand(command);
@@ -148,7 +141,7 @@ public final class TestUser {
      * Deletes the chat with provided ID on behalf of this user.
      */
     public void deleteChat(ChatId chat) {
-        DeleteChat command = deleteChatCommand(chat, userId());
+        var command = deleteChatCommand(chat, userId());
         postCommand(command);
     }
 
@@ -156,7 +149,7 @@ public final class TestUser {
      * Returns {@code UserChats} of this user.
      */
     public UserChats readChats() {
-        ImmutableList<UserChats> userChatsList = client
+        var userChatsList = client
                 .onBehalfOf(userId())
                 .select(UserChats.class)
                 .byId(userId())
@@ -168,15 +161,15 @@ public final class TestUser {
      * Returns messages from the provided chat.
      */
     public ImmutableList<MessageView> readMessagesIn(ChatId chat) {
-        String chatField = MessageView.Field
+        var chatField = MessageView.Field
                 .chat()
                 .getField()
                 .toString();
-        String whenPostedField = MessageView.Field
+        var whenPostedField = MessageView.Field
                 .whenPosted()
                 .getField()
                 .toString();
-        ImmutableList<MessageView> userChatsList = client
+        var userChatsList = client
                 .onBehalfOf(userId())
                 .select(MessageView.class)
                 .where(eq(new EntityColumn(chatField), chat))
@@ -189,11 +182,11 @@ public final class TestUser {
      * Returns the user profile with the provided email address.
      */
     public UserProfile findUserBy(EmailAddress email) {
-        String emailField = UserProfile.Field
+        var emailField = UserProfile.Field
                 .email()
                 .getField()
                 .toString();
-        ImmutableList<UserProfile> profiles = client
+        var profiles = client
                 .onBehalfOf(userId())
                 .select(UserProfile.class)
                 .where(eq(new EntityColumn(emailField), email))
@@ -212,11 +205,11 @@ public final class TestUser {
      * Creates an observer for messages in the provided chat.
      */
     public Observer<MessageView> observeMessagesIn(ChatId chat) {
-        Field chatField = MessageView.Field
+        var chatField = MessageView.Field
                 .chat()
                 .getField();
-        EntityStateFilter filter = EntityStateFilter.eq(new EntityStateField(chatField), chat);
-        Observer<MessageView> observer = new Observer<>(MessageView.class, filter);
+        var filter = EntityStateFilter.eq(new EntityStateField(chatField), chat);
+        var observer = new Observer<>(MessageView.class, filter);
         conversations.get(chat)
                      .subscribe(observer);
         return observer;
@@ -235,11 +228,11 @@ public final class TestUser {
      * Registers the new user.
      */
     private UserProfile registerUser() {
-        CreateAccount createAccount = createAccount();
+        var createAccount = createAccount();
         client.onBehalfOf(createAccount.getUser())
               .command(createAccount)
               .postAndForget();
-        UserProfile userProfile = UserProfile
+        var userProfile = UserProfile
                 .newBuilder()
                 .setId(createAccount.getUser())
                 .setEmail(createAccount.getEmail())
@@ -289,7 +282,7 @@ public final class TestUser {
                                                   .isDone()) {
                 futureList.add(new CompletableFuture<>());
             }
-            int index = lastCompletedIndex.incrementAndGet();
+            var index = lastCompletedIndex.incrementAndGet();
             futureList.get(index)
                       .complete(state);
         }
@@ -309,7 +302,7 @@ public final class TestUser {
                 futureList.add(new CompletableFuture<>());
             }
             try {
-                CompletableFuture<S> future = futureList.get(futureList.size() - 1);
+                var future = futureList.get(futureList.size() - 1);
                 return future.get(10, SECONDS);
 
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -321,7 +314,7 @@ public final class TestUser {
          * Returns entity states after each update since the observer was created.
          */
         public List<S> allStates() {
-            List<S> states = futureList
+            var states = futureList
                     .stream()
                     .map(future -> {
                         try {

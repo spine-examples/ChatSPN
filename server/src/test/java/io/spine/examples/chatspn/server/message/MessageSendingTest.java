@@ -26,15 +26,8 @@
 
 package io.spine.examples.chatspn.server.message;
 
-import io.spine.examples.chatspn.account.UserChats;
-import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
-import io.spine.examples.chatspn.message.command.SendMessage;
-import io.spine.examples.chatspn.message.event.MessagePosted;
-import io.spine.examples.chatspn.message.event.MessageSent;
-import io.spine.examples.chatspn.message.rejection.SendingRejections.MessageCannotBeSent;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
@@ -66,10 +59,10 @@ public final class MessageSendingTest extends ContextAwareTest {
     @Test
     @DisplayName("emit `MessageSent` event, and archive itself")
     void event() {
-        Chat chat = createRandomChatIn(context());
-        SendMessage command = randomSendMessageCommand(chat);
+        var chat = createRandomChatIn(context());
+        var command = randomSendMessageCommand(chat);
         context().receivesCommand(command);
-        MessageSent expected = messageSentFrom(command);
+        var expected = messageSentFrom(command);
 
         context().assertEvent(expected);
         context().assertEntity(expected.getId(), MessageSendingProcess.class)
@@ -80,10 +73,10 @@ public final class MessageSendingTest extends ContextAwareTest {
     @Test
     @DisplayName("reject when the message sender is not the chat member")
     void senderNotMember() {
-        Chat chat = createRandomChatIn(context());
-        SendMessage command = sendMessageCommandWith(chat, GivenUserId.generated());
+        var chat = createRandomChatIn(context());
+        var command = sendMessageCommandWith(chat, GivenUserId.generated());
         context().receivesCommand(command);
-        MessageCannotBeSent expected = messageCannotBeSentFrom(command);
+        var expected = messageCannotBeSentFrom(command);
 
         context().assertEvent(expected);
     }
@@ -92,10 +85,10 @@ public final class MessageSendingTest extends ContextAwareTest {
     @DisplayName("reject with the `MessageCannotBeSent` " +
             "if the chat does not exist or has been deleted")
     void chatNotExist() {
-        Chat chat = createDeletedGroupChatIn(context());
-        SendMessage command = sendMessageCommandWith(chat, chat.getOwner());
+        var chat = createDeletedGroupChatIn(context());
+        var command = sendMessageCommandWith(chat, chat.getOwner());
         context().receivesCommand(command);
-        MessageCannotBeSent expected = messageCannotBeSentFrom(command);
+        var expected = messageCannotBeSentFrom(command);
 
         context().assertEvent(expected);
     }
@@ -103,10 +96,10 @@ public final class MessageSendingTest extends ContextAwareTest {
     @Test
     @DisplayName("produce `MessageView` with the expected state")
     void messageViewState() {
-        Chat chat = createRandomChatIn(context());
-        SendMessage command = randomSendMessageCommand(chat);
+        var chat = createRandomChatIn(context());
+        var command = randomSendMessageCommand(chat);
         context().receivesCommand(command);
-        MessageView expected = messageViewFrom(command);
+        var expected = messageViewFrom(command);
 
         context().assertState(expected.getId(), MessageView.class)
                  .comparingExpectedFieldsOnly()
@@ -116,11 +109,11 @@ public final class MessageSendingTest extends ContextAwareTest {
     @Test
     @DisplayName("update last message in `ChatPreview` and `UserChats` projections")
     void updateLastMessage() {
-        Chat chat = createRandomChatIn(context());
-        SendMessage command = randomSendMessageCommand(chat);
+        var chat = createRandomChatIn(context());
+        var command = randomSendMessageCommand(chat);
         context().receivesCommand(command);
-        ChatPreview chatPreview = chatPreview(chat, command);
-        UserChats userChats = userChats(chatPreview, chat.getMember(0));
+        var chatPreview = chatPreview(chat, command);
+        var userChats = userChats(chatPreview, chat.getMember(0));
 
         context().assertState(chatPreview.getId(), chatPreview);
         context().assertState(userChats.getId(), userChats);
@@ -133,10 +126,10 @@ public final class MessageSendingTest extends ContextAwareTest {
         @Test
         @DisplayName("produce a `Message` with the expected state")
         void state() {
-            Chat chat = createRandomChatIn(context());
-            SendMessage command = randomSendMessageCommand(chat);
+            var chat = createRandomChatIn(context());
+            var command = randomSendMessageCommand(chat);
             context().receivesCommand(command);
-            Message state = messageFrom(command);
+            var state = messageFrom(command);
 
             context().assertState(state.getId(), Message.class)
                      .comparingExpectedFieldsOnly()
@@ -146,10 +139,10 @@ public final class MessageSendingTest extends ContextAwareTest {
         @Test
         @DisplayName("emission of the `MessagePosted` event")
         void event() {
-            Chat chat = createRandomChatIn(context());
-            SendMessage command = randomSendMessageCommand(chat);
+            var chat = createRandomChatIn(context());
+            var command = randomSendMessageCommand(chat);
             context().receivesCommand(command);
-            MessagePosted expected = messagePostedFrom(command);
+            var expected = messagePostedFrom(command);
 
             context().assertEvent(expected);
         }

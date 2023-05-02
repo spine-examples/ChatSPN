@@ -32,7 +32,6 @@ import io.spine.base.EntityState;
 import io.spine.client.ActorRequestFactory;
 import io.spine.client.Filter;
 import io.spine.client.Query;
-import io.spine.client.QueryFactory;
 import io.spine.client.QueryResponse;
 import io.spine.core.ActorContext;
 import io.spine.grpc.MemoizingObserver;
@@ -66,10 +65,10 @@ public final class ProjectionReader<I, S extends EntityState> {
     public ImmutableList<S> read(ImmutableSet<I> ids, ActorContext ctx) {
         checkNotNull(ids);
         checkNotNull(ctx);
-        QueryFactory queryFactory = ActorRequestFactory
+        var queryFactory = ActorRequestFactory
                 .fromContext(ctx)
                 .query();
-        Query query = queryFactory.byIds(stateClass, ids);
+        var query = queryFactory.byIds(stateClass, ids);
         return executeAndUnpackResponse(query);
     }
 
@@ -78,10 +77,10 @@ public final class ProjectionReader<I, S extends EntityState> {
      */
     public ImmutableList<S> read(ActorContext ctx, Filter... filters) {
         checkNotNull(ctx);
-        QueryFactory queryFactory = ActorRequestFactory
+        var queryFactory = ActorRequestFactory
                 .fromContext(ctx)
                 .query();
-        Query query = queryFactory
+        var query = queryFactory
                 .select(stateClass)
                 .where(filters)
                 .build();
@@ -89,10 +88,10 @@ public final class ProjectionReader<I, S extends EntityState> {
     }
 
     private ImmutableList<S> executeAndUnpackResponse(Query query) {
-        MemoizingObserver<QueryResponse> observer = new MemoizingObserver<>();
+        var observer = new MemoizingObserver<QueryResponse>();
         stand.execute(query, observer);
-        QueryResponse response = observer.firstResponse();
-        ImmutableList<S> result =
+        var response = observer.firstResponse();
+        var result =
                 response.getMessageList()
                         .stream()
                         .map(state -> unpack(state.getState(), stateClass))

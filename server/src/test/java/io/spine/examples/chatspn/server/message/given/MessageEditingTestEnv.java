@@ -52,7 +52,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static EditMessage editMessageCommand(Message message) {
-        EditMessage command = EditMessage
+        var command = EditMessage
                 .newBuilder()
                 .setId(message.getId())
                 .setChat(message.getChat())
@@ -63,7 +63,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static EditMessage editMessageCommandWith(Message message, UserId userId) {
-        EditMessage command = EditMessage
+        var command = EditMessage
                 .newBuilder()
                 .setId(message.getId())
                 .setChat(message.getChat())
@@ -74,7 +74,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static EditMessage editMessageCommandWith(Message message, MessageId messageId) {
-        EditMessage command = EditMessage
+        var command = EditMessage
                 .newBuilder()
                 .setId(messageId)
                 .setChat(message.getChat())
@@ -85,7 +85,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static MessageEdited messageEditedFrom(EditMessage c) {
-        MessageEdited event = MessageEdited
+        var event = MessageEdited
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -96,7 +96,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static MessageEditingFailed messageEditingFailedFrom(EditMessage c) {
-        MessageEditingFailed event = MessageEditingFailed
+        var event = MessageEditingFailed
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -107,7 +107,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static MessageContentUpdated messageContentUpdatedFrom(EditMessage c) {
-        MessageContentUpdated event = MessageContentUpdated
+        var event = MessageContentUpdated
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -118,7 +118,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static Message messageFrom(EditMessage c) {
-        Message state = Message
+        var state = Message
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -129,7 +129,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static MessageView messageViewFrom(EditMessage c) {
-        MessageView state = MessageView
+        var state = MessageView
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -140,7 +140,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static MessageCannotBeEdited messageCannotBeEditedFrom(EditMessage c) {
-        MessageCannotBeEdited rejection = MessageCannotBeEdited
+        var rejection = MessageCannotBeEdited
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -151,7 +151,7 @@ public final class MessageEditingTestEnv {
     }
 
     public static MessageContentCannotBeUpdated messageContentCannotBeUpdatedFrom(EditMessage c) {
-        MessageContentCannotBeUpdated rejection = MessageContentCannotBeUpdated
+        var rejection = MessageContentCannotBeUpdated
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -162,13 +162,13 @@ public final class MessageEditingTestEnv {
     }
 
     public static ChatPreview chatPreview(Chat chat, EditMessage command) {
-        MessagePreview messageView = MessagePreview
+        var messageView = MessagePreview
                 .newBuilder()
                 .setId(command.getId())
                 .setUser(command.getUser())
                 .setContent(command.getSuggestedContent())
                 .buildPartial();
-        ChatPreview state = ChatPreview
+        var state = ChatPreview
                 .newBuilder()
                 .setId(chat.getId())
                 .setGroupChat(groupChatView(chat.getName()))

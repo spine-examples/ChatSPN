@@ -53,14 +53,14 @@ public final class ChatMembersReader {
      * @return {@code true} in case user is a member of the chat, {@code false} otherwise
      */
     public boolean isMember(ChatId id, UserId userId, CommandContext ctx) {
-        ImmutableList<ChatMembers> projections =
-                reader.read(ImmutableSet.of(id), ctx.getActorContext());
+        var projections = reader.read(ImmutableSet.of(id), ctx.getActorContext());
         if (projections.isEmpty()) {
             return false;
         }
-        boolean isMember = projections.get(0)
-                                      .getMemberList()
-                                      .contains(userId);
+        var isMember = projections
+                .get(0)
+                .getMemberList()
+                .contains(userId);
         return isMember;
     }
 
@@ -70,8 +70,7 @@ public final class ChatMembersReader {
      * <p>If the chat with the provided ID does not exist, returns an empty list.
      */
     public ImmutableList<UserId> members(ChatId chat, ActorContext ctx) {
-        ImmutableList<ChatMembers> projections = reader
-                .read(ImmutableSet.of(chat), ctx);
+        var projections = reader.read(ImmutableSet.of(chat), ctx);
         if (projections.isEmpty()) {
             return ImmutableList.of();
         }
