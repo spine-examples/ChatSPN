@@ -302,7 +302,7 @@ final class TestUser {
         /**
          * Returns the chat messages.
          */
-        public List<MessageView> messages() {
+        List<MessageView> messages() {
             return ImmutableList.copyOf(messages.values());
         }
 
