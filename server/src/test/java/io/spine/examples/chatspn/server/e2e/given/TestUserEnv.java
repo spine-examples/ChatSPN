@@ -53,11 +53,11 @@ public final class TestUserEnv {
     }
 
     public static CreateAccount createAccount(String name, String email) {
-        EmailAddress emailAddress = EmailAddress
+        var emailAddress = EmailAddress
                 .newBuilder()
                 .setValue(email)
                 .vBuild();
-        CreateAccount command = CreateAccount
+        var command = CreateAccount
                 .newBuilder()
                 .setId(AccountCreationId.generate())
                 .setUser(GivenUserId.generated())
@@ -68,7 +68,7 @@ public final class TestUserEnv {
     }
 
     public static CreatePersonalChat createPersonalChat(UserId creator, UserId member) {
-        CreatePersonalChat command = CreatePersonalChat
+        var command = CreatePersonalChat
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setCreator(creator)
@@ -78,12 +78,12 @@ public final class TestUserEnv {
     }
 
     public static ChatPreview chatPreview(CreatePersonalChat command) {
-        PersonalChatView view = PersonalChatView
+        var view = PersonalChatView
                 .newBuilder()
                 .setCreator(command.getCreator())
                 .setMember(command.getMember())
                 .vBuild();
-        ChatPreview chatPreview = ChatPreview
+        var chatPreview = ChatPreview
                 .newBuilder()
                 .setId(command.getId())
                 .setPersonalChat(view)
@@ -92,7 +92,7 @@ public final class TestUserEnv {
     }
 
     public static SendMessage sendMessageCommand(ChatId chatId, UserId userId, String content) {
-        SendMessage sendMessage = SendMessage
+        var sendMessage = SendMessage
                 .newBuilder()
                 .setId(MessageId.generate())
                 .setChat(chatId)
@@ -103,7 +103,7 @@ public final class TestUserEnv {
     }
 
     public static MessageView messageView(SendMessage command) {
-        MessageView messageView = MessageView
+        var messageView = MessageView
                 .newBuilder()
                 .setId(command.getId())
                 .setChat(command.getChat())
@@ -114,7 +114,7 @@ public final class TestUserEnv {
     }
 
     public static EditMessage editMessageCommand(MessageView message, String newContent) {
-        EditMessage editMessage = EditMessage
+        var editMessage = EditMessage
                 .newBuilder()
                 .setId(message.getId())
                 .setUser(message.getUser())
@@ -125,11 +125,11 @@ public final class TestUserEnv {
     }
 
     public static RemoveMessage removeMessageCommand(MessageView message) {
-        MessageRemovalId messageRemoval = MessageRemovalId
+        var messageRemoval = MessageRemovalId
                 .newBuilder()
                 .setId(message.getId())
                 .vBuild();
-        RemoveMessage removeMessage = RemoveMessage
+        var removeMessage = RemoveMessage
                 .newBuilder()
                 .setId(messageRemoval)
                 .setUser(message.getUser())
@@ -139,7 +139,7 @@ public final class TestUserEnv {
     }
 
     public static MessageView messageView(EditMessage command) {
-        MessageView messageView = MessageView
+        var messageView = MessageView
                 .newBuilder()
                 .setId(command.getId())
                 .setChat(command.getChat())
@@ -150,11 +150,11 @@ public final class TestUserEnv {
     }
 
     public static DeleteChat deleteChatCommand(ChatId chat, UserId user) {
-        ChatDeletionId deletionId = ChatDeletionId
+        var deletionId = ChatDeletionId
                 .newBuilder()
                 .setId(chat)
                 .vBuild();
-        DeleteChat deleteChat = DeleteChat
+        var deleteChat = DeleteChat
                 .newBuilder()
                 .setId(deletionId)
                 .setWhoDeletes(user)
