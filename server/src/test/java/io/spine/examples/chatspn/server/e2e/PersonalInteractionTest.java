@@ -31,6 +31,18 @@ import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.e2e.TestUser.registerUser;
 
+/**
+ * End-to-end test that describes such a scenario:
+ *
+ * <ol>
+ *     <li>Two users registered accounts.</li>
+ *     <li>First user finds the second and creates a personal chat.</li>
+ *     <li>First user sends messages to the chat.</li>
+ *     <li>Second user opens the chat and sends own messages.</li>
+ *     <li>Second user edits the message.</li>
+ *     <li>First user removes message and deletes the chat.</li>
+ * </ol>
+ */
 final class PersonalInteractionTest extends ServerRunningTest {
 
     @Test
