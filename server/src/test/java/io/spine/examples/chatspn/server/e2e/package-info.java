@@ -23,34 +23,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.account;
+/**
+ * Provides end-to-end tests for the application's server side.
+ */
+@CheckReturnValue
+@ParametersAreNonnullByDefault
+package io.spine.examples.chatspn.server.e2e;
 
-import "spine/options.proto";
+import com.google.errorprone.annotations.CheckReturnValue;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.account";
-option java_outer_classname = "UserProfileProto";
-option java_multiple_files = true;
-
-import "google/protobuf/timestamp.proto";
-import "spine/core/user_id.proto";
-import "spine/net/email_address.proto";
-
-// A user profile view in the chatting system.
-message UserProfile {
-    option (entity) = { kind: PROJECTION };
-
-    // The ID of the user.
-    spine.core.UserId id = 1;
-
-    // A name of a user.
-    string name = 2 [(required) = true];
-
-    // The user's email address.
-    spine.net.EmailAddress email = 3 [(required) = true, (column) = true];
-
-    // A time of last user activity.
-    google.protobuf.Timestamp when_last_active = 4;
-}
+import javax.annotation.ParametersAreNonnullByDefault;

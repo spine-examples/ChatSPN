@@ -23,34 +23,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.account;
+package io.spine.examples.chatspn.server;
 
-import "spine/options.proto";
+import com.google.protobuf.Message;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.account";
-option java_outer_classname = "UserProfileProto";
-option java_multiple_files = true;
+import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 
-import "google/protobuf/timestamp.proto";
-import "spine/core/user_id.proto";
-import "spine/net/email_address.proto";
+/**
+ * Provide convince API for proto messages assertions with expected fields only.
+ */
+public final class ExpectedOnlyAssertions {
 
-// A user profile view in the chatting system.
-message UserProfile {
-    option (entity) = { kind: PROJECTION };
+    /**
+     * Prevents the class instantiation.
+     */
+    private ExpectedOnlyAssertions() {
+    }
 
-    // The ID of the user.
-    spine.core.UserId id = 1;
+    /**
+     * Asserts that expected fields in provided messages are equal.
+     */
+    public static void assertExpectedFields(Message actual, Message expected) {
+        assertThat(actual).comparingExpectedFieldsOnly()
+                          .isEqualTo(expected);
+    }
 
-    // A name of a user.
-    string name = 2 [(required) = true];
-
-    // The user's email address.
-    spine.net.EmailAddress email = 3 [(required) = true, (column) = true];
-
-    // A time of last user activity.
-    google.protobuf.Timestamp when_last_active = 4;
+    /**
+     * Asserts that expected fields in messages from the provided collections are equal.
+     */
+    public static <M extends Message> void
+    assertExpectedFields(Iterable<M> actual, Iterable<M> expected) {
+        assertThat(actual).comparingExpectedFieldsOnly()
+                          .containsAtLeastElementsIn(expected);
+    }
 }
