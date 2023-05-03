@@ -73,7 +73,7 @@ import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.sendMessage
 /**
  * Registered user with API for testing purposes.
  */
-public final class TestUser {
+final class TestUser {
 
     private final Client client;
     private final UserProfile user;
@@ -89,7 +89,7 @@ public final class TestUser {
     /**
      * Registers the new user.
      */
-    public static TestUser registerUser(String name, String email, Client client) {
+    static TestUser registerUser(String name, String email, Client client) {
         CreateAccount createAccount = createAccount(name, email);
         client.onBehalfOf(createAccount.getUser())
               .command(createAccount)
@@ -129,32 +129,25 @@ public final class TestUser {
     /**
      * Returns user ID.
      */
-    public UserId userId() {
+    private UserId userId() {
         return user.getId();
     }
 
     /**
      * Returns user email.
      */
-    public EmailAddress email() {
+    EmailAddress email() {
         return user.getEmail();
     }
 
-    /**
-     * Returns user profile.
-     */
-    public UserProfile profile() {
-        return user;
-    }
-
-    public List<ChatPreview> chats() {
+    List<ChatPreview> chats() {
         return ImmutableList.copyOf(chats);
     }
 
     /**
      * Creates personal chat with provided user.
      */
-    public Conversation createPersonalChatWith(UserId user) {
+    Conversation createPersonalChatWith(UserId user) {
         CreatePersonalChat command = createPersonalChat(userId(), user);
         postCommand(command);
         ChatPreview chatPreview = chatPreview(command);
@@ -162,14 +155,14 @@ public final class TestUser {
         return conversation;
     }
 
-    public Conversation openChat(ChatId chat) {
+    Conversation openChat(ChatId chat) {
         return new Conversation(chat);
     }
 
     /**
      * Returns the user profile with the provided email address.
      */
-    public UserProfile findUserBy(EmailAddress email) {
+    UserProfile findUserBy(EmailAddress email) {
         String emailField = UserProfile.Field
                 .email()
                 .getField()
@@ -230,9 +223,7 @@ public final class TestUser {
             client.onBehalfOf(userId())
                   .subscribeTo(MessageView.class)
                   .where(chatStateFilter(chat))
-                  .observe(message -> {
-                      messages.put(message.getId(), message);
-                  })
+                  .observe(message -> messages.put(message.getId(), message))
                   .post();
             client.onBehalfOf(userId())
                   .subscribeToEvent(MessageMarkedAsDeleted.class)
@@ -265,7 +256,7 @@ public final class TestUser {
         /**
          * Update conversation with new message.
          */
-        public void sendMessage(String content) {
+        void sendMessage(String content) {
             SendMessage command = sendMessageCommand(chat, userId(), content);
             MessageView messageView = messageView(command);
             postCommand(command);
@@ -275,7 +266,7 @@ public final class TestUser {
         /**
          * Update conversation with edited message.
          */
-        public void editMessage(MessageView message, String newContent) {
+        void editMessage(MessageView message, String newContent) {
             EditMessage command = editMessageCommand(message, newContent);
             MessageView newMessageView = messageView(command);
             postCommand(command);
@@ -285,7 +276,7 @@ public final class TestUser {
         /**
          * Update conversation with message removal.
          */
-        public void removeMessage(MessageView message) {
+        void removeMessage(MessageView message) {
             RemoveMessage command = removeMessageCommand(message);
             postCommand(command);
             assertThat(messages.containsKey(message.getId()))
@@ -299,7 +290,7 @@ public final class TestUser {
             return ImmutableList.copyOf(messages.values());
         }
 
-        public void deleteChat() {
+        void deleteChat() {
             DeleteChat command = deleteChatCommand(chat, userId());
             postCommand(command);
         }
