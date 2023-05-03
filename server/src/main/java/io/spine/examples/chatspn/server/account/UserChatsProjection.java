@@ -104,15 +104,16 @@ public final class UserChatsProjection extends Projection<UserId, UserChats, Use
      * <p>Returns {@code Optional.empty()} if the chat doesn't exist.
      */
     private Optional<Integer> findChatIndex(ChatId chatId) {
-        var optionalChat =
-                state().getChatList()
-                       .stream()
-                       .filter(chat -> chat.getId()
-                                           .equals(chatId))
-                       .findFirst();
+        var optionalChat = state()
+                .getChatList()
+                .stream()
+                .filter(chat -> chat.getId()
+                                    .equals(chatId))
+                .findFirst();
         if (optionalChat.isPresent()) {
-            var chatIndex = state().getChatList()
-                                   .indexOf(optionalChat.get());
+            var chatIndex = state()
+                    .getChatList()
+                    .indexOf(optionalChat.get());
             return Optional.of(chatIndex);
         }
         return Optional.empty();

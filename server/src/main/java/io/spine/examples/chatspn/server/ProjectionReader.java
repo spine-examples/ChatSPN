@@ -91,11 +91,11 @@ public final class ProjectionReader<I, S extends EntityState> {
         var observer = new MemoizingObserver<QueryResponse>();
         stand.execute(query, observer);
         var response = observer.firstResponse();
-        var result =
-                response.getMessageList()
-                        .stream()
-                        .map(state -> unpack(state.getState(), stateClass))
-                        .collect(toImmutableList());
+        var result = response
+                .getMessageList()
+                .stream()
+                .map(state -> unpack(state.getState(), stateClass))
+                .collect(toImmutableList());
         return result;
     }
 }

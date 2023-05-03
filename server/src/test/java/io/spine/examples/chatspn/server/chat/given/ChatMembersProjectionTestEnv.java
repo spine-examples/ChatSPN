@@ -75,12 +75,12 @@ public final class ChatMembersProjectionTestEnv {
     }
 
     public static ChatMembers chatMembers(Chat chat, RemoveMembers command) {
-        var remainingMembers =
-                chat.getMemberList()
-                    .stream()
-                    .filter(userId -> !command.getMemberList()
-                                              .contains(userId))
-                    .collect(toList());
+        var remainingMembers = chat
+                .getMemberList()
+                .stream()
+                .filter(userId -> !command.getMemberList()
+                                          .contains(userId))
+                .collect(toList());
         var state = ChatMembers
                 .newBuilder()
                 .setId(command.getId())
@@ -90,11 +90,11 @@ public final class ChatMembersProjectionTestEnv {
     }
 
     public static ChatMembers chatMembers(Chat chat, LeaveChat c) {
-        var newMemberList =
-                chat.getMemberList()
-                    .stream()
-                    .filter(member -> !member.equals(c.getUser()))
-                    .collect(toList());
+        var newMemberList = chat
+                .getMemberList()
+                .stream()
+                .filter(member -> !member.equals(c.getUser()))
+                .collect(toList());
         var state = ChatMembers
                 .newBuilder()
                 .setId(chat.getId())

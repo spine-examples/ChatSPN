@@ -217,8 +217,7 @@ final class ChatTest extends ContextAwareTest {
                 "if all members to remove are not in the chat")
         void rejectIfNoOneToRemove() {
             var chat = createGroupChatIn(context());
-            var membersToRemove =
-                    ImmutableList.of(GivenUserId.generated());
+            var membersToRemove = ImmutableList.of(GivenUserId.generated());
             var command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
             var expected = membersCannotBeRemovedFrom(command);
@@ -235,12 +234,10 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and emit the `MembersAdded` if at least one member can be added")
         void event() {
             var chat = createGroupChatIn(context());
-            var membersToAdd =
-                    ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
+            var membersToAdd = ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
             var command = addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
-            var addedMembers =
-                    ImmutableList.of(membersToAdd.get(0));
+            var addedMembers = ImmutableList.of(membersToAdd.get(0));
             var expected = membersAdded(command, chat.getName(), addedMembers);
 
             context().assertEvent(expected);

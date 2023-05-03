@@ -176,11 +176,11 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     private ImmutableList<UserId> extractRemainingMembers(RemoveMembers command) {
         var chatMembers = state().getMemberList();
         var membersInCommand = command.getMemberList();
-        var remainingMembers =
-                chatMembers.stream()
-                           .filter(userId -> !membersInCommand.contains(userId) ||
-                                   userId.equals(command.getWhoRemoves()))
-                           .collect(toImmutableList());
+        var remainingMembers = chatMembers
+                .stream()
+                .filter(userId -> !membersInCommand.contains(userId) ||
+                        userId.equals(command.getWhoRemoves()))
+                .collect(toImmutableList());
         return remainingMembers;
     }
 
@@ -190,11 +190,11 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     private ImmutableList<UserId> extractMembersToRemove(RemoveMembers command) {
         var chatMembers = state().getMemberList();
         var membersInCommand = command.getMemberList();
-        var membersToRemove =
-                membersInCommand.stream()
-                                .filter(userId -> chatMembers.contains(userId) &&
-                                        !userId.equals(command.getWhoRemoves()))
-                                .collect(toImmutableList());
+        var membersToRemove = membersInCommand
+                .stream()
+                .filter(userId -> chatMembers.contains(userId) &&
+                        !userId.equals(command.getWhoRemoves()))
+                .collect(toImmutableList());
         return membersToRemove;
     }
 

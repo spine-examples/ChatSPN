@@ -361,11 +361,11 @@ public final class ChatTestEnv {
     }
 
     public static Chat chat(Chat chat, LeaveChat c) {
-        var newMemberList =
-                chat.getMemberList()
-                    .stream()
-                    .filter(member -> !member.equals(c.getUser()))
-                    .collect(toList());
+        var newMemberList = chat
+                .getMemberList()
+                .stream()
+                .filter(member -> !member.equals(c.getUser()))
+                .collect(toList());
         var state = chat
                 .toBuilder()
                 .clearMember()
