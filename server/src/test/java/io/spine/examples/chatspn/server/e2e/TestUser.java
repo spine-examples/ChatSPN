@@ -133,14 +133,14 @@ final class TestUser {
     }
 
     /**
-     * Returns user ID.
+     * Returns the user's ID.
      */
     private UserId userId() {
         return user.getId();
     }
 
     /**
-     * Returns user email.
+     * Returns the user's email.
      */
     EmailAddress email() {
         return user.getEmail();
@@ -164,6 +164,9 @@ final class TestUser {
         return conversation;
     }
 
+    /**
+     * Returns the conversation of the provided chat.
+     */
     Conversation openChat(ChatId chat) {
         return new Conversation(chat);
     }
@@ -194,7 +197,7 @@ final class TestUser {
     }
 
     /**
-     * The chat's part of the read-side for the user.
+     * The read side of the chat for the user.
      */
     final class Conversation {
 
@@ -211,7 +214,7 @@ final class TestUser {
         }
 
         /**
-         * Returns chat messages from the server-side.
+         * Returns chat messages from the server.
          */
         private Map<MessageId, MessageView> readMessages() {
             String whenPostedField = MessageView.Field
@@ -230,7 +233,7 @@ final class TestUser {
         }
 
         /**
-         * Subscribes to server-side changes in the chat messages to update the read-side.
+         * Subscribes to server-side changes in the chat messages to update the read side.
          */
         private void observeMessages() {
             client.onBehalfOf(userId())
