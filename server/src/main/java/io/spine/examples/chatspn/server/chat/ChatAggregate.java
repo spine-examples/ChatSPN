@@ -269,7 +269,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      *
      * @throws ChatCannotBeMarkedAsDeleted
      *         if the user who told to delete personal chat wasn't a chat member,
-     *         or the user who told to delete group chat wasn't a chat owner / last member,
+     *         or the user who told to delete group chat wasn't a chat owner or the last member,
      *         or the chat has already been deleted.
      */
     @Assign

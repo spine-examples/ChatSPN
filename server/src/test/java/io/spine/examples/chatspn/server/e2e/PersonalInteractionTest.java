@@ -26,16 +26,16 @@
 
 package io.spine.examples.chatspn.server.e2e;
 
+import io.spine.examples.chatspn.account.UserProfile;
+import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.message.MessageView;
+import io.spine.examples.chatspn.server.e2e.TestUser.Conversation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
-import static io.spine.examples.chatspn.server.ExpectedOnlyAssertions.assertExpectedFields;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalInteractionTestEnv.chatMessages;
-import static io.spine.examples.chatspn.server.e2e.given.PersonalInteractionTestEnv.userChats;
+import static io.spine.examples.chatspn.server.e2e.TestUser.registerUser;
 
 final class PersonalInteractionTest extends ServerRunningTest {
 
@@ -44,60 +44,35 @@ final class PersonalInteractionTest extends ServerRunningTest {
             "edit messages, and delete a chat.")
     void messageInteractionInPersonalChat() {
         // Vlad and Artem passes registration.
-        var vlad = new TestUser(createClient());
-        var artem = new TestUser(createClient());
-
-        // Vlad opens the app. `UserChats` are loaded and the observer is set.
-        var vladReadChats = vlad.readChats();
-        var vladChatsObserver = vlad.observeChats();
+        TestUser vlad = registerUser("Vlad", "vlad@teamdev.com", createClient());
+        TestUser artem = registerUser("Artem", "artem@teamdev.com", createClient());
 
         // Vlad finds Artem and creates a personal chat.
-        var artemProfile = vlad.findUserBy(artem.email());
-        assertThat(artemProfile).isEqualTo(artem.profile());
-        var conversation = vlad.createPersonalChatWith(artem);
-
-        // Vlad opens a chat with Artem.
-        // Chat messages are loaded and an observer of their changes is set.
-        //
-        var vladChatView = vladChatsObserver
-                .lastState()
-                .getChat(0);
-        List<MessageView> vladReadMessages = vlad.readMessagesIn(vladChatView.getId());
-        var vladMessageObserver = vlad.observeMessagesIn(vladChatView.getId());
+        UserProfile artemProfile = vlad.findUserBy(artem.email());
+        Conversation vladConversation = vlad.createPersonalChatWith(artemProfile.getId());
 
         // Vlad sends messages.
-        vlad.sendMessageTo(vladChatView.getId());
-        vlad.sendMessageTo(vladChatView.getId());
-        vlad.sendMessageTo(vladChatView.getId());
+        vladConversation.sendMessage("Hello");
+        vladConversation.sendMessage("How are you");
+        vladConversation.sendMessage("?");
 
-        // Artem opens the app. `UserChats` loaded and the observer is set.
-        var artemReadChats = artem.readChats();
-        var artemChatsObserver = artem.observeChats();
+        // Artem opens the chat and sends messages.
+        List<ChatPreview> artemChats = artem.chats();
+        Conversation artemConversation = artem.openChat(artemChats.get(0)
+                                                                  .getId());
+        artemConversation.sendMessage("Hi!");
+        artemConversation.sendMessage("I'm fine");
+        artemConversation.sendMessage("And you");
 
-        // Artem opens chat with Vlad.
-        // Chat messages are loaded and an observer of their changes is set.
-        //
-        var artemChatView = artemReadChats.getChat(0);
-        List<MessageView> artemReadMessages = artem.readMessagesIn(artemChatView.getId());
-        var artemMessageObserver = artem.observeMessagesIn(artemChatView.getId());
+        // Artem edits the last message.
+        List<MessageView> artemMessages = artemConversation.messages();
+        artemConversation.editMessage(artemMessages.get(artemMessages.size() - 1), "And you?");
 
-        // Artem sends messages.
-        artem.sendMessageTo(artemChatView.getId());
-        artem.sendMessageTo(artemChatView.getId());
+        // Vlad removes the 3rd message in the chat.
+        List<MessageView> vladMessages = vladConversation.messages();
+        vladConversation.removeMessage(vladMessages.get(2));
 
-        // Vlad edits the first message.
-        var vladMessages = chatMessages(vladReadMessages, vladMessageObserver);
-        vlad.editMessage(vladMessages.get(0));
-
-        // Checking that the messages for both Artem and Vlad are expected and equal.
-        assertExpectedFields(chatMessages(artemReadMessages, artemMessageObserver),
-                             conversation.messages());
-        assertExpectedFields(chatMessages(vladReadMessages, vladMessageObserver),
-                             conversation.messages());
-
-        // Vlad deletes the chat. Chat disappears for both Artem and Vlad.
-        vlad.deleteChat(vladChatView.getId());
-        assertExpectedFields(vladChatsObserver.lastState(), userChats(vlad.userId()));
-        assertExpectedFields(artemChatsObserver.lastState(), userChats(artem.userId()));
+        // Vlad deletes the chat.
+        vladConversation.deleteChat();
     }
 }

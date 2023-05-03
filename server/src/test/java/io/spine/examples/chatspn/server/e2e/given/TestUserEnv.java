@@ -31,6 +31,7 @@ import io.spine.examples.chatspn.AccountCreationId;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
+import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.account.command.CreateAccount;
 import io.spine.examples.chatspn.chat.ChatPreview;
 import io.spine.examples.chatspn.chat.PersonalChatView;
@@ -38,11 +39,10 @@ import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.EditMessage;
+import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
+import io.spine.net.EmailAddress;
 import io.spine.testing.core.given.GivenUserId;
-
-import static io.spine.examples.chatspn.server.given.GivenEmailAddress.randomEmailAddress;
-import static io.spine.testing.TestValues.randomString;
 
 public final class TestUserEnv {
 
@@ -52,19 +52,23 @@ public final class TestUserEnv {
     private TestUserEnv() {
     }
 
-    public static CreateAccount createAccount() {
-        var command = CreateAccount
+    public static CreateAccount createAccount(String name, String email) {
+        EmailAddress emailAddress = EmailAddress
+                .newBuilder()
+                .setValue(email)
+                .vBuild();
+        CreateAccount command = CreateAccount
                 .newBuilder()
                 .setId(AccountCreationId.generate())
                 .setUser(GivenUserId.generated())
-                .setEmail(randomEmailAddress())
-                .setName(randomString())
+                .setEmail(emailAddress)
+                .setName(name)
                 .vBuild();
         return command;
     }
 
     public static CreatePersonalChat createPersonalChat(UserId creator, UserId member) {
-        var command = CreatePersonalChat
+        CreatePersonalChat command = CreatePersonalChat
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setCreator(creator)
@@ -74,12 +78,12 @@ public final class TestUserEnv {
     }
 
     public static ChatPreview chatPreview(CreatePersonalChat command) {
-        var view = PersonalChatView
+        PersonalChatView view = PersonalChatView
                 .newBuilder()
                 .setCreator(command.getCreator())
                 .setMember(command.getMember())
                 .vBuild();
-        var chatPreview = ChatPreview
+        ChatPreview chatPreview = ChatPreview
                 .newBuilder()
                 .setId(command.getId())
                 .setPersonalChat(view)
@@ -87,19 +91,19 @@ public final class TestUserEnv {
         return chatPreview;
     }
 
-    public static SendMessage sendMessage(ChatId chatId, UserId userId) {
-        var sendMessage = SendMessage
+    public static SendMessage sendMessageCommand(ChatId chatId, UserId userId, String content) {
+        SendMessage sendMessage = SendMessage
                 .newBuilder()
                 .setId(MessageId.generate())
                 .setChat(chatId)
                 .setUser(userId)
-                .setContent(randomString())
+                .setContent(content)
                 .vBuild();
         return sendMessage;
     }
 
     public static MessageView messageView(SendMessage command) {
-        var messageView = MessageView
+        MessageView messageView = MessageView
                 .newBuilder()
                 .setId(command.getId())
                 .setChat(command.getChat())
@@ -109,19 +113,33 @@ public final class TestUserEnv {
         return messageView;
     }
 
-    public static EditMessage editMessageCommand(MessageView message) {
-        var editMessage = EditMessage
+    public static EditMessage editMessageCommand(MessageView message, String newContent) {
+        EditMessage editMessage = EditMessage
                 .newBuilder()
                 .setId(message.getId())
                 .setUser(message.getUser())
                 .setChat(message.getChat())
-                .setSuggestedContent(randomString())
+                .setSuggestedContent(newContent)
                 .vBuild();
         return editMessage;
     }
 
+    public static RemoveMessage removeMessageCommand(MessageView message) {
+        MessageRemovalId messageRemoval = MessageRemovalId
+                .newBuilder()
+                .setId(message.getId())
+                .vBuild();
+        RemoveMessage removeMessage = RemoveMessage
+                .newBuilder()
+                .setId(messageRemoval)
+                .setUser(message.getUser())
+                .setChat(message.getChat())
+                .vBuild();
+        return removeMessage;
+    }
+
     public static MessageView messageView(EditMessage command) {
-        var messageView = MessageView
+        MessageView messageView = MessageView
                 .newBuilder()
                 .setId(command.getId())
                 .setChat(command.getChat())
@@ -132,11 +150,11 @@ public final class TestUserEnv {
     }
 
     public static DeleteChat deleteChatCommand(ChatId chat, UserId user) {
-        var deletionId = ChatDeletionId
+        ChatDeletionId deletionId = ChatDeletionId
                 .newBuilder()
                 .setId(chat)
                 .vBuild();
-        var deleteChat = DeleteChat
+        DeleteChat deleteChat = DeleteChat
                 .newBuilder()
                 .setId(deletionId)
                 .setWhoDeletes(user)

@@ -35,7 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import static io.grpc.ManagedChannelBuilder.forAddress;
 import static io.spine.client.Client.usingChannel;
@@ -51,8 +51,8 @@ abstract class ServerRunningTest {
     private static final int TEST_SERVER_PORT = 4242;
     private static final String ADDRESS = "localhost";
 
-    private final List<ManagedChannel> channels = new ArrayList<>();
-    private final List<Client> clients = new ArrayList<>();
+    private final Collection<ManagedChannel> channels = new ArrayList<>();
+    private final Collection<Client> clients = new ArrayList<>();
     private Server server;
 
     /**
@@ -85,11 +85,14 @@ abstract class ServerRunningTest {
         server.shutdown();
     }
 
-    protected Client createClient() {
-        var channel = forAddress(ADDRESS, TEST_SERVER_PORT)
+    /**
+     * Creates a new client with access to the server.
+     */
+    Client createClient() {
+        ManagedChannel channel = forAddress(ADDRESS, TEST_SERVER_PORT)
                 .usePlaintext()
                 .build();
-        var client = usingChannel(channel).build();
+        Client client = usingChannel(channel).build();
         channels.add(channel);
         clients.add(client);
         return client;
