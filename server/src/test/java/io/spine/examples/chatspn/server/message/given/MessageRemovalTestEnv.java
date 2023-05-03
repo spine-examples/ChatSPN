@@ -51,7 +51,7 @@ public final class MessageRemovalTestEnv {
     }
 
     public static RemoveMessage removeMessageCommand(Message message) {
-        RemoveMessage command = RemoveMessage
+        var command = RemoveMessage
                 .newBuilder()
                 .setId(removalId(message.getId()))
                 .setChat(message.getChat())
@@ -61,7 +61,7 @@ public final class MessageRemovalTestEnv {
     }
 
     public static RemoveMessage removeMessageCommandWith(Message message, UserId userId) {
-        RemoveMessage command = RemoveMessage
+        var command = RemoveMessage
                 .newBuilder()
                 .setId(removalId(message.getId()))
                 .setChat(message.getChat())
@@ -71,7 +71,7 @@ public final class MessageRemovalTestEnv {
     }
 
     public static RemoveMessage removeMessageCommandWith(Message message, MessageId messageId) {
-        RemoveMessage command = RemoveMessage
+        var command = RemoveMessage
                 .newBuilder()
                 .setId(removalId(messageId))
                 .setChat(message.getChat())
@@ -81,7 +81,7 @@ public final class MessageRemovalTestEnv {
     }
 
     public static MessageRemoved messageRemovedFrom(RemoveMessage c) {
-        MessageRemoved event = MessageRemoved
+        var event = MessageRemoved
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -91,7 +91,7 @@ public final class MessageRemovalTestEnv {
     }
 
     public static MessageRemovalFailed messageRemovalFailedFrom(RemoveMessage c) {
-        MessageRemovalFailed event = MessageRemovalFailed
+        var event = MessageRemovalFailed
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -101,7 +101,7 @@ public final class MessageRemovalTestEnv {
     }
 
     public static MessageMarkedAsDeleted messageMarkedAsDeletedFrom(RemoveMessage c) {
-        MessageMarkedAsDeleted event = MessageMarkedAsDeleted
+        var event = MessageMarkedAsDeleted
                 .newBuilder()
                 .setId(c.message())
                 .setChat(c.getChat())
@@ -112,7 +112,7 @@ public final class MessageRemovalTestEnv {
     }
 
     public static Message messageFrom(RemoveMessage c) {
-        Message state = Message
+        var state = Message
                 .newBuilder()
                 .setId(c.message())
                 .setChat(c.getChat())
@@ -122,7 +122,7 @@ public final class MessageRemovalTestEnv {
     }
 
     public static MessageCannotBeRemoved messageCannotBeRemovedFrom(RemoveMessage c) {
-        MessageCannotBeRemoved rejection = MessageCannotBeRemoved
+        var rejection = MessageCannotBeRemoved
                 .newBuilder()
                 .setId(c.getId())
                 .setChat(c.getChat())
@@ -133,7 +133,7 @@ public final class MessageRemovalTestEnv {
 
     public static MessageCannotBeMarkedAsDeleted messageCannotBeMarkedAsRemovedFrom(
             RemoveMessage c) {
-        MessageCannotBeMarkedAsDeleted rejection = MessageCannotBeMarkedAsDeleted
+        var rejection = MessageCannotBeMarkedAsDeleted
                 .newBuilder()
                 .setId(c.message())
                 .setChat(c.getChat())
@@ -151,7 +151,7 @@ public final class MessageRemovalTestEnv {
     }
 
     public static ChatPreview chatPreview(Chat chat) {
-        ChatPreview state = ChatPreview
+        var state = ChatPreview
                 .newBuilder()
                 .setId(chat.getId())
                 .setGroupChat(groupChatView(chat.getName()))
@@ -161,13 +161,13 @@ public final class MessageRemovalTestEnv {
     }
 
     public static ChatPreview chatPreviewWithMessage(Chat chat, Message message) {
-        MessagePreview messageView = MessagePreview
+        var messageView = MessagePreview
                 .newBuilder()
                 .setId(message.getId())
                 .setUser(message.getUser())
                 .setContent(message.getContent())
                 .buildPartial();
-        ChatPreview state = ChatPreview
+        var state = ChatPreview
                 .newBuilder()
                 .setId(chat.getId())
                 .setGroupChat(groupChatView(chat.getName()))

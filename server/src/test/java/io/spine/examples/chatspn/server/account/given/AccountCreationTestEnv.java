@@ -51,7 +51,7 @@ public final class AccountCreationTestEnv {
     }
 
     public static CreateAccount randomCreateAccountCommand() {
-        CreateAccount command = CreateAccount
+        var command = CreateAccount
                 .newBuilder()
                 .setId(AccountCreationId.generate())
                 .setUser(GivenUserId.generated())
@@ -62,7 +62,7 @@ public final class AccountCreationTestEnv {
     }
 
     public static CreateAccount createAccountCommandWith(EmailAddress email) {
-        CreateAccount command = CreateAccount
+        var command = CreateAccount
                 .newBuilder()
                 .setId(AccountCreationId.generate())
                 .setUser(GivenUserId.generated())
@@ -73,7 +73,7 @@ public final class AccountCreationTestEnv {
     }
 
     public static AccountCreated accountCreatedFrom(CreateAccount c) {
-        AccountCreated event = AccountCreated
+        var event = AccountCreated
                 .newBuilder()
                 .setId(c.getId())
                 .setUser(c.getUser())
@@ -84,7 +84,7 @@ public final class AccountCreationTestEnv {
     }
 
     public static AccountNotCreated accountNotCreatedFrom(CreateAccount c) {
-        AccountNotCreated event = AccountNotCreated
+        var event = AccountNotCreated
                 .newBuilder()
                 .setId(c.getId())
                 .setUser(c.getUser())
@@ -95,7 +95,7 @@ public final class AccountCreationTestEnv {
     }
 
     public static EmailReserved emailReservedFrom(CreateAccount c) {
-        EmailReserved event = EmailReserved
+        var event = EmailReserved
                 .newBuilder()
                 .setEmail(c.getEmail())
                 .setUser(c.getUser())
@@ -105,7 +105,7 @@ public final class AccountCreationTestEnv {
     }
 
     public static EmailAlreadyReserved emailAlreadyReservedFrom(CreateAccount c) {
-        EmailAlreadyReserved event = EmailAlreadyReserved
+        var event = EmailAlreadyReserved
                 .newBuilder()
                 .setEmail(c.getEmail())
                 .setUser(c.getUser())
@@ -115,7 +115,7 @@ public final class AccountCreationTestEnv {
     }
 
     public static ReservedEmail reservedEmailFrom(CreateAccount c) {
-        ReservedEmail state = ReservedEmail
+        var state = ReservedEmail
                 .newBuilder()
                 .setEmail(c.getEmail())
                 .setUser(c.getUser())
@@ -124,7 +124,7 @@ public final class AccountCreationTestEnv {
     }
 
     public static UserRegistered userRegisteredFrom(CreateAccount c) {
-        UserRegistered state = UserRegistered
+        var state = UserRegistered
                 .newBuilder()
                 .setUser(c.getUser())
                 .setEmail(c.getEmail())
@@ -135,7 +135,7 @@ public final class AccountCreationTestEnv {
     }
 
     public static User userFrom(CreateAccount c) {
-        User state = User
+        var state = User
                 .newBuilder()
                 .setId(c.getUser())
                 .setEmail(c.getEmail())
@@ -145,7 +145,7 @@ public final class AccountCreationTestEnv {
     }
 
     public static UserProfile userProfileFrom(CreateAccount c) {
-        UserProfile state = UserProfile
+        var state = UserProfile
                 .newBuilder()
                 .setId(c.getUser())
                 .setEmail(c.getEmail())

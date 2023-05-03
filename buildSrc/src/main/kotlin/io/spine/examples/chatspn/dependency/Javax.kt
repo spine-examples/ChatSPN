@@ -26,24 +26,8 @@
 
 package io.spine.examples.chatspn.dependency
 
-// https://github.com/google/error-prone
-object ErrorProne {
-    private const val group = "com.google.errorprone"
-
-    object CorePlugin {
-        const val version = "2.10.0"
-        const val lib = "$group:error_prone_core:$version"
-    }
-
-    // https://github.com/tbroyer/gradle-errorprone-plugin
-    object GradlePlugin {
-        const val id = "net.ltgt.errorprone"
-
-        /**
-         * The version of this plugin is already specified in `buildSrc/build.gradle.kts` file.
-         * Thus, when applying the plugin in projects build files, only the [id] should be used.
-         */
-        const val version = "2.0.2"
-        const val lib = "net.ltgt.gradle:gradle-errorprone-plugin:$version"
-    }
+// https://jcp.org/en/jsr/detail?id=250
+object Javax {
+    const val version = "1.3.2"
+    const val lib = "javax.annotation:javax.annotation-api:${version}"
 }

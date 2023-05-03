@@ -26,14 +26,8 @@
 
 package io.spine.examples.chatspn.server.e2e;
 
-import io.spine.examples.chatspn.account.UserProfile;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.message.MessageView;
-import io.spine.examples.chatspn.server.e2e.TestUser.Conversation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static io.spine.examples.chatspn.server.e2e.TestUser.registerUser;
 
@@ -56,12 +50,12 @@ final class PersonalInteractionTest extends ServerRunningTest {
             "edit messages, and delete a chat.")
     void messageInteractionInPersonalChat() {
         // Vlad and Artem passes registration.
-        TestUser vlad = registerUser("Vlad", "vlad@teamdev.com", createClient());
-        TestUser artem = registerUser("Artem", "artem@teamdev.com", createClient());
+        var vlad = registerUser("Vlad", "vlad@teamdev.com", createClient());
+        var artem = registerUser("Artem", "artem@teamdev.com", createClient());
 
         // Vlad finds Artem and creates a personal chat.
-        UserProfile artemProfile = vlad.findUserBy(artem.email());
-        Conversation vladConversation = vlad.createPersonalChatWith(artemProfile.getId());
+        var artemProfile = vlad.findUserBy(artem.email());
+        var vladConversation = vlad.createPersonalChatWith(artemProfile.getId());
 
         // Vlad sends messages.
         vladConversation.sendMessage("Hello");
@@ -69,19 +63,19 @@ final class PersonalInteractionTest extends ServerRunningTest {
         vladConversation.sendMessage("?");
 
         // Artem opens the chat and sends messages.
-        List<ChatPreview> artemChats = artem.chats();
-        Conversation artemConversation = artem.openChat(artemChats.get(0)
-                                                                  .getId());
+        var artemChats = artem.chats();
+        var artemConversation = artem.openChat(artemChats.get(0)
+                                                         .getId());
         artemConversation.sendMessage("Hi!");
         artemConversation.sendMessage("I'm fine");
         artemConversation.sendMessage("And you");
 
         // Artem edits the last message.
-        List<MessageView> artemMessages = artemConversation.messages();
+        var artemMessages = artemConversation.messages();
         artemConversation.editMessage(artemMessages.get(artemMessages.size() - 1), "And you?");
 
         // Vlad removes the 3rd message in the chat.
-        List<MessageView> vladMessages = vladConversation.messages();
+        var vladMessages = vladConversation.messages();
         vladConversation.removeMessage(vladMessages.get(2));
 
         // Vlad deletes the chat.

@@ -123,8 +123,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      */
     @Assign
     MembersRemoved handle(RemoveMembers c) throws MembersCannotBeRemoved {
-        ImmutableList<UserId> remainingMembers = extractRemainingMembers(c);
-        ImmutableList<UserId> membersToRemove = extractMembersToRemove(c);
+        var remainingMembers = extractRemainingMembers(c);
+        var membersToRemove = extractMembersToRemove(c);
         if (checkRemovalPossibility(c, remainingMembers)) {
             return MembersRemoved
                     .newBuilder()
@@ -162,10 +162,11 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         if (isDeleted()) {
             return false;
         }
-        boolean isGroupChat = state().getType() == CT_GROUP;
-        boolean isUserWhoRemovesIsOwner = state().getOwner()
-                                                 .equals(command.getWhoRemoves());
-        boolean isSomeoneRemoved = remainingMembers.size() < state().getMemberCount();
+        var isGroupChat = state().getType() == CT_GROUP;
+        var isUserWhoRemovesIsOwner = state()
+                .getOwner()
+                .equals(command.getWhoRemoves());
+        var isSomeoneRemoved = remainingMembers.size() < state().getMemberCount();
         return isGroupChat && isUserWhoRemovesIsOwner && isSomeoneRemoved;
     }
 
@@ -173,13 +174,13 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * Extracts the list of users who will remain after members removal.
      */
     private ImmutableList<UserId> extractRemainingMembers(RemoveMembers command) {
-        List<UserId> chatMembers = state().getMemberList();
-        List<UserId> membersInCommand = command.getMemberList();
-        ImmutableList<UserId> remainingMembers =
-                chatMembers.stream()
-                           .filter(userId -> !membersInCommand.contains(userId) ||
-                                   userId.equals(command.getWhoRemoves()))
-                           .collect(toImmutableList());
+        var chatMembers = state().getMemberList();
+        var membersInCommand = command.getMemberList();
+        var remainingMembers = chatMembers
+                .stream()
+                .filter(userId -> !membersInCommand.contains(userId) ||
+                        userId.equals(command.getWhoRemoves()))
+                .collect(toImmutableList());
         return remainingMembers;
     }
 
@@ -187,13 +188,13 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * Extracts the list of users who are members of the chat and can be removed.
      */
     private ImmutableList<UserId> extractMembersToRemove(RemoveMembers command) {
-        List<UserId> chatMembers = state().getMemberList();
-        List<UserId> membersInCommand = command.getMemberList();
-        ImmutableList<UserId> membersToRemove =
-                membersInCommand.stream()
-                        .filter(userId -> chatMembers.contains(userId) &&
-                                !userId.equals(command.getWhoRemoves()))
-                        .collect(toImmutableList());
+        var chatMembers = state().getMemberList();
+        var membersInCommand = command.getMemberList();
+        var membersToRemove = membersInCommand
+                .stream()
+                .filter(userId -> chatMembers.contains(userId) &&
+                        !userId.equals(command.getWhoRemoves()))
+                .collect(toImmutableList());
         return membersToRemove;
     }
 
@@ -208,7 +209,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      */
     @Assign
     MembersAdded handle(AddMembers c) throws MembersCannotBeAdded {
-        ImmutableList<UserId> newMembers = extractNewMembers(c.getMemberList());
+        var newMembers = extractNewMembers(c.getMemberList());
         if (checkAdditionPossibility(c, newMembers)) {
             return MembersAdded
                     .newBuilder()
@@ -244,9 +245,10 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
         if (isDeleted()) {
             return false;
         }
-        boolean isGroupChat = state().getType() == CT_GROUP;
-        boolean isUserWhoAddsIsMember = state().getMemberList()
-                                               .contains(command.getWhoAdds());
+        var isGroupChat = state().getType() == CT_GROUP;
+        var isUserWhoAddsIsMember = state()
+                .getMemberList()
+                .contains(command.getWhoAdds());
         return isGroupChat && isUserWhoAddsIsMember && !newMembers.isEmpty();
     }
 
@@ -254,11 +256,11 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * Extracts the list of users who are not members of the chat.
      */
     private ImmutableList<UserId> extractNewMembers(List<UserId> membersInCommand) {
-        List<UserId> chatMembers = state().getMemberList();
-        ImmutableList<UserId> newMembers =
-                membersInCommand.stream()
-                                .filter(userId -> !chatMembers.contains(userId))
-                                .collect(toImmutableList());
+        var chatMembers = state().getMemberList();
+        var newMembers = membersInCommand
+                .stream()
+                .filter(userId -> !chatMembers.contains(userId))
+                .collect(toImmutableList());
         return newMembers;
     }
 
@@ -310,15 +312,17 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                    .isEmpty()) {
             return true;
         }
-        boolean isPersonalChat = state().getType() == CT_PERSONAL;
-        boolean isMember = state().getMemberList()
-                                  .contains(c.getWhoDeletes());
+        var isPersonalChat = state().getType() == CT_PERSONAL;
+        var isMember = state()
+                .getMemberList()
+                .contains(c.getWhoDeletes());
         if (isPersonalChat && isMember) {
             return true;
         }
-        boolean isGroupChat = state().getType() == CT_GROUP;
-        boolean isOwner = c.getWhoDeletes()
-                           .equals(state().getOwner());
+        var isGroupChat = state().getType() == CT_GROUP;
+        var isOwner = c
+                .getWhoDeletes()
+                .equals(state().getOwner());
         return isGroupChat && isOwner;
     }
 
@@ -336,7 +340,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
     Pair<UserLeftChat, Optional<LastMemberLeftChat>> handle(LeaveChat c)
             throws UserCannotLeaveChat {
         checkLeavingPossibility(c);
-        UserLeftChat userLeftChat = userLeftChat(c);
+        var userLeftChat = userLeftChat(c);
         Optional<LastMemberLeftChat> lastMemberLeftChat = Optional.empty();
         if (state().getMemberList()
                    .size() == 1) {
@@ -351,8 +355,9 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     @Apply
     private void event(UserLeftChat e) {
-        int userIndex = state().getMemberList()
-                               .indexOf(e.getUser());
+        var userIndex = state()
+                .getMemberList()
+                .indexOf(e.getUser());
         builder().removeMember(userIndex);
     }
 
@@ -365,10 +370,11 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
      * </ul>
      */
     private void checkLeavingPossibility(LeaveChat c) throws UserCannotLeaveChat {
-        boolean isGroupChat = state().getType() == CT_GROUP;
-        boolean isMember = state().getMemberList()
-                                  .contains(c.getUser());
-        boolean canLeave = !isDeleted() && isGroupChat && isMember;
+        var isGroupChat = state().getType() == CT_GROUP;
+        var isMember = state()
+                .getMemberList()
+                .contains(c.getUser());
+        var canLeave = !isDeleted() && isGroupChat && isMember;
         if (!canLeave) {
             throw UserCannotLeaveChat
                     .newBuilder()

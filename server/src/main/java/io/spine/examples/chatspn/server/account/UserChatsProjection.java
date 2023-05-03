@@ -53,7 +53,7 @@ public final class UserChatsProjection extends Projection<UserId, UserChats, Use
 
     @Subscribe
     void onUpdate(ChatPreview s) {
-        Optional<Integer> chatIndex = findChatIndex(s.getId());
+        var chatIndex = findChatIndex(s.getId());
         if (chatIndex.isPresent()) {
             builder().setChat(chatIndex.get(), s);
         } else {
@@ -73,13 +73,13 @@ public final class UserChatsProjection extends Projection<UserId, UserChats, Use
 
     @Subscribe
     void on(MembersAdded e) {
-        Optional<Integer> chatIndex = findChatIndex(e.getId());
+        var chatIndex = findChatIndex(e.getId());
         if (!chatIndex.isPresent()) {
-            GroupChatView view = GroupChatView
+            var view = GroupChatView
                     .newBuilder()
                     .setName(e.getChatName())
                     .vBuild();
-            ChatPreview chatPreview = ChatPreview
+            var chatPreview = ChatPreview
                     .newBuilder()
                     .setId(e.getId())
                     .setGroupChat(view)
@@ -94,7 +94,7 @@ public final class UserChatsProjection extends Projection<UserId, UserChats, Use
     }
 
     private void removeChat(ChatId id) {
-        Optional<Integer> optionalIndex = findChatIndex(id);
+        var optionalIndex = findChatIndex(id);
         optionalIndex.ifPresent(index -> builder().removeChat(index));
     }
 
@@ -104,15 +104,16 @@ public final class UserChatsProjection extends Projection<UserId, UserChats, Use
      * <p>Returns {@code Optional.empty()} if the chat doesn't exist.
      */
     private Optional<Integer> findChatIndex(ChatId chatId) {
-        Optional<ChatPreview> optionalChat =
-                state().getChatList()
-                       .stream()
-                       .filter(chat -> chat.getId()
-                                           .equals(chatId))
-                       .findFirst();
+        var optionalChat = state()
+                .getChatList()
+                .stream()
+                .filter(chat -> chat.getId()
+                                    .equals(chatId))
+                .findFirst();
         if (optionalChat.isPresent()) {
-            int chatIndex = state().getChatList()
-                                   .indexOf(optionalChat.get());
+            var chatIndex = state()
+                    .getChatList()
+                    .indexOf(optionalChat.get());
             return Optional.of(chatIndex);
         }
         return Optional.empty();

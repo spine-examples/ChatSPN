@@ -26,10 +26,7 @@
 
 package io.spine.examples.chatspn.server.chat;
 
-import com.google.common.collect.ImmutableSet;
-import io.spine.client.Filter;
 import io.spine.core.EventContext;
-import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
@@ -121,12 +118,12 @@ public final class ChatDeletionProcess
      */
     @Command
     Iterable<MarkMessageAsDeleted> on(ChatDeleted e, EventContext ctx) {
-        Filter byChatId = eq(MessageView.Field.chat(), e.chat());
+        var byChatId = eq(MessageView.Field.chat(), e.chat());
         List<MessageView> messages = projectionReader.read(ctx.actorContext(), byChatId);
-        ImmutableSet<MarkMessageAsDeleted> commands =
-                messages.stream()
-                        .map(message -> markMessageAsDeleted(message, e))
-                        .collect(toImmutableSet());
+        var commands = messages
+                .stream()
+                .map(message -> markMessageAsDeleted(message, e))
+                .collect(toImmutableSet());
         setDeleted(true);
         return commands;
     }
@@ -143,7 +140,7 @@ public final class ChatDeletionProcess
     }
 
     private static MessageRemovalOperationId messageRemovalOperationId(ChatId chatId) {
-        ChatDeletionId removal = ChatDeletionId
+        var removal = ChatDeletionId
                 .newBuilder()
                 .setId(chatId)
                 .vBuild();

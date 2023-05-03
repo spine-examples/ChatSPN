@@ -26,14 +26,6 @@
 
 package io.spine.examples.chatspn.server.chat;
 
-import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.ChatMembers;
-import io.spine.examples.chatspn.chat.command.AddMembers;
-import io.spine.examples.chatspn.chat.command.CreateGroupChat;
-import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.DeleteChat;
-import io.spine.examples.chatspn.chat.command.LeaveChat;
-import io.spine.examples.chatspn.chat.command.RemoveMembers;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.server.blackbox.ContextAwareTest;
@@ -60,9 +52,9 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     @Test
     @DisplayName("display `ChatMembers`, as soon as `PersonalChatCreated` is emitted")
     void reactOnPersonalChatCreation() {
-        CreatePersonalChat command = createPersonalChatCommand();
+        var command = createPersonalChatCommand();
         context().receivesCommand(command);
-        ChatMembers expected = chatMembers(command);
+        var expected = chatMembers(command);
 
         context().assertState(command.getId(), expected);
     }
@@ -70,9 +62,9 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     @Test
     @DisplayName("display `ChatMembers`, as soon as `GroupChatCreated` is emitted")
     void reactOnGroupChatCreation() {
-        CreateGroupChat command = createGroupChatCommand();
+        var command = createGroupChatCommand();
         context().receivesCommand(command);
-        ChatMembers expected = chatMembers(command);
+        var expected = chatMembers(command);
 
         context().assertState(command.getId(), expected);
     }
@@ -80,10 +72,10 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     @Test
     @DisplayName("update `ChatMembers`, as soon as `MembersRemoved` is emitted")
     void reactOnMembersRemoved() {
-        Chat chat = createGroupChatIn(context());
-        RemoveMembers command = removeMembersCommandWith(chat, chat.getOwner());
+        var chat = createGroupChatIn(context());
+        var command = removeMembersCommandWith(chat, chat.getOwner());
         context().receivesCommand(command);
-        ChatMembers expected = chatMembers(chat, command);
+        var expected = chatMembers(chat, command);
 
         context().assertState(command.getId(), expected);
     }
@@ -91,10 +83,10 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     @Test
     @DisplayName("update `ChatMembers`, as soon as `MembersAdded` is emitted")
     void reactOnMembersAdded() {
-        Chat chat = createGroupChatIn(context());
-        AddMembers command = addMembersCommand(chat);
+        var chat = createGroupChatIn(context());
+        var command = addMembersCommand(chat);
         context().receivesCommand(command);
-        ChatMembers expected = chatMembers(chat, command);
+        var expected = chatMembers(chat, command);
 
         context().assertState(command.getId(), expected);
     }
@@ -102,8 +94,8 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     @Test
     @DisplayName("update `ChatMembersProjection`, as soon as `ChatMarkedAsDeleted` is emitted")
     void reactOnChatDeleted() {
-        Chat chat = createGroupChatIn(context());
-        DeleteChat command = deleteChatCommand(chat, chat.getOwner());
+        var chat = createGroupChatIn(context());
+        var command = deleteChatCommand(chat, chat.getOwner());
         context().receivesCommand(command);
 
         context().assertEntity(chat.getId(), ChatMembersProjection.class)
@@ -114,10 +106,10 @@ final class ChatMembersProjectionTest extends ContextAwareTest {
     @Test
     @DisplayName("update `ChatMembersProjection`, as soon as `UserLeftChat` is emitted")
     void reactOnUserLeftChat() {
-        Chat chat = createGroupChatIn(context());
-        LeaveChat command = leaveChat(chat, chat.getMember(0));
+        var chat = createGroupChatIn(context());
+        var command = leaveChat(chat, chat.getMember(0));
         context().receivesCommand(command);
-        ChatMembers expected = chatMembers(chat, command);
+        var expected = chatMembers(chat, command);
 
         context().assertState(chat.getId(), expected);
     }

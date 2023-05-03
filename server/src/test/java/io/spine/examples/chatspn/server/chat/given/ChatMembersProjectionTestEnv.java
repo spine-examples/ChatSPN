@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.server.chat.given;
 
-import io.spine.core.UserId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.command.AddMembers;
@@ -34,8 +33,6 @@ import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.LeaveChat;
 import io.spine.examples.chatspn.chat.command.RemoveMembers;
-
-import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -48,7 +45,7 @@ public final class ChatMembersProjectionTestEnv {
     }
 
     public static ChatMembers chatMembers(CreatePersonalChat c) {
-        ChatMembers state = ChatMembers
+        var state = ChatMembers
                 .newBuilder()
                 .setId(c.getId())
                 .addMember(c.getCreator())
@@ -58,7 +55,7 @@ public final class ChatMembersProjectionTestEnv {
     }
 
     public static ChatMembers chatMembers(CreateGroupChat c) {
-        ChatMembers state = ChatMembers
+        var state = ChatMembers
                 .newBuilder()
                 .setId(c.getId())
                 .addMember(c.getCreator())
@@ -68,7 +65,7 @@ public final class ChatMembersProjectionTestEnv {
     }
 
     public static ChatMembers chatMembers(Chat chat, AddMembers c) {
-        ChatMembers state = ChatMembers
+        var state = ChatMembers
                 .newBuilder()
                 .setId(c.getId())
                 .addAllMember(chat.getMemberList())
@@ -78,13 +75,13 @@ public final class ChatMembersProjectionTestEnv {
     }
 
     public static ChatMembers chatMembers(Chat chat, RemoveMembers command) {
-        List<UserId> remainingMembers =
-                chat.getMemberList()
-                    .stream()
-                    .filter(userId -> !command.getMemberList()
-                                              .contains(userId))
-                    .collect(toList());
-        ChatMembers state = ChatMembers
+        var remainingMembers = chat
+                .getMemberList()
+                .stream()
+                .filter(userId -> !command.getMemberList()
+                                          .contains(userId))
+                .collect(toList());
+        var state = ChatMembers
                 .newBuilder()
                 .setId(command.getId())
                 .addAllMember(remainingMembers)
@@ -93,12 +90,12 @@ public final class ChatMembersProjectionTestEnv {
     }
 
     public static ChatMembers chatMembers(Chat chat, LeaveChat c) {
-        List<UserId> newMemberList =
-                chat.getMemberList()
-                    .stream()
-                    .filter(member -> !member.equals(c.getUser()))
-                    .collect(toList());
-        ChatMembers state = ChatMembers
+        var newMemberList = chat
+                .getMemberList()
+                .stream()
+                .filter(member -> !member.equals(c.getUser()))
+                .collect(toList());
+        var state = ChatMembers
                 .newBuilder()
                 .setId(chat.getId())
                 .addAllMember(newMemberList)

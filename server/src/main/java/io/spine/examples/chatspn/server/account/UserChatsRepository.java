@@ -76,9 +76,9 @@ public final class UserChatsRepository
     }
 
     private Set<UserId> getChatMembers(ChatId chatId, EventContext ctx) {
-        ProjectionReader<ChatId, ChatMembers> reader =
-                new ProjectionReader<>(context().stand(), ChatMembers.class);
-        ChatMembersReader chatMembers = new ChatMembersReader(reader);
+        var reader = new ProjectionReader<ChatId, ChatMembers>(context().stand(),
+                                                               ChatMembers.class);
+        var chatMembers = new ChatMembersReader(reader);
         return ImmutableSet.copyOf(chatMembers.members(chatId, ctx.actorContext()));
     }
 }

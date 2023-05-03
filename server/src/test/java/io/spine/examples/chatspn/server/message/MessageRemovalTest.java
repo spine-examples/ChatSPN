@@ -27,17 +27,7 @@
 package io.spine.examples.chatspn.server.message;
 
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.account.UserChats;
-import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.Message;
-import io.spine.examples.chatspn.message.command.RemoveMessage;
-import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
-import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
-import io.spine.examples.chatspn.message.event.MessageRemoved;
-import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
-import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeRemoved;
 import io.spine.examples.chatspn.server.ChatsContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.testing.core.given.GivenUserId;
@@ -74,11 +64,11 @@ final class MessageRemovalTest extends ContextAwareTest {
     @DisplayName("emit a `MessageRemoved` event " +
             "if the process is finished successfully, and archive itself")
     void messageRemovedEvent() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        RemoveMessage command = removeMessageCommand(message);
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var command = removeMessageCommand(message);
         context().receivesCommand(command);
-        MessageRemoved expected = messageRemovedFrom(command);
+        var expected = messageRemovedFrom(command);
 
         context().assertEvent(expected);
         context().assertEntity(expected.getId(), MessageRemovalProcess.class)
@@ -90,11 +80,11 @@ final class MessageRemovalTest extends ContextAwareTest {
     @DisplayName("reject with the `MessageCannotBeRemoved` " +
             "if the message remover is not the chat member")
     void messageCannotBeRemovedRejection() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        RemoveMessage command = removeMessageCommandWith(message, GivenUserId.generated());
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var command = removeMessageCommandWith(message, GivenUserId.generated());
         context().receivesCommand(command);
-        MessageCannotBeRemoved expected = messageCannotBeRemovedFrom(command);
+        var expected = messageCannotBeRemovedFrom(command);
 
         context().assertEvent(expected);
     }
@@ -103,13 +93,13 @@ final class MessageRemovalTest extends ContextAwareTest {
     @DisplayName("reject with the `MessageCannotBeRemoved` " +
             "if the chat does not exist or has been deleted")
     void chatNotExist() {
-        Chat chat = createGroupChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        DeleteChat deleteChat = deleteChatCommand(chat, chat.getOwner());
+        var chat = createGroupChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var deleteChat = deleteChatCommand(chat, chat.getOwner());
         context().receivesCommand(deleteChat);
-        RemoveMessage command = removeMessageCommandWith(message, GivenUserId.generated());
+        var command = removeMessageCommandWith(message, GivenUserId.generated());
         context().receivesCommand(command);
-        MessageCannotBeRemoved expected = messageCannotBeRemovedFrom(command);
+        var expected = messageCannotBeRemovedFrom(command);
 
         context().assertEvent(expected);
     }
@@ -118,11 +108,11 @@ final class MessageRemovalTest extends ContextAwareTest {
     @DisplayName("emit a `MessageRemovalFailed` event " +
             "if message cannot be marked as deleted, and archive itself")
     void messageRemovalFailedEvent() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        RemoveMessage command = removeMessageCommandWith(message, MessageId.generate());
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var command = removeMessageCommandWith(message, MessageId.generate());
         context().receivesCommand(command);
-        MessageRemovalFailed expected = messageRemovalFailedFrom(command);
+        var expected = messageRemovalFailedFrom(command);
 
         context().assertEvent(expected);
         context().assertEntity(expected.getId(), MessageRemovalProcess.class)
@@ -133,9 +123,9 @@ final class MessageRemovalTest extends ContextAwareTest {
     @Test
     @DisplayName("update a `MessageViewProjection` to the expected state")
     void updateMessageView() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        RemoveMessage command = removeMessageCommand(message);
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var command = removeMessageCommand(message);
         context().receivesCommand(command);
 
         context().assertEntity(command.message(), MessageViewProjection.class)
@@ -147,12 +137,12 @@ final class MessageRemovalTest extends ContextAwareTest {
     @DisplayName("update the last message in `ChatPreview` and `UserChats` projections " +
             "if the removed message was the last one")
     void updateLastMessage() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        RemoveMessage command = removeMessageCommand(message);
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var command = removeMessageCommand(message);
         context().receivesCommand(command);
-        ChatPreview chatPreview = chatPreview(chat);
-        UserChats userChats = userChats(chatPreview, chat.getMember(0));
+        var chatPreview = chatPreview(chat);
+        var userChats = userChats(chatPreview, chat.getMember(0));
 
         context().assertState(chatPreview.getId(), chatPreview);
         context().assertState(userChats.getId(), userChats);
@@ -162,12 +152,12 @@ final class MessageRemovalTest extends ContextAwareTest {
     @DisplayName("not update the last message in the `ChatPreview` projection " +
             "if the removed message wasn't the last one")
     void notUpdateLastMessage() {
-        Chat chat = createRandomChatIn(context());
-        Message message = sendRandomMessageTo(chat, context());
-        Message lastMessage = sendRandomMessageTo(chat, context());
-        RemoveMessage command = removeMessageCommand(message);
+        var chat = createRandomChatIn(context());
+        var message = sendRandomMessageTo(chat, context());
+        var lastMessage = sendRandomMessageTo(chat, context());
+        var command = removeMessageCommand(message);
         context().receivesCommand(command);
-        ChatPreview chatPreview = chatPreviewWithMessage(chat, lastMessage);
+        var chatPreview = chatPreviewWithMessage(chat, lastMessage);
 
         context().assertState(chatPreview.getId(), chatPreview);
     }
@@ -179,11 +169,11 @@ final class MessageRemovalTest extends ContextAwareTest {
         @Test
         @DisplayName("update the state as expected")
         void state() {
-            Chat chat = createRandomChatIn(context());
-            Message message = sendRandomMessageTo(chat, context());
-            RemoveMessage command = removeMessageCommand(message);
+            var chat = createRandomChatIn(context());
+            var message = sendRandomMessageTo(chat, context());
+            var command = removeMessageCommand(message);
             context().receivesCommand(command);
-            Message expected = messageFrom(command);
+            var expected = messageFrom(command);
 
             context().assertState(expected.getId(), Message.class)
                      .comparingExpectedFieldsOnly()
@@ -196,11 +186,11 @@ final class MessageRemovalTest extends ContextAwareTest {
         @Test
         @DisplayName("emission of the `MessageMarkedAsDeleted` event")
         void event() {
-            Chat chat = createRandomChatIn(context());
-            Message message = sendRandomMessageTo(chat, context());
-            RemoveMessage command = removeMessageCommand(message);
+            var chat = createRandomChatIn(context());
+            var message = sendRandomMessageTo(chat, context());
+            var command = removeMessageCommand(message);
             context().receivesCommand(command);
-            MessageMarkedAsDeleted expected = messageMarkedAsDeletedFrom(command);
+            var expected = messageMarkedAsDeletedFrom(command);
 
             context().assertEvent(expected);
         }
@@ -209,12 +199,11 @@ final class MessageRemovalTest extends ContextAwareTest {
         @DisplayName("emission of the `MessageCannotBeMarkedAsDeleted` rejection " +
                 "if message with the given ID doesn't exist")
         void rejectBecauseNotExist() {
-            Chat chat = createRandomChatIn(context());
-            Message message = sendRandomMessageTo(chat, context());
-            RemoveMessage command = removeMessageCommandWith(message, MessageId.generate());
+            var chat = createRandomChatIn(context());
+            var message = sendRandomMessageTo(chat, context());
+            var command = removeMessageCommandWith(message, MessageId.generate());
             context().receivesCommand(command);
-            MessageCannotBeMarkedAsDeleted expected =
-                    messageCannotBeMarkedAsRemovedFrom(command);
+            var expected = messageCannotBeMarkedAsRemovedFrom(command);
 
             context().assertEvent(expected);
         }
@@ -223,13 +212,12 @@ final class MessageRemovalTest extends ContextAwareTest {
         @DisplayName("emission of the `MessageCannotBeMarkedAsDeleted` rejection " +
                 "if the message is already marked as deleted")
         void rejectBecauseAlreadyRemoved() {
-            Chat chat = createRandomChatIn(context());
-            Message message = sendRandomMessageTo(chat, context());
-            RemoveMessage command = removeMessageCommand(message);
+            var chat = createRandomChatIn(context());
+            var message = sendRandomMessageTo(chat, context());
+            var command = removeMessageCommand(message);
             context().receivesCommand(command);
             context().receivesCommand(command);
-            MessageCannotBeMarkedAsDeleted expected =
-                    messageCannotBeMarkedAsRemovedFrom(command);
+            var expected = messageCannotBeMarkedAsRemovedFrom(command);
 
             context().assertEvent(expected);
         }

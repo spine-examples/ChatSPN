@@ -55,15 +55,15 @@ public final class ChatDeletionTestEnv {
 
     public static List<Message> sendMessagesTo(Chat chat, BlackBoxContext context) {
         List<Message> messages = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            Message message = Message
+        for (var i = 0; i < 3; i++) {
+            var message = Message
                     .newBuilder()
                     .setId(MessageId.generate())
                     .setChat(chat.getId())
                     .setContent(randomString())
                     .setUser(chat.getMember(0))
                     .buildPartial();
-            SendMessage sendMessage = SendMessage
+            var sendMessage = SendMessage
                     .newBuilder()
                     .setId(message.getId())
                     .setChat(message.getChat())
@@ -77,7 +77,7 @@ public final class ChatDeletionTestEnv {
     }
 
     public static DeleteChat deleteChatCommand(Chat chat, UserId whoDeletes) {
-        DeleteChat command = DeleteChat
+        var command = DeleteChat
                 .newBuilder()
                 .setId(chatDeletionId(chat))
                 .setWhoDeletes(whoDeletes)
@@ -86,7 +86,7 @@ public final class ChatDeletionTestEnv {
     }
 
     public static ChatDeleted chatDeletedFrom(DeleteChat c, Chat chat) {
-        ChatDeleted event = ChatDeleted
+        var event = ChatDeleted
                 .newBuilder()
                 .setId(c.getId())
                 .setWhoDeleted(c.getWhoDeletes())
@@ -96,7 +96,7 @@ public final class ChatDeletionTestEnv {
     }
 
     public static ChatMarkedAsDeleted chatMarkedAsDeletedFrom(DeleteChat c, Chat chat) {
-        ChatMarkedAsDeleted event = ChatMarkedAsDeleted
+        var event = ChatMarkedAsDeleted
                 .newBuilder()
                 .setId(c.chat())
                 .setWhoDeleted(c.getWhoDeletes())
@@ -106,7 +106,7 @@ public final class ChatDeletionTestEnv {
     }
 
     public static ChatCannotBeMarkedAsDeleted chatCannotBeMarkedAsDeletedFrom(DeleteChat c) {
-        ChatCannotBeMarkedAsDeleted rejection = ChatCannotBeMarkedAsDeleted
+        var rejection = ChatCannotBeMarkedAsDeleted
                 .newBuilder()
                 .setId(c.chat())
                 .setWhoDeletes(c.getWhoDeletes())
@@ -115,7 +115,7 @@ public final class ChatDeletionTestEnv {
     }
 
     public static ChatDeletionFailed chatDeletionFailedFrom(DeleteChat c) {
-        ChatDeletionFailed event = ChatDeletionFailed
+        var event = ChatDeletionFailed
                 .newBuilder()
                 .setId(c.getId())
                 .setWhoDeletes(c.getWhoDeletes())

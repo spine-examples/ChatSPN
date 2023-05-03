@@ -30,7 +30,6 @@ import com.google.common.collect.ImmutableList;
 import io.spine.base.CommandMessage;
 import io.spine.base.EntityColumn;
 import io.spine.base.EntityStateField;
-import io.spine.base.Field;
 import io.spine.client.Client;
 import io.spine.client.EntityStateFilter;
 import io.spine.client.EventFilter;
@@ -40,16 +39,9 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.account.UserProfile;
-import io.spine.examples.chatspn.account.command.CreateAccount;
 import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
-import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.MessageView;
-import io.spine.examples.chatspn.message.command.EditMessage;
-import io.spine.examples.chatspn.message.command.RemoveMessage;
-import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
-import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted.Field.ChatIdField;
 import io.spine.net.EmailAddress;
 
 import java.util.ArrayList;
@@ -90,17 +82,17 @@ final class TestUser {
      * Registers the new user.
      */
     static TestUser registerUser(String name, String email, Client client) {
-        CreateAccount createAccount = createAccount(name, email);
+        var createAccount = createAccount(name, email);
         client.onBehalfOf(createAccount.getUser())
               .command(createAccount)
               .postAndForget();
-        UserProfile userProfile = UserProfile
+        var userProfile = UserProfile
                 .newBuilder()
                 .setId(createAccount.getUser())
                 .setEmail(createAccount.getEmail())
                 .setName(name)
                 .vBuild();
-        TestUser user = new TestUser(userProfile, client);
+        var user = new TestUser(userProfile, client);
         return user;
     }
 
@@ -108,7 +100,7 @@ final class TestUser {
      * Returns user chats from the server-side.
      */
     private List<ChatPreview> readChats() {
-        ImmutableList<UserChats> userChatsList = client
+        var userChatsList = client
                 .onBehalfOf(userId())
                 .select(UserChats.class)
                 .byId(userId())
@@ -157,10 +149,10 @@ final class TestUser {
      * Creates personal chat with provided user.
      */
     Conversation createPersonalChatWith(UserId user) {
-        CreatePersonalChat command = createPersonalChat(userId(), user);
+        var command = createPersonalChat(userId(), user);
         postCommand(command);
-        ChatPreview chatPreview = chatPreview(command);
-        Conversation conversation = new Conversation(chatPreview.getId());
+        var chatPreview = chatPreview(command);
+        var conversation = new Conversation(chatPreview.getId());
         return conversation;
     }
 
@@ -175,11 +167,11 @@ final class TestUser {
      * Returns the user profile with the provided email address.
      */
     UserProfile findUserBy(EmailAddress email) {
-        String emailField = UserProfile.Field
+        var emailField = UserProfile.Field
                 .email()
                 .getField()
                 .toString();
-        ImmutableList<UserProfile> profiles = client
+        var profiles = client
                 .onBehalfOf(userId())
                 .select(UserProfile.class)
                 .where(eq(new EntityColumn(emailField), email))
@@ -217,11 +209,11 @@ final class TestUser {
          * Returns chat messages from the server.
          */
         private Map<MessageId, MessageView> readMessages() {
-            String whenPostedField = MessageView.Field
+            var whenPostedField = MessageView.Field
                     .whenPosted()
                     .getField()
                     .toString();
-            ImmutableList<MessageView> messagesList = client
+            var messagesList = client
                     .onBehalfOf(userId())
                     .select(MessageView.class)
                     .where(chatQueryFilter(chat))
@@ -249,20 +241,20 @@ final class TestUser {
         }
 
         private EntityStateFilter chatStateFilter(ChatId chat) {
-            Field chatField = MessageView.Field
+            var chatField = MessageView.Field
                     .chat()
                     .getField();
             return EntityStateFilter.eq(new EntityStateField(chatField), chat);
         }
 
         private EventFilter chatEventFilter(ChatId chat) {
-            ChatIdField chatField = MessageMarkedAsDeleted.Field
+            var chatField = MessageMarkedAsDeleted.Field
                     .chat();
             return EventFilter.eq(chatField, chat);
         }
 
         private QueryFilter chatQueryFilter(ChatId chat) {
-            String chatField = MessageView.Field
+            var chatField = MessageView.Field
                     .chat()
                     .getField()
                     .toString();
@@ -273,8 +265,8 @@ final class TestUser {
          * Sends a new message to the chat.
          */
         void sendMessage(String content) {
-            SendMessage command = sendMessageCommand(chat, userId(), content);
-            MessageView messageView = messageView(command);
+            var command = sendMessageCommand(chat, userId(), content);
+            var messageView = messageView(command);
             postCommand(command);
             assertExpectedFields(messages.get(command.getId()), messageView);
         }
@@ -283,8 +275,8 @@ final class TestUser {
          * Edits the message in the chat.
          */
         void editMessage(MessageView message, String newContent) {
-            EditMessage command = editMessageCommand(message, newContent);
-            MessageView newMessageView = messageView(command);
+            var command = editMessageCommand(message, newContent);
+            var newMessageView = messageView(command);
             postCommand(command);
             assertExpectedFields(messages.get(message.getId()), newMessageView);
         }
@@ -293,7 +285,7 @@ final class TestUser {
          * Removes the message in the chat.
          */
         void removeMessage(MessageView message) {
-            RemoveMessage command = removeMessageCommand(message);
+            var command = removeMessageCommand(message);
             postCommand(command);
             assertThat(messages.containsKey(message.getId()))
                     .isFalse();
@@ -310,7 +302,7 @@ final class TestUser {
          * Deletes the chat.
          */
         void deleteChat() {
-            DeleteChat command = deleteChatCommand(chat, userId());
+            var command = deleteChatCommand(chat, userId());
             postCommand(command);
         }
     }
