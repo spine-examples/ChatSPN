@@ -85,6 +85,9 @@ abstract class ServerRunningTest {
         server.shutdown();
     }
 
+    /**
+     * Creates a new client with access to the server.
+     */
     Client createClient() {
         ManagedChannel channel = forAddress(ADDRESS, TEST_SERVER_PORT)
                 .usePlaintext()

@@ -104,6 +104,9 @@ final class TestUser {
         return user;
     }
 
+    /**
+     * Returns user chats from the server-side.
+     */
     private List<ChatPreview> readChats() {
         ImmutableList<UserChats> userChatsList = client
                 .onBehalfOf(userId())
@@ -115,6 +118,9 @@ final class TestUser {
         return chats;
     }
 
+    /**
+     * Subscribes to server-side changes in the user chats to update the read-side.
+     */
     private void observeChats() {
         client.onBehalfOf(userId())
               .subscribeTo(UserChats.class)
@@ -140,6 +146,9 @@ final class TestUser {
         return user.getEmail();
     }
 
+    /**
+     * Returns the chats in which user is a member.
+     */
     List<ChatPreview> chats() {
         return ImmutableList.copyOf(chats);
     }
@@ -185,11 +194,9 @@ final class TestUser {
     }
 
     /**
-     * Expected state of messages in the chat.
-     *
-     * <p>It must be only one for each chat and updated before the real chat.
+     * The chat's part of the read-side for the user.
      */
-    public final class Conversation {
+    final class Conversation {
 
         private final ChatId chat;
         private final Map<MessageId, MessageView> messages;
@@ -203,6 +210,9 @@ final class TestUser {
             observeMessages();
         }
 
+        /**
+         * Returns chat messages from the server-side.
+         */
         private Map<MessageId, MessageView> readMessages() {
             String whenPostedField = MessageView.Field
                     .whenPosted()
@@ -219,6 +229,9 @@ final class TestUser {
             return messagesMap;
         }
 
+        /**
+         * Subscribes to server-side changes in the chat messages to update the read-side.
+         */
         private void observeMessages() {
             client.onBehalfOf(userId())
                   .subscribeTo(MessageView.class)
@@ -254,7 +267,7 @@ final class TestUser {
         }
 
         /**
-         * Update conversation with new message.
+         * Sends a new message to the chat.
          */
         void sendMessage(String content) {
             SendMessage command = sendMessageCommand(chat, userId(), content);
@@ -264,7 +277,7 @@ final class TestUser {
         }
 
         /**
-         * Update conversation with edited message.
+         * Edits the message in the chat.
          */
         void editMessage(MessageView message, String newContent) {
             EditMessage command = editMessageCommand(message, newContent);
@@ -274,7 +287,7 @@ final class TestUser {
         }
 
         /**
-         * Update conversation with message removal.
+         * Removes the message in the chat.
          */
         void removeMessage(MessageView message) {
             RemoveMessage command = removeMessageCommand(message);
@@ -290,6 +303,9 @@ final class TestUser {
             return ImmutableList.copyOf(messages.values());
         }
 
+        /**
+         * Deletes the chat.
+         */
         void deleteChat() {
             DeleteChat command = deleteChatCommand(chat, userId());
             postCommand(command);
