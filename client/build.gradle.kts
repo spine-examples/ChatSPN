@@ -41,9 +41,3 @@ dependencies {
     implementation(project(":model"))
     implementation(project(":server"))
 }
-
-compose.desktop {
-    application {
-        mainClass = "MainKt"
-    }
-}
