@@ -24,26 +24,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-plugins {
-    kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.compose") version "1.4.0"
-}
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
 
-
-repositories {
-    mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    google()
-}
-
-dependencies {
-    implementation(compose.desktop.currentOs)
-    implementation(project(":model"))
-    implementation(project(":server"))
-}
-
-compose.desktop {
-    application {
-        mainClass = "MainKt"
+fun main() = application {
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "ChatSPN",
+    ) {
+        Register()
     }
 }
