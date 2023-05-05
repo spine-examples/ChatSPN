@@ -26,16 +26,12 @@
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-class Main {
-    companion object{
-        @JvmStatic
-        fun main(args: Array<String>) = application {
-            Window(
-                onCloseRequest = ::exitApplication,
-                title = "ChatSPN",
-            ) {
-                Register()
-            }
-        }
+
+fun main() = application {
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "ChatSPN",
+    ) {
+        App()
     }
 }

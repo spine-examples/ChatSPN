@@ -44,6 +44,6 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "Main"
+        mainClass = "MainKt"
     }
 }
