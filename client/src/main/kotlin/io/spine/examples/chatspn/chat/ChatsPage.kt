@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.chatpage
+package io.spine.examples.chatspn.chat
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
@@ -53,12 +53,6 @@ import io.spine.examples.chatspn.ChatColors
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.ChatProvider
 import io.spine.examples.chatspn.UserProvider
-import io.spine.examples.chatspn.chat.ChatMessage
-import io.spine.examples.chatspn.chat.ChatPreview
-import io.spine.examples.chatspn.chat.ChatPreviewPanel
-import io.spine.examples.chatspn.chat.FindUserInput
-import io.spine.examples.chatspn.chat.SendMessageInput
-import io.spine.examples.chatspn.chat.UserProfilePanel
 
 /**
  * Represents the 'Chats' page in the application.

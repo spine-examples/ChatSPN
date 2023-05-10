@@ -32,7 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import io.spine.examples.chatspn.chatpage.ChatsPage
+import io.spine.examples.chatspn.chat.ChatsPage
 
 val chatProvider = TestDataChatProvider()
 val userProvider = TestDataUserProvider()
