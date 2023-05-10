@@ -40,6 +40,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(project(":model"))
     implementation(project(":server"))
+    implementation(io.spine.examples.chatspn.dependency.Spine.Server.lib)
 }
 
 compose.desktop {
