@@ -57,7 +57,8 @@ import io.spine.examples.chatspn.ChatColors
 fun FindUserInput() {
     var inputText by remember { mutableStateOf("") }
     TextField(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .background(MaterialTheme.colors.background)
             .padding(0.dp, 5.dp),
         value = inputText,
@@ -84,9 +85,7 @@ fun FindUserInput() {
             if (inputText.isNotEmpty()) {
                 Row(
                     modifier = Modifier
-                        .clickable {
-                            inputText = ""
-                        }
+                        .clickable { inputText = "" }
                         .padding(5.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {

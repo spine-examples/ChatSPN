@@ -70,10 +70,12 @@ fun ChatMessage(
             elevation = 8.dp
         ) {
             Box(
-                Modifier.background(
-                    brush = Brush.horizontalGradient(
-                        ChatColors.MESSAGE_BACKGROUND_GRADIENT.map { Color(it) })
-                ).padding(10.dp),
+                Modifier
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            ChatColors.MESSAGE_BACKGROUND_GRADIENT.map { Color(it) })
+                    )
+                    .padding(10.dp),
             ) {
                 Row(verticalAlignment = Alignment.Top) {
                     Column {

@@ -72,7 +72,11 @@ fun ChatsPage(userProvider: UserProvider, chatProvider: TestDataChatProvider) {
         Surface(
             elevation = 8.dp
         ) {
-            Column(Modifier.fillMaxHeight().width(280.dp)) {
+            Column(
+                Modifier
+                    .fillMaxHeight()
+                    .width(280.dp)
+            ) {
                 UserProfilePanel(userProvider.loggedUser())
                 FindUserInput()
                 LazyColumn( // Chats list
@@ -85,7 +89,9 @@ fun ChatsPage(userProvider: UserProvider, chatProvider: TestDataChatProvider) {
                                 chatName(chat, userProvider),
                                 chat.lastMessage.content,
                                 chat.id.equals(selectedChat)
-                            ) { selectedChat = chat.id }
+                            ) {
+                                selectedChat = chat.id
+                            }
                         }
                     }
                     item {
@@ -96,16 +102,25 @@ fun ChatsPage(userProvider: UserProvider, chatProvider: TestDataChatProvider) {
         }
 
         if (selectedChat.equals(ChatId.getDefaultInstance())) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    "Choose the chat",
+                    text = "Choose the chat",
                     color = ChatColors.SECONDARY,
                     fontSize = 20.sp
                 )
             }
         } else {
-            val messages by chatProvider.messages(selectedChat).collectAsState()
-            Column(Modifier.fillMaxSize().padding(5.dp, 0.dp)) {
+            val messages by chatProvider
+                .messages(selectedChat)
+                .collectAsState()
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(5.dp, 0.dp)
+            ) {
                 Box(modifier = Modifier.weight(1f)) {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -135,11 +150,26 @@ fun ChatsPage(userProvider: UserProvider, chatProvider: TestDataChatProvider) {
  */
 private fun chatName(chat: ChatPreview, userProvider: UserProvider): String {
     if (chat.hasPersonalChat()) {
-        if (chat.personalChat.creator == userProvider.loggedUser().id) {
-            return userProvider.findUser(chat.personalChat.member).name
+        val creator = chat
+            .personalChat
+            .creator
+        val member = chat
+            .personalChat
+            .member
+        val loggedUser = userProvider
+            .loggedUser()
+            .id
+        if (creator.equals(loggedUser)) {
+            return userProvider
+                .findUser(member)
+                .name
         } else {
-            return userProvider.findUser(chat.personalChat.creator).name
+            return userProvider
+                .findUser(creator)
+                .name
         }
     }
-    return chat.groupChat.name
+    return chat
+        .groupChat
+        .name
 }

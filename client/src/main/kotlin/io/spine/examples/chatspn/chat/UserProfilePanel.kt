@@ -47,8 +47,14 @@ import io.spine.examples.chatspn.account.UserProfile
  */
 @Composable
 fun UserProfilePanel(user: UserProfile) {
-    Box(modifier = Modifier.padding(5.dp), contentAlignment = Alignment.Center) {
-        Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
+    Box(
+        modifier = Modifier.padding(5.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             UserAvatar()
             Spacer(Modifier.size(5.dp))
             Column(horizontalAlignment = Alignment.Start) {

@@ -57,7 +57,8 @@ import io.spine.examples.chatspn.ChatProvider
 fun SendMessageInput(chat: ChatId, chatProvider: ChatProvider) {
     var inputText by remember { mutableStateOf("") }
     TextField(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .background(MaterialTheme.colors.background)
             .padding(10.dp),
         value = inputText,
