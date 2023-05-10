@@ -61,12 +61,6 @@ class TestDataChatProvider : ChatProvider {
     val alexChat = chatId("chat2")
 
     init {
-        val artemMessage1 = createMessage(artem, "Hello!!")
-        val artemMessage2 = createMessage(
-            artem, "How are you? It's a long text to see the " +
-                    "borders of the text display possibility"
-        )
-        val vladMessage1 = createMessage(vlad, "Hello")
         val artemChatPreview = ChatPreview.newBuilder()
             .setPersonalChat(
                 PersonalChatView.newBuilder()
@@ -75,7 +69,6 @@ class TestDataChatProvider : ChatProvider {
                     .vBuild()
             )
             .setId(artemChat)
-            .setLastMessage(vladMessage1)
             .vBuild()
         val alexChatPreview = ChatPreview.newBuilder()
             .setPersonalChat(
@@ -89,8 +82,7 @@ class TestDataChatProvider : ChatProvider {
 
         chatsFlow.value = listOf(artemChatPreview, alexChatPreview)
 
-        chatMessagesFlow[artemChat] =
-            MutableStateFlow(listOf(artemMessage1, artemMessage2, vladMessage1))
+        chatMessagesFlow[artemChat] = MutableStateFlow(listOf())
         chatMessagesFlow[alexChat] = MutableStateFlow(listOf())
     }
 
