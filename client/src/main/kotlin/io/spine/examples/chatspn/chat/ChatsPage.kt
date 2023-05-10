@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.spine.examples.chatspn.ChatColors
 import io.spine.examples.chatspn.ChatId
-import io.spine.examples.chatspn.TestDataChatProvider
+import io.spine.examples.chatspn.ChatProvider
 import io.spine.examples.chatspn.UserProvider
 import io.spine.examples.chatspn.chat.ChatMessage
 import io.spine.examples.chatspn.chat.ChatPreview
@@ -65,7 +65,7 @@ import io.spine.examples.chatspn.chat.UserProfilePanel
  */
 @Composable
 @Preview
-fun ChatsPage(userProvider: UserProvider, chatProvider: TestDataChatProvider) {
+fun ChatsPage(userProvider: UserProvider, chatProvider: ChatProvider) {
     val chats by chatProvider.chats().collectAsState()
     var selectedChat: ChatId by remember { mutableStateOf(ChatId.getDefaultInstance()) }
     Row {
