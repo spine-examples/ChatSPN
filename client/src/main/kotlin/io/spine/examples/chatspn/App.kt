@@ -1,17 +1,3 @@
-import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-
 /*
  * Copyright 2023, TeamDev. All rights reserved.
  *
@@ -38,24 +24,38 @@ import androidx.compose.ui.unit.dp
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import io.spine.examples.chatspn.TestDataChatProvider
+import io.spine.examples.chatspn.TestDataUserProvider
+import io.spine.examples.chatspn.chatpage.ChatsPage
+
+val chatProvider = TestDataChatProvider()
+val userProvider = TestDataUserProvider()
+
+/**
+ * The root component of the application.
+ *
+ * Responsible for navigation and composition of pages.
+ */
 @Composable
 @Preview
 fun App() {
-    val count = remember { mutableStateOf(0) }
-    MaterialTheme {
-        Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
-            Button(modifier = Modifier.align(Alignment.Start),
-                onClick = {
-                    count.value++
-                }) {
-                Text(if (count.value == 0) "Hello World" else "Clicked ${count.value}!")
-            }
-            Button(modifier = Modifier.align(Alignment.Start),
-                onClick = {
-                    count.value = 0
-                }) {
-                Text("Reset")
-            }
-        }
+    var page by remember { mutableStateOf(Page.CHATS) }
+    when (page) {
+        Page.CHATS -> ChatsPage(userProvider, chatProvider)
     }
+    // Startups the testing chatting emulation
+    LaunchedEffect(Unit){
+        chatProvider.startChatting()
+    }
+}
+
+enum class Page {
+    CHATS
 }
