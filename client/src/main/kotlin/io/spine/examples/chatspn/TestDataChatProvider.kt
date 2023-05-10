@@ -42,23 +42,11 @@ class TestDataChatProvider : ChatProvider {
     private val chatsFlow = MutableStateFlow<List<ChatPreview>>(listOf())
     private val chatMessagesFlow: MutableMap<ChatId, MutableStateFlow<List<MessagePreview>>> =
         mutableMapOf()
-
-    override fun messages(chat: ChatId): StateFlow<List<MessagePreview>> {
-        if (!chatMessagesFlow.containsKey(chat)) {
-            throw IllegalStateException("Chat not found")
-        }
-        return chatMessagesFlow.getOrDefault(chat, MutableStateFlow(mutableListOf()))
-    }
-
-    override fun chats(): StateFlow<List<ChatPreview>> {
-        return chatsFlow
-    }
-
-    val vlad = userId("vladId")
-    val artem = userId("artemId")
-    val alex = userId("alexId")
-    val artemChat = chatId("chat1")
-    val alexChat = chatId("chat2")
+    private val vlad = userId("vladId")
+    private val artem = userId("artemId")
+    private val alex = userId("alexId")
+    private val artemChat = chatId("chat1")
+    private val alexChat = chatId("chat2")
 
     init {
         val artemChatPreview = ChatPreview.newBuilder()
@@ -84,6 +72,17 @@ class TestDataChatProvider : ChatProvider {
 
         chatMessagesFlow[artemChat] = MutableStateFlow(listOf())
         chatMessagesFlow[alexChat] = MutableStateFlow(listOf())
+    }
+
+    override fun messages(chat: ChatId): StateFlow<List<MessagePreview>> {
+        if (!chatMessagesFlow.containsKey(chat)) {
+            throw IllegalStateException("Chat not found")
+        }
+        return chatMessagesFlow.getOrDefault(chat, MutableStateFlow(mutableListOf()))
+    }
+
+    override fun chats(): StateFlow<List<ChatPreview>> {
+        return chatsFlow
     }
 
     override fun sendMessage(chat: ChatId, content: String) {

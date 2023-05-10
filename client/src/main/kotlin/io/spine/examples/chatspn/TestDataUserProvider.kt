@@ -35,7 +35,7 @@ import io.spine.net.EmailAddress
  */
 class TestDataUserProvider : UserProvider {
     private val users: List<UserProfile>
-    val loggedUser: UserProfile
+    private val loggedUser: UserProfile
 
     init {
         val vlad = UserProfile
