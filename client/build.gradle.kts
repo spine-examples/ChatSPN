@@ -41,6 +41,7 @@ dependencies {
     implementation(project(":model"))
     implementation(project(":server"))
     implementation(io.spine.examples.chatspn.dependency.Spine.Server.lib)
+    implementation("org.jetbrains.compose.material3:material3-desktop:1.2.1")
 }
 
 compose.desktop {
