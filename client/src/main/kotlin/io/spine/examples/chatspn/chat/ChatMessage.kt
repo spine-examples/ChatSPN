@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.chat
 
-import ChatColors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.protobuf.Timestamp
+import io.spine.examples.chatspn.ChatColors
 import io.spine.examples.chatspn.UserProvider
 import java.text.SimpleDateFormat
 import java.util.*

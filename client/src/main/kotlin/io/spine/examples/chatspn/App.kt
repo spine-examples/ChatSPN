@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package io.spine.examples.chatspn
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
@@ -31,8 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import io.spine.examples.chatspn.TestDataChatProvider
-import io.spine.examples.chatspn.TestDataUserProvider
 import io.spine.examples.chatspn.chatpage.ChatsPage
 
 val chatProvider = TestDataChatProvider()
@@ -51,7 +50,7 @@ fun App() {
         Page.CHATS -> ChatsPage(userProvider, chatProvider)
     }
     // Startups the testing chatting emulation
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         chatProvider.startChatting()
     }
 }

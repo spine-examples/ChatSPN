@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.chatpage
 
-import ChatColors
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.spine.examples.chatspn.ChatColors
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.TestDataChatProvider
 import io.spine.examples.chatspn.UserProvider

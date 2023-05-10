@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import io.spine.examples.chatspn.ChatColors
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.ChatProvider
 

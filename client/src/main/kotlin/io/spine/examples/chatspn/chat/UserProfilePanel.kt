@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.chat
 
-import ChatColors
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.spine.examples.chatspn.ChatColors
 import io.spine.examples.chatspn.account.UserProfile
 
 /**
