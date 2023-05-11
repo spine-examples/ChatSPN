@@ -61,7 +61,7 @@ import io.spine.examples.chatspn.UserProvider
 @Preview
 fun ChatsPage(userProvider: UserProvider, chatProvider: ChatProvider) {
     val chats by chatProvider.chats().collectAsState()
-    var selectedChat: ChatId by remember { mutableStateOf(ChatId.getDefaultInstance()) }
+    var selectedChat by remember { mutableStateOf(ChatId.getDefaultInstance()) }
     Row {
         Surface(
             elevation = 8.dp
@@ -94,8 +94,11 @@ fun ChatsPage(userProvider: UserProvider, chatProvider: ChatProvider) {
                 }
             }
         }
-
-        if (selectedChat.equals(ChatId.getDefaultInstance())) {
+        val isChatSelected = chats
+            .stream()
+            .map { chat -> chat.id }
+            .anyMatch { id -> id.equals(selectedChat) }
+        if (!isChatSelected) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
