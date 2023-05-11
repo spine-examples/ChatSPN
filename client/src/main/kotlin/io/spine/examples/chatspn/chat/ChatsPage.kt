@@ -72,7 +72,7 @@ fun ChatsPage(userProvider: UserProvider, chatProvider: ChatProvider) {
                     .width(280.dp)
             ) {
                 UserProfilePanel(userProvider.loggedUser())
-                FindUserInput()
+                UserSearchBar()
                 LazyColumn( // Chats list
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
