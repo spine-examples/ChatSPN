@@ -49,7 +49,8 @@ class TestDataChatProvider : ChatProvider {
     private val alexChat = chatId("chat2")
 
     init {
-        val artemChatPreview = ChatPreview.newBuilder()
+        val artemChatPreview = ChatPreview
+            .newBuilder()
             .setPersonalChat(
                 PersonalChatView.newBuilder()
                     .setCreator(vlad)
@@ -58,9 +59,11 @@ class TestDataChatProvider : ChatProvider {
             )
             .setId(artemChat)
             .vBuild()
-        val alexChatPreview = ChatPreview.newBuilder()
+        val alexChatPreview = ChatPreview
+            .newBuilder()
             .setPersonalChat(
-                PersonalChatView.newBuilder()
+                PersonalChatView
+                    .newBuilder()
                     .setCreator(alex)
                     .setMember(vlad)
                     .vBuild()
