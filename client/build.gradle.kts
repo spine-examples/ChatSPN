@@ -46,6 +46,6 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "io.spine.examples.chatspn.MainKt"
     }
 }
