@@ -91,7 +91,7 @@ public fun ChatMessage(
                                     )
                                     Spacer(Modifier.size(10.dp))
                                     Text(
-                                        text = secondsToStringDate(message.whenPosted),
+                                        text = message.whenPosted.toStringTime(),
                                         style = MaterialTheme.typography.h6,
                                         color = ChatColors.SECONDARY
                                     )
@@ -110,8 +110,8 @@ public fun ChatMessage(
     }
 }
 
-private fun secondsToStringDate(timestamp: Timestamp): String {
-    val date = Date(timestamp.seconds * 1000)
+private fun Timestamp.toStringTime(): String {
+    val date = Date(this.seconds * 1000)
     val format = SimpleDateFormat("hh:mm", Locale.getDefault())
     return format.format(date)
 }
