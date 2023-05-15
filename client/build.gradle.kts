@@ -23,6 +23,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+import io.spine.examples.chatspn.dependency.Material3
+import io.spine.examples.chatspn.dependency.Spine
 
 plugins {
     kotlin("jvm") version "1.8.20"
@@ -43,8 +45,8 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(project(":model"))
     implementation(project(":server"))
-    implementation(io.spine.examples.chatspn.dependency.Spine.Server.lib)
-    implementation(io.spine.examples.chatspn.dependency.Material3Desktop.lib)
+    implementation(Spine.Server.lib)
+    implementation(Material3.Desktop.lib)
 }
 
 compose.desktop {
