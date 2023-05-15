@@ -26,7 +26,6 @@
 
 package io.spine.examples.chatspn.desktop.chat
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,8 +40,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.protobuf.Timestamp
@@ -68,46 +65,58 @@ public fun ChatMessage(
         Surface(
             modifier = Modifier.padding(4.dp),
             shape = RoundedCornerShape(size = 20.dp),
-            elevation = 8.dp
+            elevation = 8.dp,
+            color = ChatColors.MESSAGE_BACKGROUND
         ) {
-            Box(
-                Modifier
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            ChatColors.MESSAGE_BACKGROUND_GRADIENT.map { Color(it) })
-                    )
-                    .padding(10.dp),
-            ) {
-                Row(verticalAlignment = Alignment.Top) {
-                    Column {
-                        Row(verticalAlignment = Alignment.Top) {
-                            UserAvatar()
-                            Spacer(Modifier.size(8.dp))
-                            Column {
-                                Row {
-                                    Text(
-                                        text = userProvider.findUser(message.user).name,
-                                        style = MaterialTheme.typography.h5
-                                    )
-                                    Spacer(Modifier.size(10.dp))
-                                    Text(
-                                        text = message.whenPosted.toStringTime(),
-                                        style = MaterialTheme.typography.h6,
-                                        color = ChatColors.SECONDARY
-                                    )
-                                }
-                                Spacer(Modifier.size(8.dp))
-                                Text(
-                                    text = message.content,
-                                    fontSize = 20.sp,
-                                )
-                            }
-                        }
+            Row(Modifier.padding(10.dp), verticalAlignment = Alignment.Top) {
+                UserAvatar()
+                Spacer(Modifier.size(8.dp))
+                Column {
+                    Row {
+                        UserName(userProvider.findUser(message.user).name)
+                        Spacer(Modifier.size(10.dp))
+                        PostedTime(message.whenPosted)
                     }
+                    Spacer(Modifier.size(8.dp))
+                    MessageContent(message.content)
                 }
             }
         }
     }
+}
+
+/**
+ * Represents the name of the user who posted the message.
+ */
+@Composable
+private fun UserName(username: String) {
+    Text(
+        text = username,
+        style = MaterialTheme.typography.h5
+    )
+}
+
+/**
+ * Represents the time when the message was posted.
+ */
+@Composable
+private fun PostedTime(time: Timestamp) {
+    Text(
+        text = time.toStringTime(),
+        style = MaterialTheme.typography.h6,
+        color = ChatColors.SECONDARY
+    )
+}
+
+/**
+ * Represents the content of the message.
+ */
+@Composable
+private fun MessageContent(content: String) {
+    Text(
+        text = content,
+        fontSize = 20.sp,
+    )
 }
 
 private fun Timestamp.toStringTime(): String {
