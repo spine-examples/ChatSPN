@@ -55,7 +55,7 @@ import java.util.*
  * Represents the single message view in the chat.
  */
 @Composable
-fun ChatMessage(
+public fun ChatMessage(
     message: MessagePreview,
     userProvider: UserProvider
 ) {

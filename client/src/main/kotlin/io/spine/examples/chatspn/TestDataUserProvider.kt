@@ -33,7 +33,7 @@ import io.spine.net.EmailAddress
 /**
  * `UserProvider` for the manual testing purposes.
  */
-class TestDataUserProvider : UserProvider {
+public class TestDataUserProvider : UserProvider {
     private val users: List<UserProfile>
     private val loggedUser: UserProfile
 

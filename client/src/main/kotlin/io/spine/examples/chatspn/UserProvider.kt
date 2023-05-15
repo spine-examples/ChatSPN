@@ -32,20 +32,20 @@ import io.spine.examples.chatspn.account.UserProfile
 /**
  * Provides API to work with users.
  */
-interface UserProvider {
+public interface UserProvider {
 
     /**
      * Returns user's profile by id.
      */
-    fun findUser(id: UserId): UserProfile
+    public fun findUser(id: UserId): UserProfile
 
     /**
      * Returns user's profile by email.
      */
-    fun findUser(email: String): UserProfile
+    public fun findUser(email: String): UserProfile
 
     /**
      * Returns the profile of the logged on user.
      */
-    fun loggedUser(): UserProfile
+    public fun loggedUser(): UserProfile
 }

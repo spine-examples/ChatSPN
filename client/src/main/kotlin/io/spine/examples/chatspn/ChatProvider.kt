@@ -33,24 +33,24 @@ import kotlinx.coroutines.flow.StateFlow
 /**
  * Provides API to work with chats.
  */
-interface ChatProvider {
+public interface ChatProvider {
 
     /**
      * Returns the state of the user's chats.
      *
      * It may be used as state to recompose component on changes.
      */
-    fun chats(): StateFlow<List<ChatPreview>>
+    public fun chats(): StateFlow<List<ChatPreview>>
 
     /**
      * Returns the state of messages in the chat.
      *
      * It may be used as state to recompose component on changes.
      */
-    fun messages(chat: ChatId): StateFlow<List<MessagePreview>>
+    public fun messages(chat: ChatId): StateFlow<List<MessagePreview>>
 
     /**
      * Sends message to the chat.
      */
-    fun sendMessage(chat: ChatId, content: String)
+    public fun sendMessage(chat: ChatId, content: String)
 }

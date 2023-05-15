@@ -30,10 +30,10 @@ import androidx.compose.ui.graphics.Color
 /**
  * Palette of the application colors.
  */
-object ChatColors {
-    val PRIMARY = Color(0xFF037BFC)
-    val SECONDARY = Color.Gray
-    val MESSAGE_BACKGROUND = Color(0xFFB0CBF5)
-    val DANGER = Color(0xFFFC3903)
-    val MESSAGE_BACKGROUND_GRADIENT = listOf(0xFFB0CBF5, 0xFF96BCFA)
+public object ChatColors {
+    public val PRIMARY: Color = Color(0xFF037BFC)
+    public val SECONDARY: Color = Color.Gray
+    public val MESSAGE_BACKGROUND: Color = Color(0xFFB0CBF5)
+    public val DANGER: Color = Color(0xFFFC3903)
+    public val MESSAGE_BACKGROUND_GRADIENT: List<Long> = listOf(0xFFB0CBF5, 0xFF96BCFA)
 }

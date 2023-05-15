@@ -54,7 +54,7 @@ import io.spine.examples.chatspn.ChatProvider
  * Represents the input for sending a message to the chat.
  */
 @Composable
-fun SendMessageInput(chat: ChatId, chatProvider: ChatProvider) {
+public fun SendMessageInput(chat: ChatId, chatProvider: ChatProvider) {
     var inputText by remember { mutableStateOf("") }
     TextField(
         modifier = Modifier

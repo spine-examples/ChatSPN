@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.StateFlow
 /**
  * `ChatProvider` for the manual testing purposes.
  */
-class TestDataChatProvider : ChatProvider {
+public class TestDataChatProvider : ChatProvider {
     private val chatsFlow = MutableStateFlow<List<ChatPreview>>(listOf())
     private val chatMessagesFlow: MutableMap<ChatId, MutableStateFlow<List<MessagePreview>>> =
         mutableMapOf()
@@ -117,7 +117,7 @@ class TestDataChatProvider : ChatProvider {
     /**
      * Periodically sends messages to the chat.
      */
-    suspend fun startChatting() {
+    public suspend fun startChatting() {
         while (true) {
             sendMessage(artem, artemChat, "Hello${(Math.random() * 100).toInt()}")
             delay(1000)

@@ -54,7 +54,7 @@ import io.spine.examples.chatspn.ChatColors
  * Represents the input to find the user.
  */
 @Composable
-fun UserSearchBar() {
+public fun UserSearchBar() {
     var inputText by remember { mutableStateOf("") }
     TextField(
         modifier = Modifier

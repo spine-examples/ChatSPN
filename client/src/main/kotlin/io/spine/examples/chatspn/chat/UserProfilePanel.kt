@@ -46,7 +46,7 @@ import io.spine.examples.chatspn.account.UserProfile
  * Represents the user's profile panel.
  */
 @Composable
-fun UserProfilePanel(user: UserProfile) {
+public fun UserProfilePanel(user: UserProfile) {
     Box(
         modifier = Modifier.padding(5.dp),
         contentAlignment = Alignment.Center

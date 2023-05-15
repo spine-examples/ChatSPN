@@ -34,8 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.spine.examples.chatspn.chat.ChatsPage
 
-val chatProvider = TestDataChatProvider()
-val userProvider = TestDataUserProvider()
+private val chatProvider = TestDataChatProvider()
+private val userProvider = TestDataUserProvider()
 
 /**
  * The root component of the application.
@@ -44,7 +44,7 @@ val userProvider = TestDataUserProvider()
  */
 @Composable
 @Preview
-fun App() {
+public fun App() {
     var page by remember { mutableStateOf(Page.CHATS) }
     when (page) {
         Page.CHATS -> ChatsPage(userProvider, chatProvider)
@@ -55,6 +55,6 @@ fun App() {
     }
 }
 
-enum class Page {
+private enum class Page {
     CHATS
 }

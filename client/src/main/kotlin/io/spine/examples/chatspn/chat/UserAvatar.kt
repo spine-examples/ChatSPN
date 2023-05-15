@@ -43,7 +43,7 @@ import io.spine.examples.chatspn.ChatColors
  * Represents the user avatar.
  */
 @Composable
-fun UserAvatar() {
+public fun UserAvatar() {
     val imageSize = 64f
     Image(
         modifier = Modifier

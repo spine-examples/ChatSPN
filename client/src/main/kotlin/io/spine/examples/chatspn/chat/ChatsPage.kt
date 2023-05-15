@@ -59,7 +59,7 @@ import io.spine.examples.chatspn.UserProvider
  */
 @Composable
 @Preview
-fun ChatsPage(userProvider: UserProvider, chatProvider: ChatProvider) {
+public fun ChatsPage(userProvider: UserProvider, chatProvider: ChatProvider) {
     val chats by chatProvider.chats().collectAsState()
     var selectedChat by remember { mutableStateOf(ChatId.getDefaultInstance()) }
     Row {

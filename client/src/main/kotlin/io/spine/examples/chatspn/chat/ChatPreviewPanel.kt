@@ -49,7 +49,7 @@ import io.spine.examples.chatspn.ChatColors
  * Represents the chat preview in the chats list.
  */
 @Composable
-fun ChatPreviewPanel(
+public fun ChatPreviewPanel(
     chatName: String,
     lastMessage: String,
     isSelected: Boolean,
