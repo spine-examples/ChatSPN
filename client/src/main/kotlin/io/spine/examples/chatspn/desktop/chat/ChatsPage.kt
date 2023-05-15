@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.spine.examples.chatspn.desktop.ChatColors
 import io.spine.examples.chatspn.ChatId
-import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.desktop.ChatProvider
 import io.spine.examples.chatspn.desktop.UserProvider
 
@@ -81,7 +80,7 @@ public fun ChatsPage(userProvider: UserProvider, chatProvider: ChatProvider) {
                     chats.forEachIndexed { index, chat ->
                         item(key = index) {
                             ChatPreviewPanel(
-                                chatName(chat, userProvider),
+                                chat.name(userProvider),
                                 chat.lastMessage.content,
                                 chat.id.equals(selectedChat)
                             ) {
@@ -141,33 +140,4 @@ public fun ChatsPage(userProvider: UserProvider, chatProvider: ChatProvider) {
             }
         }
     }
-}
-
-/**
- * Extracts the chat's name.
- */
-private fun chatName(chat: ChatPreview, userProvider: UserProvider): String {
-    if (chat.hasPersonalChat()) {
-        val creator = chat
-            .personalChat
-            .creator
-        val member = chat
-            .personalChat
-            .member
-        val loggedUser = userProvider
-            .loggedUser()
-            .id
-        if (creator.equals(loggedUser)) {
-            return userProvider
-                .findUser(member)
-                .name
-        } else {
-            return userProvider
-                .findUser(creator)
-                .name
-        }
-    }
-    return chat
-        .groupChat
-        .name
 }
