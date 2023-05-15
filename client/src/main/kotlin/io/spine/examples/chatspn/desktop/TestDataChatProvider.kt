@@ -24,10 +24,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn
+package io.spine.examples.chatspn.desktop
 
 import io.spine.base.Time.currentTime
 import io.spine.core.UserId
+import io.spine.examples.chatspn.ChatId
+import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
 import io.spine.examples.chatspn.chat.PersonalChatView
@@ -52,7 +54,8 @@ public class TestDataChatProvider : ChatProvider {
         val artemChatPreview = ChatPreview
             .newBuilder()
             .setPersonalChat(
-                PersonalChatView.newBuilder()
+                PersonalChatView
+                    .newBuilder()
                     .setCreator(vlad)
                     .setMember(artem)
                     .vBuild()
@@ -141,7 +144,8 @@ public class TestDataChatProvider : ChatProvider {
     }
 
     private fun createMessage(user: UserId, content: String): MessagePreview {
-        return MessagePreview.newBuilder()
+        return MessagePreview
+            .newBuilder()
             .setId(MessageId.generate())
             .setContent(content)
             .setUser(user)

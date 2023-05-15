@@ -23,38 +23,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package io.spine.examples.chatspn
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import io.spine.examples.chatspn.chat.ChatsPage
+package io.spine.examples.chatspn.desktop
 
-private val chatProvider = TestDataChatProvider()
-private val userProvider = TestDataUserProvider()
+import io.spine.core.UserId
+import io.spine.examples.chatspn.account.UserProfile
 
 /**
- * The root component of the application.
- *
- * Responsible for navigation and composition of pages.
+ * Provides API to work with users.
  */
-@Composable
-@Preview
-public fun App() {
-    var page by remember { mutableStateOf(Page.CHATS) }
-    when (page) {
-        Page.CHATS -> ChatsPage(userProvider, chatProvider)
-    }
-    // Startups the testing chatting emulation
-    LaunchedEffect(Unit) {
-        chatProvider.startChatting()
-    }
-}
+public interface UserProvider {
 
-private enum class Page {
-    CHATS
+    /**
+     * Returns user's profile by id.
+     */
+    public fun findUser(id: UserId): UserProfile
+
+    /**
+     * Returns user's profile by email.
+     */
+    public fun findUser(email: String): UserProfile
+
+    /**
+     * Returns the profile of the logged on user.
+     */
+    public fun loggedUser(): UserProfile
 }

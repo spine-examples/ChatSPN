@@ -24,19 +24,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.chat
+package io.spine.examples.chatspn.desktop.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,48 +48,53 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.spine.examples.chatspn.ChatColors
-import io.spine.examples.chatspn.ChatId
-import io.spine.examples.chatspn.ChatProvider
+import io.spine.examples.chatspn.desktop.ChatColors
 
 /**
- * Represents the input for sending a message to the chat.
+ * Represents the input to find the user.
  */
 @Composable
-public fun SendMessageInput(chat: ChatId, chatProvider: ChatProvider) {
+public fun UserSearchBar() {
     var inputText by remember { mutableStateOf("") }
     TextField(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.background)
-            .padding(10.dp),
+            .padding(0.dp, 5.dp),
         value = inputText,
         placeholder = {
-            Text("Type message here")
+            Text(text = "Type email ...")
         },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Email,
+                contentDescription = "Email Icon"
+            )
+        },
+        singleLine = true,
         onValueChange = {
             inputText = it
         },
+        label = { Text(text = "Find user by email") },
         colors = TextFieldDefaults.textFieldColors(
             focusedIndicatorColor = ChatColors.PRIMARY,
+            focusedLabelColor = ChatColors.PRIMARY
         ),
+        shape = MaterialTheme.shapes.small.copy(ZeroCornerSize),
         trailingIcon = {
             if (inputText.isNotEmpty()) {
                 Row(
                     modifier = Modifier
-                        .clickable {
-                            chatProvider.sendMessage(chat, inputText)
-                            inputText = ""
-                        }
-                        .padding(10.dp),
+                        .clickable { inputText = "" }
+                        .padding(5.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
                         imageVector = Icons.Default.Send,
-                        contentDescription = "Send",
+                        contentDescription = "Find",
                         tint = ChatColors.PRIMARY
                     )
-                    Text("Send")
+                    Text("Find")
                 }
             }
         }

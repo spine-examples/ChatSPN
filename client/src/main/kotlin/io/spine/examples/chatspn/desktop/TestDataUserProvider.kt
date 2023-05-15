@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn
+package io.spine.examples.chatspn.desktop
 
 import io.spine.core.UserId
 import io.spine.examples.chatspn.account.UserProfile

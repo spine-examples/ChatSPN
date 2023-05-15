@@ -23,20 +23,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package io.spine.examples.chatspn
+package io.spine.examples.chatspn.desktop
 
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.application
+import androidx.compose.ui.graphics.Color
 
-public fun main(): Unit = application {
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "ChatSPN",
-        state = WindowState(size = DpSize(1000.dp, 600.dp))
-    ) {
-        App()
-    }
+/**
+ * Palette of the application colors.
+ */
+public object ChatColors {
+    public val PRIMARY: Color = Color(0xFF037BFC)
+    public val SECONDARY: Color = Color.Gray
+    public val MESSAGE_BACKGROUND: Color = Color(0xFFB0CBF5)
+    public val DANGER: Color = Color(0xFFFC3903)
+    public val MESSAGE_BACKGROUND_GRADIENT: List<Long> = listOf(0xFFB0CBF5, 0xFF96BCFA)
 }

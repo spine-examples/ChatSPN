@@ -23,17 +23,35 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package io.spine.examples.chatspn
 
-import androidx.compose.ui.graphics.Color
+package io.spine.examples.chatspn.desktop
+
+import io.spine.examples.chatspn.ChatId
+import io.spine.examples.chatspn.chat.ChatPreview
+import io.spine.examples.chatspn.chat.MessagePreview
+import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Palette of the application colors.
+ * Provides API to work with chats.
  */
-public object ChatColors {
-    public val PRIMARY: Color = Color(0xFF037BFC)
-    public val SECONDARY: Color = Color.Gray
-    public val MESSAGE_BACKGROUND: Color = Color(0xFFB0CBF5)
-    public val DANGER: Color = Color(0xFFFC3903)
-    public val MESSAGE_BACKGROUND_GRADIENT: List<Long> = listOf(0xFFB0CBF5, 0xFF96BCFA)
+public interface ChatProvider {
+
+    /**
+     * Returns the state of the user's chats.
+     *
+     * It may be used as state to recompose component on changes.
+     */
+    public fun chats(): StateFlow<List<ChatPreview>>
+
+    /**
+     * Returns the state of messages in the chat.
+     *
+     * It may be used as state to recompose component on changes.
+     */
+    public fun messages(chat: ChatId): StateFlow<List<MessagePreview>>
+
+    /**
+     * Sends message to the chat.
+     */
+    public fun sendMessage(chat: ChatId, content: String)
 }

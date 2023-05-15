@@ -23,34 +23,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package io.spine.examples.chatspn.desktop
 
-package io.spine.examples.chatspn
+import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import io.spine.examples.chatspn.desktop.chat.ChatsPage
 
-import io.spine.examples.chatspn.chat.ChatPreview
-import io.spine.examples.chatspn.chat.MessagePreview
-import kotlinx.coroutines.flow.StateFlow
+private val chatProvider = TestDataChatProvider()
+private val userProvider = TestDataUserProvider()
 
 /**
- * Provides API to work with chats.
+ * The root component of the application.
+ *
+ * Responsible for navigation and composition of pages.
  */
-public interface ChatProvider {
+@Composable
+@Preview
+public fun App() {
+    var page by remember { mutableStateOf(Page.CHATS) }
+    when (page) {
+        Page.CHATS -> ChatsPage(userProvider, chatProvider)
+    }
+    // Startups the testing chatting emulation
+    LaunchedEffect(Unit) {
+        chatProvider.startChatting()
+    }
+}
 
-    /**
-     * Returns the state of the user's chats.
-     *
-     * It may be used as state to recompose component on changes.
-     */
-    public fun chats(): StateFlow<List<ChatPreview>>
-
-    /**
-     * Returns the state of messages in the chat.
-     *
-     * It may be used as state to recompose component on changes.
-     */
-    public fun messages(chat: ChatId): StateFlow<List<MessagePreview>>
-
-    /**
-     * Sends message to the chat.
-     */
-    public fun sendMessage(chat: ChatId, content: String)
+private enum class Page {
+    CHATS
 }

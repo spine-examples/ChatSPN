@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.chat
+package io.spine.examples.chatspn.desktop.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -46,8 +46,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.protobuf.Timestamp
-import io.spine.examples.chatspn.ChatColors
-import io.spine.examples.chatspn.UserProvider
+import io.spine.examples.chatspn.chat.MessagePreview
+import io.spine.examples.chatspn.desktop.ChatColors
+import io.spine.examples.chatspn.desktop.UserProvider
 import java.text.SimpleDateFormat
 import java.util.*
 

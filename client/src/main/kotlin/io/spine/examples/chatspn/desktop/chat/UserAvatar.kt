@@ -24,52 +24,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.chat
+package io.spine.examples.chatspn.desktop.chat
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import io.spine.examples.chatspn.ChatColors
-import io.spine.examples.chatspn.account.UserProfile
+import io.spine.examples.chatspn.desktop.ChatColors
 
 /**
- * Represents the user's profile panel.
+ * Represents the user avatar.
  */
 @Composable
-public fun UserProfilePanel(user: UserProfile) {
-    Box(
-        modifier = Modifier.padding(5.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            modifier = Modifier,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            UserAvatar()
-            Spacer(Modifier.size(5.dp))
-            Column(horizontalAlignment = Alignment.Start) {
-                Text(
-                    text = user.name,
-                    fontSize = 20.sp
-                )
-                Spacer(Modifier.size(4.dp))
-                Text(
-                    text = user.email.value,
-                    fontSize = 14.sp,
-                    color = ChatColors.SECONDARY,
-                    overflow = TextOverflow.Ellipsis
+public fun UserAvatar() {
+    val imageSize = 64f
+    Image(
+        modifier = Modifier
+            .size(imageSize.dp)
+            .clip(CircleShape),
+        contentScale = ContentScale.Crop,
+        painter = object : Painter() {
+            override val intrinsicSize: Size = Size(imageSize, imageSize)
+            override fun DrawScope.onDraw() {
+                drawRect(
+                    ChatColors.DANGER,
+                    size = Size(imageSize * 4, imageSize * 4)
                 )
             }
-        }
-    }
+        },
+        contentDescription = "User picture"
+    )
 }
