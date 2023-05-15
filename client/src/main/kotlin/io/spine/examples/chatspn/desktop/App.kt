@@ -49,12 +49,20 @@ public fun App() {
     when (page) {
         Page.CHATS -> ChatsPage(userProvider, chatProvider)
     }
-    // Startups the testing chatting emulation
-    LaunchedEffect(Unit) {
-        chatProvider.startChatting()
-    }
+    startChattingSimulation()
 }
 
+/**
+ * Starts up the chatting simulation.
+ */
+@Composable
+private fun startChattingSimulation() = LaunchedEffect(Unit) {
+    chatProvider.startChatting()
+}
+
+/**
+ * Pages in the application.
+ */
 private enum class Page {
     CHATS
 }
