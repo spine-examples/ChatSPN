@@ -24,31 +24,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-plugins {
-    kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.compose") version "1.4.0"
-}
+package io.spine.examples.chatspn.dependency
 
-kotlin {
-    explicitApi()
-}
-
-repositories {
-    mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    google()
-}
-
-dependencies {
-    implementation(compose.desktop.currentOs)
-    implementation(project(":model"))
-    implementation(project(":server"))
-    implementation(io.spine.examples.chatspn.dependency.Spine.Server.lib)
-    implementation(io.spine.examples.chatspn.dependency.Material3Desktop.lib)
-}
-
-compose.desktop {
-    application {
-        mainClass = "io.spine.examples.chatspn.MainKt"
-    }
+// https://github.com/JetBrains/compose-jb
+object Material3Desktop {
+    const val version = "1.4.0"
+    const val lib = "org.jetbrains.compose.material3:material3-desktop:${version}"
 }
