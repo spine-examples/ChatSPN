@@ -27,19 +27,32 @@
 package io.spine.examples.chatspn.desktop.chat
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.ZeroCornerSize
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -51,13 +64,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.protobuf.Timestamp
 import io.spine.examples.chatspn.ChatId
+import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.ChatPreview
+import io.spine.examples.chatspn.chat.MessagePreview
 import io.spine.examples.chatspn.desktop.ChatColors
 import io.spine.examples.chatspn.desktop.ChatProvider
 import io.spine.examples.chatspn.desktop.UserProvider
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Represents the 'Chats' page in the application.
@@ -115,6 +134,84 @@ private fun LeftSidebar(
 }
 
 /**
+ * Represents the user's profile panel.
+ */
+@Composable
+private fun UserProfilePanel(user: UserProfile) {
+    Row(
+        modifier = Modifier.padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        UserAvatar()
+        Spacer(Modifier.size(5.dp))
+        Column(horizontalAlignment = Alignment.Start) {
+            Text(
+                text = user.name,
+                fontSize = 20.sp
+            )
+            Spacer(Modifier.size(4.dp))
+            Text(
+                text = user.email.value,
+                fontSize = 14.sp,
+                color = ChatColors.SECONDARY,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+/**
+ * Represents the input to find the user.
+ */
+@Composable
+private fun UserSearchField() {
+    var inputText by remember { mutableStateOf("") }
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)
+            .padding(0.dp, 5.dp),
+        value = inputText,
+        placeholder = {
+            Text(text = "Type email ...")
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Email,
+                contentDescription = "Email Icon"
+            )
+        },
+        singleLine = true,
+        onValueChange = {
+            inputText = it
+        },
+        label = { Text(text = "Find user by email") },
+        colors = TextFieldDefaults.textFieldColors(
+            focusedIndicatorColor = ChatColors.PRIMARY,
+            focusedLabelColor = ChatColors.PRIMARY
+        ),
+        shape = MaterialTheme.shapes.small.copy(ZeroCornerSize),
+        trailingIcon = {
+            if (inputText.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .clickable { inputText = "" }
+                        .padding(5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Send,
+                        contentDescription = "Find",
+                        tint = ChatColors.PRIMARY
+                    )
+                    Text("Find")
+                }
+            }
+        }
+    )
+}
+
+/**
  * Represents the list of chat previews.
  */
 @Composable
@@ -141,6 +238,47 @@ private fun ChatList(
         }
         item {
             Box(Modifier.height(50.dp))
+        }
+    }
+}
+
+/**
+ * Represents the chat preview in the chats list.
+ */
+@Composable
+private fun ChatPreviewPanel(
+    chatName: String,
+    lastMessage: String,
+    isSelected: Boolean,
+    select: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { select() }
+            .background(color = if (isSelected) ChatColors.MESSAGE_BACKGROUND else Color.White),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Row(
+            modifier = Modifier.padding(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            UserAvatar()
+            Spacer(Modifier.size(5.dp))
+            Column(horizontalAlignment = Alignment.Start) {
+                Text(
+                    text = chatName,
+                    fontSize = 20.sp
+                )
+                Spacer(Modifier.size(4.dp))
+                Text(
+                    text = lastMessage,
+                    fontSize = 14.sp,
+                    color = ChatColors.SECONDARY,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
@@ -250,4 +388,127 @@ private fun ChatMessages(
             Box(Modifier.height(50.dp))
         }
     }
+}
+
+/**
+ * Represents the single message view in the chat.
+ */
+@Composable
+private fun ChatMessage(
+    message: MessagePreview,
+    userProvider: UserProvider
+) {
+    val isMyMessage = message.user == userProvider.loggedUser().id
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart
+    ) {
+        Surface(
+            modifier = Modifier.padding(4.dp),
+            shape = RoundedCornerShape(size = 20.dp),
+            elevation = 8.dp,
+            color = ChatColors.MESSAGE_BACKGROUND
+        ) {
+            Row(Modifier.padding(10.dp), verticalAlignment = Alignment.Top) {
+                UserAvatar()
+                Spacer(Modifier.size(8.dp))
+                Column {
+                    Row {
+                        UserName(userProvider.findUser(message.user).name)
+                        Spacer(Modifier.size(10.dp))
+                        PostedTime(message.whenPosted)
+                    }
+                    Spacer(Modifier.size(8.dp))
+                    MessageContent(message.content)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Represents the name of the user who posted the message.
+ */
+@Composable
+private fun UserName(username: String) {
+    Text(
+        text = username,
+        style = MaterialTheme.typography.h5
+    )
+}
+
+/**
+ * Represents the time when the message was posted.
+ */
+@Composable
+private fun PostedTime(time: Timestamp) {
+    Text(
+        text = time.toStringTime(),
+        style = MaterialTheme.typography.h6,
+        color = ChatColors.SECONDARY
+    )
+}
+
+/**
+ * Represents the content of the message.
+ */
+@Composable
+private fun MessageContent(content: String) {
+    Text(
+        text = content,
+        fontSize = 20.sp,
+    )
+}
+
+/**
+ * Converts `Timestamp` to the `hh:mm` string.
+ */
+private fun Timestamp.toStringTime(): String {
+    val date = Date(this.seconds * 1000)
+    val format = SimpleDateFormat("hh:mm", Locale.getDefault())
+    return format.format(date)
+}
+
+/**
+ * Represents the input for sending a message to the chat.
+ */
+@Composable
+private fun SendMessageInput(chat: ChatId, chatProvider: ChatProvider) {
+    var inputText by remember { mutableStateOf("") }
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)
+            .padding(10.dp),
+        value = inputText,
+        placeholder = {
+            Text("Type message here")
+        },
+        onValueChange = {
+            inputText = it
+        },
+        colors = TextFieldDefaults.textFieldColors(
+            focusedIndicatorColor = ChatColors.PRIMARY,
+        ),
+        trailingIcon = {
+            if (inputText.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .clickable {
+                            chatProvider.sendMessage(chat, inputText)
+                            inputText = ""
+                        }
+                        .padding(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Send,
+                        contentDescription = "Send",
+                        tint = ChatColors.PRIMARY
+                    )
+                    Text("Send")
+                }
+            }
+        }
+    )
 }
