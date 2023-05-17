@@ -32,10 +32,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import io.spine.core.UserId
+import io.spine.examples.chatspn.ChatId
+import io.spine.examples.chatspn.MessageId
+import io.spine.examples.chatspn.account.UserProfile
+import io.spine.examples.chatspn.desktop.chat.ChatData
 import io.spine.examples.chatspn.desktop.chat.ChatsPage
-
-private val chatProvider = TestDataChatProvider()
-private val userProvider = TestDataUserProvider()
+import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
+import io.spine.examples.chatspn.desktop.chat.MessageData
+import io.spine.net.EmailAddress
 
 /**
  * The root component of the application.
@@ -47,17 +52,12 @@ private val userProvider = TestDataUserProvider()
 public fun App() {
     var page by remember { mutableStateOf(Page.CHATS) }
     when (page) {
-        Page.CHATS -> ChatsPage(userProvider, chatProvider)
+        Page.CHATS -> {
+            val model = ChatsPageModel()
+            startChattingSimulation(model)
+            ChatsPage(model)
+        }
     }
-    startChattingSimulation()
-}
-
-/**
- * Starts up the chatting simulation.
- */
-@Composable
-private fun startChattingSimulation() = LaunchedEffect(Unit) {
-    chatProvider.startChatting()
 }
 
 /**
