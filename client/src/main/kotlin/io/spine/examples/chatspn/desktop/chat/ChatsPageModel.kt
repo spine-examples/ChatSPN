@@ -30,6 +30,7 @@ import com.google.protobuf.Timestamp
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -72,10 +73,17 @@ public class ChatsPageModel {
     }
 
     /**
+     * Adds the profile of the authorized user.
+     */
+    public fun authorizedUser(user: UserProfile) {
+        authorizedUser = user
+    }
+
+    /**
      * Updates the model by new chats.
      */
     public fun updateChats(chats: ChatList) {
-        chatPreviewsState.value = chats;
+        chatPreviewsState.value = chats
     }
 
     /**
@@ -83,7 +91,7 @@ public class ChatsPageModel {
      */
     public fun updateMessages(chat: ChatId, messages: MessageList) {
         if (chatMessagesStateMap.containsKey(chat)) {
-            chatMessagesStateMap[chat]!!.value = messages;
+            chatMessagesStateMap[chat]!!.value = messages
         } else {
             chatMessagesStateMap[chat] = MutableStateFlow(messages)
         }
@@ -96,7 +104,7 @@ public class ChatsPageModel {
 public data class ChatData(
     val id: ChatId,
     val name: String,
-    val lastMessage: MessageData
+    val lastMessage: MessageData?
 )
 
 /**
@@ -104,9 +112,9 @@ public data class ChatData(
  */
 public data class MessageData(
     val id: MessageId,
-    val senderName: String,
+    val sender: UserProfile,
     val content: String,
-    val time: Timestamp
+    val whenPosted: Timestamp
 )
 
 /**

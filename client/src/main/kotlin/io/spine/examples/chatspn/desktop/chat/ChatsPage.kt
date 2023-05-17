@@ -70,10 +70,6 @@ import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
-import io.spine.examples.chatspn.chat.ChatPreview
-import io.spine.examples.chatspn.chat.MessagePreview
-import io.spine.examples.chatspn.desktop.ChatProvider
-import io.spine.examples.chatspn.desktop.UserProvider
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -82,19 +78,13 @@ import java.util.*
  */
 @Composable
 @Preview
-public fun ChatsPage(userProvider: UserProvider, chatProvider: ChatProvider) {
-    val chats by chatProvider.chats().collectAsState()
+public fun ChatsPage(model: ChatsPageModel) {
     var selectedChat by remember { mutableStateOf(ChatId.getDefaultInstance()) }
     Row {
-        LeftSidebar(userProvider, chats, selectedChat) { chat ->
+        LeftSidebar(model, selectedChat) { chat ->
             selectedChat = chat
         }
-        ChatContent(
-            userProvider,
-            chatProvider,
-            selectedChat,
-            chats
-        )
+        ChatContent(model, selectedChat)
     }
 }
 
@@ -103,8 +93,7 @@ public fun ChatsPage(userProvider: UserProvider, chatProvider: ChatProvider) {
  */
 @Composable
 private fun LeftSidebar(
-    userProvider: UserProvider,
-    chats: List<ChatPreview>,
+    model: ChatsPageModel,
     selectedChat: ChatId,
     selectChat: (chat: ChatId) -> Unit
 ) {
@@ -125,9 +114,9 @@ private fun LeftSidebar(
                 .fillMaxHeight()
                 .width(280.dp)
         ) {
-            UserProfilePanel(userProvider.loggedUser())
+            UserProfilePanel(model.authorizedUser())
             UserSearchField()
-            ChatList(userProvider, chats, selectedChat, selectChat)
+            ChatList(model, selectedChat, selectChat)
         }
     }
 }
@@ -216,11 +205,11 @@ private fun UserSearchField() {
  */
 @Composable
 private fun ChatList(
-    userProvider: UserProvider,
-    chats: List<ChatPreview>,
+    model: ChatsPageModel,
     selectedChat: ChatId,
     selectChat: (chat: ChatId) -> Unit
 ) {
+    val chats by model.chats().collectAsState()
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -228,8 +217,8 @@ private fun ChatList(
         chats.forEachIndexed { index, chat ->
             item(key = index) {
                 ChatPreviewPanel(
-                    chat.name(userProvider),
-                    chat.lastMessage.content,
+                    chat.name,
+                    if (chat.lastMessage != null) chat.lastMessage.content else "",
                     chat.id.equals(selectedChat)
                 ) {
                     selectChat(chat.id)
@@ -292,11 +281,10 @@ private fun ChatPreviewPanel(
  */
 @Composable
 private fun ChatContent(
-    userProvider: UserProvider,
-    chatProvider: ChatProvider,
-    selectedChat: ChatId,
-    chats: List<ChatPreview>
+    model: ChatsPageModel,
+    selectedChat: ChatId
 ) {
+    val chats by model.chats().collectAsState()
     val isChatSelected = chats
         .stream()
         .map { chat -> chat.id }
@@ -307,11 +295,11 @@ private fun ChatContent(
         Column(
             Modifier.fillMaxSize()
         ) {
-            ChatTopbar(userProvider, chats, selectedChat)
+            ChatTopbar(model, selectedChat)
             Box(Modifier.weight(1f)) {
-                ChatMessages(userProvider, chatProvider, selectedChat)
+                ChatMessages(model, selectedChat)
             }
-            SendMessageInput(selectedChat, chatProvider)
+            SendMessageInput(selectedChat)
         }
     }
 }
@@ -334,7 +322,8 @@ private fun ChatNotChosenBox() {
  * Represents the topbar of chat content.
  */
 @Composable
-private fun ChatTopbar(userProvider: UserProvider, chats: List<ChatPreview>, selectedChat: ChatId) {
+private fun ChatTopbar(model: ChatsPageModel, selectedChat: ChatId) {
+    val chats by model.chats().collectAsState()
     val chat = chats.stream().filter { chat -> chat.id.equals(selectedChat) }.findFirst()
     Surface(
         modifier = Modifier
@@ -354,7 +343,7 @@ private fun ChatTopbar(userProvider: UserProvider, chats: List<ChatPreview>, sel
         ) {
             UserAvatar()
             Text(
-                chat.get().name(userProvider),
+                chat.get().name,
                 modifier = Modifier.padding(start = 5.dp),
                 style = MaterialTheme.typography.headlineLarge,
             )
@@ -367,11 +356,10 @@ private fun ChatTopbar(userProvider: UserProvider, chats: List<ChatPreview>, sel
  */
 @Composable
 private fun ChatMessages(
-    userProvider: UserProvider,
-    chatProvider: ChatProvider,
+    model: ChatsPageModel,
     selectedChat: ChatId
 ) {
-    val messages by chatProvider
+    val messages by model
         .messages(selectedChat)
         .collectAsState()
     LazyColumn(
@@ -382,10 +370,7 @@ private fun ChatMessages(
     ) {
         messages.forEach { message ->
             item(message.id) {
-                ChatMessage(
-                    message,
-                    userProvider
-                )
+                ChatMessage(model, message)
             }
         }
         item {
@@ -399,10 +384,11 @@ private fun ChatMessages(
  */
 @Composable
 private fun ChatMessage(
-    message: MessagePreview,
-    userProvider: UserProvider
+    model: ChatsPageModel,
+    message: MessageData
 ) {
-    val isMyMessage = message.user == userProvider.loggedUser().id
+    val isMyMessage = message.sender.id
+        .equals(model.authorizedUser().id)
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart
@@ -418,7 +404,7 @@ private fun ChatMessage(
                 Spacer(Modifier.size(8.dp))
                 Column {
                     Row {
-                        UserName(userProvider.findUser(message.user).name)
+                        UserName(message.sender.name)
                         Spacer(Modifier.size(10.dp))
                         PostedTime(message.whenPosted)
                     }
@@ -478,7 +464,7 @@ private fun Timestamp.toStringTime(): String {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SendMessageInput(chat: ChatId, chatProvider: ChatProvider) {
+private fun SendMessageInput(chat: ChatId) {
     var inputText by remember { mutableStateOf("") }
     TextField(
         modifier = Modifier
@@ -500,7 +486,7 @@ private fun SendMessageInput(chat: ChatId, chatProvider: ChatProvider) {
                 Row(
                     modifier = Modifier
                         .clickable {
-                            chatProvider.sendMessage(chat, inputText)
+//                            chatProvider.sendMessage(chat, inputText)
                             inputText = ""
                         }
                         .padding(10.dp),
