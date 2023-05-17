@@ -23,17 +23,62 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.examples.chatspn.desktop
 
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+
 
 /**
- * Palette of the application colors.
+ * UI theme for the application.
+ *
+ * @see MaterialTheme
  */
-public object ChatColors {
-    public val PRIMARY: Color = Color(0xFF037BFC)
-    public val SECONDARY: Color = Color.Gray
-    public val MESSAGE_BACKGROUND: Color = Color(0xFFB0CBF5)
-    public val DANGER: Color = Color(0xFFFC3903)
-    public val MESSAGE_BACKGROUND_GRADIENT: List<Long> = listOf(0xFFB0CBF5, 0xFF96BCFA)
+@Composable
+public fun ChatSpnTheme(content: @Composable () -> Unit) {
+    MaterialTheme (
+        colorScheme = lightColors,
+        typography = typography,
+        content = content
+    )
 }
+
+/**
+ * The light colors scheme of the application.
+ */
+private val lightColors: ColorScheme = lightColorScheme(
+    primary = Color(0xFF037BFC),
+    onPrimary = Color.White,
+    onSecondary = Color.Gray,
+    surface = Color(0xFFB0CBF5),
+    background = Color.White,
+    error = Color(0xFFFC3903),
+)
+
+/**
+ * Text styles of the application.
+ */
+private val typography: Typography = Typography(
+    headlineLarge = TextStyle(
+        fontSize = 26.sp
+    ),
+    headlineMedium = TextStyle(
+        fontSize = 22.sp
+    ),
+    headlineSmall= TextStyle(
+        fontSize = 14.sp,
+        color = Color.Gray
+    ),
+    bodyMedium = TextStyle(
+        fontSize = 18.sp
+    ),
+)

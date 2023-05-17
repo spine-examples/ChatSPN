@@ -44,15 +44,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -66,13 +67,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.protobuf.Timestamp
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
-import io.spine.examples.chatspn.desktop.ChatColors
 import io.spine.examples.chatspn.desktop.ChatProvider
 import io.spine.examples.chatspn.desktop.UserProvider
 import java.text.SimpleDateFormat
@@ -147,14 +146,14 @@ private fun UserProfilePanel(user: UserProfile) {
         Column(horizontalAlignment = Alignment.Start) {
             Text(
                 text = user.name,
-                fontSize = 20.sp
+                style = MaterialTheme.typography.headlineMedium
             )
             Spacer(Modifier.size(4.dp))
             Text(
                 text = user.email.value,
-                fontSize = 14.sp,
-                color = ChatColors.SECONDARY,
-                overflow = TextOverflow.Ellipsis
+                color = MaterialTheme.colorScheme.onSecondary,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.headlineSmall
             )
         }
     }
@@ -163,13 +162,14 @@ private fun UserProfilePanel(user: UserProfile) {
 /**
  * Represents the input to find the user.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun UserSearchField() {
     var inputText by remember { mutableStateOf("") }
     TextField(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colors.background)
+            .background(MaterialTheme.colorScheme.background)
             .padding(0.dp, 5.dp),
         value = inputText,
         placeholder = {
@@ -187,8 +187,8 @@ private fun UserSearchField() {
         },
         label = { Text(text = "Find user by email") },
         colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = ChatColors.PRIMARY,
-            focusedLabelColor = ChatColors.PRIMARY
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            focusedLabelColor = MaterialTheme.colorScheme.primary
         ),
         shape = MaterialTheme.shapes.small.copy(ZeroCornerSize),
         trailingIcon = {
@@ -202,7 +202,7 @@ private fun UserSearchField() {
                     Icon(
                         imageVector = Icons.Default.Send,
                         contentDescription = "Find",
-                        tint = ChatColors.PRIMARY
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Text("Find")
                 }
@@ -256,7 +256,12 @@ private fun ChatPreviewPanel(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { select() }
-            .background(color = if (isSelected) ChatColors.MESSAGE_BACKGROUND else Color.White),
+            .background(
+                color = if (isSelected)
+                    MaterialTheme.colorScheme.surface
+                else
+                    MaterialTheme.colorScheme.background
+            ),
         contentAlignment = Alignment.CenterStart,
     ) {
         Row(
@@ -268,13 +273,12 @@ private fun ChatPreviewPanel(
             Column(horizontalAlignment = Alignment.Start) {
                 Text(
                     text = chatName,
-                    fontSize = 20.sp
+                    style = MaterialTheme.typography.headlineMedium,
                 )
                 Spacer(Modifier.size(4.dp))
                 Text(
                     text = lastMessage,
-                    fontSize = 14.sp,
-                    color = ChatColors.SECONDARY,
+                    style = MaterialTheme.typography.headlineSmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -320,8 +324,8 @@ private fun ChatNotChosenBox() {
     ) {
         Text(
             text = "Choose the chat",
-            color = ChatColors.SECONDARY,
-            fontSize = 20.sp
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSecondary,
         )
     }
 }
@@ -352,7 +356,7 @@ private fun ChatTopbar(userProvider: UserProvider, chats: List<ChatPreview>, sel
             Text(
                 chat.get().name(userProvider),
                 modifier = Modifier.padding(start = 5.dp),
-                fontSize = 26.sp
+                style = MaterialTheme.typography.headlineLarge,
             )
         }
     }
@@ -407,7 +411,7 @@ private fun ChatMessage(
             modifier = Modifier.padding(4.dp),
             shape = RoundedCornerShape(size = 20.dp),
             elevation = 8.dp,
-            color = ChatColors.MESSAGE_BACKGROUND
+            color = MaterialTheme.colorScheme.surface
         ) {
             Row(Modifier.padding(10.dp), verticalAlignment = Alignment.Top) {
                 UserAvatar()
@@ -433,7 +437,7 @@ private fun ChatMessage(
 private fun UserName(username: String) {
     Text(
         text = username,
-        style = MaterialTheme.typography.h5
+        style = MaterialTheme.typography.headlineMedium
     )
 }
 
@@ -444,8 +448,8 @@ private fun UserName(username: String) {
 private fun PostedTime(time: Timestamp) {
     Text(
         text = time.toStringTime(),
-        style = MaterialTheme.typography.h6,
-        color = ChatColors.SECONDARY
+        style = MaterialTheme.typography.headlineSmall,
+        color = MaterialTheme.colorScheme.onSecondary
     )
 }
 
@@ -456,7 +460,7 @@ private fun PostedTime(time: Timestamp) {
 private fun MessageContent(content: String) {
     Text(
         text = content,
-        fontSize = 20.sp,
+        style = MaterialTheme.typography.bodyMedium
     )
 }
 
@@ -472,13 +476,14 @@ private fun Timestamp.toStringTime(): String {
 /**
  * Represents the input for sending a message to the chat.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SendMessageInput(chat: ChatId, chatProvider: ChatProvider) {
     var inputText by remember { mutableStateOf("") }
     TextField(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colors.background)
+            .background(MaterialTheme.colorScheme.background)
             .padding(10.dp),
         value = inputText,
         placeholder = {
@@ -488,7 +493,7 @@ private fun SendMessageInput(chat: ChatId, chatProvider: ChatProvider) {
             inputText = it
         },
         colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = ChatColors.PRIMARY,
+            focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary,
         ),
         trailingIcon = {
             if (inputText.isNotEmpty()) {
@@ -504,7 +509,7 @@ private fun SendMessageInput(chat: ChatId, chatProvider: ChatProvider) {
                     Icon(
                         imageVector = Icons.Default.Send,
                         contentDescription = "Send",
-                        tint = ChatColors.PRIMARY
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Text("Send")
                 }

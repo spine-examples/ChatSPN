@@ -32,11 +32,15 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 
 public fun main(): Unit = application {
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "ChatSPN",
-        state = WindowState(size = DpSize(1000.dp, 600.dp))
-    ) {
-        App()
-    }
+    ChatSpnTheme(
+        content = {
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = "ChatSPN",
+                state = WindowState(size = DpSize(1000.dp, 600.dp))
+            ) {
+                App()
+            }
+        }
+    )
 }

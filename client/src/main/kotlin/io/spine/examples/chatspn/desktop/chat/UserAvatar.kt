@@ -29,15 +29,16 @@ package io.spine.examples.chatspn.desktop.chat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import io.spine.examples.chatspn.desktop.ChatColors
 
 /**
  * Represents the user avatar.
@@ -54,7 +55,7 @@ public fun UserAvatar() {
             override val intrinsicSize: Size = Size(imageSize, imageSize)
             override fun DrawScope.onDraw() {
                 drawRect(
-                    ChatColors.DANGER,
+                    Color(0xFFFC3903),
                     size = Size(imageSize * 4, imageSize * 4)
                 )
             }
