@@ -23,34 +23,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import io.spine.examples.chatspn.dependency.Material3
-import io.spine.examples.chatspn.dependency.Spine
+package io.spine.examples.chatspn.desktop
 
-plugins {
-    kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.compose") version "1.4.0"
-}
+import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import io.spine.examples.chatspn.desktop.chat.ChatsPage
+import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
 
-kotlin {
-    explicitApi()
-}
-
-repositories {
-    mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    google()
-}
-
-dependencies {
-    implementation(compose.desktop.currentOs)
-    implementation(project(":model"))
-    implementation(project(":server"))
-    implementation(Spine.Server.lib)
-    implementation(Material3.Desktop.lib)
-}
-
-compose.desktop {
-    application {
-        mainClass = "io.spine.examples.chatspn.desktop.MainKt"
+/**
+ * The root component of the application.
+ *
+ * Responsible for navigation and composition of pages.
+ */
+@Composable
+@Preview
+public fun App() {
+    var page by remember { mutableStateOf(Page.CHATS) }
+    when (page) {
+        Page.CHATS -> {
+            val model = ChatsPageModel()
+            startChattingSimulation(model)
+            ChatsPage(model)
+        }
     }
+}
+
+/**
+ * Pages in the application.
+ */
+private enum class Page {
+    CHATS
 }

@@ -1,17 +1,3 @@
-import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-
 /*
  * Copyright 2023, TeamDev. All rights reserved.
  *
@@ -38,24 +24,42 @@ import androidx.compose.ui.unit.dp
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.examples.chatspn.desktop.chat
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+
+/**
+ * Represents the user avatar.
+ */
 @Composable
-@Preview
-fun App() {
-    val count = remember { mutableStateOf(0) }
-    MaterialTheme {
-        Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
-            Button(modifier = Modifier.align(Alignment.Start),
-                onClick = {
-                    count.value++
-                }) {
-                Text(if (count.value == 0) "Hello World" else "Clicked ${count.value}!")
+public fun UserAvatar() {
+    val imageSize = 64f
+    Image(
+        modifier = Modifier
+            .size(imageSize.dp)
+            .clip(CircleShape),
+        contentScale = ContentScale.Crop,
+        painter = object : Painter() {
+            override val intrinsicSize: Size = Size(imageSize, imageSize)
+            override fun DrawScope.onDraw() {
+                drawRect(
+                    Color(0xFFFC3903),
+                    size = Size(imageSize * 4, imageSize * 4)
+                )
             }
-            Button(modifier = Modifier.align(Alignment.Start),
-                onClick = {
-                    count.value = 0
-                }) {
-                Text("Reset")
-            }
-        }
-    }
+        },
+        contentDescription = "User picture"
+    )
 }
