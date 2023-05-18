@@ -184,7 +184,10 @@ private fun UserSearchField() {
             if (inputText.isNotEmpty()) {
                 Row(
                     modifier = Modifier
-                        .clickable { inputText = "" }
+                        .clickable {
+                            inputText = ""
+                            //TODO: findUser()
+                        }
                         .padding(5.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -253,25 +256,36 @@ private fun ChatPreviewPanel(
             ),
         contentAlignment = Alignment.CenterStart,
     ) {
-        Row(
-            modifier = Modifier.padding(5.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            UserAvatar()
-            Spacer(Modifier.size(5.dp))
-            Column(horizontalAlignment = Alignment.Start) {
-                Text(
-                    text = chatName,
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-                Spacer(Modifier.size(4.dp))
-                Text(
-                    text = lastMessage,
-                    style = MaterialTheme.typography.headlineSmall,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+        ChatPreviewContent(chatName, lastMessage)
+    }
+}
+
+/**
+ * Represents the chat preview content in the chat preview panel.
+ */
+@Composable
+private fun ChatPreviewContent(
+    chatName: String,
+    lastMessage: String,
+) {
+    Row(
+        modifier = Modifier.padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        UserAvatar()
+        Spacer(Modifier.size(5.dp))
+        Column(horizontalAlignment = Alignment.Start) {
+            Text(
+                text = chatName,
+                style = MaterialTheme.typography.headlineMedium,
+            )
+            Spacer(Modifier.size(4.dp))
+            Text(
+                text = lastMessage,
+                style = MaterialTheme.typography.headlineSmall,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
@@ -299,7 +313,7 @@ private fun ChatContent(
             Box(Modifier.weight(1f)) {
                 ChatMessages(model, selectedChat)
             }
-            SendMessageInput(selectedChat)
+            SendMessageInput()
         }
     }
 }
@@ -399,28 +413,36 @@ private fun ChatMessage(
             elevation = 8.dp,
             color = MaterialTheme.colorScheme.surface
         ) {
-            Row(Modifier.padding(10.dp), verticalAlignment = Alignment.Top) {
-                UserAvatar()
-                Spacer(Modifier.size(8.dp))
-                Column {
-                    Row {
-                        UserName(message.sender.name)
-                        Spacer(Modifier.size(10.dp))
-                        PostedTime(message.whenPosted)
-                    }
-                    Spacer(Modifier.size(8.dp))
-                    MessageContent(message.content)
-                }
-            }
+            MessageContent(message)
         }
     }
 }
 
 /**
- * Represents the name of the user who posted the message.
+ * Represents the content the message.
  */
 @Composable
-private fun UserName(username: String) {
+private fun MessageContent(message: MessageData) {
+    Row(Modifier.padding(10.dp), verticalAlignment = Alignment.Top) {
+        UserAvatar()
+        Spacer(Modifier.size(8.dp))
+        Column {
+            Row {
+                SenderName(message.sender.name)
+                Spacer(Modifier.size(10.dp))
+                PostedTime(message.whenPosted)
+            }
+            Spacer(Modifier.size(8.dp))
+            MessageText(message.content)
+        }
+    }
+}
+
+/**
+ * Represents the name of the user who sent this message.
+ */
+@Composable
+private fun SenderName(username: String) {
     Text(
         text = username,
         style = MaterialTheme.typography.headlineMedium
@@ -440,12 +462,12 @@ private fun PostedTime(time: Timestamp) {
 }
 
 /**
- * Represents the content of the message.
+ * Represents the text of the message.
  */
 @Composable
-private fun MessageContent(content: String) {
+private fun MessageText(text: String) {
     Text(
-        text = content,
+        text = text,
         style = MaterialTheme.typography.bodyMedium
     )
 }
@@ -464,7 +486,7 @@ private fun Timestamp.toStringTime(): String {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SendMessageInput(chat: ChatId) {
+private fun SendMessageInput() {
     var inputText by remember { mutableStateOf("") }
     TextField(
         modifier = Modifier
@@ -486,7 +508,7 @@ private fun SendMessageInput(chat: ChatId) {
                 Row(
                     modifier = Modifier
                         .clickable {
-//                            chatProvider.sendMessage(chat, inputText)
+                            //TODO: sendMessage()
                             inputText = ""
                         }
                         .padding(10.dp),
