@@ -45,8 +45,6 @@ public class ChatsPageModel {
 
     /**
      * Returns the state of the user's chats.
-     *
-     * It may be used as state to recompose component on changes.
      */
     public fun chats(): StateFlow<ChatList> {
         return chatPreviewsState
@@ -54,8 +52,6 @@ public class ChatsPageModel {
 
     /**
      * Returns the state of messages in the chat.
-     *
-     * It may be used as state to recompose component on changes.
      */
     public fun messages(chat: ChatId): MessagesState {
         if (!chatMessagesStateMap.containsKey(chat)) {
@@ -79,14 +75,14 @@ public class ChatsPageModel {
     }
 
     /**
-     * Updates the model by new chats.
+     * Updates the model with new chats.
      */
     public fun updateChats(chats: ChatList) {
         chatPreviewsState.value = chats
     }
 
     /**
-     * Updates the model by new messages.
+     * Updates the model with new messages.
      */
     public fun updateMessages(chat: ChatId, messages: MessageList) {
         if (chatMessagesStateMap.containsKey(chat)) {
