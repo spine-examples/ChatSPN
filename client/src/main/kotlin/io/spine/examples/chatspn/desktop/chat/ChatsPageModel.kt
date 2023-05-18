@@ -30,14 +30,13 @@ import com.google.protobuf.Timestamp
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Model for the `ChatsPage`.
+ * UI Model for the `ChatsPage`.
  *
- * Model stores data that can be displayed by view and updated by client.
+ * UI Model stores data that may be displayed by `@Composable` functions and updated by client.
  */
 public class ChatsPageModel {
     private var authorizedUser: UserProfile? = null
@@ -99,7 +98,7 @@ public class ChatsPageModel {
 }
 
 /**
- * Data for the chat view.
+ * Data for the chat preview.
  */
 public data class ChatData(
     val id: ChatId,
