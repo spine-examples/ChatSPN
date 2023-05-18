@@ -114,4 +114,3 @@ private fun String.toEmail(): EmailAddress {
         .setValue(this)
         .vBuild()
 }
-
