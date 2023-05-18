@@ -83,6 +83,9 @@ public fun startChattingSimulation(model: ChatsPageModel) {
     }
 }
 
+/**
+ * Creates `UserProfile` with provided string as its id, name and email part.
+ */
 private fun String.toUserProfile(): UserProfile {
     return UserProfile
         .newBuilder()
@@ -92,6 +95,9 @@ private fun String.toUserProfile(): UserProfile {
         .vBuild()
 }
 
+/**
+ * Creates `UserId` with provided string as its value.
+ */
 private fun String.toUserId(): UserId {
     return UserId
         .newBuilder()
@@ -99,6 +105,9 @@ private fun String.toUserId(): UserId {
         .vBuild()
 }
 
+/**
+ * Creates `EmailAddress` with provided string as its value.
+ */
 private fun String.toEmail(): EmailAddress {
     return EmailAddress
         .newBuilder()
