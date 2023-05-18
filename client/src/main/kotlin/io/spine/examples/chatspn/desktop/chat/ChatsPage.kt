@@ -149,7 +149,7 @@ private fun UserProfilePanel(user: UserProfile) {
 }
 
 /**
- * Represents the input to find the user.
+ * Represents the input field to find the user.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -291,7 +291,7 @@ private fun ChatPreviewContent(
 }
 
 /**
- * Represents the content of the chosen chat.
+ * Represents the content of the selected chat.
  */
 @Composable
 private fun ChatContent(
@@ -318,6 +318,9 @@ private fun ChatContent(
     }
 }
 
+/**
+ * Represents content when no one chat is selected.
+ */
 @Composable
 private fun ChatNotChosenBox() {
     Box(
