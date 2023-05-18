@@ -422,7 +422,7 @@ private fun ChatMessage(
 }
 
 /**
- * Represents the content the message.
+ * Represents the content of the message.
  */
 @Composable
 private fun MessageContent(message: MessageData) {
@@ -436,7 +436,10 @@ private fun MessageContent(message: MessageData) {
                 PostedTime(message.whenPosted)
             }
             Spacer(Modifier.size(8.dp))
-            MessageText(message.content)
+            Text(
+                text = message.content,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
@@ -461,17 +464,6 @@ private fun PostedTime(time: Timestamp) {
         text = time.toStringTime(),
         style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSecondary
-    )
-}
-
-/**
- * Represents the text of the message.
- */
-@Composable
-private fun MessageText(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyMedium
     )
 }
 
