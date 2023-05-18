@@ -25,6 +25,8 @@
  */
 package io.spine.examples.chatspn.desktop
 
+import LoginPage
+import RegisterPage
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,8 +44,20 @@ import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
 @Composable
 @Preview
 public fun App() {
-    var page by remember { mutableStateOf(Page.CHATS) }
+    var page by remember { mutableStateOf(Page.REGISTER) }
     when (page) {
+        Page.REGISTER -> {
+            RegisterPage(
+                toLogin = {page = Page.LOGIN},
+                toChats = {page = Page.CHATS}
+            )
+        }
+        Page.LOGIN -> {
+            LoginPage(
+                toRegister = {page = Page.REGISTER},
+                toChats = {page = Page.CHATS}
+            )
+        }
         Page.CHATS -> {
             val model = ChatsPageModel()
             startChattingSimulation(model)
@@ -56,5 +70,5 @@ public fun App() {
  * Pages in the application.
  */
 private enum class Page {
-    CHATS
+    CHATS, LOGIN, REGISTER
 }
