@@ -162,7 +162,7 @@ private fun UserSearchField() {
             .padding(0.dp, 5.dp),
         value = inputText,
         placeholder = {
-            Text(text = "Type email ...")
+            Text(text = "example@mail.com")
         },
         leadingIcon = {
             Icon(
