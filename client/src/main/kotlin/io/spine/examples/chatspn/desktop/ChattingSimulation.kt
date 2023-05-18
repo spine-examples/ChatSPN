@@ -39,14 +39,14 @@ import io.spine.net.EmailAddress
 import kotlinx.coroutines.delay
 
 /**
- * Starts up the chatting simulation.
+ * Starts up the chatting simulation for manual testing.
  */
 @Composable
 public fun startChattingSimulation(model: ChatsPageModel) {
-    val vlad = userProfile("Vlad")
+    val vlad = "Vlad".toUserProfile()
     model.authorizedUser(vlad)
-    val artem = userProfile("Artem")
-    val alex = userProfile("Alex")
+    val artem = "Artem".toUserProfile()
+    val alex = "Alex".toUserProfile()
     val artemChatId = ChatId.generate()
     val alexChatId = ChatId.generate()
     val artemMessages = mutableListOf(
@@ -83,26 +83,26 @@ public fun startChattingSimulation(model: ChatsPageModel) {
     }
 }
 
-private fun userProfile(name: String): UserProfile {
+private fun String.toUserProfile(): UserProfile {
     return UserProfile
         .newBuilder()
-        .setId(userId(name))
-        .setEmail(email("${name}@teamdev.com"))
-        .setName(name)
+        .setId(this.toUserId())
+        .setEmail("${this}@teamdev.com".toEmail())
+        .setName(this)
         .vBuild()
 }
 
-private fun userId(id: String): UserId {
+private fun String.toUserId(): UserId {
     return UserId
         .newBuilder()
-        .setValue(id)
+        .setValue(this)
         .vBuild()
 }
 
-private fun email(email: String): EmailAddress {
+private fun String.toEmail(): EmailAddress {
     return EmailAddress
         .newBuilder()
-        .setValue(email)
+        .setValue(this)
         .vBuild()
 }
 

@@ -27,20 +27,12 @@ package io.spine.examples.chatspn.desktop
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import io.spine.core.UserId
-import io.spine.examples.chatspn.ChatId
-import io.spine.examples.chatspn.MessageId
-import io.spine.examples.chatspn.account.UserProfile
-import io.spine.examples.chatspn.desktop.chat.ChatData
 import io.spine.examples.chatspn.desktop.chat.ChatsPage
 import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
-import io.spine.examples.chatspn.desktop.chat.MessageData
-import io.spine.net.EmailAddress
 
 /**
  * The root component of the application.
