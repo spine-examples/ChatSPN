@@ -162,7 +162,7 @@ private fun UserSearchField() {
             .padding(0.dp, 5.dp),
         value = inputText,
         placeholder = {
-            Text(text = "Type email ...")
+            Text(text = "example@mail.com")
         },
         leadingIcon = {
             Icon(
@@ -186,7 +186,6 @@ private fun UserSearchField() {
                     modifier = Modifier
                         .clickable {
                             inputText = ""
-                            //TODO: findUser()
                         }
                         .padding(5.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -503,7 +502,6 @@ private fun SendMessageInput() {
                 Row(
                     modifier = Modifier
                         .clickable {
-                            //TODO: sendMessage()
                             inputText = ""
                         }
                         .padding(10.dp),
