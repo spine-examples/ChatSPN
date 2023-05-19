@@ -38,7 +38,7 @@ import io.spine.examples.chatspn.desktop.SecondaryButton
  */
 @Composable
 public fun LoginPage(
-    toRegister: () -> Unit,
+    toRegistration: () -> Unit,
     toChats: () -> Unit,
 ) {
     val emailState = remember { mutableStateOf("") }
@@ -62,6 +62,6 @@ public fun LoginPage(
                 toChats()
             }
         }
-        SecondaryButton("Don't have an account?", toRegister)
+        SecondaryButton("Don't have an account?", toRegistration)
     }
 }

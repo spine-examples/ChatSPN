@@ -54,7 +54,7 @@ public fun App() {
         }
         Page.LOGIN -> {
             LoginPage(
-                toRegister = { page = Page.REGISTRATION },
+                toRegistration = { page = Page.REGISTRATION },
                 toChats = { page = Page.CHATS }
             )
         }
