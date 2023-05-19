@@ -34,10 +34,10 @@ import io.spine.examples.chatspn.desktop.PrimaryButton
 import io.spine.examples.chatspn.desktop.SecondaryButton
 
 /**
- * Represents the 'Register' page in the application.
+ * Represents the 'Registration' page in the application.
  */
 @Composable
-public fun RegisterPage(
+public fun RegistrationPage(
     toLogin: () -> Unit,
     toChats: () -> Unit,
 ) {

@@ -26,7 +26,7 @@
 package io.spine.examples.chatspn.desktop
 
 import LoginPage
-import RegisterPage
+import RegistrationPage
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,18 +44,18 @@ import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
 @Composable
 @Preview
 public fun App() {
-    var page by remember { mutableStateOf(Page.REGISTER) }
+    var page by remember { mutableStateOf(Page.REGISTRATION) }
     when (page) {
-        Page.REGISTER -> {
-            RegisterPage(
-                toLogin = {page = Page.LOGIN},
-                toChats = {page = Page.CHATS}
+        Page.REGISTRATION -> {
+            RegistrationPage(
+                toLogin = { page = Page.LOGIN },
+                toChats = { page = Page.CHATS }
             )
         }
         Page.LOGIN -> {
             LoginPage(
-                toRegister = {page = Page.REGISTER},
-                toChats = {page = Page.CHATS}
+                toRegister = { page = Page.REGISTRATION },
+                toChats = { page = Page.CHATS }
             )
         }
         Page.CHATS -> {
@@ -70,5 +70,5 @@ public fun App() {
  * Pages in the application.
  */
 private enum class Page {
-    CHATS, LOGIN, REGISTER
+    CHATS, LOGIN, REGISTRATION
 }
