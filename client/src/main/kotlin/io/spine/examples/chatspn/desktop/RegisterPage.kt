@@ -33,6 +33,9 @@ import io.spine.examples.chatspn.desktop.FormHeader
 import io.spine.examples.chatspn.desktop.PrimaryButton
 import io.spine.examples.chatspn.desktop.SecondaryButton
 
+/**
+ * Represents the 'Register' page in the application.
+ */
 @Composable
 public fun RegisterPage(
     toLogin: () -> Unit,

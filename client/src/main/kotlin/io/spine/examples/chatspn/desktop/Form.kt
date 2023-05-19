@@ -52,6 +52,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/**
+ * Represents the layout for the form.
+ *
+ * @param FormContent the content to be composed inside the form layout
+ */
 @Composable
 public fun FormBox(
     FormContent: @Composable () -> Unit
@@ -74,6 +79,9 @@ public fun FormBox(
     }
 }
 
+/**
+ * Represents the form header.
+ */
 @Composable
 public fun FormHeader(text: String) {
     Text(
@@ -84,11 +92,14 @@ public fun FormHeader(text: String) {
     )
 }
 
+/**
+ * Represents a form input field with the functionality to display an error.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun FormField(
     label: String,
-    placeholder: String,
+    placeholder: String = "",
     valueState: MutableState<String>,
     errorState: MutableState<Boolean>,
     errorText: MutableState<String>
@@ -128,6 +139,9 @@ public fun FormField(
     }
 }
 
+/**
+ * Represents the form field label.
+ */
 @Composable
 private fun FormFieldLabel(text: String) {
     Text(
@@ -137,6 +151,9 @@ private fun FormFieldLabel(text: String) {
     )
 }
 
+/**
+ * Represents the form field error text.
+ */
 @Composable
 private fun FormFieldError(isError: Boolean, text: String) {
     if (isError) {
@@ -151,6 +168,9 @@ private fun FormFieldError(isError: Boolean, text: String) {
     }
 }
 
+/**
+ * Represents the primary button.
+ */
 @Composable
 public fun PrimaryButton(text: String, onClick: () -> Unit) {
     Button(
@@ -164,6 +184,9 @@ public fun PrimaryButton(text: String, onClick: () -> Unit) {
     }
 }
 
+/**
+ * Represents the secondary button.
+ */
 @Composable
 public fun SecondaryButton(text: String, onClick: () -> Unit) {
     Button(

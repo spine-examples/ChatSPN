@@ -24,7 +24,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,8 +33,10 @@ import io.spine.examples.chatspn.desktop.FormHeader
 import io.spine.examples.chatspn.desktop.PrimaryButton
 import io.spine.examples.chatspn.desktop.SecondaryButton
 
+/**
+ * Represents the 'Login' page in the application.
+ */
 @Composable
-@Preview
 public fun LoginPage(
     toRegister: () -> Unit,
     toChats: () -> Unit,
