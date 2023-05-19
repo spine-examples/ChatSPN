@@ -24,14 +24,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package io.spine.examples.chatspn.desktop
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import io.spine.examples.chatspn.desktop.FormBox
-import io.spine.examples.chatspn.desktop.FormField
-import io.spine.examples.chatspn.desktop.FormHeader
-import io.spine.examples.chatspn.desktop.PrimaryButton
-import io.spine.examples.chatspn.desktop.SecondaryButton
 
 /**
  * Represents the 'Registration' page in the application.
