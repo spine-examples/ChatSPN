@@ -26,13 +26,27 @@
 
 package io.spine.examples.chatspn.desktop
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -42,6 +56,38 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+
+@Composable
+public fun FormBox(
+    FormContent: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            Modifier
+                .width(500.dp)
+                .padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            FormContent()
+        }
+    }
+}
+
+@Composable
+public fun FormHeader(text: String) {
+    Text(
+        text,
+        modifier = Modifier
+            .padding(bottom = 20.dp),
+        style = MaterialTheme.typography.displayLarge,
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +120,12 @@ public fun FormField(
                 focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                 errorIndicatorColor = MaterialTheme.colorScheme.error
             ),
-            isError = errorState.value
+            isError = errorState.value,
+            trailingIcon = {
+                if (errorState.value) {
+                    WarningTooltip("This field must not be empty")
+                }
+            }
         )
     }
 }

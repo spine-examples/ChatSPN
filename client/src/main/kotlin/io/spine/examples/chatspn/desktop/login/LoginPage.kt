@@ -25,21 +25,12 @@
  */
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import io.spine.examples.chatspn.desktop.FormBox
 import io.spine.examples.chatspn.desktop.FormField
+import io.spine.examples.chatspn.desktop.FormHeader
 import io.spine.examples.chatspn.desktop.PrimaryButton
 import io.spine.examples.chatspn.desktop.SecondaryButton
 
@@ -51,40 +42,15 @@ public fun LoginPage(
 ) {
     val emailState = remember { mutableStateOf("") }
     val emailErrorState = remember { mutableStateOf(false) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            Modifier
-                .width(500.dp)
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Text(
-                "Sign In",
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 20.dp),
-                fontSize = 30.sp,
-            )
-            FormField(
-                "Email:",
-                "john.doe@mail.com",
-                emailState,
-                emailErrorState,
-            )
-            PrimaryButton("Login") {
-                emailErrorState.value = emailState.value.isEmpty()
-                if (!emailErrorState.value) {
-                    toChats()
-                }
+    FormBox {
+        FormHeader("Sign In")
+        FormField("Email:", "john.doe@mail.com", emailState, emailErrorState)
+        PrimaryButton("Sign In") {
+            emailErrorState.value = emailState.value.isEmpty()
+            if (!emailErrorState.value) {
+                toChats()
             }
-            SecondaryButton("Don't have an account?", toRegister)
         }
+        SecondaryButton("Don't have an account?", toRegister)
     }
 }
