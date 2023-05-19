@@ -26,25 +26,20 @@
 
 package io.spine.examples.chatspn.desktop
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -97,36 +92,61 @@ public fun FormField(
     valueState: MutableState<String>,
     errorState: MutableState<Boolean>,
 ) {
-    Row {
-        Text(
-            text = label,
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .width(50.dp)
-        )
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background),
-            value = valueState.value,
-            placeholder = {
-                Text(placeholder)
-            },
-            onValueChange = {
-                valueState.value = it
-                errorState.value = false
-            },
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                errorIndicatorColor = MaterialTheme.colorScheme.error
-            ),
-            isError = errorState.value,
-            trailingIcon = {
-                if (errorState.value) {
-                    WarningTooltip("This field must not be empty")
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            FormFieldLabel(label)
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background),
+                value = valueState.value,
+                placeholder = {
+                    Text(placeholder)
+                },
+                onValueChange = {
+                    valueState.value = it
+                    errorState.value = false
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    errorIndicatorColor = MaterialTheme.colorScheme.error
+                ),
+                isError = errorState.value,
+                trailingIcon = {
+                    if (errorState.value) {
+                        Icon(
+                            imageVector = Icons.Outlined.Warning,
+                            contentDescription = "Warning",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
-            }
-        )
+            )
+        }
+        FormFieldError(errorState.value, "This field must not be empty")
+    }
+}
+
+@Composable
+private fun FormFieldLabel(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier.width(50.dp),
+        style = MaterialTheme.typography.labelLarge
+    )
+}
+
+@Composable
+private fun FormFieldError(isError: Boolean, text: String) {
+    if (isError) {
+        Row {
+            Spacer(Modifier.width(50.dp))
+            Text(
+                text = text,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
     }
 }
 

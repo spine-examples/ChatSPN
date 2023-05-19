@@ -67,6 +67,9 @@ private val lightColors: ColorScheme = lightColorScheme(
  * Text styles of the application.
  */
 private val typography: Typography = Typography(
+    displayLarge = TextStyle(
+        fontSize = 30.sp
+    ),
     headlineLarge = TextStyle(
         fontSize = 26.sp
     ),
@@ -80,4 +83,13 @@ private val typography: Typography = Typography(
     bodyMedium = TextStyle(
         fontSize = 18.sp
     ),
+    bodySmall = TextStyle(
+        fontSize = 14.sp
+    ),
+    labelLarge = TextStyle(
+        fontSize = 16.sp
+    ),
+    labelMedium = TextStyle(
+        fontSize = 12.sp
+    )
 )
