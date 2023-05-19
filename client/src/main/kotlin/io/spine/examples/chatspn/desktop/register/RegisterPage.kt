@@ -40,15 +40,35 @@ public fun RegisterPage(
 ) {
     val emailState = remember { mutableStateOf("") }
     val emailErrorState = remember { mutableStateOf(false) }
+    val emailErrorText = remember { mutableStateOf("") }
     val nameState = remember { mutableStateOf("") }
     val nameErrorState = remember { mutableStateOf(false) }
+    val nameErrorText = remember { mutableStateOf("") }
     FormBox {
         FormHeader("Sign Up")
-        FormField("Email:", "john.doe@mail.com", emailState, emailErrorState)
-        FormField("Name:", "John Doe", nameState, nameErrorState)
+        FormField(
+            "Email:",
+            "john.doe@mail.com",
+            emailState,
+            emailErrorState,
+            emailErrorText
+        )
+        FormField(
+            "Name:",
+            "John Doe",
+            nameState,
+            nameErrorState,
+            nameErrorText
+        )
         PrimaryButton("Sign Up") {
-            emailErrorState.value = emailState.value.isEmpty()
-            nameErrorState.value = nameState.value.isEmpty()
+            if (emailState.value.isEmpty()) {
+                emailErrorState.value = true
+                emailErrorText.value = "Email field must not be empty"
+            }
+            if (nameState.value.isEmpty()) {
+                nameErrorState.value = true
+                nameErrorText.value = "Name field must not be empty"
+            }
             if (!emailErrorState.value && !nameErrorState.value) {
                 toChats()
             }

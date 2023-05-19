@@ -42,11 +42,21 @@ public fun LoginPage(
 ) {
     val emailState = remember { mutableStateOf("") }
     val emailErrorState = remember { mutableStateOf(false) }
+    val emailErrorText = remember { mutableStateOf("") }
     FormBox {
         FormHeader("Sign In")
-        FormField("Email:", "john.doe@mail.com", emailState, emailErrorState)
+        FormField(
+            "Email:",
+            "john.doe@mail.com",
+            emailState,
+            emailErrorState,
+            emailErrorText
+        )
         PrimaryButton("Sign In") {
-            emailErrorState.value = emailState.value.isEmpty()
+            if (emailState.value.isEmpty()) {
+                emailErrorState.value = true
+                emailErrorText.value = "Email field must not be empty"
+            }
             if (!emailErrorState.value) {
                 toChats()
             }

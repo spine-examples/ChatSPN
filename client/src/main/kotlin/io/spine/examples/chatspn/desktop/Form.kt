@@ -91,6 +91,7 @@ public fun FormField(
     placeholder: String,
     valueState: MutableState<String>,
     errorState: MutableState<Boolean>,
+    errorText: MutableState<String>
 ) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -123,7 +124,7 @@ public fun FormField(
                 }
             )
         }
-        FormFieldError(errorState.value, "This field must not be empty")
+        FormFieldError(errorState.value, errorText.value)
     }
 }
 
