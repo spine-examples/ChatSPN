@@ -23,51 +23,42 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package io.spine.examples.chatspn.desktop
 
-
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import io.spine.examples.chatspn.desktop.chat.ChatsPage
-import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
 
 /**
- * The root component of the application.
- *
- * Responsible for navigation and composition of pages.
+ * Represents the 'Login' page in the application.
  */
 @Composable
-@Preview
-public fun App() {
-    var page by remember { mutableStateOf(Page.REGISTRATION) }
-    when (page) {
-        Page.REGISTRATION -> {
-            RegistrationPage(
-                toLogin = { page = Page.LOGIN },
-                toChats = { page = Page.CHATS }
-            )
+public fun LoginPage(
+    toRegistration: () -> Unit,
+    toChats: () -> Unit,
+) {
+    val emailState = remember { mutableStateOf("") }
+    val emailErrorState = remember { mutableStateOf(false) }
+    val emailErrorText = remember { mutableStateOf("") }
+    FormBox {
+        FormHeader("Sign In")
+        FormField(
+            "Email:",
+            "john.doe@mail.com",
+            emailState,
+            emailErrorState,
+            emailErrorText
+        )
+        PrimaryButton("Sign In") {
+            if (emailState.value.isEmpty()) {
+                emailErrorState.value = true
+                emailErrorText.value = "Email field must not be empty"
+            }
+            if (!emailErrorState.value) {
+                toChats()
+            }
         }
-        Page.LOGIN -> {
-            LoginPage(
-                toRegistration = { page = Page.REGISTRATION },
-                toChats = { page = Page.CHATS }
-            )
-        }
-        Page.CHATS -> {
-            val model = ChatsPageModel()
-            startChattingSimulation(model)
-            ChatsPage(model)
-        }
+        SecondaryButton("Don't have an account?", toRegistration)
     }
-}
-
-/**
- * Pages in the application.
- */
-private enum class Page {
-    CHATS, LOGIN, REGISTRATION
 }

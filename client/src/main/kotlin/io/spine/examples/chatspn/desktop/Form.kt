@@ -1,0 +1,201 @@
+/*
+ * Copyright 2023, TeamDev. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Redistribution and use in source and/or binary forms, with or without
+ * modification, must retain the above copyright notice and the following
+ * disclaimer.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package io.spine.examples.chatspn.desktop
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+/**
+ * Represents the layout for the form.
+ *
+ * @param FormContent the content to be composed inside the form layout
+ */
+@Composable
+public fun FormBox(
+    FormContent: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            Modifier
+                .width(500.dp)
+                .padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            FormContent()
+        }
+    }
+}
+
+/**
+ * Represents the form header.
+ */
+@Composable
+public fun FormHeader(text: String) {
+    Text(
+        text,
+        modifier = Modifier
+            .padding(bottom = 20.dp),
+        style = MaterialTheme.typography.displayLarge,
+    )
+}
+
+/**
+ * Represents a form input field with the functionality to display an error.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+public fun FormField(
+    label: String,
+    placeholder: String = "",
+    valueState: MutableState<String>,
+    errorState: MutableState<Boolean>,
+    errorText: MutableState<String>
+) {
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            FormFieldLabel(label)
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background),
+                value = valueState.value,
+                placeholder = {
+                    Text(placeholder)
+                },
+                onValueChange = {
+                    valueState.value = it
+                    errorState.value = false
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    errorIndicatorColor = MaterialTheme.colorScheme.error
+                ),
+                isError = errorState.value,
+                trailingIcon = {
+                    if (errorState.value) {
+                        Icon(
+                            imageVector = Icons.Outlined.Warning,
+                            contentDescription = "Warning",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            )
+        }
+        FormFieldError(errorState.value, errorText.value)
+    }
+}
+
+/**
+ * Represents the form field label.
+ */
+@Composable
+private fun FormFieldLabel(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier.width(50.dp),
+        style = MaterialTheme.typography.labelLarge
+    )
+}
+
+/**
+ * Represents the form field error text.
+ */
+@Composable
+private fun FormFieldError(isError: Boolean, text: String) {
+    if (isError) {
+        Row {
+            Spacer(Modifier.width(50.dp))
+            Text(
+                text = text,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+    }
+}
+
+/**
+ * Represents the primary button.
+ */
+@Composable
+public fun PrimaryButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    ) {
+        Text(text)
+    }
+}
+
+/**
+ * Represents the secondary button.
+ */
+@Composable
+public fun SecondaryButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.primary
+        )
+    ) {
+        Text(text)
+    }
+}
