@@ -29,6 +29,8 @@ package io.spine.examples.chatspn.desktop
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
+import io.spine.examples.chatspn.desktop.client.UserAlreadyRegisteredException
 
 /**
  * Represents the 'Registration' page in the application.
@@ -70,7 +72,13 @@ public fun RegistrationPage(
                 nameErrorText.value = "Name field must not be empty"
             }
             if (!emailErrorState.value && !nameErrorState.value) {
-                toChats()
+                try {
+                    client.register(nameState.value, emailState.value)
+                    toChats()
+                } catch (e: UserAlreadyRegisteredException) {
+                    emailErrorState.value = true
+                    emailErrorText.value = e.message!!
+                }
             }
         }
         SecondaryButton("Already have an account?", toLogin)

@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.spine.examples.chatspn.desktop.chat.ChatsPage
 import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
+import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
 
 /**
  * The root component of the application.
@@ -59,6 +60,7 @@ public fun App() {
         }
         Page.CHATS -> {
             val model = ChatsPageModel()
+            model.authorizedUser(client.authorizedUser!!)
             startChattingSimulation(model)
             ChatsPage(model)
         }

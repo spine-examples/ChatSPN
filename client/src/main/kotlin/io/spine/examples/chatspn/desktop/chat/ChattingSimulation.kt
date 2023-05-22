@@ -43,8 +43,8 @@ import kotlinx.coroutines.delay
  */
 @Composable
 public fun startChattingSimulation(model: ChatsPageModel) {
-    val vlad = "Vlad".toUserProfile()
-    model.authorizedUser(vlad)
+//    val vlad = "Vlad".toUserProfile()
+//    model.authorizedUser(vlad)
     val artem = "Artem".toUserProfile()
     val alex = "Alex".toUserProfile()
     val artemChatId = ChatId.generate()

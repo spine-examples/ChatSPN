@@ -29,6 +29,8 @@ package io.spine.examples.chatspn.desktop
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import io.spine.examples.chatspn.desktop.client.AccountNotFoundException
+import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
 
 /**
  * Represents the 'Login' page in the application.
@@ -56,7 +58,13 @@ public fun LoginPage(
                 emailErrorText.value = "Email field must not be empty"
             }
             if (!emailErrorState.value) {
-                toChats()
+                try {
+                    client.logIn(emailState.value)
+                    toChats()
+                } catch (e: AccountNotFoundException) {
+                    emailErrorState.value = true
+                    emailErrorText.value = e.message!!
+                }
             }
         }
         SecondaryButton("Don't have an account?", toRegistration)
