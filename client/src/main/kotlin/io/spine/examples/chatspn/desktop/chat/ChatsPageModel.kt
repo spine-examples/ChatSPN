@@ -27,9 +27,16 @@
 package io.spine.examples.chatspn.desktop.chat
 
 import com.google.protobuf.Timestamp
+import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
+import io.spine.examples.chatspn.chat.ChatPreview
+import io.spine.examples.chatspn.chat.MessagePreview
+import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
+import io.spine.examples.chatspn.message.MessageView
+import java.util.stream.Collectors
+import java.util.stream.Collectors.toList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -38,10 +45,15 @@ import kotlinx.coroutines.flow.StateFlow
  *
  * UI Model stores data that may be displayed by `@Composable` functions and updated by client.
  */
-public class ChatsPageModel {
-    private var authorizedUser: UserProfile? = null
+public class ChatsPageModel(public val authorizedUser: UserProfile) {
+    private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
+
+    init {
+        updateChats(client.readChats().toChatDataList())
+        client.subscribeOnChats { state -> updateChats(state.chatList.toChatDataList()) }
+    }
 
     /**
      * Returns the state of the user's chats.
@@ -60,18 +72,41 @@ public class ChatsPageModel {
         return chatMessagesStateMap[chat]!!
     }
 
-    /**
-     * Returns profile of the currently authorized user.
-     */
-    public fun authorizedUser(): UserProfile {
-        return authorizedUser!!
+    public fun selectedChat(): StateFlow<ChatId> {
+        return selectedChatState
     }
 
-    /**
-     * Adds the profile of the authorized user.
-     */
-    public fun authorizedUser(user: UserProfile) {
-        authorizedUser = user
+    public fun selectChat(chat: ChatId) {
+        selectedChatState.value = chat
+        updateMessages(chat, client.readMessages(chat).toMessageDataList())
+        client.clearMessagesSubscriptions()
+        client.subscribeOnMessages(chat,
+            { messageView ->
+                val message = messageView.toMessageData()
+                val chatMessages = chatMessagesStateMap[chat]!!.value
+                if (chatMessages.contains(message)) {
+                    val messageIndex = chatMessages.indexOf(message)
+                    val newChatMessages = chatMessages.subList(0, messageIndex) +
+                            message +
+                            chatMessages.subList(messageIndex + 1, chatMessages.size)
+                    updateMessages(chat, newChatMessages)
+                } else {
+                    updateMessages(chat, chatMessages + message)
+                }
+            },
+            { messageDeleted ->
+                val chatMessages = chatMessagesStateMap[chat]!!.value
+                val deletedMessages = chatMessages
+                    .stream()
+                    .filter { message -> message.id.equals(messageDeleted.id) }
+                    .collect(toList())
+                if (!deletedMessages.isEmpty()) {
+                    val messageIndex = chatMessages.indexOf(deletedMessages[0])
+                    val newChatMessages = chatMessages.subList(0, messageIndex) +
+                            chatMessages.subList(messageIndex + 1, chatMessages.size)
+                    updateMessages(chat, newChatMessages)
+                }
+            })
     }
 
     /**
@@ -84,12 +119,79 @@ public class ChatsPageModel {
     /**
      * Updates the model with new messages.
      */
-    public fun updateMessages(chat: ChatId, messages: MessageList) {
+    private fun updateMessages(chat: ChatId, messages: MessageList) {
         if (chatMessagesStateMap.containsKey(chat)) {
             chatMessagesStateMap[chat]!!.value = messages
         } else {
             chatMessagesStateMap[chat] = MutableStateFlow(messages)
         }
+    }
+}
+
+private fun List<ChatPreview>.toChatDataList(): ChatList {
+    return this.stream().map { chatPreview ->
+        val lastMessage: MessageData?
+        if (chatPreview.lastMessage.equals(MessagePreview.getDefaultInstance())) {
+            lastMessage = null
+        } else {
+            lastMessage = chatPreview.lastMessage.toMessageData();
+        }
+        ChatData(
+            chatPreview.id,
+            chatPreview.name(),
+            lastMessage
+        )
+    }.collect(Collectors.toList())
+}
+
+private fun List<MessageView>.toMessageDataList(): MessageList {
+    val users = mutableMapOf<UserId, UserProfile>();
+    val messages = this.stream().map { message ->
+        val user: UserProfile
+        if (users.containsKey(message.user)) {
+            user = users[message.user]!!
+        } else {
+            user = client.findUser(message.user)!!
+            users[message.user] = user
+        }
+        MessageData(
+            message.id,
+            user,
+            message.content,
+            message.whenPosted
+        )
+    }.collect(Collectors.toList())
+    return messages
+}
+
+private fun MessagePreview.toMessageData(): MessageData {
+    return MessageData(
+        this.id,
+        client.findUser(this.user)!!,
+        this.content,
+        this.whenPosted
+    )
+}
+
+private fun MessageView.toMessageData(): MessageData {
+    return MessageData(
+        this.id,
+        client.findUser(this.user)!!,
+        this.content,
+        this.whenPosted
+    )
+}
+
+private fun ChatPreview.name(): String {
+    if (this.hasGroupChat()) {
+        return this.groupChat.name
+    }
+    val creator = this.personalChat.creator
+    val member = this.personalChat.member
+    if (client.authorizedUser!!.id.equals(creator)) {
+        return client.findUser(member)!!.name
+    } else {
+        return client.findUser(creator)!!.name
     }
 }
 
