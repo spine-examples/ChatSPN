@@ -86,7 +86,7 @@ public class ChatsPageModel(private val client: ClientFacade) {
     public fun selectChat(chat: ChatId) {
         selectedChatState.value = chat
         updateMessages(chat, client.readMessages(chat).toMessageDataList())
-        client.clearMessagesSubscriptions()
+        client.cancelMessagesSubscriptions()
         client.subscribeOnMessages(chat,
             { messageView ->
                 val message = messageView.toMessageData()

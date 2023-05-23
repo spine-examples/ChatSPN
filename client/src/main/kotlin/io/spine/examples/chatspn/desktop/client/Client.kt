@@ -195,9 +195,9 @@ public class ClientFacade {
     }
 
     /**
-     * Clears all subscriptions on `authenticatedUser`'s chats changes.
+     * Cancel all subscriptions on `authenticatedUser`'s chats changes.
      */
-    public fun clearChatsSubscriptions() {
+    public fun cancelChatsSubscriptions() {
         userChatsSubscriptions.forEach { subscription ->
             client.subscriptions().cancel(subscription)
         }
@@ -248,9 +248,9 @@ public class ClientFacade {
     }
 
     /**
-     * Clears all subscriptions on messages in the chat.
+     * Cancel all subscriptions on messages in the chat.
      */
-    public fun clearMessagesSubscriptions() {
+    public fun cancelMessagesSubscriptions() {
         messagesSubscriptions.forEach { subscription ->
             client.subscriptions().cancel(subscription)
         }
