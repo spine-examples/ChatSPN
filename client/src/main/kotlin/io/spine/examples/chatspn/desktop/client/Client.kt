@@ -82,7 +82,7 @@ public class ClientFacade {
     /**
      * Sends command to register a new user.
      *
-     * @throws UserAlreadyRegisteredException if user with provided email is already exist
+     * @throws UserAlreadyRegisteredException if the user with provided email already exists
      * @return profile of the registered user
      */
     public fun register(name: String, email: String): UserProfile {
@@ -217,7 +217,7 @@ public class ClientFacade {
     /**
      * Subscribes actions on messages in the chat.
      *
-     * @param chat chat to subscribe on messages in
+     * @param chat id of the chat to subscribe on messages in
      * @param updateAction an action that will be triggered when a new chat message is posted,
      *                     or when an existing message is updated.
      * @param deleteAction an action that will be triggered when a message is deleted
@@ -324,7 +324,6 @@ public class ClientFacade {
                 future.complete(Pair(null, event))
                 client.subscriptions().cancel(successSubscription!!)
                 client.subscriptions().cancel(failSubscription!!)
-
             }
             .post()
 
