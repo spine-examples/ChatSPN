@@ -59,9 +59,7 @@ public fun App() {
             )
         }
         Page.CHATS -> {
-            val model = ChatsPageModel()
-            model.authorizedUser(client.authorizedUser!!)
-            startChattingSimulation(model)
+            val model = ChatsPageModel(client.authorizedUser!!)
             ChatsPage(model)
         }
     }

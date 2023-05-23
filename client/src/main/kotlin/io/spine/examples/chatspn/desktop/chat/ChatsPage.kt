@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
+import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -79,12 +80,9 @@ import java.util.*
 @Composable
 @Preview
 public fun ChatsPage(model: ChatsPageModel) {
-    var selectedChat by remember { mutableStateOf(ChatId.getDefaultInstance()) }
     Row {
-        LeftSidebar(model, selectedChat) { chat ->
-            selectedChat = chat
-        }
-        ChatContent(model, selectedChat)
+        LeftSidebar(model)
+        ChatContent(model)
     }
 }
 
@@ -93,9 +91,7 @@ public fun ChatsPage(model: ChatsPageModel) {
  */
 @Composable
 private fun LeftSidebar(
-    model: ChatsPageModel,
-    selectedChat: ChatId,
-    selectChat: (chat: ChatId) -> Unit
+    model: ChatsPageModel
 ) {
     Surface(
         Modifier
@@ -114,9 +110,9 @@ private fun LeftSidebar(
                 .fillMaxHeight()
                 .width(280.dp)
         ) {
-            UserProfilePanel(model.authorizedUser())
+            UserProfilePanel(model.authorizedUser)
             UserSearchField()
-            ChatList(model, selectedChat, selectChat)
+            ChatList(model)
         }
     }
 }
@@ -155,6 +151,7 @@ private fun UserProfilePanel(user: UserProfile) {
 @Composable
 private fun UserSearchField() {
     var inputText by remember { mutableStateOf("") }
+    var isError by remember { mutableStateOf(false) }
     TextField(
         modifier = Modifier
             .fillMaxWidth()
@@ -164,6 +161,7 @@ private fun UserSearchField() {
         placeholder = {
             Text(text = "example@mail.com")
         },
+        isError = isError,
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Email,
@@ -173,6 +171,7 @@ private fun UserSearchField() {
         singleLine = true,
         onValueChange = {
             inputText = it
+            isError = false
         },
         label = { Text(text = "Find user by email") },
         colors = TextFieldDefaults.textFieldColors(
@@ -185,6 +184,12 @@ private fun UserSearchField() {
                 Row(
                     modifier = Modifier
                         .clickable {
+                            val user = client.findUser(inputText)
+                            if (null != user) {
+                                client.createPersonalChat(user.id)
+                            } else {
+                                isError = true
+                            }
                             inputText = ""
                         }
                         .padding(5.dp),
@@ -206,12 +211,9 @@ private fun UserSearchField() {
  * Represents the list of chat previews.
  */
 @Composable
-private fun ChatList(
-    model: ChatsPageModel,
-    selectedChat: ChatId,
-    selectChat: (chat: ChatId) -> Unit
-) {
+private fun ChatList(model: ChatsPageModel) {
     val chats by model.chats().collectAsState()
+    val selectedChat by model.selectedChat().collectAsState()
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -223,7 +225,7 @@ private fun ChatList(
                     if (chat.lastMessage != null) chat.lastMessage.content else "",
                     chat.id.equals(selectedChat)
                 ) {
-                    selectChat(chat.id)
+                    model.selectChat(chat.id)
                 }
             }
         }
@@ -293,10 +295,8 @@ private fun ChatPreviewContent(
  * Represents the content of the selected chat.
  */
 @Composable
-private fun ChatContent(
-    model: ChatsPageModel,
-    selectedChat: ChatId
-) {
+private fun ChatContent(model: ChatsPageModel) {
+    val selectedChat by model.selectedChat().collectAsState()
     val chats by model.chats().collectAsState()
     val isChatSelected = chats
         .stream()
@@ -312,7 +312,7 @@ private fun ChatContent(
             Box(Modifier.weight(1f)) {
                 ChatMessages(model, selectedChat)
             }
-            SendMessageInput()
+            SendMessageInput(selectedChat)
         }
     }
 }
@@ -404,7 +404,7 @@ private fun ChatMessage(
     message: MessageData
 ) {
     val isMyMessage = message.sender.id
-        .equals(model.authorizedUser().id)
+        .equals(model.authorizedUser.id)
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart
@@ -480,7 +480,9 @@ private fun Timestamp.toStringTime(): String {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SendMessageInput() {
+private fun SendMessageInput(
+    selectedChat: ChatId
+) {
     var inputText by remember { mutableStateOf("") }
     TextField(
         modifier = Modifier
@@ -502,6 +504,7 @@ private fun SendMessageInput() {
                 Row(
                     modifier = Modifier
                         .clickable {
+                            client.sendMessage(selectedChat, inputText)
                             inputText = ""
                         }
                         .padding(10.dp),
