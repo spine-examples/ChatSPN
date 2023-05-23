@@ -30,21 +30,33 @@ import com.google.protobuf.Message
 import io.grpc.ManagedChannelBuilder
 import io.spine.base.CommandMessage
 import io.spine.base.EntityColumn
+import io.spine.base.EntityStateField
 import io.spine.base.EventMessage
 import io.spine.base.EventMessageField
 import io.spine.base.Field
 import io.spine.client.Client
 import io.spine.client.ClientRequest
 import io.spine.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT
+import io.spine.client.EntityStateFilter
 import io.spine.client.EventFilter
+import io.spine.client.OrderBy
+import io.spine.client.QueryFilter
 import io.spine.client.QueryFilter.eq
 import io.spine.client.Subscription
 import io.spine.core.UserId
 import io.spine.examples.chatspn.AccountCreationId
+import io.spine.examples.chatspn.ChatId
+import io.spine.examples.chatspn.MessageId
+import io.spine.examples.chatspn.account.UserChats
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.account.command.CreateAccount
 import io.spine.examples.chatspn.account.event.AccountCreated
 import io.spine.examples.chatspn.account.event.AccountNotCreated
+import io.spine.examples.chatspn.chat.ChatPreview
+import io.spine.examples.chatspn.chat.command.CreatePersonalChat
+import io.spine.examples.chatspn.message.MessageView
+import io.spine.examples.chatspn.message.command.SendMessage
+import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import io.spine.net.EmailAddress
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -52,6 +64,8 @@ import java.util.concurrent.TimeUnit
 public class ClientFacade private constructor() {
     public var authorizedUser: UserProfile? = null
     private val client: Client
+    private val userChatsSubscriptions = mutableListOf<Subscription>()
+    private val messagesSubscriptions = mutableListOf<Subscription>()
 
     init {
         val channel = ManagedChannelBuilder.forAddress(
@@ -89,9 +103,8 @@ public class ClientFacade private constructor() {
         throw AccountNotFoundException()
     }
 
-    private fun findUser(id: UserId): UserProfile? {
-        val profiles = client
-            .asGuest()
+    public fun findUser(id: UserId): UserProfile? {
+        val profiles = clientRequest()
             .select(UserProfile::class.java)
             .byId(id)
             .run()
@@ -106,8 +119,7 @@ public class ClientFacade private constructor() {
             .email()
             .field
             .toString()
-        val profiles = client
-            .asGuest()
+        val profiles = clientRequest()
             .select(UserProfile::class.java)
             .where(eq(EntityColumn(emailField), email.toEmail()))
             .run()
@@ -115,6 +127,87 @@ public class ClientFacade private constructor() {
             return null
         }
         return profiles[0]
+    }
+
+    public fun createPersonalChat(user: UserId) {
+        val command = createPersonalChatCommand(user, authorizedUser!!.id)
+        sendCommand(command)
+    }
+
+    public fun sendMessage(chat: ChatId, content: String) {
+        val command = sendMessageCommand(chat, authorizedUser!!.id, content)
+        sendCommand(command)
+    }
+
+    public fun readChats(): List<ChatPreview> {
+        val chats = clientRequest()
+            .select(UserChats::class.java)
+            .byId(authorizedUser!!.id)
+            .run()[0]
+        return chats.chatList;
+    }
+
+    public fun subscribeOnChats(subscriptionCallback: (state: UserChats) -> Unit) {
+        val subscription = clientRequest()
+            .subscribeTo(UserChats::class.java)
+            .byId(authorizedUser!!.id)
+            .observe(subscriptionCallback)
+            .post()
+        userChatsSubscriptions.add(subscription)
+    }
+
+    public fun clearChatsSubscriptions() {
+        userChatsSubscriptions.forEach { subscription ->
+            client.subscriptions().cancel(subscription)
+        }
+        userChatsSubscriptions.clear()
+    }
+
+    public fun readMessages(chat: ChatId): List<MessageView> {
+        val whenPostedField = MessageView.Field
+            .whenPosted()
+            .field
+            .toString()
+        val messages = clientRequest()
+            .select(MessageView::class.java)
+            .where(chatQueryFilter(chat))
+            .orderBy(EntityColumn(whenPostedField), OrderBy.Direction.ASCENDING)
+            .run()
+        return messages
+    }
+
+    public fun subscribeOnMessages(
+        chat: ChatId,
+        updateCallback: (message: MessageView) -> Unit,
+        removeCallback: (messageDeleted: MessageMarkedAsDeleted) -> Unit
+    ) {
+        val updateSubscription = clientRequest()
+            .subscribeTo(MessageView::class.java)
+            .where(chatStateFilter(chat))
+            .observe(updateCallback)
+            .post()
+        val deletionSubscription = clientRequest()
+            .subscribeToEvent(MessageMarkedAsDeleted::class.java)
+            .where(chatEventFilter(chat))
+            .observe(removeCallback)
+            .post()
+        messagesSubscriptions.add(updateSubscription)
+        messagesSubscriptions.add(deletionSubscription)
+    }
+
+    public fun clearMessagesSubscriptions() {
+        messagesSubscriptions.forEach { subscription ->
+            client.subscriptions().cancel(subscription)
+        }
+        messagesSubscriptions.clear()
+    }
+
+    private fun clientRequest(): ClientRequest {
+        if (null == authorizedUser) {
+            return client.asGuest()
+        }
+        return client.onBehalfOf(authorizedUser!!.id)
+
     }
 
     private fun sendCommand(command: CommandMessage) {
@@ -135,8 +228,7 @@ public class ClientFacade private constructor() {
     ): CompletableFuture<E> {
         val future: CompletableFuture<E> = CompletableFuture()
         var subscription: Subscription? = null
-        subscription = client
-            .asGuest()
+        subscription = clientRequest()
             .subscribeToEvent(event)
             .where(EventFilter.eq(EventMessageField(Field.named("id")), id))
             .observe { event ->
@@ -155,8 +247,7 @@ public class ClientFacade private constructor() {
         val future: CompletableFuture<Pair<S?, F?>> = CompletableFuture()
         var successSubscription: Subscription? = null
         var failSubscription: Subscription? = null
-        successSubscription = client
-            .asGuest()
+        successSubscription = clientRequest()
             .subscribeToEvent(success)
             .where(EventFilter.eq(EventMessageField(Field.named("id")), id))
             .observe { event ->
@@ -166,8 +257,7 @@ public class ClientFacade private constructor() {
             }
             .post()
 
-        failSubscription = client
-            .asGuest()
+        failSubscription = clientRequest()
             .subscribeToEvent(fail)
             .where(EventFilter.eq(EventMessageField(Field.named("id")), id))
             .observe { event ->
@@ -182,7 +272,7 @@ public class ClientFacade private constructor() {
     }
 
     public companion object {
-        public var client: ClientFacade = ClientFacade()
+        public val client: ClientFacade = ClientFacade()
     }
 }
 
@@ -193,6 +283,25 @@ private fun createAccount(name: String, email: String): CreateAccount {
         .setUser(email.toUserId())
         .setEmail(email.toEmail())
         .setName(name)
+        .vBuild()
+}
+
+private fun createPersonalChatCommand(creator: UserId, member: UserId): CreatePersonalChat {
+    return CreatePersonalChat
+        .newBuilder()
+        .setId(ChatId.generate())
+        .setCreator(creator)
+        .setMember(member)
+        .vBuild()
+}
+
+private fun sendMessageCommand(chatId: ChatId, userId: UserId, content: String): SendMessage {
+    return SendMessage
+        .newBuilder()
+        .setId(MessageId.generate())
+        .setChat(chatId)
+        .setUser(userId)
+        .setContent(content)
         .vBuild()
 }
 
@@ -214,4 +323,25 @@ private fun String.toUserId(): UserId {
         .newBuilder()
         .setValue(this)
         .vBuild()
+}
+
+private fun chatQueryFilter(chat: ChatId): QueryFilter {
+    val chatField = MessageView.Field
+        .chat()
+        .field
+        .toString()
+    return eq(EntityColumn(chatField), chat)
+}
+
+private fun chatStateFilter(chat: ChatId): EntityStateFilter? {
+    val chatField = MessageView.Field
+        .chat()
+        .field
+    return EntityStateFilter.eq(EntityStateField(chatField), chat)
+}
+
+private fun chatEventFilter(chat: ChatId): EventFilter? {
+    val chatField = MessageMarkedAsDeleted.Field
+        .chat()
+    return EventFilter.eq(chatField, chat)
 }
