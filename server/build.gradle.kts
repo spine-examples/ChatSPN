@@ -48,5 +48,5 @@ dependencies {
 }
 
 application {
-    mainClassName  = "io.spine.examples.chatspn.server.ChatSpnServer"
+    mainClass.set("io.spine.examples.chatspn.server.ChatSpnServer")
 }
