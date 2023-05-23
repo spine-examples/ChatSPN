@@ -92,7 +92,9 @@ public class ClientFacade {
             AccountNotCreated::class.java,
             command.id
         )
-        sendCommand(command)
+        clientRequest()
+            .command(command)
+            .postAndForget()
 
         val pair = future.get(10, TimeUnit.SECONDS)
         if (null != pair.first) {
@@ -154,7 +156,9 @@ public class ClientFacade {
      */
     public fun createPersonalChat(user: UserId) {
         val command = createPersonalChatCommand(user, authenticatedUser!!.id)
-        sendCommand(command)
+        clientRequest()
+            .command(command)
+            .postAndForget()
     }
 
     /**
@@ -162,7 +166,9 @@ public class ClientFacade {
      */
     public fun sendMessage(chat: ChatId, content: String) {
         val command = sendMessageCommand(chat, authenticatedUser!!.id, content)
-        sendCommand(command)
+        clientRequest()
+            .command(command)
+            .postAndForget()
     }
 
     /**
@@ -261,15 +267,6 @@ public class ClientFacade {
         }
         return client.onBehalfOf(authenticatedUser!!.id)
 
-    }
-
-    /**
-     * Sends command.
-     */
-    private fun sendCommand(command: CommandMessage) {
-        clientRequest()
-            .command(command)
-            .postAndForget()
     }
 
     /**
