@@ -259,9 +259,8 @@ public class ChatsPageModel(private val client: ClientFacade) {
         val member = this.personalChat.member
         if (client.authenticatedUser!!.id.equals(creator)) {
             return client.findUser(member)!!.name
-        } else {
-            return client.findUser(creator)!!.name
         }
+        return client.findUser(creator)!!.name
     }
 }
 
