@@ -141,7 +141,7 @@ public class ClientFacade private constructor() {
             .toString()
         val profiles = clientRequest()
             .select(UserProfile::class.java)
-            .where(eq(EntityColumn(emailField), email.toEmail()))
+            .where(QueryFilter.eq(EntityColumn(emailField), email.toEmail()))
             .run()
         if (profiles.isEmpty()) {
             return null
@@ -183,7 +183,7 @@ public class ClientFacade private constructor() {
         val subscription = clientRequest()
             .subscribeTo(UserChats::class.java)
             .byId(authenticatedUser!!.id)
-            .observe(subscriptionCallback)
+            .observe(action)
             .post()
         userChatsSubscriptions.add(subscription)
     }
@@ -208,7 +208,7 @@ public class ClientFacade private constructor() {
             .toString()
         val messages = clientRequest()
             .select(MessageView::class.java)
-            .where(chatQueryFilter(chat))
+            .where(chat.queryFilter())
             .orderBy(EntityColumn(whenPostedField), OrderBy.Direction.ASCENDING)
             .run()
         return messages
@@ -224,18 +224,18 @@ public class ClientFacade private constructor() {
      */
     public fun subscribeOnMessages(
         chat: ChatId,
-        updateCallback: (message: MessageView) -> Unit,
-        removeCallback: (messageDeleted: MessageMarkedAsDeleted) -> Unit
+        updateAction: (message: MessageView) -> Unit,
+        deleteAction: (messageDeleted: MessageMarkedAsDeleted) -> Unit
     ) {
         val updateSubscription = clientRequest()
             .subscribeTo(MessageView::class.java)
-            .where(chatStateFilter(chat))
-            .observe(updateCallback)
+            .where(chat.stateFilter())
+            .observe(updateAction)
             .post()
         val deletionSubscription = clientRequest()
             .subscribeToEvent(MessageMarkedAsDeleted::class.java)
-            .where(chatEventFilter(chat))
-            .observe(removeCallback)
+            .where(chat.eventFilter())
+            .observe(deleteAction)
             .post()
         messagesSubscriptions.add(updateSubscription)
         messagesSubscriptions.add(deletionSubscription)
@@ -402,24 +402,24 @@ private fun ChatId.queryFilter(): QueryFilter {
         .chat()
         .field
         .toString()
-    return eq(EntityColumn(chatField), chat)
+    return QueryFilter.eq(EntityColumn(chatField), this)
 }
 
-private fun chatStateFilter(chat: ChatId): EntityStateFilter? {
 /**
  * Creates `EntityStateFilter` to filter `chat` field equality.
  */
+private fun ChatId.stateFilter(): EntityStateFilter? {
     val chatField = MessageView.Field
         .chat()
         .field
-    return EntityStateFilter.eq(EntityStateField(chatField), chat)
+    return EntityStateFilter.eq(EntityStateField(chatField), this)
 }
 
-private fun chatEventFilter(chat: ChatId): EventFilter? {
 /**
  * Creates `EventFilter` to filter `chat` field equality.
  */
+private fun ChatId.eventFilter(): EventFilter? {
     val chatField = MessageMarkedAsDeleted.Field
         .chat()
-    return EventFilter.eq(chatField, chat)
+    return EventFilter.eq(chatField, this)
 }
