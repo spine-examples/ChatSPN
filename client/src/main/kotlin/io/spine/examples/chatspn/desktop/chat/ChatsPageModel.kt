@@ -43,7 +43,7 @@ import kotlinx.coroutines.flow.StateFlow
 /**
  * UI Model for the `ChatsPage`.
  *
- * UI Model stores data that may be displayed by `@Composable` functions and updated by client.
+ * UI Model is a layer between `@Composable` functions and client.
  */
 public class ChatsPageModel(public val authenticatedUser: UserProfile) {
     private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
@@ -72,10 +72,16 @@ public class ChatsPageModel(public val authenticatedUser: UserProfile) {
         return chatMessagesStateMap[chat]!!
     }
 
+    /**
+     * Returns the state of selected chat.
+     */
     public fun selectedChat(): StateFlow<ChatId> {
         return selectedChatState
     }
 
+    /**
+     * Selects provided chat.
+     */
     public fun selectChat(chat: ChatId) {
         selectedChatState.value = chat
         updateMessages(chat, client.readMessages(chat).toMessageDataList())
@@ -112,7 +118,7 @@ public class ChatsPageModel(public val authenticatedUser: UserProfile) {
     /**
      * Updates the model with new chats.
      */
-    public fun updateChats(chats: ChatList) {
+    private fun updateChats(chats: ChatList) {
         chatPreviewsState.value = chats
     }
 
@@ -128,6 +134,9 @@ public class ChatsPageModel(public val authenticatedUser: UserProfile) {
     }
 }
 
+/**
+ * Converts the `ChatPreview` list to a `ChatData` list.
+ */
 private fun List<ChatPreview>.toChatDataList(): ChatList {
     return this.stream().map { chatPreview ->
         val lastMessage: MessageData?
@@ -144,6 +153,9 @@ private fun List<ChatPreview>.toChatDataList(): ChatList {
     }.collect(Collectors.toList())
 }
 
+/**
+ * Converts the `MessageView` list to a `MessageData` list.
+ */
 private fun List<MessageView>.toMessageDataList(): MessageList {
     val users = mutableMapOf<UserId, UserProfile>();
     val messages = this.stream().map { message ->
@@ -164,6 +176,9 @@ private fun List<MessageView>.toMessageDataList(): MessageList {
     return messages
 }
 
+/**
+ * Converts the `MessagePreview` to a `MessageData`.
+ */
 private fun MessagePreview.toMessageData(): MessageData {
     return MessageData(
         this.id,
@@ -173,6 +188,9 @@ private fun MessagePreview.toMessageData(): MessageData {
     )
 }
 
+/**
+ * Converts the `MessageView` to a `MessageData`.
+ */
 private fun MessageView.toMessageData(): MessageData {
     return MessageData(
         this.id,
@@ -182,6 +200,9 @@ private fun MessageView.toMessageData(): MessageData {
     )
 }
 
+/**
+ * Extracts the name of the chat.
+ */
 private fun ChatPreview.name(): String {
     if (this.hasGroupChat()) {
         return this.groupChat.name
