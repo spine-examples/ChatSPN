@@ -87,15 +87,13 @@ public class ChatsPageModel(private val client: ClientFacade) {
         selectedChatState.value = chat
         updateMessages(chat, client.readMessages(chat).toMessageDataList())
         client.cancelMessagesSubscriptions()
-        client.subscribeOnMessages(chat,
+        client.subscribeOnMessages(
+            chat,
             { messageView ->
                 val message = messageView.toMessageData()
                 val chatMessages = chatMessagesStateMap[chat]!!.value
                 if (chatMessages.contains(message)) {
-                    val messageIndex = chatMessages.indexOf(message)
-                    val newChatMessages = chatMessages.subList(0, messageIndex) +
-                            message +
-                            chatMessages.subList(messageIndex + 1, chatMessages.size)
+                    val newChatMessages = replaceMessage(chatMessages, message)
                     updateMessages(chat, newChatMessages)
                 } else {
                     updateMessages(chat, chatMessages + message)
@@ -103,17 +101,39 @@ public class ChatsPageModel(private val client: ClientFacade) {
             },
             { messageDeleted ->
                 val chatMessages = chatMessagesStateMap[chat]!!.value
-                val deletedMessages = chatMessages
-                    .stream()
-                    .filter { message -> message.id.equals(messageDeleted.id) }
-                    .collect(toList())
-                if (!deletedMessages.isEmpty()) {
-                    val messageIndex = chatMessages.indexOf(deletedMessages[0])
+                val message = findMessage(chatMessages, messageDeleted.id)
+                if (message != null) {
+                    val messageIndex = chatMessages.indexOf(message)
                     val newChatMessages = chatMessages.subList(0, messageIndex) +
                             chatMessages.subList(messageIndex + 1, chatMessages.size)
                     updateMessages(chat, newChatMessages)
                 }
             })
+    }
+
+    /**
+     * Returns the new list with the replaced message.
+     */
+    private fun replaceMessage(messages: MessageList, newMessage: MessageData): MessageList {
+        val oldMessage = findMessage(messages, newMessage.id)
+        val messageIndex = messages.indexOf(oldMessage)
+        val leftPart = messages.subList(0, messageIndex)
+        val rightPart = messages.subList(messageIndex + 1, messages.size)
+        return leftPart + newMessage + rightPart
+    }
+
+    /**
+     * Finds message in the list by id.
+     */
+    private fun findMessage(messages: MessageList, id: MessageId): MessageData? {
+        val message = messages
+            .stream()
+            .filter { message -> message.id.equals(id) }
+            .collect(toList())
+        if (message.isEmpty()) {
+            return null
+        }
+        return message[0]
     }
 
     /**
