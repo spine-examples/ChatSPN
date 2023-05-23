@@ -26,4 +26,7 @@
 
 package io.spine.examples.chatspn.desktop.client
 
-public class AccountNotFoundException : Exception("Account with this email doesn't exist")
+/**
+ * Throws when an account with the provided credentials does not exist.
+ */
+public class IncorrectCredentialsException : Exception("Account with this credentials doesn't exist")

@@ -28,7 +28,6 @@ package io.spine.examples.chatspn.desktop.client
 
 import com.google.protobuf.Message
 import io.grpc.ManagedChannelBuilder
-import io.spine.base.CommandMessage
 import io.spine.base.EntityColumn
 import io.spine.base.EntityStateField
 import io.spine.base.EventMessage
@@ -107,7 +106,7 @@ public class ClientFacade {
     /**
      * Authenticates the user.
      *
-     * @throws AccountNotFoundException if the user with the provided credentials doesn't exist
+     * @throws IncorrectCredentialsException if the user with the provided credentials doesn't exist
      * @return profile of the authenticated user
      */
     public fun logIn(email: String): UserProfile {
@@ -116,7 +115,7 @@ public class ClientFacade {
             authenticatedUser = user
             return authenticatedUser!!
         }
-        throw AccountNotFoundException()
+        throw IncorrectCredentialsException()
     }
 
     /**

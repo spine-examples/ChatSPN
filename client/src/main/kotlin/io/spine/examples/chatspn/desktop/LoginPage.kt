@@ -29,7 +29,7 @@ package io.spine.examples.chatspn.desktop
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import io.spine.examples.chatspn.desktop.client.AccountNotFoundException
+import io.spine.examples.chatspn.desktop.client.IncorrectCredentialsException
 import io.spine.examples.chatspn.desktop.client.ClientFacade
 
 /**
@@ -62,7 +62,7 @@ public fun LoginPage(
                 try {
                     client.logIn(emailState.value)
                     toChats()
-                } catch (e: AccountNotFoundException) {
+                } catch (e: IncorrectCredentialsException) {
                     emailErrorState.value = true
                     emailErrorText.value = e.message!!
                 }
