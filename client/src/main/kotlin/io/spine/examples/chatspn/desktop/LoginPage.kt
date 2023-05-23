@@ -30,7 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import io.spine.examples.chatspn.desktop.client.AccountNotFoundException
-import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
+import io.spine.examples.chatspn.desktop.client.ClientFacade
 
 /**
  * Represents the 'Login' page in the application.
@@ -39,6 +39,7 @@ import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
 public fun LoginPage(
     toRegistration: () -> Unit,
     toChats: () -> Unit,
+    client: ClientFacade,
 ) {
     val emailState = remember { mutableStateOf("") }
     val emailErrorState = remember { mutableStateOf(false) }

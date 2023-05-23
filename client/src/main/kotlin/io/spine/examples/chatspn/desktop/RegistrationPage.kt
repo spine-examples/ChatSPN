@@ -29,7 +29,7 @@ package io.spine.examples.chatspn.desktop
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
+import io.spine.examples.chatspn.desktop.client.ClientFacade
 import io.spine.examples.chatspn.desktop.client.UserAlreadyRegisteredException
 
 /**
@@ -39,6 +39,7 @@ import io.spine.examples.chatspn.desktop.client.UserAlreadyRegisteredException
 public fun RegistrationPage(
     toLogin: () -> Unit,
     toChats: () -> Unit,
+    client: ClientFacade
 ) {
     val emailState = remember { mutableStateOf("") }
     val emailErrorState = remember { mutableStateOf(false) }

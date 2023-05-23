@@ -63,7 +63,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Provides API to communicate with ChatSpn server.
  */
-public class ClientFacade private constructor() {
+public class ClientFacade {
     public var authenticatedUser: UserProfile? = null
     private val client: Client
     private val userChatsSubscriptions = mutableListOf<Subscription>()
@@ -329,10 +329,6 @@ public class ClientFacade private constructor() {
             .post()
 
         return future
-    }
-
-    public companion object {
-        public val client: ClientFacade = ClientFacade()
     }
 }
 

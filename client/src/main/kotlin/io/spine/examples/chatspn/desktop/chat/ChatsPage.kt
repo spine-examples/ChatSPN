@@ -70,7 +70,6 @@ import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
-import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -111,7 +110,7 @@ private fun LeftSidebar(
                 .width(280.dp)
         ) {
             UserProfilePanel(model.authenticatedUser)
-            UserSearchField()
+            UserSearchField(model)
             ChatList(model)
         }
     }
@@ -149,7 +148,7 @@ private fun UserProfilePanel(user: UserProfile) {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun UserSearchField() {
+private fun UserSearchField(model: ChatsPageModel) {
     var inputText by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
     TextField(
@@ -184,9 +183,9 @@ private fun UserSearchField() {
                 Row(
                     modifier = Modifier
                         .clickable {
-                            val user = client.findUser(inputText)
+                            val user = model.findUser(inputText)
                             if (null != user) {
-                                client.createPersonalChat(user.id)
+                                model.createPersonalChat(user.id)
                             } else {
                                 isError = true
                             }
@@ -312,7 +311,7 @@ private fun ChatContent(model: ChatsPageModel) {
             Box(Modifier.weight(1f)) {
                 ChatMessages(model, selectedChat)
             }
-            SendMessageInput(selectedChat)
+            SendMessageInput(model)
         }
     }
 }
@@ -481,7 +480,7 @@ private fun Timestamp.toStringTime(): String {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SendMessageInput(
-    selectedChat: ChatId
+    model: ChatsPageModel
 ) {
     var inputText by remember { mutableStateOf("") }
     TextField(
@@ -504,7 +503,7 @@ private fun SendMessageInput(
                 Row(
                     modifier = Modifier
                         .clickable {
-                            client.sendMessage(selectedChat, inputText)
+                            model.sendMessage(inputText)
                             inputText = ""
                         }
                         .padding(10.dp),

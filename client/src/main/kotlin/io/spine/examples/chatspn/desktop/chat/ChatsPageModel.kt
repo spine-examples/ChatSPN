@@ -33,7 +33,7 @@ import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
-import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
+import io.spine.examples.chatspn.desktop.client.ClientFacade
 import io.spine.examples.chatspn.message.MessageView
 import java.util.stream.Collectors
 import java.util.stream.Collectors.toList
@@ -45,7 +45,8 @@ import kotlinx.coroutines.flow.StateFlow
  *
  * UI Model is a layer between `@Composable` functions and client.
  */
-public class ChatsPageModel(public val authenticatedUser: UserProfile) {
+public class ChatsPageModel(private val client: ClientFacade) {
+    public val authenticatedUser: UserProfile = client.authenticatedUser!!
     private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
@@ -116,6 +117,34 @@ public class ChatsPageModel(public val authenticatedUser: UserProfile) {
     }
 
     /**
+     * Finds user by id.
+     */
+    public fun findUser(userId: UserId): UserProfile? {
+        return client.findUser(userId)
+    }
+
+    /**
+     * Finds user by email.
+     */
+    public fun findUser(email: String): UserProfile? {
+        return client.findUser(email)
+    }
+
+    /**
+     * Sends message to the selected chat.
+     */
+    public fun sendMessage(content: String) {
+        client.sendMessage(selectedChatState.value, content)
+    }
+
+    /**
+     * Creates a new personal chat.
+     */
+    public fun createPersonalChat(user: UserId) {
+        client.createPersonalChat(user)
+    }
+
+    /**
      * Updates the model with new chats.
      */
     private fun updateChats(chats: ChatList) {
@@ -132,87 +161,87 @@ public class ChatsPageModel(public val authenticatedUser: UserProfile) {
             chatMessagesStateMap[chat] = MutableStateFlow(messages)
         }
     }
-}
 
-/**
- * Converts the `ChatPreview` list to a `ChatData` list.
- */
-private fun List<ChatPreview>.toChatDataList(): ChatList {
-    return this.stream().map { chatPreview ->
-        val lastMessage: MessageData?
-        if (chatPreview.lastMessage.equals(MessagePreview.getDefaultInstance())) {
-            lastMessage = null
-        } else {
-            lastMessage = chatPreview.lastMessage.toMessageData();
-        }
-        ChatData(
-            chatPreview.id,
-            chatPreview.name(),
-            lastMessage
-        )
-    }.collect(Collectors.toList())
-}
-
-/**
- * Converts the `MessageView` list to a `MessageData` list.
- */
-private fun List<MessageView>.toMessageDataList(): MessageList {
-    val users = mutableMapOf<UserId, UserProfile>();
-    val messages = this.stream().map { message ->
-        val user: UserProfile
-        if (users.containsKey(message.user)) {
-            user = users[message.user]!!
-        } else {
-            user = client.findUser(message.user)!!
-            users[message.user] = user
-        }
-        MessageData(
-            message.id,
-            user,
-            message.content,
-            message.whenPosted
-        )
-    }.collect(Collectors.toList())
-    return messages
-}
-
-/**
- * Converts the `MessagePreview` to a `MessageData`.
- */
-private fun MessagePreview.toMessageData(): MessageData {
-    return MessageData(
-        this.id,
-        client.findUser(this.user)!!,
-        this.content,
-        this.whenPosted
-    )
-}
-
-/**
- * Converts the `MessageView` to a `MessageData`.
- */
-private fun MessageView.toMessageData(): MessageData {
-    return MessageData(
-        this.id,
-        client.findUser(this.user)!!,
-        this.content,
-        this.whenPosted
-    )
-}
-
-/**
- * Extracts the name of the chat.
- */
-private fun ChatPreview.name(): String {
-    if (this.hasGroupChat()) {
-        return this.groupChat.name
+    /**
+     * Converts the `ChatPreview` list to a `ChatData` list.
+     */
+    private fun List<ChatPreview>.toChatDataList(): ChatList {
+        return this.stream().map { chatPreview ->
+            val lastMessage: MessageData?
+            if (chatPreview.lastMessage.equals(MessagePreview.getDefaultInstance())) {
+                lastMessage = null
+            } else {
+                lastMessage = chatPreview.lastMessage.toMessageData();
+            }
+            ChatData(
+                chatPreview.id,
+                chatPreview.name(),
+                lastMessage
+            )
+        }.collect(Collectors.toList())
     }
-    val creator = this.personalChat.creator
-    val member = this.personalChat.member
-    if (client.authenticatedUser!!.id.equals(creator)) {
-        return client.findUser(member)!!.name
-    } else {
-        return client.findUser(creator)!!.name
+
+    /**
+     * Converts the `MessageView` list to a `MessageData` list.
+     */
+    private fun List<MessageView>.toMessageDataList(): MessageList {
+        val users = mutableMapOf<UserId, UserProfile>();
+        val messages = this.stream().map { message ->
+            val user: UserProfile
+            if (users.containsKey(message.user)) {
+                user = users[message.user]!!
+            } else {
+                user = client.findUser(message.user)!!
+                users[message.user] = user
+            }
+            MessageData(
+                message.id,
+                user,
+                message.content,
+                message.whenPosted
+            )
+        }.collect(Collectors.toList())
+        return messages
+    }
+
+    /**
+     * Converts the `MessagePreview` to a `MessageData`.
+     */
+    private fun MessagePreview.toMessageData(): MessageData {
+        return MessageData(
+            this.id,
+            client.findUser(this.user)!!,
+            this.content,
+            this.whenPosted
+        )
+    }
+
+    /**
+     * Converts the `MessageView` to a `MessageData`.
+     */
+    private fun MessageView.toMessageData(): MessageData {
+        return MessageData(
+            this.id,
+            client.findUser(this.user)!!,
+            this.content,
+            this.whenPosted
+        )
+    }
+
+    /**
+     * Extracts the name of the chat.
+     */
+    private fun ChatPreview.name(): String {
+        if (this.hasGroupChat()) {
+            return this.groupChat.name
+        }
+        val creator = this.personalChat.creator
+        val member = this.personalChat.member
+        if (client.authenticatedUser!!.id.equals(creator)) {
+            return client.findUser(member)!!.name
+        } else {
+            return client.findUser(creator)!!.name
+        }
     }
 }
 

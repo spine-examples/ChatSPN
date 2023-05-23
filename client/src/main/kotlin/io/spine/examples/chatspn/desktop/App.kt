@@ -34,7 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.spine.examples.chatspn.desktop.chat.ChatsPage
 import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
-import io.spine.examples.chatspn.desktop.client.ClientFacade.Companion.client
+import io.spine.examples.chatspn.desktop.client.ClientFacade
+
+private val client = ClientFacade()
 
 /**
  * The root component of the application.
@@ -49,17 +51,19 @@ public fun App() {
         Page.REGISTRATION -> {
             RegistrationPage(
                 toLogin = { page = Page.LOGIN },
-                toChats = { page = Page.CHATS }
+                toChats = { page = Page.CHATS },
+                client
             )
         }
         Page.LOGIN -> {
             LoginPage(
                 toRegistration = { page = Page.REGISTRATION },
-                toChats = { page = Page.CHATS }
+                toChats = { page = Page.CHATS },
+                client
             )
         }
         Page.CHATS -> {
-            val model = ChatsPageModel(client.authenticatedUser!!)
+            val model = ChatsPageModel(client)
             ChatsPage(model)
         }
     }
