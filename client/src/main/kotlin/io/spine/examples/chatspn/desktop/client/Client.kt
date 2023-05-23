@@ -41,7 +41,6 @@ import io.spine.client.EntityStateFilter
 import io.spine.client.EventFilter
 import io.spine.client.OrderBy
 import io.spine.client.QueryFilter
-import io.spine.client.QueryFilter.eq
 import io.spine.client.Subscription
 import io.spine.core.UserId
 import io.spine.examples.chatspn.AccountCreationId
@@ -61,6 +60,9 @@ import io.spine.net.EmailAddress
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
+/**
+ * Provides API to communicate with ChatSpn server.
+ */
 public class ClientFacade private constructor() {
     public var authenticatedUser: UserProfile? = null
     private val client: Client
@@ -77,6 +79,12 @@ public class ClientFacade private constructor() {
         client = Client.usingChannel(channel).build()
     }
 
+    /**
+     * Sends command to register a new user.
+     *
+     * @throws UserAlreadyRegisteredException if user with provided email is already exist
+     * @return profile of the registered user
+     */
     public fun register(name: String, email: String): UserProfile {
         val command = createAccount(name, email)
         val future = subscribeToCommandOutcome(
@@ -94,6 +102,12 @@ public class ClientFacade private constructor() {
         throw UserAlreadyRegisteredException()
     }
 
+    /**
+     * Authenticates the user.
+     *
+     * @throws AccountNotFoundException if the user with the provided credentials doesn't exist
+     * @return profile of the authenticated user
+     */
     public fun logIn(email: String): UserProfile {
         val user = findUser(email)
         if (null != user) {
@@ -103,6 +117,9 @@ public class ClientFacade private constructor() {
         throw AccountNotFoundException()
     }
 
+    /**
+     * Finds user by id.
+     */
     public fun findUser(id: UserId): UserProfile? {
         val profiles = clientRequest()
             .select(UserProfile::class.java)
@@ -114,6 +131,9 @@ public class ClientFacade private constructor() {
         return profiles[0]
     }
 
+    /**
+     * Finds user by email.
+     */
     public fun findUser(email: String): UserProfile? {
         val emailField = UserProfile.Field
             .email()
@@ -129,16 +149,25 @@ public class ClientFacade private constructor() {
         return profiles[0]
     }
 
+    /**
+     * Creates a new personal chat.
+     */
     public fun createPersonalChat(user: UserId) {
         val command = createPersonalChatCommand(user, authenticatedUser!!.id)
         sendCommand(command)
     }
 
+    /**
+     * Sends message to the chat.
+     */
     public fun sendMessage(chat: ChatId, content: String) {
         val command = sendMessageCommand(chat, authenticatedUser!!.id, content)
         sendCommand(command)
     }
 
+    /**
+     * Returns chats that `authenticatedUser` is a member of.
+     */
     public fun readChats(): List<ChatPreview> {
         val chats = clientRequest()
             .select(UserChats::class.java)
@@ -147,7 +176,10 @@ public class ClientFacade private constructor() {
         return chats.chatList;
     }
 
-    public fun subscribeOnChats(subscriptionCallback: (state: UserChats) -> Unit) {
+    /**
+     * Subscribes `action` on `authenticatedUser`'s chats changes.
+     */
+    public fun subscribeOnChats(action: (state: UserChats) -> Unit) {
         val subscription = clientRequest()
             .subscribeTo(UserChats::class.java)
             .byId(authenticatedUser!!.id)
@@ -156,6 +188,9 @@ public class ClientFacade private constructor() {
         userChatsSubscriptions.add(subscription)
     }
 
+    /**
+     * Clears all subscriptions on `authenticatedUser`'s chats changes.
+     */
     public fun clearChatsSubscriptions() {
         userChatsSubscriptions.forEach { subscription ->
             client.subscriptions().cancel(subscription)
@@ -163,6 +198,9 @@ public class ClientFacade private constructor() {
         userChatsSubscriptions.clear()
     }
 
+    /**
+     * Returns messages from the provided chat.
+     */
     public fun readMessages(chat: ChatId): List<MessageView> {
         val whenPostedField = MessageView.Field
             .whenPosted()
@@ -176,6 +214,14 @@ public class ClientFacade private constructor() {
         return messages
     }
 
+    /**
+     * Subscribes actions on messages in the chat.
+     *
+     * @param chat chat to subscribe on messages in
+     * @param updateAction an action that will be triggered when a new chat message is posted,
+     *                     or when an existing message is updated.
+     * @param deleteAction an action that will be triggered when a message is deleted
+     */
     public fun subscribeOnMessages(
         chat: ChatId,
         updateCallback: (message: MessageView) -> Unit,
@@ -195,6 +241,9 @@ public class ClientFacade private constructor() {
         messagesSubscriptions.add(deletionSubscription)
     }
 
+    /**
+     * Clears all subscriptions on messages in the chat.
+     */
     public fun clearMessagesSubscriptions() {
         messagesSubscriptions.forEach { subscription ->
             client.subscriptions().cancel(subscription)
@@ -202,6 +251,10 @@ public class ClientFacade private constructor() {
         messagesSubscriptions.clear()
     }
 
+    /**
+     * Provides `ClientRequest` on behalf of `authenticatedUser` if it exists,
+     * or as guest if it doesn't.
+     */
     private fun clientRequest(): ClientRequest {
         if (null == authenticatedUser) {
             return client.asGuest()
@@ -210,18 +263,20 @@ public class ClientFacade private constructor() {
 
     }
 
+    /**
+     * Sends command.
+     */
     private fun sendCommand(command: CommandMessage) {
-        val clientRequest: ClientRequest
-        if (null == authenticatedUser) {
-            clientRequest = client.asGuest()
-        } else {
-            clientRequest = client.onBehalfOf(authenticatedUser!!.id)
-        }
-        clientRequest
+        clientRequest()
             .command(command)
             .postAndForget()
     }
 
+    /**
+     * Subscribes a `CompletableFuture` to the provided event.
+     *
+     * `CompletableFuture` will be completed when the event is emitted.
+     */
     private fun <E : EventMessage> subscribeToCommandOutcome(
         event: Class<E>,
         id: Message
@@ -239,6 +294,11 @@ public class ClientFacade private constructor() {
         return future
     }
 
+    /**
+     * Subscribes a `CompletableFuture` to the provided events.
+     *
+     * `CompletableFuture` will be completed when at least one of the events is emitted.
+     */
     private fun <S : EventMessage, F : EventMessage> subscribeToCommandOutcome(
         success: Class<S>,
         fail: Class<F>,
@@ -276,6 +336,9 @@ public class ClientFacade private constructor() {
     }
 }
 
+/**
+ * Creates `CreateAccount` command.
+ */
 private fun createAccount(name: String, email: String): CreateAccount {
     return CreateAccount
         .newBuilder()
@@ -286,6 +349,9 @@ private fun createAccount(name: String, email: String): CreateAccount {
         .vBuild()
 }
 
+/**
+ * Creates `CreatePersonalChat` command.
+ */
 private fun createPersonalChatCommand(creator: UserId, member: UserId): CreatePersonalChat {
     return CreatePersonalChat
         .newBuilder()
@@ -295,6 +361,9 @@ private fun createPersonalChatCommand(creator: UserId, member: UserId): CreatePe
         .vBuild()
 }
 
+/**
+ * Creates `SendMessage` command.
+ */
 private fun sendMessageCommand(chatId: ChatId, userId: UserId, content: String): SendMessage {
     return SendMessage
         .newBuilder()
@@ -325,7 +394,10 @@ private fun String.toUserId(): UserId {
         .vBuild()
 }
 
-private fun chatQueryFilter(chat: ChatId): QueryFilter {
+/**
+ * Creates `QueryFilter` to filter `chat` field equality.
+ */
+private fun ChatId.queryFilter(): QueryFilter {
     val chatField = MessageView.Field
         .chat()
         .field
@@ -334,6 +406,9 @@ private fun chatQueryFilter(chat: ChatId): QueryFilter {
 }
 
 private fun chatStateFilter(chat: ChatId): EntityStateFilter? {
+/**
+ * Creates `EntityStateFilter` to filter `chat` field equality.
+ */
     val chatField = MessageView.Field
         .chat()
         .field
@@ -341,6 +416,9 @@ private fun chatStateFilter(chat: ChatId): EntityStateFilter? {
 }
 
 private fun chatEventFilter(chat: ChatId): EventFilter? {
+/**
+ * Creates `EventFilter` to filter `chat` field equality.
+ */
     val chatField = MessageMarkedAsDeleted.Field
         .chat()
     return EventFilter.eq(chatField, chat)
