@@ -110,7 +110,7 @@ private fun LeftSidebar(
                 .fillMaxHeight()
                 .width(280.dp)
         ) {
-            UserProfilePanel(model.authorizedUser)
+            UserProfilePanel(model.authenticatedUser)
             UserSearchField()
             ChatList(model)
         }
@@ -404,7 +404,7 @@ private fun ChatMessage(
     message: MessageData
 ) {
     val isMyMessage = message.sender.id
-        .equals(model.authorizedUser.id)
+        .equals(model.authenticatedUser.id)
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart

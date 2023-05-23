@@ -45,7 +45,7 @@ import kotlinx.coroutines.flow.StateFlow
  *
  * UI Model stores data that may be displayed by `@Composable` functions and updated by client.
  */
-public class ChatsPageModel(public val authorizedUser: UserProfile) {
+public class ChatsPageModel(public val authenticatedUser: UserProfile) {
     private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
@@ -188,7 +188,7 @@ private fun ChatPreview.name(): String {
     }
     val creator = this.personalChat.creator
     val member = this.personalChat.member
-    if (client.authorizedUser!!.id.equals(creator)) {
+    if (client.authenticatedUser!!.id.equals(creator)) {
         return client.findUser(member)!!.name
     } else {
         return client.findUser(creator)!!.name

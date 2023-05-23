@@ -62,7 +62,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
 public class ClientFacade private constructor() {
-    public var authorizedUser: UserProfile? = null
+    public var authenticatedUser: UserProfile? = null
     private val client: Client
     private val userChatsSubscriptions = mutableListOf<Subscription>()
     private val messagesSubscriptions = mutableListOf<Subscription>()
@@ -88,8 +88,8 @@ public class ClientFacade private constructor() {
 
         val pair = future.get(10, TimeUnit.SECONDS)
         if (null != pair.first) {
-            authorizedUser = findUser(command.user)!!
-            return authorizedUser!!
+            authenticatedUser = findUser(command.user)!!
+            return authenticatedUser!!
         }
         throw UserAlreadyRegisteredException()
     }
@@ -97,8 +97,8 @@ public class ClientFacade private constructor() {
     public fun logIn(email: String): UserProfile {
         val user = findUser(email)
         if (null != user) {
-            authorizedUser = user
-            return authorizedUser!!
+            authenticatedUser = user
+            return authenticatedUser!!
         }
         throw AccountNotFoundException()
     }
@@ -130,19 +130,19 @@ public class ClientFacade private constructor() {
     }
 
     public fun createPersonalChat(user: UserId) {
-        val command = createPersonalChatCommand(user, authorizedUser!!.id)
+        val command = createPersonalChatCommand(user, authenticatedUser!!.id)
         sendCommand(command)
     }
 
     public fun sendMessage(chat: ChatId, content: String) {
-        val command = sendMessageCommand(chat, authorizedUser!!.id, content)
+        val command = sendMessageCommand(chat, authenticatedUser!!.id, content)
         sendCommand(command)
     }
 
     public fun readChats(): List<ChatPreview> {
         val chats = clientRequest()
             .select(UserChats::class.java)
-            .byId(authorizedUser!!.id)
+            .byId(authenticatedUser!!.id)
             .run()[0]
         return chats.chatList;
     }
@@ -150,7 +150,7 @@ public class ClientFacade private constructor() {
     public fun subscribeOnChats(subscriptionCallback: (state: UserChats) -> Unit) {
         val subscription = clientRequest()
             .subscribeTo(UserChats::class.java)
-            .byId(authorizedUser!!.id)
+            .byId(authenticatedUser!!.id)
             .observe(subscriptionCallback)
             .post()
         userChatsSubscriptions.add(subscription)
@@ -203,19 +203,19 @@ public class ClientFacade private constructor() {
     }
 
     private fun clientRequest(): ClientRequest {
-        if (null == authorizedUser) {
+        if (null == authenticatedUser) {
             return client.asGuest()
         }
-        return client.onBehalfOf(authorizedUser!!.id)
+        return client.onBehalfOf(authenticatedUser!!.id)
 
     }
 
     private fun sendCommand(command: CommandMessage) {
         val clientRequest: ClientRequest
-        if (null == authorizedUser) {
+        if (null == authenticatedUser) {
             clientRequest = client.asGuest()
         } else {
-            clientRequest = client.onBehalfOf(authorizedUser!!.id)
+            clientRequest = client.onBehalfOf(authenticatedUser!!.id)
         }
         clientRequest
             .command(command)

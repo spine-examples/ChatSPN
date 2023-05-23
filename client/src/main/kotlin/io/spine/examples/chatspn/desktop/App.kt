@@ -59,7 +59,7 @@ public fun App() {
             )
         }
         Page.CHATS -> {
-            val model = ChatsPageModel(client.authorizedUser!!)
+            val model = ChatsPageModel(client.authenticatedUser!!)
             ChatsPage(model)
         }
     }
