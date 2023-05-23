@@ -26,4 +26,7 @@
 
 package io.spine.examples.chatspn.desktop.client
 
-public class UserAlreadyRegisteredException : Exception("This email already taken")
+/**
+ * Throws when an account with provided email already exists.
+ */
+public class UserAlreadyRegisteredException : Exception("An account with this email already exists")
