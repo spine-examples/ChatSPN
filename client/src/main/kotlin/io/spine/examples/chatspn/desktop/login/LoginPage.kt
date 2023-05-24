@@ -24,31 +24,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop
+package io.spine.examples.chatspn.desktop.login
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import io.spine.examples.chatspn.desktop.client.ClientFacade
-import io.spine.examples.chatspn.desktop.client.UserAlreadyRegisteredException
+import io.spine.examples.chatspn.desktop.FormBox
+import io.spine.examples.chatspn.desktop.FormField
+import io.spine.examples.chatspn.desktop.FormHeader
+import io.spine.examples.chatspn.desktop.PrimaryButton
+import io.spine.examples.chatspn.desktop.SecondaryButton
 
 /**
- * Represents the 'Registration' page in the application.
+ * Represents the 'Login' page in the application.
  */
 @Composable
-public fun RegistrationPage(
-    toLogin: () -> Unit,
-    toChats: () -> Unit,
-    client: ClientFacade
-) {
-    val emailState = remember { mutableStateOf("") }
-    val emailErrorState = remember { mutableStateOf(false) }
-    val emailErrorText = remember { mutableStateOf("") }
-    val nameState = remember { mutableStateOf("") }
-    val nameErrorState = remember { mutableStateOf(false) }
-    val nameErrorText = remember { mutableStateOf("") }
+public fun LoginPage(model: LoginPageModel) {
+    val emailState = remember { model.emailState }
+    val emailErrorState = remember { model.emailErrorState }
+    val emailErrorText = remember { model.emailErrorText }
     FormBox {
-        FormHeader("Sign Up")
+        FormHeader("Sign In")
         FormField(
             "Email:",
             "john.doe@mail.com",
@@ -56,32 +51,15 @@ public fun RegistrationPage(
             emailErrorState,
             emailErrorText
         )
-        FormField(
-            "Name:",
-            "John Doe",
-            nameState,
-            nameErrorState,
-            nameErrorText
-        )
-        PrimaryButton("Sign Up") {
+        PrimaryButton("Sign In") {
             if (emailState.value.isEmpty()) {
                 emailErrorState.value = true
                 emailErrorText.value = "Email field must not be empty"
             }
-            if (nameState.value.isEmpty()) {
-                nameErrorState.value = true
-                nameErrorText.value = "Name field must not be empty"
-            }
-            if (!emailErrorState.value && !nameErrorState.value) {
-                try {
-                    client.register(nameState.value, emailState.value)
-                    toChats()
-                } catch (e: UserAlreadyRegisteredException) {
-                    emailErrorState.value = true
-                    emailErrorText.value = e.message!!
-                }
+            if (!emailErrorState.value) {
+                model.logIn()
             }
         }
-        SecondaryButton("Already have an account?", toLogin)
+        SecondaryButton("Don't have an account?", model.toRegistration)
     }
 }

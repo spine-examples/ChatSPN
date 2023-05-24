@@ -24,28 +24,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop
+package io.spine.examples.chatspn.desktop.registration
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import io.spine.examples.chatspn.desktop.client.IncorrectCredentialsException
-import io.spine.examples.chatspn.desktop.client.ClientFacade
+import io.spine.examples.chatspn.desktop.FormBox
+import io.spine.examples.chatspn.desktop.FormField
+import io.spine.examples.chatspn.desktop.FormHeader
+import io.spine.examples.chatspn.desktop.PrimaryButton
+import io.spine.examples.chatspn.desktop.SecondaryButton
 
 /**
- * Represents the 'Login' page in the application.
+ * Represents the 'Registration' page in the application.
  */
 @Composable
-public fun LoginPage(
-    toRegistration: () -> Unit,
-    toChats: () -> Unit,
-    client: ClientFacade,
-) {
-    val emailState = remember { mutableStateOf("") }
-    val emailErrorState = remember { mutableStateOf(false) }
-    val emailErrorText = remember { mutableStateOf("") }
+public fun RegistrationPage(model: RegistrationPageModel) {
+    val emailState = remember { model.emailState }
+    val emailErrorState = remember { model.emailErrorState }
+    val emailErrorText = remember { model.emailErrorText }
+    val nameState = remember { model.nameState }
+    val nameErrorState = remember { model.nameErrorState }
+    val nameErrorText = remember { model.nameErrorText }
     FormBox {
-        FormHeader("Sign In")
+        FormHeader("Sign Up")
         FormField(
             "Email:",
             "john.doe@mail.com",
@@ -53,21 +54,26 @@ public fun LoginPage(
             emailErrorState,
             emailErrorText
         )
-        PrimaryButton("Sign In") {
+        FormField(
+            "Name:",
+            "John Doe",
+            nameState,
+            nameErrorState,
+            nameErrorText
+        )
+        PrimaryButton("Sign Up") {
             if (emailState.value.isEmpty()) {
                 emailErrorState.value = true
                 emailErrorText.value = "Email field must not be empty"
             }
-            if (!emailErrorState.value) {
-                try {
-                    client.logIn(emailState.value)
-                    toChats()
-                } catch (e: IncorrectCredentialsException) {
-                    emailErrorState.value = true
-                    emailErrorText.value = e.message!!
-                }
+            if (nameState.value.isEmpty()) {
+                nameErrorState.value = true
+                nameErrorText.value = "Name field must not be empty"
+            }
+            if (!emailErrorState.value && !nameErrorState.value) {
+                model.register()
             }
         }
-        SecondaryButton("Don't have an account?", toRegistration)
+        SecondaryButton("Already have an account?", model.toLogin)
     }
 }
