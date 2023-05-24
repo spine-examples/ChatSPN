@@ -33,7 +33,7 @@ import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
-import io.spine.examples.chatspn.desktop.client.ClientFacade
+import io.spine.examples.chatspn.desktop.ClientFacade
 import io.spine.examples.chatspn.message.MessageView
 import java.util.stream.Collectors
 import java.util.stream.Collectors.toList

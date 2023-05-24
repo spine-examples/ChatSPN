@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop.client
+package io.spine.examples.chatspn.desktop
 
 import com.google.protobuf.Message
 import io.grpc.ManagedChannelBuilder
@@ -48,16 +48,12 @@ import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserChats
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.account.command.CreateAccount
-import io.spine.examples.chatspn.account.event.AccountCreated
-import io.spine.examples.chatspn.account.event.AccountNotCreated
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
 import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.command.SendMessage
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import io.spine.net.EmailAddress
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
 
 /**
  * Provides API to communicate with ChatSpn server.
@@ -80,42 +76,12 @@ public class ClientFacade {
 
     /**
      * Sends command to register a new user.
-     *
-     * @throws UserAlreadyRegisteredException if the user with provided email already exists
-     * @return profile of the registered user
      */
-    public fun register(name: String, email: String): UserProfile {
+    public fun register(name: String, email: String) {
         val command = createAccount(name, email)
-        val future = subscribeToCommandOutcome(
-            AccountCreated::class.java,
-            AccountNotCreated::class.java,
-            command.id
-        )
         clientRequest()
             .command(command)
             .postAndForget()
-
-        val pair = future.get(10, TimeUnit.SECONDS)
-        if (null != pair.first) {
-            authenticatedUser = findUser(command.user)!!
-            return authenticatedUser!!
-        }
-        throw UserAlreadyRegisteredException()
-    }
-
-    /**
-     * Authenticates the user.
-     *
-     * @throws IncorrectCredentialsException if the user with the provided credentials doesn't exist
-     * @return profile of the authenticated user
-     */
-    public fun logIn(email: String): UserProfile {
-        val user = findUser(email)
-        if (null != user) {
-            authenticatedUser = user
-            return authenticatedUser!!
-        }
-        throw IncorrectCredentialsException()
     }
 
     /**
@@ -265,65 +231,44 @@ public class ClientFacade {
             return client.asGuest()
         }
         return client.onBehalfOf(authenticatedUser!!.id)
-
     }
 
     /**
-     * Subscribes a `CompletableFuture` to the provided event.
-     *
-     * `CompletableFuture` will be completed when the event is emitted.
+     * Subscribes an `action` to the provided event with id.
      */
-    private fun <E : EventMessage> subscribeToCommandOutcome(
+    public fun <E : EventMessage> subscribeToEvent(
+        id: Message,
         event: Class<E>,
-        id: Message
-    ): CompletableFuture<E> {
-        val future: CompletableFuture<E> = CompletableFuture()
-        var subscription: Subscription? = null
-        subscription = clientRequest()
+        action: (event: E) -> Unit
+    ): Subscription {
+        val subscription = clientRequest()
             .subscribeToEvent(event)
             .where(EventFilter.eq(EventMessageField(Field.named("id")), id))
-            .observe { event ->
-                future.complete(event)
-                client.subscriptions().cancel(subscription!!)
-            }
+            .observe(action)
             .post()
-        return future
+        return subscription
     }
 
     /**
-     * Subscribes a `CompletableFuture` to the provided events.
-     *
-     * `CompletableFuture` will be completed when at least one of the events is emitted.
+     * Subscribes an `action` to the provided event.
      */
-    private fun <S : EventMessage, F : EventMessage> subscribeToCommandOutcome(
-        success: Class<S>,
-        fail: Class<F>,
-        id: Message
-    ): CompletableFuture<Pair<S?, F?>> {
-        val future: CompletableFuture<Pair<S?, F?>> = CompletableFuture()
-        var successSubscription: Subscription? = null
-        var failSubscription: Subscription? = null
-        successSubscription = clientRequest()
-            .subscribeToEvent(success)
-            .where(EventFilter.eq(EventMessageField(Field.named("id")), id))
-            .observe { event ->
-                future.complete(Pair(event, null))
-                client.subscriptions().cancel(successSubscription!!)
-                client.subscriptions().cancel(failSubscription!!)
-            }
+    public fun <E : EventMessage> subscribeToEvent(
+        event: Class<E>,
+        action: (event: E) -> Unit
+    ): Subscription {
+        val subscription = clientRequest()
+            .subscribeToEvent(event)
+            .observe(action)
             .post()
+        return subscription
+    }
 
-        failSubscription = clientRequest()
-            .subscribeToEvent(fail)
-            .where(EventFilter.eq(EventMessageField(Field.named("id")), id))
-            .observe { event ->
-                future.complete(Pair(null, event))
-                client.subscriptions().cancel(successSubscription!!)
-                client.subscriptions().cancel(failSubscription!!)
-            }
-            .post()
-
-        return future
+    /**
+     * Cancel the provided subscription.
+     */
+    public fun cancelSubscription(subscription: Subscription) {
+        client.subscriptions()
+            .cancel(subscription)
     }
 }
 
