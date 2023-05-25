@@ -26,6 +26,8 @@
 
 package io.spine.examples.chatspn.desktop.chat
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.google.protobuf.Timestamp
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
@@ -45,10 +47,11 @@ import kotlinx.coroutines.flow.StateFlow
  * UI Model is a layer between `@Composable` functions and client.
  */
 public class ChatsPageModel(private val client: ClientFacade) {
-    public val authenticatedUser: UserProfile = client.authenticatedUser!!
     private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
+    public val userSearchState: UserSearchState = UserSearchState()
+    public val authenticatedUser: UserProfile = client.authenticatedUser!!
 
     init {
         updateChats(client.readChats().toChatDataList())
@@ -163,10 +166,15 @@ public class ChatsPageModel(private val client: ClientFacade) {
     }
 
     /**
-     * Creates a new personal chat.
+     * Finds user by email and creates the personal chat.
      */
-    public fun createPersonalChat(user: UserId) {
-        client.createPersonalChat(user)
+    public fun createPersonalChat(email: String) {
+        val user = client.findUser(email)
+        if (null != user) {
+            client.createPersonalChat(user.id)
+        } else {
+            userSearchState.errorState.value = true
+        }
     }
 
     /**
@@ -266,6 +274,11 @@ public class ChatsPageModel(private val client: ClientFacade) {
             return client.findUser(member)!!.name
         }
         return client.findUser(creator)!!.name
+    }
+
+    public class UserSearchState {
+        public val userEmailState: MutableState<String> = mutableStateOf("")
+        public val errorState: MutableState<Boolean> = mutableStateOf(false)
     }
 }
 

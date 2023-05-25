@@ -153,8 +153,8 @@ private fun UserProfilePanel(user: UserProfile) {
 @Composable
 private fun UserSearchField(model: ChatsPageModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    var inputText by remember { mutableStateOf("") }
-    var isError by remember { mutableStateOf(false) }
+    var inputText by remember { model.userSearchState.userEmailState }
+    var isError by remember { model.userSearchState.errorState }
     TextField(
         modifier = Modifier
             .fillMaxWidth()
@@ -189,12 +189,7 @@ private fun UserSearchField(model: ChatsPageModel) {
                         .clickable {
                             val email = inputText
                             viewScope.launch {
-                                val user = model.findUser(email)
-                                if (null != user) {
-                                    model.createPersonalChat(user.id)
-                                } else {
-                                    isError = true
-                                }
+                                model.createPersonalChat(email)
                             }
                             inputText = ""
                         }
