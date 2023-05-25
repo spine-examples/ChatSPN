@@ -48,6 +48,8 @@ import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserChats
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.account.command.CreateAccount
+import io.spine.examples.chatspn.account.event.AccountCreated
+import io.spine.examples.chatspn.account.event.AccountNotCreated
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
 import io.spine.examples.chatspn.message.MessageView
@@ -75,10 +77,40 @@ public class ClientFacade {
     }
 
     /**
-     * Sends command to register a new user.
+     * Registers a new user.
+     *
+     * @param name name of the user to register
+     * @param email email of the user to register
+     * @param onSuccess will be called when the user successfully passed registration
+     * @param onFail will be called when the user failed the registration
      */
-    public fun register(name: String, email: String) {
+    public fun register(
+        name: String,
+        email: String,
+        onSuccess: () -> Unit = {},
+        onFail: () -> Unit = {},
+    ) {
         val command = createAccount(name, email)
+
+        var successSubscription: Subscription? = null
+        var failSubscription: Subscription? = null
+        successSubscription = subscribeToEvent(
+            command.id,
+            AccountCreated::class.java
+        ) { event ->
+            cancelSubscription(successSubscription!!)
+            cancelSubscription(failSubscription!!)
+            authenticatedUser = findUser(event.user)
+            onSuccess()
+        }
+        failSubscription = subscribeToEvent(
+            command.id,
+            AccountNotCreated::class.java
+        ) { event ->
+            cancelSubscription(successSubscription)
+            cancelSubscription(failSubscription!!)
+            onFail()
+        }
         clientRequest()
             .command(command)
             .postAndForget()
