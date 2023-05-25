@@ -28,17 +28,21 @@ package io.spine.examples.chatspn.desktop.registration
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import io.spine.examples.chatspn.desktop.FormBox
 import io.spine.examples.chatspn.desktop.FormField
 import io.spine.examples.chatspn.desktop.FormHeader
 import io.spine.examples.chatspn.desktop.PrimaryButton
 import io.spine.examples.chatspn.desktop.SecondaryButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Represents the 'Registration' page in the application.
  */
 @Composable
 public fun RegistrationPage(model: RegistrationPageModel) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
     val emailState = remember { model.emailState }
     val emailErrorState = remember { model.emailErrorState }
     val emailErrorText = remember { model.emailErrorText }
@@ -71,7 +75,9 @@ public fun RegistrationPage(model: RegistrationPageModel) {
                 nameErrorText.value = "Name field must not be empty"
             }
             if (!emailErrorState.value && !nameErrorState.value) {
-                model.register()
+                viewScope.launch() {
+                    model.register()
+                }
             }
         }
         SecondaryButton("Already have an account?", model.toLogin)

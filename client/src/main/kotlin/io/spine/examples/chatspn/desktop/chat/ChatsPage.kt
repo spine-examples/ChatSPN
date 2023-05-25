@@ -59,6 +59,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,6 +73,8 @@ import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Represents the 'Chats' page in the application.
@@ -149,6 +152,7 @@ private fun UserProfilePanel(user: UserProfile) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun UserSearchField(model: ChatsPageModel) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
     var inputText by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
     TextField(
@@ -183,11 +187,14 @@ private fun UserSearchField(model: ChatsPageModel) {
                 Row(
                     modifier = Modifier
                         .clickable {
-                            val user = model.findUser(inputText)
-                            if (null != user) {
-                                model.createPersonalChat(user.id)
-                            } else {
-                                isError = true
+                            val email = inputText
+                            viewScope.launch {
+                                val user = model.findUser(email)
+                                if (null != user) {
+                                    model.createPersonalChat(user.id)
+                                } else {
+                                    isError = true
+                                }
                             }
                             inputText = ""
                         }
@@ -482,6 +489,7 @@ private fun Timestamp.toStringTime(): String {
 private fun SendMessageInput(
     model: ChatsPageModel
 ) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
     var inputText by remember { mutableStateOf("") }
     TextField(
         modifier = Modifier
@@ -503,7 +511,10 @@ private fun SendMessageInput(
                 Row(
                     modifier = Modifier
                         .clickable {
-                            model.sendMessage(inputText)
+                            val messageContent = inputText
+                            viewScope.launch {
+                                model.sendMessage(messageContent)
+                            }
                             inputText = ""
                         }
                         .padding(10.dp),

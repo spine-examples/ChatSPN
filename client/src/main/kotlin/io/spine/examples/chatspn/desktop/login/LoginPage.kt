@@ -28,17 +28,21 @@ package io.spine.examples.chatspn.desktop.login
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import io.spine.examples.chatspn.desktop.FormBox
 import io.spine.examples.chatspn.desktop.FormField
 import io.spine.examples.chatspn.desktop.FormHeader
 import io.spine.examples.chatspn.desktop.PrimaryButton
 import io.spine.examples.chatspn.desktop.SecondaryButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Represents the 'Login' page in the application.
  */
 @Composable
 public fun LoginPage(model: LoginPageModel) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
     val emailState = remember { model.emailState }
     val emailErrorState = remember { model.emailErrorState }
     val emailErrorText = remember { model.emailErrorText }
@@ -57,7 +61,9 @@ public fun LoginPage(model: LoginPageModel) {
                 emailErrorText.value = "Email field must not be empty"
             }
             if (!emailErrorState.value) {
-                model.logIn()
+                viewScope.launch {
+                    model.logIn()
+                }
             }
         }
         SecondaryButton("Don't have an account?", model.toRegistration)
