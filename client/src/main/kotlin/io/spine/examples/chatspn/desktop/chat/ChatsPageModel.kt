@@ -196,7 +196,7 @@ public class ChatsPageModel(private val client: ClientFacade) {
     }
 
     /**
-     * Converts the `ChatPreview` list to a `ChatData` list.
+     * Converts the `ChatPreview` list to the `ChatData` list.
      */
     private fun List<ChatPreview>.toChatDataList(): ChatList {
         return this.stream().map { chatPreview ->
@@ -215,7 +215,7 @@ public class ChatsPageModel(private val client: ClientFacade) {
     }
 
     /**
-     * Converts the `MessageView` list to a `MessageData` list.
+     * Converts the `MessageView` list to the `MessageData` list.
      */
     private fun List<MessageView>.toMessageDataList(): MessageList {
         val users = mutableMapOf<UserId, UserProfile>();
@@ -238,7 +238,7 @@ public class ChatsPageModel(private val client: ClientFacade) {
     }
 
     /**
-     * Converts the `MessagePreview` to a `MessageData`.
+     * Converts the `MessagePreview` to `MessageData`.
      */
     private fun MessagePreview.toMessageData(): MessageData {
         return MessageData(
@@ -250,7 +250,7 @@ public class ChatsPageModel(private val client: ClientFacade) {
     }
 
     /**
-     * Converts the `MessageView` to a `MessageData`.
+     * Converts the `MessageView` to `MessageData`.
      */
     private fun MessageView.toMessageData(): MessageData {
         return MessageData(
