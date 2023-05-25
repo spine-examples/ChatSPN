@@ -190,7 +190,7 @@ public class ClientFacade {
      *
      * @param chat id of the chat to subscribe on messages in
      * @param updateAction an action that will be triggered when a new chat message is posted,
-     *                     or when an existing message is updated.
+     *                     or when an existing message is updated
      * @param deleteAction an action that will be triggered when a message is deleted
      */
     public fun subscribeOnMessages(

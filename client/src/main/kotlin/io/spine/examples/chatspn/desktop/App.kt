@@ -55,7 +55,7 @@ public fun App() {
             val model = RegistrationPageModel(
                 client,
                 toLogin = { page = Page.LOGIN },
-                toChats = { page = Page.CHATS },
+                toChats = { page = Page.CHATS }
             )
             RegistrationPage(model)
         }
@@ -63,7 +63,7 @@ public fun App() {
             val model = LoginPageModel(
                 client,
                 toRegistration = { page = Page.REGISTRATION },
-                toChats = { page = Page.CHATS },
+                toChats = { page = Page.CHATS }
             )
             LoginPage(model)
         }
