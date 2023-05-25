@@ -28,13 +28,13 @@ package io.spine.examples.chatspn.desktop.login
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import io.spine.examples.chatspn.desktop.ClientFacade
+import io.spine.examples.chatspn.desktop.DesktopClient
 
 /**
  * UI Model for the `LoginPage`.
  */
 public class LoginPageModel(
-    private val client: ClientFacade,
+    private val client: DesktopClient,
     public val toRegistration: () -> Unit,
     private val toChats: () -> Unit,
 ) {

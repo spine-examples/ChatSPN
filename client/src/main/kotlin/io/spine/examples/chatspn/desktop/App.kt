@@ -39,7 +39,7 @@ import io.spine.examples.chatspn.desktop.login.LoginPageModel
 import io.spine.examples.chatspn.desktop.registration.RegistrationPage
 import io.spine.examples.chatspn.desktop.registration.RegistrationPageModel
 
-private val client = ClientFacade()
+private val client = DesktopClient()
 
 /**
  * The root component of the application.

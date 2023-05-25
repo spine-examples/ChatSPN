@@ -35,7 +35,7 @@ import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
-import io.spine.examples.chatspn.desktop.ClientFacade
+import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.message.MessageView
 import java.util.stream.Collectors
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +46,7 @@ import kotlinx.coroutines.flow.StateFlow
  *
  * UI Model is a layer between `@Composable` functions and client.
  */
-public class ChatsPageModel(private val client: ClientFacade) {
+public class ChatsPageModel(private val client: DesktopClient) {
     private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()

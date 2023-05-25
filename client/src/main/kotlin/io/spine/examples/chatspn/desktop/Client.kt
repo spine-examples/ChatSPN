@@ -58,9 +58,12 @@ import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import io.spine.net.EmailAddress
 
 /**
- * Provides API to communicate with ChatSpn server.
+ * Provides API to interact with ChatSpn server via gRPC.
+ *
+ * By default, client will open channel to 'localhost: [50051]
+ * [io.spine.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT]'.
  */
-public class ClientFacade {
+public class DesktopClient(
     public var authenticatedUser: UserProfile? = null
     private val client: Client
     private val userChatsSubscriptions = mutableListOf<Subscription>()
