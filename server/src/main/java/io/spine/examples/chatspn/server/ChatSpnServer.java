@@ -52,7 +52,7 @@ public final class ChatSpnServer {
      * Creates a new Spine {@code Server} instance at the
      * {@linkplain io.spine.client.ConnectionConstants#DEFAULT_CLIENT_SERVICE_PORT default} port.
      */
-    private static Server create() {
+    static Server create() {
         configureEnvironment();
         var context = ChatsContext.newBuilder();
         return Server
