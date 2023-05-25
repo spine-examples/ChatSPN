@@ -138,7 +138,7 @@ public class ClientFacade {
     }
 
     /**
-     * Finds user by id.
+     * Finds user by ID.
      */
     public fun findUser(id: UserId): UserProfile? {
         val profiles = clientRequest()
@@ -287,7 +287,7 @@ public class ClientFacade {
     }
 
     /**
-     * Subscribes an `action` to the provided event with id.
+     * Subscribes an `action` to the provided event with ID.
      */
     public fun <E : EventMessage> subscribeToEvent(
         id: Message,

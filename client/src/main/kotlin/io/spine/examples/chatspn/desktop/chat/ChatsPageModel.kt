@@ -131,7 +131,7 @@ public class ChatsPageModel(private val client: ClientFacade) {
     }
 
     /**
-     * Finds message in the list by id.
+     * Finds message in the list by ID.
      */
     private fun MessageList.findMessage(id: MessageId): MessageData? {
         val message = this
@@ -145,7 +145,7 @@ public class ChatsPageModel(private val client: ClientFacade) {
     }
 
     /**
-     * Finds user by id.
+     * Finds user by ID.
      */
     public fun findUser(userId: UserId): UserProfile? {
         return client.findUser(userId)
