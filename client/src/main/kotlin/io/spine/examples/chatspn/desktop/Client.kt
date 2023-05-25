@@ -88,7 +88,7 @@ public class ClientFacade {
         name: String,
         email: String,
         onSuccess: () -> Unit = {},
-        onFail: () -> Unit = {},
+        onFail: () -> Unit = {}
     ) {
         val command = createAccount(name, email)
 
@@ -114,6 +114,27 @@ public class ClientFacade {
         clientRequest()
             .command(command)
             .postAndForget()
+    }
+
+    /**
+     * Authenticates the user.
+     *
+     * @param email email of the user to authenticate
+     * @param onSuccess will be called when the user successfully passed the authentication
+     * @param onFail will be called when the user failed the authentication
+     */
+    public fun logIn(
+        email: String,
+        onSuccess: () -> Unit = {},
+        onFail: () -> Unit = {}
+    ) {
+        val user = findUser(email)
+        if (null == user) {
+            onFail()
+        } else {
+            authenticatedUser = user
+            onSuccess()
+        }
     }
 
     /**
@@ -176,7 +197,7 @@ public class ClientFacade {
             .select(UserChats::class.java)
             .byId(authenticatedUser!!.id)
             .run()[0]
-        return chats.chatList;
+        return chats.chatList
     }
 
     /**

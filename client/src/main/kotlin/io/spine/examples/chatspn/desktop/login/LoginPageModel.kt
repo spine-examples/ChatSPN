@@ -43,16 +43,17 @@ public class LoginPageModel(
     public val emailErrorText: MutableState<String> = mutableStateOf("")
 
     /**
-     * Authorizes the user with the credentials specified in the form fields.
+     * Authenticates the user with the credentials specified in the form fields.
      */
     public fun logIn() {
-        val user = client.findUser(emailState.value)
-        if (null == user) {
+        val onFail = {
             emailErrorState.value = true
             emailErrorText.value = "Account with this credentials doesn't exist"
-        } else {
-            client.authenticatedUser = user
-            toChats()
         }
+        client.logIn(
+            emailState.value,
+            toChats,
+            onFail
+        )
     }
 }
