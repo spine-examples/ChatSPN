@@ -36,7 +36,6 @@ import io.spine.examples.chatspn.chat.MessagePreview
 import io.spine.examples.chatspn.desktop.ClientFacade
 import io.spine.examples.chatspn.message.MessageView
 import java.util.stream.Collectors
-import java.util.stream.Collectors.toList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -93,7 +92,7 @@ public class ChatsPageModel(private val client: ClientFacade) {
                 val message = messageView.toMessageData()
                 val chatMessages = chatMessagesStateMap[chat]!!.value
                 if (chatMessages.contains(message)) {
-                    val newChatMessages = replaceMessage(chatMessages, message)
+                    val newChatMessages = chatMessages.replaceMessage(message)
                     updateMessages(chat, newChatMessages)
                 } else {
                     updateMessages(chat, chatMessages + message)
@@ -101,11 +100,10 @@ public class ChatsPageModel(private val client: ClientFacade) {
             },
             { messageDeleted ->
                 val chatMessages = chatMessagesStateMap[chat]!!.value
-                val message = findMessage(chatMessages, messageDeleted.id)
+                val message = chatMessages.findMessage(messageDeleted.id)
                 if (message != null) {
                     val messageIndex = chatMessages.indexOf(message)
-                    val newChatMessages = chatMessages.subList(0, messageIndex) +
-                            chatMessages.subList(messageIndex + 1, chatMessages.size)
+                    val newChatMessages = chatMessages.remove(messageIndex)
                     updateMessages(chat, newChatMessages)
                 }
             })
@@ -114,22 +112,29 @@ public class ChatsPageModel(private val client: ClientFacade) {
     /**
      * Returns the new list with the replaced message.
      */
-    private fun replaceMessage(messages: MessageList, newMessage: MessageData): MessageList {
-        val oldMessage = findMessage(messages, newMessage.id)
-        val messageIndex = messages.indexOf(oldMessage)
-        val leftPart = messages.subList(0, messageIndex)
-        val rightPart = messages.subList(messageIndex + 1, messages.size)
+    private fun MessageList.replaceMessage(newMessage: MessageData): MessageList {
+        val oldMessage = this.findMessage(newMessage.id)
+        val messageIndex = this.indexOf(oldMessage)
+        val leftPart = this.subList(0, messageIndex)
+        val rightPart = this.subList(messageIndex + 1, this.size)
         return leftPart + newMessage + rightPart
+    }
+
+    /**
+     * Returns the new list without an element on provided index.
+     */
+    private fun <T> List<T>.remove(index: Int): List<T> {
+        return this.subList(0, index) + this.subList(index + 1, this.size)
     }
 
     /**
      * Finds message in the list by id.
      */
-    private fun findMessage(messages: MessageList, id: MessageId): MessageData? {
-        val message = messages
+    private fun MessageList.findMessage(id: MessageId): MessageData? {
+        val message = this
             .stream()
             .filter { message -> message.id.equals(id) }
-            .collect(toList())
+            .collect(Collectors.toList())
         if (message.isEmpty()) {
             return null
         }
