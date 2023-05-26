@@ -64,6 +64,9 @@ import io.spine.net.EmailAddress
  * [io.spine.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT]'.
  */
 public class DesktopClient(
+    address: String = "localhost",
+    port: Int = DEFAULT_CLIENT_SERVICE_PORT,
+) {
     public var authenticatedUser: UserProfile? = null
     private val client: Client
     private val userChatsSubscriptions = mutableListOf<Subscription>()
@@ -71,8 +74,8 @@ public class DesktopClient(
 
     init {
         val channel = ManagedChannelBuilder.forAddress(
-            "localhost",
-            DEFAULT_CLIENT_SERVICE_PORT
+            address,
+            port
         )
             .usePlaintext()
             .build()
