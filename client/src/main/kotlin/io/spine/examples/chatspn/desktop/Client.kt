@@ -144,7 +144,10 @@ public class DesktopClient(
     }
 
     /**
-     * Finds user by ID.
+     * Finds user by id.
+     *
+     * @param id ID of the user to find
+     * @return found user profile or `null` if the user not found
      */
     public fun findUser(id: UserId): UserProfile? {
         val profiles = clientRequest()
@@ -159,6 +162,9 @@ public class DesktopClient(
 
     /**
      * Finds user by email.
+     *
+     * @param email email of the user to find
+     * @return found user profile or `null` if the user not found
      */
     public fun findUser(email: String): UserProfile? {
         val emailField = UserProfile.Field
@@ -176,7 +182,9 @@ public class DesktopClient(
     }
 
     /**
-     * Creates a new personal chat.
+     * Creates a new personal chat between authenticated and provided user.
+     *
+     * @param user user to create a personal chat with authenticated user
      */
     public fun createPersonalChat(user: UserId) {
         val command = createPersonalChatCommand(user, authenticatedUser!!.id)
@@ -187,6 +195,9 @@ public class DesktopClient(
 
     /**
      * Sends message to the chat.
+     *
+     * @param chat chat to which message will be sent
+     * @param content message text content
      */
     public fun sendMessage(chat: ChatId, content: String) {
         val command = sendMessageCommand(chat, authenticatedUser!!.id, content)
@@ -208,6 +219,8 @@ public class DesktopClient(
 
     /**
      * Subscribes `action` on `authenticatedUser`'s chats changes.
+     *
+     * @param action will be called when the user's chats updated
      */
     public fun subscribeOnChats(action: (state: UserChats) -> Unit) {
         val subscription = clientRequest()
@@ -219,7 +232,7 @@ public class DesktopClient(
     }
 
     /**
-     * Cancel all subscriptions on `authenticatedUser`'s chats changes.
+     * Cancels all subscriptions on `authenticatedUser`'s chats changes.
      */
     public fun cancelChatsSubscriptions() {
         userChatsSubscriptions.forEach { subscription ->
@@ -229,7 +242,10 @@ public class DesktopClient(
     }
 
     /**
-     * Returns messages from the provided chat.
+     * Returns messages from the chat.
+     *
+     * @param chat ID of the chat to read messages from
+     * @return list of messages in the chat
      */
     public fun readMessages(chat: ChatId): List<MessageView> {
         val whenPostedField = MessageView.Field
@@ -247,7 +263,7 @@ public class DesktopClient(
     /**
      * Subscribes actions on messages in the chat.
      *
-     * @param chat id of the chat to subscribe on messages in
+     * @param chat ID of the chat to subscribe on messages in
      * @param updateAction an action that will be triggered when a new chat message is posted,
      *                     or when an existing message is updated
      * @param deleteAction an action that will be triggered when a message is deleted
@@ -272,7 +288,7 @@ public class DesktopClient(
     }
 
     /**
-     * Cancel all subscriptions on messages in the chat.
+     * Cancels all subscriptions on messages in the chat.
      */
     public fun cancelMessagesSubscriptions() {
         messagesSubscriptions.forEach { subscription ->
@@ -294,6 +310,11 @@ public class DesktopClient(
 
     /**
      * Subscribes an `action` to the provided event with ID.
+     *
+     * @param id ID of the event state to subscribe
+     * @param event type of the event to subscribe
+     * @param action will be called when the specified event emitted
+     * @return subscription object to cancel observation
      */
     public fun <E : EventMessage> subscribeToEvent(
         id: Message,
@@ -310,6 +331,10 @@ public class DesktopClient(
 
     /**
      * Subscribes an `action` to the provided event.
+     *
+     * @param event type of the event to subscribe
+     * @param action will be called when the specified event emitted
+     * @return subscription object to cancel observation
      */
     public fun <E : EventMessage> subscribeToEvent(
         event: Class<E>,
@@ -324,6 +349,8 @@ public class DesktopClient(
 
     /**
      * Cancel the provided subscription.
+     *
+     * @param subscription subscription to cancel
      */
     public fun cancelSubscription(subscription: Subscription) {
         client.subscriptions()
@@ -333,6 +360,10 @@ public class DesktopClient(
 
 /**
  * Creates `CreateAccount` command.
+ *
+ * @param name name of the user to create an account for
+ * @param email email of the user to create an account for
+ * @return command to create an account
  */
 private fun createAccount(name: String, email: String): CreateAccount {
     return CreateAccount
@@ -346,6 +377,10 @@ private fun createAccount(name: String, email: String): CreateAccount {
 
 /**
  * Creates `CreatePersonalChat` command.
+ *
+ * @param creator ID of the user who wants to create a personal chat
+ * @param member ID of the user to create a personal chat with
+ * @return command to create a personal chat
  */
 private fun createPersonalChatCommand(creator: UserId, member: UserId): CreatePersonalChat {
     return CreatePersonalChat
@@ -358,13 +393,18 @@ private fun createPersonalChatCommand(creator: UserId, member: UserId): CreatePe
 
 /**
  * Creates `SendMessage` command.
+ *
+ * @param chat ID of the chat to send message in
+ * @param user ID of the user who wants to send a message
+ * @param content message text content
+ * @return command to send a message
  */
-private fun sendMessageCommand(chatId: ChatId, userId: UserId, content: String): SendMessage {
+private fun sendMessageCommand(chat: ChatId, user: UserId, content: String): SendMessage {
     return SendMessage
         .newBuilder()
         .setId(MessageId.generate())
-        .setChat(chatId)
-        .setUser(userId)
+        .setChat(chat)
+        .setUser(user)
         .setContent(content)
         .vBuild()
 }
@@ -390,7 +430,9 @@ private fun String.toUserId(): UserId {
 }
 
 /**
- * Creates `QueryFilter` to filter `chat` field equality.
+ * Creates a filter for the `QueryRequest` to match this chat.
+ *
+ * @see io.spine.client.QueryRequest.where
  */
 private fun ChatId.queryFilter(): QueryFilter {
     val chatField = MessageView.Field
@@ -401,9 +443,11 @@ private fun ChatId.queryFilter(): QueryFilter {
 }
 
 /**
- * Creates `EntityStateFilter` to filter `chat` field equality.
+ * Creates a filter for the `SubscriptionRequest` to match this chat.
+ *
+ * @see io.spine.client.SubscriptionRequest.where
  */
-private fun ChatId.stateFilter(): EntityStateFilter? {
+private fun ChatId.stateFilter(): EntityStateFilter {
     val chatField = MessageView.Field
         .chat()
         .field
@@ -411,9 +455,11 @@ private fun ChatId.stateFilter(): EntityStateFilter? {
 }
 
 /**
- * Creates `EventFilter` to filter `chat` field equality.
+ * Creates a filter for the `EventSubscriptionRequest` to match this chat.
+ *
+ * @see io.spine.client.EventSubscriptionRequest.where
  */
-private fun ChatId.eventFilter(): EventFilter? {
+private fun ChatId.eventFilter(): EventFilter {
     val chatField = MessageMarkedAsDeleted.Field
         .chat()
     return EventFilter.eq(chatField, this)
