@@ -55,7 +55,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
 
     init {
         updateChats(client.readChats().toChatDataList())
-        client.subscribeOnChats { state -> updateChats(state.chatList.toChatDataList()) }
+        client.observeChats { state -> updateChats(state.chatList.toChatDataList()) }
     }
 
     /**
@@ -88,8 +88,8 @@ public class ChatsPageModel(private val client: DesktopClient) {
     public fun selectChat(chat: ChatId) {
         selectedChatState.value = chat
         updateMessages(chat, client.readMessages(chat).toMessageDataList())
-        client.cancelMessagesSubscriptions()
-        client.subscribeOnMessages(
+        client.stopObservingMessages()
+        client.observeMessages(
             chat,
             { messageView ->
                 val message = messageView.toMessageData()

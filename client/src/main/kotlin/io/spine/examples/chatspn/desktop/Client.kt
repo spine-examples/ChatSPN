@@ -100,21 +100,21 @@ public class DesktopClient(
 
         var successSubscription: Subscription? = null
         var failSubscription: Subscription? = null
-        successSubscription = subscribeToEvent(
+        successSubscription = observeEvent(
             command.id,
             AccountCreated::class.java
         ) { event ->
-            cancelSubscription(successSubscription!!)
-            cancelSubscription(failSubscription!!)
+            stopObservation(successSubscription!!)
+            stopObservation(failSubscription!!)
             authenticatedUser = findUser(event.user)
             onSuccess()
         }
-        failSubscription = subscribeToEvent(
+        failSubscription = observeEvent(
             command.id,
             AccountNotCreated::class.java
         ) { event ->
-            cancelSubscription(successSubscription)
-            cancelSubscription(failSubscription!!)
+            stopObservation(successSubscription)
+            stopObservation(failSubscription!!)
             onFail()
         }
         clientRequest()
@@ -207,7 +207,7 @@ public class DesktopClient(
     }
 
     /**
-     * Returns chats that `authenticatedUser` is a member of.
+     * Returns chats where the authenticated user is a member.
      */
     public fun readChats(): List<ChatPreview> {
         val chats = clientRequest()
@@ -218,23 +218,23 @@ public class DesktopClient(
     }
 
     /**
-     * Subscribes `action` on `authenticatedUser`'s chats changes.
+     * Observes chats of the authenticated user.
      *
-     * @param action will be called when the user's chats updated
+     * @param onUpdate will be called when the user's chats updated
      */
-    public fun subscribeOnChats(action: (state: UserChats) -> Unit) {
+    public fun observeChats(onUpdate: (state: UserChats) -> Unit) {
         val subscription = clientRequest()
             .subscribeTo(UserChats::class.java)
             .byId(authenticatedUser!!.id)
-            .observe(action)
+            .observe(onUpdate)
             .post()
         userChatsSubscriptions.add(subscription)
     }
 
     /**
-     * Cancels all subscriptions on `authenticatedUser`'s chats changes.
+     * Stops chats observation.
      */
-    public fun cancelChatsSubscriptions() {
+    public fun stopChatsObservation() {
         userChatsSubscriptions.forEach { subscription ->
             client.subscriptions().cancel(subscription)
         }
@@ -261,36 +261,36 @@ public class DesktopClient(
     }
 
     /**
-     * Subscribes actions on messages in the chat.
+     * Observes messages in the chat.
      *
-     * @param chat ID of the chat to subscribe on messages in
-     * @param updateAction an action that will be triggered when a new chat message is posted,
+     * @param chat ID of the chat to observe messages in
+     * @param onUpdate will be called when a new chat message is posted,
      *                     or when an existing message is updated
-     * @param deleteAction an action that will be triggered when a message is deleted
+     * @param onDelete will be called when a message is deleted
      */
-    public fun subscribeOnMessages(
+    public fun observeMessages(
         chat: ChatId,
-        updateAction: (message: MessageView) -> Unit,
-        deleteAction: (messageDeleted: MessageMarkedAsDeleted) -> Unit
+        onUpdate: (message: MessageView) -> Unit,
+        onDelete: (messageDeleted: MessageMarkedAsDeleted) -> Unit
     ) {
         val updateSubscription = clientRequest()
             .subscribeTo(MessageView::class.java)
             .where(chat.stateFilter())
-            .observe(updateAction)
+            .observe(onUpdate)
             .post()
         val deletionSubscription = clientRequest()
             .subscribeToEvent(MessageMarkedAsDeleted::class.java)
             .where(chat.eventFilter())
-            .observe(deleteAction)
+            .observe(onDelete)
             .post()
         messagesSubscriptions.add(updateSubscription)
         messagesSubscriptions.add(deletionSubscription)
     }
 
     /**
-     * Cancels all subscriptions on messages in the chat.
+     * Stops messages observation.
      */
-    public fun cancelMessagesSubscriptions() {
+    public fun stopObservingMessages() {
         messagesSubscriptions.forEach { subscription ->
             client.subscriptions().cancel(subscription)
         }
@@ -309,50 +309,50 @@ public class DesktopClient(
     }
 
     /**
-     * Subscribes an `action` to the provided event with ID.
+     * Observes the provided event.
      *
-     * @param id ID of the event state to subscribe
-     * @param event type of the event to subscribe
-     * @param action will be called when the specified event emitted
+     * @param id ID of the event state to observe
+     * @param event type of the event to observe
+     * @param onEmit will be called when the specified event emitted
      * @return subscription object to cancel observation
      */
-    public fun <E : EventMessage> subscribeToEvent(
+    private fun <E : EventMessage> observeEvent(
         id: Message,
         event: Class<E>,
-        action: (event: E) -> Unit
+        onEmit: (event: E) -> Unit
     ): Subscription {
         val subscription = clientRequest()
             .subscribeToEvent(event)
             .where(EventFilter.eq(EventMessageField(Field.named("id")), id))
-            .observe(action)
+            .observe(onEmit)
             .post()
         return subscription
     }
 
     /**
-     * Subscribes an `action` to the provided event.
+     * Observes the provided event.
      *
-     * @param event type of the event to subscribe
-     * @param action will be called when the specified event emitted
+     * @param event type of the event to observe
+     * @param onEmit will be called when the specified event emitted
      * @return subscription object to cancel observation
      */
-    public fun <E : EventMessage> subscribeToEvent(
+    private fun <E : EventMessage> observeEvent(
         event: Class<E>,
-        action: (event: E) -> Unit
+        onEmit: (event: E) -> Unit
     ): Subscription {
         val subscription = clientRequest()
             .subscribeToEvent(event)
-            .observe(action)
+            .observe(onEmit)
             .post()
         return subscription
     }
 
     /**
-     * Cancel the provided subscription.
+     * Stops observation by provided subscription.
      *
      * @param subscription subscription to cancel
      */
-    public fun cancelSubscription(subscription: Subscription) {
+    private fun stopObservation(subscription: Subscription) {
         client.subscriptions()
             .cancel(subscription)
     }
