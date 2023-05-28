@@ -330,24 +330,6 @@ public class DesktopClient(
     }
 
     /**
-     * Observes the provided event.
-     *
-     * @param event type of the event to observe
-     * @param onEmit will be called when the specified event emitted
-     * @return subscription object to cancel observation
-     */
-    private fun <E : EventMessage> observeEvent(
-        event: Class<E>,
-        onEmit: (event: E) -> Unit
-    ): Subscription {
-        val subscription = clientRequest()
-            .subscribeToEvent(event)
-            .observe(onEmit)
-            .post()
-        return subscription
-    }
-
-    /**
      * Stops observation by provided subscription.
      *
      * @param subscription subscription to cancel
