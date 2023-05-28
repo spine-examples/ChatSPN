@@ -153,8 +153,8 @@ private fun UserProfilePanel(user: UserProfile) {
 @Composable
 private fun UserSearchField(model: ChatsPageModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    var inputText by remember { model.userSearchState.userEmailState }
-    var isError by remember { model.userSearchState.errorState }
+    var inputText by remember { model.userSearchFieldState.userEmailState }
+    var isError by remember { model.userSearchFieldState.errorState }
     TextField(
         modifier = Modifier
             .fillMaxWidth()

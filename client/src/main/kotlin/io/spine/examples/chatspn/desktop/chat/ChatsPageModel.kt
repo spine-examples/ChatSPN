@@ -51,7 +51,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
     private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
-    public val userSearchState: UserSearchState = UserSearchState()
+    public val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
     public val authenticatedUser: UserProfile = client.authenticatedUser!!
 
     init {
@@ -68,6 +68,8 @@ public class ChatsPageModel(private val client: DesktopClient) {
 
     /**
      * Returns the state of messages in the chat.
+     *
+     * @param chat ID of the chat to get messages from
      */
     public fun messages(chat: ChatId): MessagesState {
         if (!chatMessagesStateMap.containsKey(chat)) {
@@ -84,7 +86,9 @@ public class ChatsPageModel(private val client: DesktopClient) {
     }
 
     /**
-     * Selects provided chat.
+     * Selects provided chat and subscribes to message changes in it.
+     *
+     * @param chat ID of the chat to select
      */
     public fun selectChat(chat: ChatId) {
         selectedChatState.value = chat
@@ -130,6 +134,8 @@ public class ChatsPageModel(private val client: DesktopClient) {
 
     /**
      * Returns the new list with the replaced message.
+     *
+     * @param newMessage message to replace
      */
     private fun MessageList.replaceMessage(newMessage: MessageData): MessageList {
         val oldMessage = this.findMessage(newMessage.id)
@@ -141,6 +147,9 @@ public class ChatsPageModel(private val client: DesktopClient) {
 
     /**
      * Finds message in the list by ID.
+     *
+     * @param id ID of the message to find
+     * @return found message or `null` if message not found
      */
     private fun MessageList.findMessage(id: MessageId): MessageData? {
         val message = this
@@ -155,13 +164,19 @@ public class ChatsPageModel(private val client: DesktopClient) {
 
     /**
      * Finds user by ID.
+     *
+     * @param id ID of the user to find
+     * @return found user profile or `null` if user not found
      */
-    public fun findUser(userId: UserId): UserProfile? {
-        return client.findUser(userId)
+    public fun findUser(id: UserId): UserProfile? {
+        return client.findUser(id)
     }
 
     /**
      * Finds user by email.
+     *
+     * @param email email of the user to find
+     * @return found user profile or `null` if user not found
      */
     public fun findUser(email: String): UserProfile? {
         return client.findUser(email)
@@ -169,6 +184,8 @@ public class ChatsPageModel(private val client: DesktopClient) {
 
     /**
      * Sends message to the selected chat.
+     *
+     * @param content message text content
      */
     public fun sendMessage(content: String) {
         client.sendMessage(selectedChatState.value, content)
@@ -176,18 +193,22 @@ public class ChatsPageModel(private val client: DesktopClient) {
 
     /**
      * Finds user by email and creates the personal chat.
+     *
+     * @param email email of the user with whom to create a personal chat
      */
     public fun createPersonalChat(email: String) {
         val user = client.findUser(email)
         if (null != user) {
             client.createPersonalChat(user.id)
         } else {
-            userSearchState.errorState.value = true
+            userSearchFieldState.errorState.value = true
         }
     }
 
     /**
      * Updates the model with new chats.
+     *
+     * @param chats new list of user chats
      */
     private fun updateChats(chats: ChatList) {
         chatPreviewsState.value = chats
@@ -195,6 +216,9 @@ public class ChatsPageModel(private val client: DesktopClient) {
 
     /**
      * Updates the model with new messages.
+     *
+     * @param chat ID of the chat to update messages in
+     * @param messages new list of messages in the chat
      */
     private fun updateMessages(chat: ChatId, messages: MessageList) {
         if (chatMessagesStateMap.containsKey(chat)) {
@@ -285,7 +309,10 @@ public class ChatsPageModel(private val client: DesktopClient) {
         return client.findUser(creator)!!.name
     }
 
-    public class UserSearchState {
+    /**
+     * State of the user search field.
+     */
+    public class UserSearchFieldState {
         public val userEmailState: MutableState<String> = mutableStateOf("")
         public val errorState: MutableState<Boolean> = mutableStateOf(false)
     }
@@ -332,6 +359,8 @@ public typealias MessagesState = StateFlow<MessageList>
 
 /**
  * Returns the new list without an element on provided index.
+ *
+ * @param index index of the element to remove
  */
 private fun <T> List<T>.remove(index: Int): List<T> {
     return this.subList(0, index) + this.subList(index + 1, this.size)
