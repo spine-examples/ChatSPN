@@ -59,7 +59,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @DisplayName("ChatSPN server should")
 final class ChatSpnServerTest {
 
-    private static final int TEST_SERVER_PORT = DEFAULT_CLIENT_SERVICE_PORT;
     private static final String ADDRESS = "localhost";
 
     private final Collection<ManagedChannel> channels = new ArrayList<>();
@@ -200,7 +199,7 @@ final class ChatSpnServerTest {
      * Creates a new client with access to the server.
      */
     Client createClient() {
-        var channel = forAddress(ADDRESS, TEST_SERVER_PORT)
+        var channel = forAddress(ADDRESS, DEFAULT_CLIENT_SERVICE_PORT)
                 .usePlaintext()
                 .build();
         var client = usingChannel(channel).build();
