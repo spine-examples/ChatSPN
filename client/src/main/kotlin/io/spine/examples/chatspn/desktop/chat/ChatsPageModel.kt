@@ -37,6 +37,7 @@ import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
 import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.message.MessageView
+import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import java.util.stream.Collectors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -91,25 +92,40 @@ public class ChatsPageModel(private val client: DesktopClient) {
         client.stopObservingMessages()
         client.observeMessages(
             chat,
-            { messageView ->
-                val message = messageView.toMessageData()
-                val chatMessages = chatMessagesStateMap[chat]!!.value
-                if (chatMessages.contains(message)) {
-                    val newChatMessages = chatMessages.replaceMessage(message)
-                    updateMessages(chat, newChatMessages)
-                } else {
-                    updateMessages(chat, chatMessages + message)
-                }
-            },
-            { messageDeleted ->
-                val chatMessages = chatMessagesStateMap[chat]!!.value
-                val message = chatMessages.findMessage(messageDeleted.id)
-                if (message != null) {
-                    val messageIndex = chatMessages.indexOf(message)
-                    val newChatMessages = chatMessages.remove(messageIndex)
-                    updateMessages(chat, newChatMessages)
-                }
-            })
+            { messageView -> chat.updateMessagesState(messageView) },
+            { messageDeleted -> chat.updateMessagesState(messageDeleted) })
+    }
+
+    /**
+     * Updates the state of chat messages by adding a new message,
+     * or editing existing one if message ID matches.
+     *
+     * @param messageView message to update the state
+     */
+    private fun ChatId.updateMessagesState(messageView: MessageView) {
+        val message = messageView.toMessageData()
+        val chatMessages = chatMessagesStateMap[this]!!.value
+        if (chatMessages.contains(message)) {
+            val newChatMessages = chatMessages.replaceMessage(message)
+            updateMessages(this, newChatMessages)
+        } else {
+            updateMessages(this, chatMessages + message)
+        }
+    }
+
+    /**
+     * Updates the state of chat messages by removing a message.
+     *
+     * @param messageDeleted event about message deletion
+     */
+    private fun ChatId.updateMessagesState(messageDeleted: MessageMarkedAsDeleted) {
+        val chatMessages = chatMessagesStateMap[this]!!.value
+        val message = chatMessages.findMessage(messageDeleted.id)
+        if (message != null) {
+            val messageIndex = chatMessages.indexOf(message)
+            val newChatMessages = chatMessages.remove(messageIndex)
+            updateMessages(this, newChatMessages)
+        }
     }
 
     /**
@@ -121,13 +137,6 @@ public class ChatsPageModel(private val client: DesktopClient) {
         val leftPart = this.subList(0, messageIndex)
         val rightPart = this.subList(messageIndex + 1, this.size)
         return leftPart + newMessage + rightPart
-    }
-
-    /**
-     * Returns the new list without an element on provided index.
-     */
-    private fun <T> List<T>.remove(index: Int): List<T> {
-        return this.subList(0, index) + this.subList(index + 1, this.size)
     }
 
     /**
@@ -320,3 +329,10 @@ private typealias MutableMessagesState = MutableStateFlow<MessageList>
  * Immutable state of messages in the chat.
  */
 public typealias MessagesState = StateFlow<MessageList>
+
+/**
+ * Returns the new list without an element on provided index.
+ */
+private fun <T> List<T>.remove(index: Int): List<T> {
+    return this.subList(0, index) + this.subList(index + 1, this.size)
+}
