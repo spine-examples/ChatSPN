@@ -198,7 +198,7 @@ final class ChatSpnServerTest {
     /**
      * Creates a new client with access to the server.
      */
-    Client createClient() {
+    private Client createClient() {
         var channel = forAddress(ADDRESS, DEFAULT_CLIENT_SERVICE_PORT)
                 .usePlaintext()
                 .build();
