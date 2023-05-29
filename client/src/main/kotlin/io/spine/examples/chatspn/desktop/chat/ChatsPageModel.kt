@@ -43,7 +43,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * UI Model for the `ChatsPage`.
+ * UI Model for the [ChatsPage].
  *
  * UI Model is a layer between `@Composable` functions and client.
  */
@@ -79,7 +79,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
     }
 
     /**
-     * Returns the state of selected chat.
+     * Returns the state of the selected chat.
      */
     public fun selectedChat(): StateFlow<ChatId> {
         return selectedChatState
@@ -149,7 +149,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      * Finds message in the list by ID.
      *
      * @param id ID of the message to find
-     * @return found message or `null` if message not found
+     * @return found message or `null` if message is not found
      */
     private fun MessageList.findMessage(id: MessageId): MessageData? {
         val message = this
@@ -166,7 +166,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      * Finds user by ID.
      *
      * @param id ID of the user to find
-     * @return found user profile or `null` if user not found
+     * @return found user profile or `null` if user is not found
      */
     public fun findUser(id: UserId): UserProfile? {
         return client.findUser(id)
@@ -183,7 +183,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
     }
 
     /**
-     * Sends message to the selected chat.
+     * Sends a message to the selected chat.
      *
      * @param content message text content
      */
@@ -192,7 +192,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
     }
 
     /**
-     * Finds user by email and creates the personal chat.
+     * Finds user by email and creates the personal chat between authenticated and found user.
      *
      * @param email email of the user with whom to create a personal chat
      */

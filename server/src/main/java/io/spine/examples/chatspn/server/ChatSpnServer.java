@@ -38,7 +38,7 @@ import java.io.IOException;
 import static io.spine.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT;
 
 /**
- * A gRPC server running a Chats Bounded Context.
+ * A gRPC server running a 'Chats' bounded context.
  *
  * <p>Server side of this application is currently running in in-memory storage mode.
  * Therefore, any changes made by users of this application will not be persisted

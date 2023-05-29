@@ -97,7 +97,6 @@ public class DesktopClient(
         onFail: () -> Unit = {}
     ) {
         val command = email.createAccountCommand(name)
-
         var successSubscription: Subscription? = null
         var failSubscription: Subscription? = null
         successSubscription = observeEvent(
@@ -345,7 +344,7 @@ public class DesktopClient(
     /**
      * Stops observation by provided subscription.
      *
-     * @param subscription subscription to cancel
+     * @param subscription subscription to cancel observation
      */
     private fun stopObservation(subscription: Subscription) {
         client.subscriptions()

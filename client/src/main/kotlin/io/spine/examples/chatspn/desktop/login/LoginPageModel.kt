@@ -31,7 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import io.spine.examples.chatspn.desktop.DesktopClient
 
 /**
- * UI Model for the `LoginPage`.
+ * UI Model for the `[LoginPage]`.
  */
 public class LoginPageModel(
     private val client: DesktopClient,
