@@ -60,7 +60,7 @@ import io.spine.net.EmailAddress
 /**
  * Provides API to interact with ChatSpn server via gRPC.
  *
- * By default, client will open channel to 'localhost: [50051]
+ * By default, client will open channel to 'localhost:[50051]
  * [io.spine.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT]'.
  */
 public class DesktopClient(
@@ -83,7 +83,7 @@ public class DesktopClient(
     }
 
     /**
-     * Registers a new user.
+     * Registers a new user and authenticates it.
      *
      * @param name name of the user to register
      * @param email email of the user to register
@@ -144,7 +144,7 @@ public class DesktopClient(
     }
 
     /**
-     * Finds user by id.
+     * Finds user by ID.
      *
      * @param id ID of the user to find
      * @return found user profile or `null` if the user not found
@@ -185,8 +185,10 @@ public class DesktopClient(
      * Creates a new personal chat between authenticated and provided user.
      *
      * @param user user to create a personal chat with authenticated user
+     * @throws IllegalStateException if the user has not been authenticated
      */
     public fun createPersonalChat(user: UserId) {
+        checkNotNull(authenticatedUser) { "The user has not been authenticated" }
         val command = authenticatedUser!!.id.createPersonalChatCommand(user)
         clientRequest()
             .command(command)
@@ -198,8 +200,10 @@ public class DesktopClient(
      *
      * @param chat chat to which message will be sent
      * @param content message text content
+     * @throws IllegalStateException if the user has not been authenticated
      */
     public fun sendMessage(chat: ChatId, content: String) {
+        checkNotNull(authenticatedUser) { "The user has not been authenticated" }
         val command = chat.sendMessageCommand(authenticatedUser!!.id, content)
         clientRequest()
             .command(command)
@@ -208,8 +212,11 @@ public class DesktopClient(
 
     /**
      * Returns chats where the authenticated user is a member.
+     *
+     * @throws IllegalStateException if the user has not been authenticated
      */
     public fun readChats(): List<ChatPreview> {
+        checkNotNull(authenticatedUser) { "The user has not been authenticated" }
         val chats = clientRequest()
             .select(UserChats::class.java)
             .byId(authenticatedUser!!.id)
@@ -221,8 +228,10 @@ public class DesktopClient(
      * Observes chats of the authenticated user.
      *
      * @param onUpdate will be called when the user's chats updated
+     * @throws IllegalStateException if the user has not been authenticated
      */
     public fun observeChats(onUpdate: (state: UserChats) -> Unit) {
+        checkNotNull(authenticatedUser) { "The user has not been authenticated" }
         val subscription = clientRequest()
             .subscribeTo(UserChats::class.java)
             .byId(authenticatedUser!!.id)
@@ -246,8 +255,10 @@ public class DesktopClient(
      *
      * @param chat ID of the chat to read messages from
      * @return list of messages in the chat
+     * @throws IllegalStateException if the user has not been authenticated
      */
     public fun readMessages(chat: ChatId): List<MessageView> {
+        checkNotNull(authenticatedUser) { "The user has not been authenticated" }
         val whenPostedField = MessageView.Field
             .whenPosted()
             .field
@@ -267,12 +278,14 @@ public class DesktopClient(
      * @param onUpdate will be called when a new chat message is posted,
      *                     or when an existing message is updated
      * @param onDelete will be called when a message is deleted
+     * @throws IllegalStateException if the user has not been authenticated
      */
     public fun observeMessages(
         chat: ChatId,
         onUpdate: (message: MessageView) -> Unit,
         onDelete: (messageDeleted: MessageMarkedAsDeleted) -> Unit
     ) {
+        checkNotNull(authenticatedUser) { "The user has not been authenticated" }
         val updateSubscription = clientRequest()
             .subscribeTo(MessageView::class.java)
             .where(chat.stateFilter())
