@@ -92,7 +92,7 @@ final class ChatSpnServerTest {
     }
 
     @Test
-    @DisplayName("accept the `CreateAccount` command and return `UserProfile` projection state" +
+    @DisplayName("accept the `CreateAccount` command and return `UserProfile` projection state " +
             "in response to `QueryRequest` by the `UserProfile` class")
     void commandAndQuery() {
         var client = createClient();
@@ -111,7 +111,7 @@ final class ChatSpnServerTest {
 
     @Test
     @DisplayName("subscribe to the `UserProfile` projection state and call 'observing consumer' " +
-            "when the `UserProfile` projection will be created " +
+            "when the `UserProfile` projection is created " +
             "in response to the `CreateAccount` command")
     void entitySubscription() throws ExecutionException, InterruptedException,
                                      TimeoutException {
@@ -133,7 +133,7 @@ final class ChatSpnServerTest {
     @Test
     @DisplayName("subscribe to the `UserProfile` projection state by ID " +
             "and call 'observing consumer' when the `UserProfile` projection with provided ID " +
-            "will be created in response to the `CreateAccount` command")
+            "is created in response to the `CreateAccount` command")
     void entitySubscriptionById() throws ExecutionException, InterruptedException,
                                          TimeoutException {
         var client = createClient();
@@ -158,8 +158,7 @@ final class ChatSpnServerTest {
 
     @Test
     @DisplayName("subscribe to the `AccountCreated` event and call 'observing consumer' " +
-            "when the `AccountCreated` event will be emitted " +
-            "in response to the `CreateAccount` command")
+            "when the `AccountCreated` event is emitted in response to the `CreateAccount` command")
     void eventSubscription() throws ExecutionException, InterruptedException,
                                     TimeoutException {
         var client = createClient();
@@ -180,7 +179,7 @@ final class ChatSpnServerTest {
     @Test
     @DisplayName("subscribe to the `AccountCreated` event by ID " +
             "and call 'observing consumer' when the `AccountCreated` event with provided 'id' field " +
-            "will be emitted in response to the `CreateAccount` command")
+            "is emitted in response to the `CreateAccount` command")
     void eventSubscriptionById() throws ExecutionException, InterruptedException,
                                         TimeoutException {
         var client = createClient();
