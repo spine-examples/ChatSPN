@@ -96,7 +96,9 @@ public class DesktopClient(
         onSuccess: () -> Unit = {},
         onFail: () -> Unit = {}
     ) {
-        val command = email.createAccountCommand(name)
+        val command = CreateAccount
+            .newBuilder()
+            .buildWith(email, name)
         var successSubscription: Subscription? = null
         var failSubscription: Subscription? = null
         successSubscription = observeEvent(
@@ -188,7 +190,9 @@ public class DesktopClient(
      */
     public fun createPersonalChat(user: UserId) {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
-        val command = authenticatedUser!!.id.createPersonalChatCommand(user)
+        val command = CreatePersonalChat
+            .newBuilder()
+            .buildWith(authenticatedUser!!.id, user)
         clientRequest()
             .command(command)
             .postAndForget()
@@ -203,7 +207,9 @@ public class DesktopClient(
      */
     public fun sendMessage(chat: ChatId, content: String) {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
-        val command = chat.sendMessageCommand(authenticatedUser!!.id, content)
+        val command = SendMessage
+            .newBuilder()
+            .buildWith(chat, authenticatedUser!!.id, content)
         clientRequest()
             .command(command)
             .postAndForget()
@@ -353,48 +359,55 @@ public class DesktopClient(
 }
 
 /**
- * Creates command to create an account for the user with `this` email.
+ * Builds command to create an account for the user.
  *
+ * @param email email of the user to create an account for
  * @param name name of the user to create an account for
  * @return command to create an account
  */
-private fun String.createAccountCommand(name: String): CreateAccount {
-    return CreateAccount
-        .newBuilder()
+private fun CreateAccount.Builder.buildWith(email: String, name: String): CreateAccount {
+    return this
         .setId(AccountCreationId.generate())
-        .setUser(this.toUserId())
-        .setEmail(this.toEmail())
+        .setUser(email.toUserId())
+        .setEmail(email.toEmail())
         .setName(name)
         .vBuild()
 }
 
 /**
- * Creates command to create a personal chat between `this` user and provided.
+ * Builds command to create a personal chat between provided users.
  *
+ * @param creator ID of the user who creates a personal chat
  * @param member ID of the user to create a personal chat with
  * @return command to create a personal chat
  */
-private fun UserId.createPersonalChatCommand(member: UserId): CreatePersonalChat {
-    return CreatePersonalChat
-        .newBuilder()
+private fun CreatePersonalChat.Builder.buildWith(
+    creator: UserId,
+    member: UserId
+): CreatePersonalChat {
+    return this
         .setId(ChatId.generate())
-        .setCreator(this)
+        .setCreator(creator)
         .setMember(member)
         .vBuild()
 }
 
 /**
- * Creates command to send a message in `this` chat.
+ * Builds command to send a message to the chat.
  *
+ * @param chat ID of the chat to send a message to
  * @param user ID of the user who wants to send a message
  * @param content message text content
  * @return command to send a message
  */
-private fun ChatId.sendMessageCommand(user: UserId, content: String): SendMessage {
-    return SendMessage
-        .newBuilder()
+private fun SendMessage.Builder.buildWith(
+    chat: ChatId,
+    user: UserId,
+    content: String
+): SendMessage {
+    return this
         .setId(MessageId.generate())
-        .setChat(this)
+        .setChat(chat)
         .setUser(user)
         .setContent(content)
         .vBuild()
