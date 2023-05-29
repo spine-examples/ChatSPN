@@ -69,7 +69,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
-import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
 import java.text.SimpleDateFormat
 import java.util.*
@@ -78,6 +77,8 @@ import kotlinx.coroutines.launch
 
 /**
  * Represents the 'Chats' page in the application.
+ *
+ * @param model UI model for the 'Chats' page
  */
 @Composable
 @Preview
@@ -92,9 +93,7 @@ public fun ChatsPage(model: ChatsPageModel) {
  * Represents the left sidebar on the `Chats` page.
  */
 @Composable
-private fun LeftSidebar(
-    model: ChatsPageModel
-) {
+private fun LeftSidebar(model: ChatsPageModel) {
     Surface(
         Modifier
             .padding(end = 1.dp)
@@ -266,10 +265,7 @@ private fun ChatPreviewPanel(
  * Represents the chat preview content in the chat preview panel.
  */
 @Composable
-private fun ChatPreviewContent(
-    chatName: String,
-    lastMessage: String,
-) {
+private fun ChatPreviewContent(chatName: String, lastMessage: String) {
     Row(
         modifier = Modifier.padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -309,9 +305,9 @@ private fun ChatContent(model: ChatsPageModel) {
         Column(
             Modifier.fillMaxSize()
         ) {
-            ChatTopbar(model, selectedChat)
+            ChatTopbar(model)
             Box(Modifier.weight(1f)) {
-                ChatMessages(model, selectedChat)
+                ChatMessages(model)
             }
             SendMessageInput(model)
         }
@@ -339,7 +335,8 @@ private fun ChatNotChosenBox() {
  * Represents the topbar of chat content.
  */
 @Composable
-private fun ChatTopbar(model: ChatsPageModel, selectedChat: ChatId) {
+private fun ChatTopbar(model: ChatsPageModel) {
+    val selectedChat by model.selectedChat().collectAsState()
     val chats by model.chats().collectAsState()
     val chat = chats.stream().filter { chat -> chat.id.equals(selectedChat) }.findFirst()
     Surface(
@@ -372,10 +369,8 @@ private fun ChatTopbar(model: ChatsPageModel, selectedChat: ChatId) {
  * Represents the list of messages in the chat.
  */
 @Composable
-private fun ChatMessages(
-    model: ChatsPageModel,
-    selectedChat: ChatId
-) {
+private fun ChatMessages(model: ChatsPageModel) {
+    val selectedChat by model.selectedChat().collectAsState()
     val messages by model
         .messages(selectedChat)
         .collectAsState()
@@ -400,10 +395,7 @@ private fun ChatMessages(
  * Represents the single message view in the chat.
  */
 @Composable
-private fun ChatMessage(
-    model: ChatsPageModel,
-    message: MessageData
-) {
+private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
     Box(
@@ -481,9 +473,7 @@ private fun Timestamp.toStringTime(): String {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SendMessageInput(
-    model: ChatsPageModel
-) {
+private fun SendMessageInput(model: ChatsPageModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     var inputText by remember { mutableStateOf("") }
     TextField(

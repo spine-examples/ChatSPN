@@ -39,6 +39,8 @@ import kotlinx.coroutines.launch
 
 /**
  * Represents the 'Registration' page in the application.
+ *
+ * @param model UI model for the 'Registration' page
  */
 @Composable
 public fun RegistrationPage(model: RegistrationPageModel) {

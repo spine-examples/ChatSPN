@@ -39,6 +39,8 @@ import kotlinx.coroutines.launch
 
 /**
  * Represents the 'Login' page in the application.
+ *
+ * @param model UI model for the 'Login' page
  */
 @Composable
 public fun LoginPage(model: LoginPageModel) {
