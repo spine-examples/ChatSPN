@@ -55,8 +55,8 @@ public class ChatsPageModel(private val client: DesktopClient) {
     public val authenticatedUser: UserProfile = client.authenticatedUser!!
 
     init {
-        updateChats(client.readChats().toChatDataList())
-        client.observeChats { state -> updateChats(state.chatList.toChatDataList()) }
+        updateChats(client.readChats().toChatDataList(client))
+        client.observeChats { state -> updateChats(state.chatList.toChatDataList(client)) }
     }
 
     /**
@@ -92,7 +92,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      */
     public fun selectChat(chat: ChatId) {
         selectedChatState.value = chat
-        updateMessages(chat, client.readMessages(chat).toMessageDataList())
+        updateMessages(chat, client.readMessages(chat).toMessageDataList(client))
         client.stopObservingMessages()
         client.observeMessages(
             chat,
@@ -107,7 +107,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      * @param messageView message to update the state
      */
     private fun ChatId.updateMessagesState(messageView: MessageView) {
-        val message = messageView.toMessageData()
+        val message = messageView.toMessageData(client)
         val chatMessages = chatMessagesStateMap[this]!!.value
         if (chatMessages.contains(message)) {
             val newChatMessages = chatMessages.replaceMessage(message)
@@ -130,36 +130,6 @@ public class ChatsPageModel(private val client: DesktopClient) {
             val newChatMessages = chatMessages.remove(messageIndex)
             updateMessages(this, newChatMessages)
         }
-    }
-
-    /**
-     * Returns the new list with the replaced message.
-     *
-     * @param newMessage message to replace
-     */
-    private fun MessageList.replaceMessage(newMessage: MessageData): MessageList {
-        val oldMessage = this.findMessage(newMessage.id)
-        val messageIndex = this.indexOf(oldMessage)
-        val leftPart = this.subList(0, messageIndex)
-        val rightPart = this.subList(messageIndex + 1, this.size)
-        return leftPart + newMessage + rightPart
-    }
-
-    /**
-     * Finds message in the list by ID.
-     *
-     * @param id ID of the message to find
-     * @return found message or `null` if message is not found
-     */
-    private fun MessageList.findMessage(id: MessageId): MessageData? {
-        val message = this
-            .stream()
-            .filter { message -> message.id.equals(id) }
-            .collect(Collectors.toList())
-        if (message.isEmpty()) {
-            return null
-        }
-        return message[0]
     }
 
     /**
@@ -229,87 +199,6 @@ public class ChatsPageModel(private val client: DesktopClient) {
     }
 
     /**
-     * Converts the `ChatPreview` list to the `ChatData` list.
-     */
-    private fun List<ChatPreview>.toChatDataList(): ChatList {
-        return this.stream().map { chatPreview ->
-            val lastMessage: MessageData?
-            if (chatPreview.lastMessage.equals(MessagePreview.getDefaultInstance())) {
-                lastMessage = null
-            } else {
-                lastMessage = chatPreview.lastMessage.toMessageData();
-            }
-            ChatData(
-                chatPreview.id,
-                chatPreview.name(),
-                lastMessage
-            )
-        }.collect(Collectors.toList())
-    }
-
-    /**
-     * Converts the `MessageView` list to the `MessageData` list.
-     */
-    private fun List<MessageView>.toMessageDataList(): MessageList {
-        val users = mutableMapOf<UserId, UserProfile>();
-        val messages = this.stream().map { message ->
-            val user: UserProfile
-            if (users.containsKey(message.user)) {
-                user = users[message.user]!!
-            } else {
-                user = client.findUser(message.user)!!
-                users[message.user] = user
-            }
-            MessageData(
-                message.id,
-                user,
-                message.content,
-                message.whenPosted
-            )
-        }.collect(Collectors.toList())
-        return messages
-    }
-
-    /**
-     * Converts the `MessagePreview` to `MessageData`.
-     */
-    private fun MessagePreview.toMessageData(): MessageData {
-        return MessageData(
-            this.id,
-            client.findUser(this.user)!!,
-            this.content,
-            this.whenPosted
-        )
-    }
-
-    /**
-     * Converts the `MessageView` to `MessageData`.
-     */
-    private fun MessageView.toMessageData(): MessageData {
-        return MessageData(
-            this.id,
-            client.findUser(this.user)!!,
-            this.content,
-            this.whenPosted
-        )
-    }
-
-    /**
-     * Extracts the name of the chat.
-     */
-    private fun ChatPreview.name(): String {
-        if (this.hasGroupChat()) {
-            return this.groupChat.name
-        }
-        val creator = this.personalChat.creator
-        val member = this.personalChat.member
-        if (client.authenticatedUser!!.id.equals(creator)) {
-            return client.findUser(member)!!.name
-        }
-        return client.findUser(creator)!!.name
-    }
-
-    /**
      * State of the user search field.
      */
     public class UserSearchFieldState {
@@ -336,6 +225,127 @@ public data class MessageData(
     val content: String,
     val whenPosted: Timestamp
 )
+
+/**
+ * Finds message in the list by ID.
+ *
+ * @param id ID of the message to find
+ * @return found message or `null` if message is not found
+ */
+private fun MessageList.findMessage(id: MessageId): MessageData? {
+    val message = this
+        .stream()
+        .filter { message -> message.id.equals(id) }
+        .collect(Collectors.toList())
+    if (message.isEmpty()) {
+        return null
+    }
+    return message[0]
+}
+
+/**
+ * Returns the new list with the replaced message.
+ *
+ * @param newMessage message to replace
+ */
+private fun MessageList.replaceMessage(newMessage: MessageData): MessageList {
+    val oldMessage = this.findMessage(newMessage.id)
+    val messageIndex = this.indexOf(oldMessage)
+    val leftPart = this.subList(0, messageIndex)
+    val rightPart = this.subList(messageIndex + 1, this.size)
+    return leftPart + newMessage + rightPart
+}
+
+/**
+ * Creates the `ChatData` list from the `ChatPreview` list.
+ *
+ * @param client desktop client to find user profiles
+ */
+private fun List<ChatPreview>.toChatDataList(client: DesktopClient): ChatList {
+    return this.stream().map { chatPreview ->
+        val lastMessage: MessageData?
+        if (chatPreview.lastMessage.equals(MessagePreview.getDefaultInstance())) {
+            lastMessage = null
+        } else {
+            lastMessage = chatPreview.lastMessage.toMessageData(client)
+        }
+        ChatData(
+            chatPreview.id,
+            chatPreview.name(client),
+            lastMessage
+        )
+    }.collect(Collectors.toList())
+}
+
+/**
+ * Creates the `MessageData` from the `MessagePreview`.
+ *
+ * @param client desktop client to find user profiles
+ */
+private fun MessagePreview.toMessageData(client: DesktopClient): MessageData {
+    return MessageData(
+        this.id,
+        client.findUser(this.user)!!,
+        this.content,
+        this.whenPosted
+    )
+}
+
+/**
+ * Creates the `MessageData` from the `MessageView`.
+ *
+ * @param client desktop client to find user profiles
+ */
+private fun MessageView.toMessageData(client: DesktopClient): MessageData {
+    return MessageData(
+        this.id,
+        client.findUser(this.user)!!,
+        this.content,
+        this.whenPosted
+    )
+}
+
+/**
+ * Retrieves the display name of the chat.
+ *
+ * @param client desktop client to find user profiles
+ */
+private fun ChatPreview.name(client: DesktopClient): String {
+    if (this.hasGroupChat()) {
+        return this.groupChat.name
+    }
+    val creator = this.personalChat.creator
+    val member = this.personalChat.member
+    if (client.authenticatedUser!!.id.equals(creator)) {
+        return client.findUser(member)!!.name
+    }
+    return client.findUser(creator)!!.name
+}
+
+/**
+ * Creates the `MessageData` list. from the `MessageView` list.
+ *
+ * @param client desktop client to find user profiles
+ */
+private fun List<MessageView>.toMessageDataList(client: DesktopClient): MessageList {
+    val users = mutableMapOf<UserId, UserProfile>();
+    val messages = this.stream().map { message ->
+        val user: UserProfile
+        if (users.containsKey(message.user)) {
+            user = users[message.user]!!
+        } else {
+            user = client.findUser(message.user)!!
+            users[message.user] = user
+        }
+        MessageData(
+            message.id,
+            user,
+            message.content,
+            message.whenPosted
+        )
+    }.collect(Collectors.toList())
+    return messages
+}
 
 /**
  * List of `ChatData`.
