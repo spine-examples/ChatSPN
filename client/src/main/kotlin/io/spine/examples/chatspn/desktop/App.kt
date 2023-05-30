@@ -34,10 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.spine.examples.chatspn.desktop.chat.ChatsPage
 import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
-import io.spine.examples.chatspn.desktop.login.LoginPage
-import io.spine.examples.chatspn.desktop.login.LoginPageModel
-import io.spine.examples.chatspn.desktop.registration.RegistrationPage
-import io.spine.examples.chatspn.desktop.registration.RegistrationPageModel
 
 private val client = DesktopClient()
 

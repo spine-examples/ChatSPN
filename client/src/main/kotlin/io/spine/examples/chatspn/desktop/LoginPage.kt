@@ -24,16 +24,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop.login
+package io.spine.examples.chatspn.desktop
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import io.spine.examples.chatspn.desktop.FormBox
-import io.spine.examples.chatspn.desktop.FormField
-import io.spine.examples.chatspn.desktop.FormHeader
-import io.spine.examples.chatspn.desktop.PrimaryButton
-import io.spine.examples.chatspn.desktop.SecondaryButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -69,5 +66,33 @@ public fun LoginPage(model: LoginPageModel) {
             }
         }
         SecondaryButton("Don't have an account?", model.toRegistration)
+    }
+}
+
+/**
+ * UI Model for the `[LoginPage]`.
+ */
+public class LoginPageModel(
+    private val client: DesktopClient,
+    public val toRegistration: () -> Unit,
+    private val toChats: () -> Unit,
+) {
+    public val emailState: MutableState<String> = mutableStateOf("")
+    public val emailErrorState: MutableState<Boolean> = mutableStateOf(false)
+    public val emailErrorText: MutableState<String> = mutableStateOf("")
+
+    /**
+     * Authenticates the user with the credentials specified in the form fields.
+     */
+    public fun logIn() {
+        val onFail = {
+            emailErrorState.value = true
+            emailErrorText.value = "Account with this credentials doesn't exist"
+        }
+        client.logIn(
+            emailState.value,
+            toChats,
+            onFail
+        )
     }
 }

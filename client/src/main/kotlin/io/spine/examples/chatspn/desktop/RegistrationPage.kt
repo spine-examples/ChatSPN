@@ -24,11 +24,64 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop.registration
+package io.spine.examples.chatspn.desktop
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import io.spine.examples.chatspn.desktop.DesktopClient
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+/**
+ * Represents the 'Registration' page in the application.
+ *
+ * @param model UI model for the 'Registration' page
+ */
+@Composable
+public fun RegistrationPage(model: RegistrationPageModel) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    val emailState = remember { model.emailState }
+    val emailErrorState = remember { model.emailErrorState }
+    val emailErrorText = remember { model.emailErrorText }
+    val nameState = remember { model.nameState }
+    val nameErrorState = remember { model.nameErrorState }
+    val nameErrorText = remember { model.nameErrorText }
+    FormBox {
+        FormHeader("Sign Up")
+        FormField(
+            "Email:",
+            "john.doe@mail.com",
+            emailState,
+            emailErrorState,
+            emailErrorText
+        )
+        FormField(
+            "Name:",
+            "John Doe",
+            nameState,
+            nameErrorState,
+            nameErrorText
+        )
+        PrimaryButton("Sign Up") {
+            if (emailState.value.isEmpty()) {
+                emailErrorState.value = true
+                emailErrorText.value = "Email field must not be empty"
+            }
+            if (nameState.value.isEmpty()) {
+                nameErrorState.value = true
+                nameErrorText.value = "Name field must not be empty"
+            }
+            if (!emailErrorState.value && !nameErrorState.value) {
+                viewScope.launch() {
+                    model.register()
+                }
+            }
+        }
+        SecondaryButton("Already have an account?", model.toLogin)
+    }
+}
 
 /**
  * UI Model for the [RegistrationPage]`.
