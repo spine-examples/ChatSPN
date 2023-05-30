@@ -50,6 +50,7 @@ import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.DropdownMenu
@@ -438,7 +439,7 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
             color = MaterialTheme.colorScheme.surface
         ) {
             MessageContent(message)
-            MessageDropdownMenu(model, menuState, message)
+            MessageDropdownMenu(model, menuState, message, isMyMessage)
         }
     }
 }
@@ -450,7 +451,8 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
 private fun MessageDropdownMenu(
     model: ChatsPageModel,
     menuState: MutableState<Boolean>,
-    message: MessageData
+    message: MessageData,
+    isMyMessage: Boolean
 ) {
     DropdownMenu(
         expanded = menuState.value,
@@ -460,6 +462,11 @@ private fun MessageDropdownMenu(
         MessageMenuItem("Remove", Icons.Default.Delete) {
             model.removeMessage(message.id)
             menuState.value = false
+        }
+        if (isMyMessage) {
+            MessageMenuItem("Edit", Icons.Default.Edit) {
+                menuState.value = false
+            }
         }
     }
 }
