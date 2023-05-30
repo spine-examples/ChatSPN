@@ -438,7 +438,7 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
             color = MaterialTheme.colorScheme.surface
         ) {
             MessageContent(message)
-            MessageDropdownMenu(model, menuState)
+            MessageDropdownMenu(model, menuState, message)
         }
     }
 }
@@ -447,13 +447,18 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
  * Represents the context dropdown menu of the message.
  */
 @Composable
-private fun MessageDropdownMenu(model: ChatsPageModel, menuState: MutableState<Boolean>) {
+private fun MessageDropdownMenu(
+    model: ChatsPageModel,
+    menuState: MutableState<Boolean>,
+    message: MessageData
+) {
     DropdownMenu(
         expanded = menuState.value,
         onDismissRequest = { menuState.value = false },
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
     ) {
         MessageMenuItem("Remove", Icons.Default.Delete) {
+            model.removeMessage(message.id)
             menuState.value = false
         }
     }
@@ -708,6 +713,15 @@ public class ChatsPageModel(private val client: DesktopClient) {
      */
     public fun sendMessage(content: String) {
         client.sendMessage(selectedChatState.value, content)
+    }
+
+    /**
+     * Removes message from the selected chat.
+     *
+     * @param message ID of the message to remove
+     */
+    public fun removeMessage(message: MessageId) {
+        client.removeMessage(selectedChatState.value, message)
     }
 
     /**
