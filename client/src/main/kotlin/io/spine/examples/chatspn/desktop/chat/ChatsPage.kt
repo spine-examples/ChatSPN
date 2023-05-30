@@ -27,6 +27,8 @@
 package io.spine.examples.chatspn.desktop.chat
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,12 +44,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -67,6 +73,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
@@ -406,23 +414,77 @@ private fun ChatMessages(model: ChatsPageModel) {
 /**
  * Represents the single message view in the chat.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
+    val menuState = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         Surface(
-            modifier = Modifier.padding(4.dp),
+            modifier = Modifier.padding(4.dp)
+                .onClick(
+                    enabled = true,
+                    matcher = PointerMatcher.mouse(PointerButton.Secondary),
+                    onClick = {
+                        menuState.value = true
+                    }
+                ),
             shape = RoundedCornerShape(size = 20.dp),
             elevation = 8.dp,
             color = MaterialTheme.colorScheme.surface
         ) {
             MessageContent(message)
+            MessageDropdownMenu(model, menuState)
         }
     }
+}
+
+/**
+ * Represents the context dropdown menu of the message.
+ */
+@Composable
+private fun MessageDropdownMenu(model: ChatsPageModel, menuState: MutableState<Boolean>) {
+    DropdownMenu(
+        expanded = menuState.value,
+        onDismissRequest = { menuState.value = false },
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+    ) {
+        MessageMenuItem("Remove", Icons.Default.Delete) {
+            menuState.value = false
+        }
+    }
+}
+
+/**
+ * Represents the item of the context dropdown menu.
+ */
+@Composable
+private fun MessageMenuItem(
+    text: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    DropdownMenuItem(
+        modifier = Modifier
+            .height(30.dp),
+        text = {
+            Text(
+                text,
+                style = MaterialTheme.typography.labelMedium
+            )
+        },
+        onClick = onClick,
+        leadingIcon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = text
+            )
+        }
+    )
 }
 
 /**
