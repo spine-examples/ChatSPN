@@ -454,13 +454,16 @@ private fun MessageDropdownMenu(
     message: MessageData,
     isMyMessage: Boolean
 ) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
     DropdownMenu(
         expanded = menuState.value,
         onDismissRequest = { menuState.value = false },
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
     ) {
         MessageMenuItem("Remove", Icons.Default.Delete) {
-            model.removeMessage(message.id)
+            viewScope.launch {
+                model.removeMessage(message.id)
+            }
             menuState.value = false
         }
         if (isMyMessage) {
