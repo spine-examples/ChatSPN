@@ -34,6 +34,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -49,12 +50,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -330,7 +335,7 @@ private fun ChatContent(model: ChatsPageModel) {
             Box(Modifier.weight(1f)) {
                 ChatMessages(model)
             }
-            SendMessageInput(model)
+            MessageInputField(model)
         }
     }
 }
@@ -558,52 +563,119 @@ private fun Timestamp.toStringTime(): String {
 }
 
 /**
- * Represents the input for sending a message to the chat.
+ * Represents the input field for sending and editing a message in the chat.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SendMessageInput(model: ChatsPageModel) {
+private fun MessageInputField(model: ChatsPageModel) {
+    var inputText by remember { mutableStateOf("") }
+    val editState by remember { mutableStateOf(true) }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Column {
+            if (editState) {
+                EditMessagePanel(model)
+            }
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = inputText,
+                placeholder = {
+                    Text("Type message here")
+                },
+                onValueChange = {
+                    inputText = it
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary,
+                ),
+                trailingIcon = { MessageInputFieldIcon(model) }
+            )
+        }
+    }
+}
+
+/**
+ * Represents the icon button to send or edit the message.
+ */
+@Composable
+private fun MessageInputFieldIcon(model: ChatsPageModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     var inputText by remember { mutableStateOf("") }
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(10.dp),
-        value = inputText,
-        placeholder = {
-            Text("Type message here")
-        },
-        onValueChange = {
-            inputText = it
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary,
-        ),
-        trailingIcon = {
-            if (inputText.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .clickable {
-                            val messageContent = inputText
-                            viewScope.launch {
-                                model.sendMessage(messageContent)
-                            }
-                            inputText = ""
+    var editState by remember { mutableStateOf(true) }
+    val iconText = if (editState) "Edit" else "Send"
+    val icon = if (editState) Icons.Default.Check else Icons.Default.Send
+
+    if (inputText.isNotEmpty()) {
+        Row(
+            modifier = Modifier
+                .clickable {
+                    val messageContent = inputText
+                    viewScope.launch {
+                        if (editState) {
+                            model.sendMessage(messageContent)
+                        } else {
+                            editState = false
                         }
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Send,
-                        contentDescription = "Send",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text("Send")
+                    }
+                    inputText = ""
                 }
-            }
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = iconText,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(iconText)
         }
-    )
+    }
+}
+
+/**
+ * Represents the view of the message in editing process.
+ */
+@Composable
+private fun EditMessagePanel(model: ChatsPageModel) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(Modifier.weight(1f)) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Edit",
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text("Edit message:", color = MaterialTheme.colorScheme.primary)
+            Text(
+                "My message is very long and very long, very long and very long, very long and very long",
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
+            )
+        }
+        ElevatedButton(
+            modifier = Modifier
+                .width(24.dp)
+                .height(24.dp),
+            content = {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close"
+                )
+            },
+            contentPadding = PaddingValues(0.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground
+            ),
+            onClick = { }
+        )
+    }
 }
 
 /**

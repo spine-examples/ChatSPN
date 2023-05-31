@@ -60,6 +60,7 @@ private val lightColors: ColorScheme = lightColorScheme(
     onSecondary = Color.Gray,
     surface = Color(0xFFB0CBF5),
     background = Color.White,
+    onBackground = Color.Black,
     error = Color(0xFFFC3903),
 )
 
