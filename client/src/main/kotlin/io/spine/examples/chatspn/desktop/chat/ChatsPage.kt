@@ -473,6 +473,9 @@ private fun MessageDropdownMenu(
         }
         if (isMyMessage) {
             MessageMenuItem("Edit", Icons.Default.Edit) {
+                model.messageInputFieldState.isEditingState.value = true
+                model.messageInputFieldState.editingMessage.value = message
+                model.messageInputFieldState.inputText.value = message.content
                 menuState.value = false
             }
         }
@@ -568,8 +571,8 @@ private fun Timestamp.toStringTime(): String {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MessageInputField(model: ChatsPageModel) {
-    var inputText by remember { mutableStateOf("") }
-    val editState by remember { mutableStateOf(true) }
+    var inputText by remember { model.messageInputFieldState.inputText }
+    val isEditing by remember { model.messageInputFieldState.isEditingState }
     Box(
         Modifier
             .fillMaxWidth()
@@ -577,7 +580,7 @@ private fun MessageInputField(model: ChatsPageModel) {
             .background(MaterialTheme.colorScheme.background)
     ) {
         Column {
-            if (editState) {
+            if (isEditing) {
                 EditMessagePanel(model)
             }
             TextField(
@@ -604,10 +607,10 @@ private fun MessageInputField(model: ChatsPageModel) {
 @Composable
 private fun MessageInputFieldIcon(model: ChatsPageModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    var inputText by remember { mutableStateOf("") }
-    var editState by remember { mutableStateOf(true) }
-    val iconText = if (editState) "Edit" else "Send"
-    val icon = if (editState) Icons.Default.Check else Icons.Default.Send
+    var inputText by remember { model.messageInputFieldState.inputText }
+    var isEditing by remember { model.messageInputFieldState.isEditingState }
+    val iconText = if (isEditing) "Edit" else "Send"
+    val icon = if (isEditing) Icons.Default.Check else Icons.Default.Send
 
     if (inputText.isNotEmpty()) {
         Row(
@@ -615,10 +618,10 @@ private fun MessageInputFieldIcon(model: ChatsPageModel) {
                 .clickable {
                     val messageContent = inputText
                     viewScope.launch {
-                        if (editState) {
-                            model.sendMessage(messageContent)
+                        if (isEditing) {
+                            isEditing = false
                         } else {
-                            editState = false
+                            model.sendMessage(messageContent)
                         }
                     }
                     inputText = ""
@@ -641,6 +644,9 @@ private fun MessageInputFieldIcon(model: ChatsPageModel) {
  */
 @Composable
 private fun EditMessagePanel(model: ChatsPageModel) {
+    var isEditing by remember { model.messageInputFieldState.isEditingState }
+    var inputText by remember { model.messageInputFieldState.inputText }
+    var message by remember { model.messageInputFieldState.editingMessage }
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -653,7 +659,7 @@ private fun EditMessagePanel(model: ChatsPageModel) {
             )
             Text("Edit message:", color = MaterialTheme.colorScheme.primary)
             Text(
-                "My message is very long and very long, very long and very long, very long and very long",
+                message!!.content,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )
@@ -673,7 +679,11 @@ private fun EditMessagePanel(model: ChatsPageModel) {
                 containerColor = MaterialTheme.colorScheme.background,
                 contentColor = MaterialTheme.colorScheme.onBackground
             ),
-            onClick = { }
+            onClick = {
+                isEditing = false
+                inputText = ""
+                message = null
+            }
         )
     }
 }
@@ -688,6 +698,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
     public val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
+    public val messageInputFieldState: MessageInputFieldState = MessageInputFieldState()
     public val authenticatedUser: UserProfile = client.authenticatedUser!!
 
     init {
@@ -849,6 +860,15 @@ public class ChatsPageModel(private val client: DesktopClient) {
     public class UserSearchFieldState {
         public val userEmailState: MutableState<String> = mutableStateOf("")
         public val errorState: MutableState<Boolean> = mutableStateOf(false)
+    }
+
+    /**
+     * State of the message input field.
+     */
+    public class MessageInputFieldState {
+        public val inputText: MutableState<String> = mutableStateOf("")
+        public val isEditingState: MutableState<Boolean> = mutableStateOf(false)
+        public val editingMessage: MutableState<MessageData?> = mutableStateOf(null)
     }
 }
 
