@@ -646,9 +646,7 @@ private fun MessageInputFieldIcon(model: ChatsPageModel) {
  */
 @Composable
 private fun EditMessagePanel(model: ChatsPageModel) {
-    var isEditing by remember { model.messageInputFieldState.isEditingState }
-    var inputText by remember { model.messageInputFieldState.inputText }
-    var message by remember { model.messageInputFieldState.editingMessage }
+    val message by remember { model.messageInputFieldState.editingMessage }
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -682,9 +680,7 @@ private fun EditMessagePanel(model: ChatsPageModel) {
                 contentColor = MaterialTheme.colorScheme.onBackground
             ),
             onClick = {
-                isEditing = false
-                inputText = ""
-                message = null
+                model.messageInputFieldState.clear()
             }
         )
     }
@@ -737,10 +733,13 @@ public class ChatsPageModel(private val client: DesktopClient) {
     /**
      * Selects provided chat and subscribes to message changes in it.
      *
+     * Also clears the message input field state.
+     *
      * @param chat ID of the chat to select
      */
     public fun selectChat(chat: ChatId) {
         selectedChatState.value = chat
+        messageInputFieldState.clear()
         updateMessages(chat, client.readMessages(chat).toMessageDataList(client))
         client.stopObservingMessages()
         client.observeMessages(
@@ -881,6 +880,15 @@ public class ChatsPageModel(private val client: DesktopClient) {
         public val inputText: MutableState<String> = mutableStateOf("")
         public val isEditingState: MutableState<Boolean> = mutableStateOf(false)
         public val editingMessage: MutableState<MessageData?> = mutableStateOf(null)
+
+        /**
+         * Clears the state.
+         */
+        public fun clear() {
+            inputText.value = ""
+            isEditingState.value = false
+            editingMessage.value = null
+        }
     }
 }
 
