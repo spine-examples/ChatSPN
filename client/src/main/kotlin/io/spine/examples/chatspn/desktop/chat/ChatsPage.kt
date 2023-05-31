@@ -609,6 +609,7 @@ private fun MessageInputFieldIcon(model: ChatsPageModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     var inputText by remember { model.messageInputFieldState.inputText }
     var isEditing by remember { model.messageInputFieldState.isEditingState }
+    var editingMessage by remember { model.messageInputFieldState.editingMessage }
     val iconText = if (isEditing) "Edit" else "Send"
     val icon = if (isEditing) Icons.Default.Check else Icons.Default.Send
 
@@ -617,13 +618,16 @@ private fun MessageInputFieldIcon(model: ChatsPageModel) {
             modifier = Modifier
                 .clickable {
                     val messageContent = inputText
+                    val message = editingMessage
                     viewScope.launch {
                         if (isEditing) {
-                            isEditing = false
+                            model.editMessage(message!!.id, messageContent)
                         } else {
                             model.sendMessage(messageContent)
                         }
                     }
+                    isEditing = false
+                    editingMessage = null
                     inputText = ""
                 }
                 .padding(10.dp),
@@ -815,6 +819,16 @@ public class ChatsPageModel(private val client: DesktopClient) {
      */
     public fun removeMessage(message: MessageId) {
         client.removeMessage(selectedChatState.value, message)
+    }
+
+    /**
+     * Edits message in the selected chat.
+     *
+     * @param message ID of the message to edit
+     * @param newContent new text content for the message
+     */
+    public fun editMessage(message: MessageId, newContent: String) {
+        client.editMessage(selectedChatState.value, message, newContent)
     }
 
     /**

@@ -54,6 +54,7 @@ import io.spine.examples.chatspn.account.event.AccountNotCreated
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
 import io.spine.examples.chatspn.message.MessageView
+import io.spine.examples.chatspn.message.command.EditMessage
 import io.spine.examples.chatspn.message.command.RemoveMessage
 import io.spine.examples.chatspn.message.command.SendMessage
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
@@ -229,6 +230,24 @@ public class DesktopClient(
         val command = RemoveMessage
             .newBuilder()
             .buildWith(chat, authenticatedUser!!.id, message)
+        clientRequest()
+            .command(command)
+            .postAndForget()
+    }
+
+    /**
+     * Edits message in the chat.
+     *
+     * @param chat chat to edit the message in
+     * @param message ID of the message to edit
+     * @param newContent new text content for the message
+     * @throws IllegalStateException if the user has not been authenticated
+     */
+    public fun editMessage(chat: ChatId, message: MessageId, newContent: String) {
+        checkNotNull(authenticatedUser) { "The user has not been authenticated" }
+        val command = EditMessage
+            .newBuilder()
+            .buildWith(chat, authenticatedUser!!.id, message, newContent)
         clientRequest()
             .command(command)
             .postAndForget()
@@ -453,6 +472,29 @@ private fun RemoveMessage.Builder.buildWith(
         .setUser(user)
         .setChat(chat)
         .setId(removalId)
+        .vBuild()
+}
+
+/**
+ * Builds command to remove the message.
+ *
+ * @param chat ID of the chat to edit the message in
+ * @param user ID of the user who wants to edit a message
+ * @param message ID of the message to edit
+ * @param newContent new text content for the message
+ * @return command to remove the message
+ */
+private fun EditMessage.Builder.buildWith(
+    chat: ChatId,
+    user: UserId,
+    message: MessageId,
+    newContent: String,
+): EditMessage {
+    return this
+        .setId(message)
+        .setUser(user)
+        .setChat(chat)
+        .setSuggestedContent(newContent)
         .vBuild()
 }
 
