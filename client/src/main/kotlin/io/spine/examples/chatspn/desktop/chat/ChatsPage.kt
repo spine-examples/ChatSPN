@@ -617,18 +617,16 @@ private fun MessageInputFieldIcon(model: ChatsPageModel) {
         Row(
             modifier = Modifier
                 .clickable {
-                    val messageContent = inputText
-                    val message = editingMessage
                     viewScope.launch {
                         if (isEditing) {
-                            model.editMessage(message!!.id, messageContent)
+                            model.editMessage(editingMessage!!.id, inputText)
                         } else {
-                            model.sendMessage(messageContent)
+                            model.sendMessage(inputText)
                         }
+                        isEditing = false
+                        editingMessage = null
+                        inputText = ""
                     }
-                    isEditing = false
-                    editingMessage = null
-                    inputText = ""
                 }
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -760,7 +758,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
     private fun ChatId.updateMessagesState(messageView: MessageView) {
         val message = messageView.toMessageData(client)
         val chatMessages = chatMessagesStateMap[this]!!.value
-        if (chatMessages.contains(message)) {
+        if (chatMessages.findMessage(message.id) != null) {
             val newChatMessages = chatMessages.replaceMessage(message)
             updateMessages(this, newChatMessages)
         } else {
