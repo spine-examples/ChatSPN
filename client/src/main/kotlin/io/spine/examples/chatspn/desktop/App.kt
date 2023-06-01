@@ -54,7 +54,7 @@ private fun app(): Unit = application {
 }
 
 /**
- * Entry point of the desktop application
+ * Entry point of the desktop application.
  */
 public fun main() {
     app()
