@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import java.awt.Dimension
 
 private val client = DesktopClient()
 private val navigation = Navigation(client)
@@ -45,6 +46,7 @@ private fun app(): Unit = application {
                 title = "ChatSPN",
                 state = WindowState(size = DpSize(1000.dp, 600.dp))
             ) {
+                window.minimumSize = Dimension(750, 450)
                 navigation.currentPage()
             }
         }
