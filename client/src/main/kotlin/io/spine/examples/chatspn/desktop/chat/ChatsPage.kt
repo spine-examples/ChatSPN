@@ -90,11 +90,12 @@ import kotlinx.coroutines.launch
 /**
  * Represents the 'Chats' page in the application.
  *
- * @param model UI model for the 'Chats' page
+ * @param client desktop client
  */
 @Composable
 @Preview
-public fun ChatsPage(model: ChatsPageModel) {
+public fun ChatsPage(client: DesktopClient) {
+    val model = remember { ChatsPageModel(client) }
     Row {
         LeftSidebar(model)
         ChatContent(model)
@@ -534,12 +535,12 @@ private fun SendMessageInput(model: ChatsPageModel) {
  *
  * UI Model is a layer between `@Composable` functions and client.
  */
-public class ChatsPageModel(private val client: DesktopClient) {
+private class ChatsPageModel(private val client: DesktopClient) {
     private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
-    public val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
-    public val authenticatedUser: UserProfile = client.authenticatedUser!!
+    val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
+    val authenticatedUser: UserProfile = client.authenticatedUser!!
 
     init {
         updateChats(client.readChats().toChatDataList(client))
@@ -549,7 +550,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
     /**
      * Returns the state of the user's chats.
      */
-    public fun chats(): StateFlow<ChatList> {
+    fun chats(): StateFlow<ChatList> {
         return chatPreviewsState
     }
 
@@ -558,7 +559,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      *
      * @param chat ID of the chat to get messages from
      */
-    public fun messages(chat: ChatId): MessagesState {
+    fun messages(chat: ChatId): MessagesState {
         if (!chatMessagesStateMap.containsKey(chat)) {
             throw IllegalStateException("Chat not found")
         }
@@ -568,7 +569,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
     /**
      * Returns the state of the selected chat.
      */
-    public fun selectedChat(): StateFlow<ChatId> {
+    fun selectedChat(): StateFlow<ChatId> {
         return selectedChatState
     }
 
@@ -577,7 +578,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      *
      * @param chat ID of the chat to select
      */
-    public fun selectChat(chat: ChatId) {
+    fun selectChat(chat: ChatId) {
         selectedChatState.value = chat
         updateMessages(chat, client.readMessages(chat).toMessageDataList(client))
         client.stopObservingMessages()
@@ -625,7 +626,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      * @param id ID of the user to find
      * @return found user profile or `null` if user is not found
      */
-    public fun findUser(id: UserId): UserProfile? {
+    fun findUser(id: UserId): UserProfile? {
         return client.findUser(id)
     }
 
@@ -635,7 +636,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      * @param email email of the user to find
      * @return found user profile or `null` if user not found
      */
-    public fun findUser(email: String): UserProfile? {
+    fun findUser(email: String): UserProfile? {
         return client.findUser(email)
     }
 
@@ -644,7 +645,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      *
      * @param content message text content
      */
-    public fun sendMessage(content: String) {
+    fun sendMessage(content: String) {
         client.sendMessage(selectedChatState.value, content)
     }
 
@@ -653,7 +654,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      *
      * @param email email of the user with whom to create a personal chat
      */
-    public fun createPersonalChat(email: String) {
+    fun createPersonalChat(email: String) {
         val user = client.findUser(email)
         if (null != user) {
             client.createPersonalChat(user.id)
@@ -688,9 +689,9 @@ public class ChatsPageModel(private val client: DesktopClient) {
     /**
      * State of the user search field.
      */
-    public class UserSearchFieldState {
-        public val userEmailState: MutableState<String> = mutableStateOf("")
-        public val errorState: MutableState<Boolean> = mutableStateOf(false)
+    class UserSearchFieldState {
+        val userEmailState: MutableState<String> = mutableStateOf("")
+        val errorState: MutableState<Boolean> = mutableStateOf(false)
     }
 }
 

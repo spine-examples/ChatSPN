@@ -32,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import io.spine.examples.chatspn.desktop.chat.ChatsPage
-import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
 
 /**
  * Provides navigation through application and page composition.
@@ -49,45 +48,18 @@ public class Navigation(private val client: DesktopClient) {
     public fun currentPage() {
         val page by remember { currentPage }
         when (page) {
-            Page.REGISTRATION -> registrationPage()
-            Page.LOGIN -> loginPage()
-            Page.CHATS -> chatsPage()
+            Page.REGISTRATION -> RegistrationPage(
+                client,
+                toLogin = { currentPage.value = Page.LOGIN },
+                toChats = { currentPage.value = Page.CHATS }
+            )
+            Page.LOGIN -> LoginPage(
+                client,
+                toRegistration = { currentPage.value = Page.REGISTRATION },
+                toChats = { currentPage.value = Page.CHATS }
+            )
+            Page.CHATS -> ChatsPage(client)
         }
-    }
-
-    /**
-     * Configures and composes the 'Registration' page.
-     */
-    @Composable
-    private fun registrationPage() {
-        val model = RegistrationPageModel(
-            client,
-            toLogin = { currentPage.value = Page.LOGIN },
-            toChats = { currentPage.value = Page.CHATS }
-        )
-        RegistrationPage(model)
-    }
-
-    /**
-     * Configures and composes the 'Login' page.
-     */
-    @Composable
-    private fun loginPage() {
-        val model = LoginPageModel(
-            client,
-            toRegistration = { currentPage.value = Page.REGISTRATION },
-            toChats = { currentPage.value = Page.CHATS }
-        )
-        LoginPage(model)
-    }
-
-    /**
-     * Configures and composes the 'Chats' page.l
-     */
-    @Composable
-    private fun chatsPage() {
-        val model = ChatsPageModel(client)
-        ChatsPage(model)
     }
 }
 

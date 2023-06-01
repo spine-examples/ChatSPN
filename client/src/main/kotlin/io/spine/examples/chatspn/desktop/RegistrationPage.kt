@@ -37,10 +37,17 @@ import kotlinx.coroutines.launch
 /**
  * Represents the 'Registration' page in the application.
  *
- * @param model UI model for the 'Registration' page
+ * @param client desktop client
+ * @param toLogin navigation to the 'Login' page
+ * @param toChats navigation to the 'Chats' page
  */
 @Composable
-public fun RegistrationPage(model: RegistrationPageModel) {
+public fun RegistrationPage(
+    client: DesktopClient,
+    toLogin: () -> Unit,
+    toChats: () -> Unit,
+) {
+    val model = remember { RegistrationPageModel(client, toLogin, toChats) }
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     val emailState = remember { model.emailState }
     val emailErrorState = remember { model.emailErrorState }
@@ -86,22 +93,22 @@ public fun RegistrationPage(model: RegistrationPageModel) {
 /**
  * UI Model for the [RegistrationPage]`.
  */
-public class RegistrationPageModel(
+private class RegistrationPageModel(
     private val client: DesktopClient,
-    public val toLogin: () -> Unit,
+    val toLogin: () -> Unit,
     private val toChats: () -> Unit,
 ) {
-    public val emailState: MutableState<String> = mutableStateOf("")
-    public val emailErrorState: MutableState<Boolean> = mutableStateOf(false)
-    public val emailErrorText: MutableState<String> = mutableStateOf("")
-    public val nameState: MutableState<String> = mutableStateOf("")
-    public val nameErrorState: MutableState<Boolean> = mutableStateOf(false)
-    public val nameErrorText: MutableState<String> = mutableStateOf("")
+    val emailState: MutableState<String> = mutableStateOf("")
+    val emailErrorState: MutableState<Boolean> = mutableStateOf(false)
+    val emailErrorText: MutableState<String> = mutableStateOf("")
+    val nameState: MutableState<String> = mutableStateOf("")
+    val nameErrorState: MutableState<Boolean> = mutableStateOf(false)
+    val nameErrorText: MutableState<String> = mutableStateOf("")
 
     /**
      * Registers a new user with the credentials specified in the form fields.
      */
-    public fun register() {
+    fun register() {
         val onFail = {
             emailErrorState.value = true
             emailErrorText.value = "An account with this email already exists"
