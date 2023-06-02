@@ -355,7 +355,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     @Apply
     private void event(UserLeftChat e) {
-        var userIndex = state()
+        var userIndex = builder()
                 .getMemberList()
                 .indexOf(e.getUser());
         builder().removeMember(userIndex);
