@@ -94,7 +94,7 @@ private class LoginPageModel(
     fun logIn() {
         val onFail = {
             emailErrorState.value = true
-            emailErrorText.value = "Account with this credentials doesn't exist"
+            emailErrorText.value = "Account with these credentials doesn't exist"
         }
         client.logIn(
             emailState.value,
