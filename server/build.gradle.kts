@@ -31,6 +31,7 @@
 plugins {
     `kotlin-dsl`
     id("io.spine.tools.gradle.bootstrap")
+    application
 }
 
 spine {
@@ -44,4 +45,8 @@ spine {
 
 dependencies {
     implementation(project(":model"))
+}
+
+application {
+    mainClass.set("io.spine.examples.chatspn.server.ChatSpnServer")
 }

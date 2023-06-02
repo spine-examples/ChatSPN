@@ -27,23 +27,34 @@
 package io.spine.examples.chatspn.desktop
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Represents the 'Registration' page in the application.
+ *
+ * @param client desktop client
+ * @param toLogin navigation to the 'Login' page
+ * @param toChats navigation to the 'Chats' page
  */
 @Composable
 public fun RegistrationPage(
+    client: DesktopClient,
     toLogin: () -> Unit,
     toChats: () -> Unit,
 ) {
-    val emailState = remember { mutableStateOf("") }
-    val emailErrorState = remember { mutableStateOf(false) }
-    val emailErrorText = remember { mutableStateOf("") }
-    val nameState = remember { mutableStateOf("") }
-    val nameErrorState = remember { mutableStateOf(false) }
-    val nameErrorText = remember { mutableStateOf("") }
+    val model = remember { RegistrationPageModel(client, toLogin, toChats) }
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    val emailState = remember { model.emailState }
+    val emailErrorState = remember { model.emailErrorState }
+    val emailErrorText = remember { model.emailErrorText }
+    val nameState = remember { model.nameState }
+    val nameErrorState = remember { model.nameErrorState }
+    val nameErrorText = remember { model.nameErrorText }
     FormBox {
         FormHeader("Sign Up")
         FormField(
@@ -70,9 +81,43 @@ public fun RegistrationPage(
                 nameErrorText.value = "Name field must not be empty"
             }
             if (!emailErrorState.value && !nameErrorState.value) {
-                toChats()
+                viewScope.launch() {
+                    model.register()
+                }
             }
         }
-        SecondaryButton("Already have an account?", toLogin)
+        SecondaryButton("Already have an account?", model.toLogin)
+    }
+}
+
+/**
+ * UI Model for the [RegistrationPage]`.
+ */
+private class RegistrationPageModel(
+    private val client: DesktopClient,
+    val toLogin: () -> Unit,
+    private val toChats: () -> Unit,
+) {
+    val emailState: MutableState<String> = mutableStateOf("")
+    val emailErrorState: MutableState<Boolean> = mutableStateOf(false)
+    val emailErrorText: MutableState<String> = mutableStateOf("")
+    val nameState: MutableState<String> = mutableStateOf("")
+    val nameErrorState: MutableState<Boolean> = mutableStateOf(false)
+    val nameErrorText: MutableState<String> = mutableStateOf("")
+
+    /**
+     * Registers a new user with the credentials specified in the form fields.
+     */
+    fun register() {
+        val onFail = {
+            emailErrorState.value = true
+            emailErrorText.value = "An account with this email already exists"
+        }
+        client.register(
+            nameState.value,
+            emailState.value,
+            toChats,
+            onFail
+        )
     }
 }

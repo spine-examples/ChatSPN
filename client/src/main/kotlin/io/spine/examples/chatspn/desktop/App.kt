@@ -25,49 +25,37 @@
  */
 package io.spine.examples.chatspn.desktop
 
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowState
+import androidx.compose.ui.window.application
+import java.awt.Dimension
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import io.spine.examples.chatspn.desktop.chat.ChatsPage
-import io.spine.examples.chatspn.desktop.chat.ChatsPageModel
+private val client = DesktopClient()
+private val navigation = Navigation(client)
 
 /**
- * The root component of the application.
- *
- * Responsible for navigation and composition of pages.
+ * The root component of the desktop application.
  */
-@Composable
-@Preview
-public fun App() {
-    var page by remember { mutableStateOf(Page.REGISTRATION) }
-    when (page) {
-        Page.REGISTRATION -> {
-            RegistrationPage(
-                toLogin = { page = Page.LOGIN },
-                toChats = { page = Page.CHATS }
-            )
+private fun app(): Unit = application {
+    ChatSpnTheme(
+        content = {
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = "ChatSPN",
+                state = WindowState(size = DpSize(1000.dp, 600.dp))
+            ) {
+                window.minimumSize = Dimension(750, 450)
+                navigation.currentPage()
+            }
         }
-        Page.LOGIN -> {
-            LoginPage(
-                toRegistration = { page = Page.REGISTRATION },
-                toChats = { page = Page.CHATS }
-            )
-        }
-        Page.CHATS -> {
-            val model = ChatsPageModel()
-            startChattingSimulation(model)
-            ChatsPage(model)
-        }
-    }
+    )
 }
 
 /**
- * Pages in the application.
+ * Entry point of the desktop application.
  */
-private enum class Page {
-    CHATS, LOGIN, REGISTRATION
+public fun main() {
+    app()
 }

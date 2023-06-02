@@ -27,20 +27,31 @@
 package io.spine.examples.chatspn.desktop
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Represents the 'Login' page in the application.
+ *
+ * @param client desktop client
+ * @param toRegistration navigation to the 'Registration' page
+ * @param toChats navigation to the 'Chats' page
  */
 @Composable
 public fun LoginPage(
+    client: DesktopClient,
     toRegistration: () -> Unit,
-    toChats: () -> Unit,
+    toChats: () -> Unit
 ) {
-    val emailState = remember { mutableStateOf("") }
-    val emailErrorState = remember { mutableStateOf(false) }
-    val emailErrorText = remember { mutableStateOf("") }
+    val model = remember { LoginPageModel(client, toRegistration, toChats) }
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    val emailState = remember { model.emailState }
+    val emailErrorState = remember { model.emailErrorState }
+    val emailErrorText = remember { model.emailErrorText }
     FormBox {
         FormHeader("Sign In")
         FormField(
@@ -56,9 +67,39 @@ public fun LoginPage(
                 emailErrorText.value = "Email field must not be empty"
             }
             if (!emailErrorState.value) {
-                toChats()
+                viewScope.launch {
+                    model.logIn()
+                }
             }
         }
-        SecondaryButton("Don't have an account?", toRegistration)
+        SecondaryButton("Don't have an account?", model.toRegistration)
+    }
+}
+
+/**
+ * UI Model for the `[LoginPage]`.
+ */
+private class LoginPageModel(
+    private val client: DesktopClient,
+    val toRegistration: () -> Unit,
+    private val toChats: () -> Unit
+) {
+    val emailState: MutableState<String> = mutableStateOf("")
+    val emailErrorState: MutableState<Boolean> = mutableStateOf(false)
+    val emailErrorText: MutableState<String> = mutableStateOf("")
+
+    /**
+     * Authenticates the user with the credentials specified in the form fields.
+     */
+    fun logIn() {
+        val onFail = {
+            emailErrorState.value = true
+            emailErrorText.value = "Account with these credentials doesn't exist"
+        }
+        client.logIn(
+            emailState.value,
+            toChats,
+            onFail
+        )
     }
 }
