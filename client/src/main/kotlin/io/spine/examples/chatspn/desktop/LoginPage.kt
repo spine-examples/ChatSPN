@@ -37,10 +37,17 @@ import kotlinx.coroutines.launch
 /**
  * Represents the 'Login' page in the application.
  *
- * @param model UI model for the 'Login' page
+ * @param client desktop client
+ * @param toRegistration navigation to the 'Registration' page
+ * @param toChats navigation to the 'Chats' page
  */
 @Composable
-public fun LoginPage(model: LoginPageModel) {
+public fun LoginPage(
+    client: DesktopClient,
+    toRegistration: () -> Unit,
+    toChats: () -> Unit
+) {
+    val model = remember { LoginPageModel(client, toRegistration, toChats) }
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     val emailState = remember { model.emailState }
     val emailErrorState = remember { model.emailErrorState }
@@ -72,22 +79,22 @@ public fun LoginPage(model: LoginPageModel) {
 /**
  * UI Model for the `[LoginPage]`.
  */
-public class LoginPageModel(
+private class LoginPageModel(
     private val client: DesktopClient,
-    public val toRegistration: () -> Unit,
-    private val toChats: () -> Unit,
+    val toRegistration: () -> Unit,
+    private val toChats: () -> Unit
 ) {
-    public val emailState: MutableState<String> = mutableStateOf("")
-    public val emailErrorState: MutableState<Boolean> = mutableStateOf(false)
-    public val emailErrorText: MutableState<String> = mutableStateOf("")
+    val emailState: MutableState<String> = mutableStateOf("")
+    val emailErrorState: MutableState<Boolean> = mutableStateOf(false)
+    val emailErrorText: MutableState<String> = mutableStateOf("")
 
     /**
      * Authenticates the user with the credentials specified in the form fields.
      */
-    public fun logIn() {
+    fun logIn() {
         val onFail = {
             emailErrorState.value = true
-            emailErrorText.value = "Account with this credentials doesn't exist"
+            emailErrorText.value = "Account with these credentials doesn't exist"
         }
         client.logIn(
             emailState.value,

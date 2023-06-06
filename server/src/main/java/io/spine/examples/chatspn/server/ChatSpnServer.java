@@ -26,7 +26,7 @@
 
 package io.spine.examples.chatspn.server;
 
-import io.spine.base.Production;
+import io.spine.environment.DefaultMode;
 import io.spine.server.Server;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.Delivery;
@@ -56,7 +56,7 @@ public final class ChatSpnServer {
      * Creates a new Spine {@code Server} instance at the
      * {@linkplain io.spine.client.ConnectionConstants#DEFAULT_CLIENT_SERVICE_PORT default} port.
      */
-    private static Server create() {
+    static Server create() {
         configureEnvironment();
         var context = ChatsContext.newBuilder();
         return Server
@@ -67,7 +67,7 @@ public final class ChatSpnServer {
 
     private static void configureEnvironment() {
         ServerEnvironment
-                .when(Production.class)
+                .when(DefaultMode.class)
                 .use(InMemoryStorageFactory.newInstance())
                 .use(Delivery.localAsync())
                 .use(InMemoryTransportFactory.newInstance());
