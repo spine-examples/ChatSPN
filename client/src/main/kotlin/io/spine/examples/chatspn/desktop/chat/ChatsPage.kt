@@ -426,18 +426,19 @@ private fun ChatMessages(model: ChatsPageModel) {
 private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
-    val menuState = remember { mutableStateOf(false) }
+    val isMenuOpen = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         Surface(
-            modifier = Modifier.padding(4.dp)
+            modifier = Modifier
+                .padding(4.dp)
                 .onClick(
                     enabled = true,
                     matcher = PointerMatcher.mouse(PointerButton.Secondary),
                     onClick = {
-                        menuState.value = true
+                        isMenuOpen.value = true
                     }
                 ),
             shape = RoundedCornerShape(size = 20.dp),
@@ -445,32 +446,32 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
             color = MaterialTheme.colorScheme.surface
         ) {
             MessageContent(message)
-            MessageDropdownMenu(model, menuState, message, isMyMessage)
+            MessageDropdownMenu(model, isMenuOpen, message, isMyMessage)
         }
     }
 }
 
 /**
- * Represents the context dropdown menu of the message.
+ * Represents the context menu of the message.
  */
 @Composable
 private fun MessageDropdownMenu(
     model: ChatsPageModel,
-    menuState: MutableState<Boolean>,
+    isMenuOpen: MutableState<Boolean>,
     message: MessageData,
     isMyMessage: Boolean
 ) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     DropdownMenu(
-        expanded = menuState.value,
-        onDismissRequest = { menuState.value = false },
+        expanded = isMenuOpen.value,
+        onDismissRequest = { isMenuOpen.value = false },
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
     ) {
         MessageMenuItem("Remove", Icons.Default.Delete) {
             viewScope.launch {
                 model.removeMessage(message.id)
             }
-            menuState.value = false
+            isMenuOpen.value = false
         }
         if (isMyMessage) {
             MessageMenuItem("Edit", Icons.Default.Edit) {
@@ -484,7 +485,7 @@ private fun MessageDropdownMenu(
 }
 
 /**
- * Represents the item of the context dropdown menu.
+ * Represents the item of the message's dropdown menu.
  */
 @Composable
 private fun MessageMenuItem(

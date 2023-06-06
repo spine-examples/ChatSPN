@@ -221,7 +221,7 @@ public class DesktopClient(
     /**
      * Removes message from the chat.
      *
-     * @param chat chat to remove message in
+     * @param chat сhat in which to remove the message
      * @param message ID of the message to remove
      * @throws IllegalStateException if the user has not been authenticated
      */
