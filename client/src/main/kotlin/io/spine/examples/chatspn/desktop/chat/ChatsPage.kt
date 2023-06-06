@@ -644,7 +644,7 @@ private fun MessageInputFieldIcon(model: ChatsPageModel) {
 }
 
 /**
- * Represents the view of the message in editing process.
+ * Represents the view of the message in editing state.
  */
 @Composable
 private fun EditMessagePanel(model: ChatsPageModel) {
