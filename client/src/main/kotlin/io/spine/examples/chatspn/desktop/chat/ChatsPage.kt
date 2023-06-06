@@ -426,7 +426,8 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
         contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         Surface(
-            modifier = Modifier.padding(4.dp)
+            modifier = Modifier
+                .padding(4.dp)
                 .onClick(
                     enabled = true,
                     matcher = PointerMatcher.mouse(PointerButton.Secondary),
