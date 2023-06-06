@@ -476,13 +476,13 @@ private fun RemoveMessage.Builder.buildWith(
 }
 
 /**
- * Builds command to remove the message.
+ * Builds command to edit the message.
  *
  * @param chat ID of the chat to edit the message in
  * @param user ID of the user who wants to edit a message
  * @param message ID of the message to edit
  * @param newContent new text content for the message
- * @return command to remove the message
+ * @return command to edit the message
  */
 private fun EditMessage.Builder.buildWith(
     chat: ChatId,
