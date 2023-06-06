@@ -27,6 +27,8 @@
 package io.spine.examples.chatspn.desktop.chat
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,12 +44,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -67,6 +73,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
@@ -407,23 +415,86 @@ private fun ChatMessages(model: ChatsPageModel) {
 /**
  * Represents the single message view in the chat.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
+    val isMenuOpen = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         Surface(
-            modifier = Modifier.padding(4.dp),
+            modifier = Modifier
+                .padding(4.dp)
+                .onClick(
+                    enabled = true,
+                    matcher = PointerMatcher.mouse(PointerButton.Secondary),
+                    onClick = {
+                        isMenuOpen.value = true
+                    }
+                ),
             shape = RoundedCornerShape(size = 20.dp),
             elevation = 8.dp,
             color = MaterialTheme.colorScheme.surface
         ) {
             MessageContent(message)
+            MessageDropdownMenu(model, isMenuOpen, message)
         }
     }
+}
+
+/**
+ * Represents the context menu of the message.
+ */
+@Composable
+private fun MessageDropdownMenu(
+    model: ChatsPageModel,
+    isMenuOpen: MutableState<Boolean>,
+    message: MessageData
+) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    DropdownMenu(
+        expanded = isMenuOpen.value,
+        onDismissRequest = { isMenuOpen.value = false },
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+    ) {
+        MessageMenuItem("Remove", Icons.Default.Delete) {
+            viewScope.launch {
+                model.removeMessage(message.id)
+            }
+            isMenuOpen.value = false
+        }
+    }
+}
+
+/**
+ * Represents the item of the message's dropdown menu.
+ */
+@Composable
+private fun MessageMenuItem(
+    text: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    DropdownMenuItem(
+        modifier = Modifier
+            .height(30.dp),
+        text = {
+            Text(
+                text,
+                style = MaterialTheme.typography.labelMedium
+            )
+        },
+        onClick = onClick,
+        leadingIcon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = text
+            )
+        }
+    )
 }
 
 /**
@@ -647,6 +718,15 @@ private class ChatsPageModel(private val client: DesktopClient) {
      */
     fun sendMessage(content: String) {
         client.sendMessage(selectedChatState.value, content)
+    }
+
+    /**
+     * Removes message from the selected chat.
+     *
+     * @param message ID of the message to remove
+     */
+    public fun removeMessage(message: MessageId) {
+        client.removeMessage(selectedChatState.value, message)
     }
 
     /**

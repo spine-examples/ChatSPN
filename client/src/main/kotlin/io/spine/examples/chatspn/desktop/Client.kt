@@ -45,6 +45,7 @@ import io.spine.core.UserId
 import io.spine.examples.chatspn.AccountCreationId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
+import io.spine.examples.chatspn.MessageRemovalId
 import io.spine.examples.chatspn.account.UserChats
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.account.command.CreateAccount
@@ -53,6 +54,7 @@ import io.spine.examples.chatspn.account.event.AccountNotCreated
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
 import io.spine.examples.chatspn.message.MessageView
+import io.spine.examples.chatspn.message.command.RemoveMessage
 import io.spine.examples.chatspn.message.command.SendMessage
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import io.spine.net.EmailAddress
@@ -210,6 +212,23 @@ public class DesktopClient(
         val command = SendMessage
             .newBuilder()
             .buildWith(chat, authenticatedUser!!.id, content)
+        clientRequest()
+            .command(command)
+            .postAndForget()
+    }
+
+    /**
+     * Removes message from the chat.
+     *
+     * @param chat сhat in which to remove the message
+     * @param message ID of the message to remove
+     * @throws IllegalStateException if the user has not been authenticated
+     */
+    public fun removeMessage(chat: ChatId, message: MessageId) {
+        checkNotNull(authenticatedUser) { "The user has not been authenticated" }
+        val command = RemoveMessage
+            .newBuilder()
+            .buildWith(chat, authenticatedUser!!.id, message)
         clientRequest()
             .command(command)
             .postAndForget()
@@ -410,6 +429,30 @@ private fun SendMessage.Builder.buildWith(
         .setChat(chat)
         .setUser(user)
         .setContent(content)
+        .vBuild()
+}
+
+/**
+ * Builds command to remove the message.
+ *
+ * @param chat ID of the chat to remove the message in
+ * @param user ID of the user who wants to remove a message
+ * @param message ID of the message to remove
+ * @return command to remove the message
+ */
+private fun RemoveMessage.Builder.buildWith(
+    chat: ChatId,
+    user: UserId,
+    message: MessageId,
+): RemoveMessage {
+    val removalId = MessageRemovalId
+        .newBuilder()
+        .setId(message)
+        .vBuild()
+    return this
+        .setUser(user)
+        .setChat(chat)
+        .setId(removalId)
         .vBuild()
 }
 
