@@ -27,6 +27,8 @@
 package io.spine.examples.chatspn.desktop.chat
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,12 +44,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -67,6 +73,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -91,11 +99,12 @@ import kotlinx.coroutines.launch
 /**
  * Represents the 'Chats' page in the application.
  *
- * @param model UI model for the 'Chats' page
+ * @param client desktop client
  */
 @Composable
 @Preview
-public fun ChatsPage(model: ChatsPageModel) {
+public fun ChatsPage(client: DesktopClient) {
+    val model = remember { ChatsPageModel(client) }
     Row {
         LeftSidebar(model)
         ChatContent(model)
@@ -407,23 +416,86 @@ private fun ChatMessages(model: ChatsPageModel) {
 /**
  * Represents the single message view in the chat.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
+    val isMenuOpen = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         Surface(
-            modifier = Modifier.padding(4.dp),
+            modifier = Modifier
+                .padding(4.dp)
+                .onClick(
+                    enabled = true,
+                    matcher = PointerMatcher.mouse(PointerButton.Secondary),
+                    onClick = {
+                        isMenuOpen.value = true
+                    }
+                ),
             shape = RoundedCornerShape(size = 20.dp),
             elevation = 8.dp,
             color = MaterialTheme.colorScheme.surface
         ) {
             MessageContent(message)
+            MessageDropdownMenu(model, isMenuOpen, message)
         }
     }
+}
+
+/**
+ * Represents the context menu of the message.
+ */
+@Composable
+private fun MessageDropdownMenu(
+    model: ChatsPageModel,
+    isMenuOpen: MutableState<Boolean>,
+    message: MessageData
+) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    DropdownMenu(
+        expanded = isMenuOpen.value,
+        onDismissRequest = { isMenuOpen.value = false },
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+    ) {
+        MessageMenuItem("Remove", Icons.Default.Delete) {
+            viewScope.launch {
+                model.removeMessage(message.id)
+            }
+            isMenuOpen.value = false
+        }
+    }
+}
+
+/**
+ * Represents the item of the message's dropdown menu.
+ */
+@Composable
+private fun MessageMenuItem(
+    text: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    DropdownMenuItem(
+        modifier = Modifier
+            .height(30.dp),
+        text = {
+            Text(
+                text,
+                style = MaterialTheme.typography.labelMedium
+            )
+        },
+        onClick = onClick,
+        leadingIcon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = text
+            )
+        }
+    )
 }
 
 /**
@@ -578,12 +650,12 @@ private fun ShadedBackground() {
  *
  * UI Model is a layer between `@Composable` functions and client.
  */
-public class ChatsPageModel(private val client: DesktopClient) {
+private class ChatsPageModel(private val client: DesktopClient) {
     private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
-    public val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
-    public val authenticatedUser: UserProfile = client.authenticatedUser!!
+    val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
+    val authenticatedUser: UserProfile = client.authenticatedUser!!
 
     init {
         updateChats(client.readChats().toChatDataList(client))
@@ -593,7 +665,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
     /**
      * Returns the state of the user's chats.
      */
-    public fun chats(): StateFlow<ChatList> {
+    fun chats(): StateFlow<ChatList> {
         return chatPreviewsState
     }
 
@@ -602,7 +674,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      *
      * @param chat ID of the chat to get messages from
      */
-    public fun messages(chat: ChatId): MessagesState {
+    fun messages(chat: ChatId): MessagesState {
         if (!chatMessagesStateMap.containsKey(chat)) {
             throw IllegalStateException("Chat not found")
         }
@@ -612,7 +684,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
     /**
      * Returns the state of the selected chat.
      */
-    public fun selectedChat(): StateFlow<ChatId> {
+    fun selectedChat(): StateFlow<ChatId> {
         return selectedChatState
     }
 
@@ -621,7 +693,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      *
      * @param chat ID of the chat to select
      */
-    public fun selectChat(chat: ChatId) {
+    fun selectChat(chat: ChatId) {
         selectedChatState.value = chat
         updateMessages(chat, client.readMessages(chat).toMessageDataList(client))
         client.stopObservingMessages()
@@ -669,7 +741,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      * @param id ID of the user to find
      * @return found user profile or `null` if user is not found
      */
-    public fun findUser(id: UserId): UserProfile? {
+    fun findUser(id: UserId): UserProfile? {
         return client.findUser(id)
     }
 
@@ -679,7 +751,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      * @param email email of the user to find
      * @return found user profile or `null` if user not found
      */
-    public fun findUser(email: String): UserProfile? {
+    fun findUser(email: String): UserProfile? {
         return client.findUser(email)
     }
 
@@ -688,8 +760,17 @@ public class ChatsPageModel(private val client: DesktopClient) {
      *
      * @param content message text content
      */
-    public fun sendMessage(content: String) {
+    fun sendMessage(content: String) {
         client.sendMessage(selectedChatState.value, content)
+    }
+
+    /**
+     * Removes message from the selected chat.
+     *
+     * @param message ID of the message to remove
+     */
+    public fun removeMessage(message: MessageId) {
+        client.removeMessage(selectedChatState.value, message)
     }
 
     /**
@@ -697,7 +778,7 @@ public class ChatsPageModel(private val client: DesktopClient) {
      *
      * @param email email of the user with whom to create a personal chat
      */
-    public fun createPersonalChat(email: String) {
+    fun createPersonalChat(email: String) {
         val user = client.findUser(email)
         if (null != user) {
             client.createPersonalChat(user.id)
@@ -732,9 +813,9 @@ public class ChatsPageModel(private val client: DesktopClient) {
     /**
      * State of the user search field.
      */
-    public class UserSearchFieldState {
-        public val userEmailState: MutableState<String> = mutableStateOf("")
-        public val errorState: MutableState<Boolean> = mutableStateOf(false)
+    class UserSearchFieldState {
+        val userEmailState: MutableState<String> = mutableStateOf("")
+        val errorState: MutableState<Boolean> = mutableStateOf(false)
     }
 }
 
