@@ -69,6 +69,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import com.google.protobuf.Timestamp
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
@@ -527,6 +528,49 @@ private fun SendMessageInput(model: ChatsPageModel) {
             }
         }
     )
+}
+
+/**
+ * Represents the default modal window.
+ *
+ * @param isVisibleState mutable state of modal window visibility
+ * @param content content of the modal window
+ */
+@Composable
+private fun ModalWindow(
+    isVisibleState: MutableState<Boolean>,
+    content: @Composable () -> Unit
+) {
+    if (isVisibleState.value) {
+        ShadedBackground()
+        Popup(
+            alignment = Alignment.Center,
+            onDismissRequest = { isVisibleState.value = false },
+            focusable = true
+        ) {
+            Surface(
+                elevation = 8.dp
+            ) {
+                content()
+            }
+        }
+    }
+}
+
+/**
+ * Represents the partially transparent black background.
+ *
+ * The user cannot click on elements behind it.
+ */
+@Composable
+private fun ShadedBackground() {
+    Popup {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color(0x33000000))
+        )
+    }
 }
 
 /**
