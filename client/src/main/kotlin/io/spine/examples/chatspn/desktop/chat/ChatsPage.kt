@@ -698,7 +698,7 @@ private class ChatsPageModel(private val client: DesktopClient) {
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
     val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
     val messageInputFieldState: MessageInputFieldState = MessageInputFieldState()
-    public val authenticatedUser: UserProfile = client.authenticatedUser!!
+    val authenticatedUser: UserProfile = client.authenticatedUser!!
 
     init {
         updateChats(client.readChats().toChatDataList(client))
@@ -815,7 +815,7 @@ private class ChatsPageModel(private val client: DesktopClient) {
      *
      * @param message ID of the message to remove
      */
-    public fun removeMessage(message: MessageId) {
+    fun removeMessage(message: MessageId) {
         client.removeMessage(selectedChatState.value, message)
     }
 
@@ -825,7 +825,7 @@ private class ChatsPageModel(private val client: DesktopClient) {
      * @param message ID of the message to edit
      * @param newContent new text content for the message
      */
-    public fun editMessage(message: MessageId, newContent: String) {
+    fun editMessage(message: MessageId, newContent: String) {
         client.editMessage(selectedChatState.value, message, newContent)
     }
 
@@ -877,15 +877,15 @@ private class ChatsPageModel(private val client: DesktopClient) {
     /**
      * State of the message input field.
      */
-    public class MessageInputFieldState {
-        public val inputText: MutableState<String> = mutableStateOf("")
-        public val isEditingState: MutableState<Boolean> = mutableStateOf(false)
-        public val editingMessage: MutableState<MessageData?> = mutableStateOf(null)
+    class MessageInputFieldState {
+        val inputText: MutableState<String> = mutableStateOf("")
+        val isEditingState: MutableState<Boolean> = mutableStateOf(false)
+        val editingMessage: MutableState<MessageData?> = mutableStateOf(null)
 
         /**
          * Clears the state.
          */
-        public fun clear() {
+        fun clear() {
             inputText.value = ""
             isEditingState.value = false
             editingMessage.value = null
