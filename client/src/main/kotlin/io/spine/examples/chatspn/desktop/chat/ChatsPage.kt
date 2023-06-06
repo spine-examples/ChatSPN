@@ -478,7 +478,7 @@ private fun MessageDropdownMenu(
                 model.messageInputFieldState.isEditingState.value = true
                 model.messageInputFieldState.editingMessage.value = message
                 model.messageInputFieldState.inputText.value = message.content
-                menuState.value = false
+                isMenuOpen.value = false
             }
         }
     }
