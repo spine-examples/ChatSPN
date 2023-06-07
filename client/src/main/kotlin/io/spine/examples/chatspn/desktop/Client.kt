@@ -178,6 +178,23 @@ public class DesktopClient(
     }
 
     /**
+     * Reads members of the chat by the chat ID.
+     *
+     * @param chat ID of the chat to read members from
+     * @return list of chat members, or an empty list if the chat does not exist
+     */
+    public fun readChatMembers(chat: ChatId): List<UserId> {
+        val projections = clientRequest()
+            .select(ChatMembers::class.java)
+            .byId(chat)
+            .run()
+        if (projections.isEmpty()) {
+            return listOf()
+        }
+        return projections[0].memberList
+    }
+
+    /**
      * Creates a new personal chat between authenticated and provided user.
      *
      * @param user user to create a personal chat with authenticated user
