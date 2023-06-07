@@ -51,6 +51,7 @@ import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.account.command.CreateAccount
 import io.spine.examples.chatspn.account.event.AccountCreated
 import io.spine.examples.chatspn.account.event.AccountNotCreated
+import io.spine.examples.chatspn.chat.ChatMembers
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
 import io.spine.examples.chatspn.message.MessageView
@@ -101,25 +102,16 @@ public class DesktopClient(
         val command = CreateAccount
             .newBuilder()
             .buildWith(email, name)
-        var successSubscription: Subscription? = null
-        var failSubscription: Subscription? = null
-        successSubscription = observeEvent(
+        observeCommandOutcome(
             command.id,
-            AccountCreated::class.java
-        ) { event ->
-            stopObservation(successSubscription!!)
-            stopObservation(failSubscription!!)
-            authenticatedUser = findUser(event.user)
-            onSuccess()
-        }
-        failSubscription = observeEvent(
-            command.id,
-            AccountNotCreated::class.java
-        ) { event ->
-            stopObservation(successSubscription)
-            stopObservation(failSubscription!!)
-            onFail()
-        }
+            AccountCreated::class.java,
+            { event ->
+                authenticatedUser = findUser(event.user)
+                onSuccess()
+            },
+            AccountNotCreated::class.java,
+            { onFail() }
+        )
         clientRequest()
             .command(command)
             .postAndForget()
@@ -364,6 +356,44 @@ public class DesktopClient(
             .observe(onEmit)
             .post()
         return subscription
+    }
+
+    /**
+     * Observes the outcome of the command.
+     *
+     * When a success or fail event is generated, subscriptions will be cancelled.
+     *
+     * @param id ID of the event state to observe
+     * @param successEvent type of the success event to observe
+     * @param onSuccess will be called when the specified success event emitted
+     * @param failEvent type of the fail event to observe
+     * @param onFail will be called when the specified fail event emitted
+     */
+    private fun <S : EventMessage, F : EventMessage> observeCommandOutcome(
+        id: Message,
+        successEvent: Class<S>,
+        onSuccess: (event: S) -> Unit,
+        failEvent: Class<F>,
+        onFail: (event: F) -> Unit
+    ) {
+        var successSubscription: Subscription? = null
+        var failSubscription: Subscription? = null
+        successSubscription = observeEvent(
+            id,
+            successEvent
+        ) { event ->
+            stopObservation(successSubscription!!)
+            stopObservation(failSubscription!!)
+            onSuccess(event)
+        }
+        failSubscription = observeEvent(
+            id,
+            failEvent
+        ) { event ->
+            stopObservation(successSubscription)
+            stopObservation(failSubscription!!)
+            onFail(event)
+        }
     }
 
     /**
