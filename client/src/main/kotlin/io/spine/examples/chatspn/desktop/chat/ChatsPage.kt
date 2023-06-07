@@ -661,7 +661,8 @@ private fun OtherUserProfileButtons(model: ChatsPageModel) {
             model.selectChat(personalChat!!)
             model.userProfileModalState.isVisibleState.value = false
         }
-        ModalButton("Remove personal chat", MaterialTheme.colorScheme.error) {
+        ModalButton("Delete personal chat", MaterialTheme.colorScheme.error) {
+            model.deleteChat(personalChat!!)
             model.userProfileModalState.isVisibleState.value = false
         }
     }
@@ -852,6 +853,15 @@ private class ChatsPageModel(private val client: DesktopClient) {
      */
     fun sendMessage(content: String) {
         client.sendMessage(selectedChatState.value, content)
+    }
+
+    /**
+     * Deletes the chat.
+     *
+     * @param chat ID of the chat to delete
+     */
+    fun deleteChat(chat: ChatId) {
+        client.deleteChat(chat)
     }
 
     /**
