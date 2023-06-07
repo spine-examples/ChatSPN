@@ -825,7 +825,9 @@ private class ChatsPageModel(private val client: DesktopClient) {
 public data class ChatData(
     val id: ChatId,
     val name: String,
-    val lastMessage: MessageData?
+    val lastMessage: MessageData?,
+    val members: List<UserId>,
+    val type: ChatType
 )
 
 /**
@@ -875,18 +877,44 @@ private fun MessageList.replaceMessage(newMessage: MessageData): MessageList {
  */
 private fun List<ChatPreview>.toChatDataList(client: DesktopClient): ChatList {
     return this.stream().map { chatPreview ->
-        val lastMessage: MessageData?
-        if (chatPreview.lastMessage.equals(MessagePreview.getDefaultInstance())) {
-            lastMessage = null
-        } else {
-            lastMessage = chatPreview.lastMessage.toMessageData(client)
-        }
         ChatData(
             chatPreview.id,
             chatPreview.name(client),
-            lastMessage
+            chatPreview.lastMessageData(client),
+            chatPreview.members(client),
+            chatPreview.type()
         )
     }.collect(Collectors.toList())
+}
+
+/**
+ * Retrieves the last message from the `ChatPreview` and creates the `MessageData` from it.
+ */
+private fun ChatPreview.lastMessageData(client: DesktopClient): MessageData? {
+    val isMessageDefault = this.lastMessage.equals(MessagePreview.getDefaultInstance())
+    return if (isMessageDefault) {
+        null
+    } else {
+        this.lastMessage.toMessageData(client)
+    }
+}
+
+/**
+ * Retrieves type of chat.
+ */
+private fun ChatPreview.type(): ChatType {
+    return if (this.hasGroupChat()) {
+        ChatType.CT_GROUP
+    } else {
+        ChatType.CT_PERSONAL
+    }
+}
+
+/**
+ * Retrieves members of the chat.
+ */
+private fun ChatPreview.members(client: DesktopClient): List<UserId> {
+    return client.readChatMembers(this.id)
 }
 
 /**
