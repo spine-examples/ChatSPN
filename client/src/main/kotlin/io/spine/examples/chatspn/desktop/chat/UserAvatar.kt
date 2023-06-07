@@ -29,7 +29,6 @@ package io.spine.examples.chatspn.desktop.chat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,14 +41,17 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Represents the user avatar.
+ *
+ * @param additionalModification additional modification for the user avatar
  */
 @Composable
-public fun UserAvatar() {
+public fun UserAvatar(additionalModification: Modifier.() -> Modifier = { this }) {
     val imageSize = 64f
     Image(
         modifier = Modifier
             .size(imageSize.dp)
-            .clip(CircleShape),
+            .clip(CircleShape)
+            .additionalModification(),
         contentScale = ContentScale.Crop,
         painter = object : Painter() {
             override val intrinsicSize: Size = Size(imageSize, imageSize)

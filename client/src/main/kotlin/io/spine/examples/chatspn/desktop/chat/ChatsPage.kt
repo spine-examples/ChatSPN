@@ -86,6 +86,8 @@ import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.Chat.ChatType
+import io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP
+import io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
 import io.spine.examples.chatspn.desktop.DesktopClient
@@ -381,7 +383,7 @@ private fun ChatTopbar(model: ChatsPageModel) {
             Modifier.padding(7.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            UserAvatar()
+            UserAvatar { this.clickable { model.openChatInfo(selectedChat) } }
             Text(
                 chat.get().name,
                 modifier = Modifier.padding(start = 5.dp),
@@ -892,9 +894,25 @@ private class ChatsPageModel(private val client: DesktopClient) {
      */
     private fun findPersonalChat(user: UserId): ChatId? {
         val chat = chatPreviewsState.value.find { chatData ->
-            chatData.type == ChatType.CT_PERSONAL && chatData.members.contains(user)
+            chatData.type == CT_PERSONAL && chatData.members.contains(user)
         }
         return chat?.id
+    }
+
+    /**
+     * Opens a modal window with chat info. If the chat is personal, a user profile will be opened.
+     *
+     * @param chatId ID of the chat which info to open
+     */
+    fun openChatInfo(chatId: ChatId) {
+        val chat = chatPreviewsState.value.find { chatData -> chatId.equals(chatData.id) } ?: return
+        if (chat.type == CT_PERSONAL) {
+            val userId = chat.members.find { user -> !user.equals(authenticatedUser.id) }
+            val user = client.findUser(userId!!)
+            userProfileModalState.isVisibleState.value = true
+            userProfileModalState.userProfile.value = user
+            userProfileModalState.chatState.value = chat.id
+        }
     }
 
     /**
@@ -1023,9 +1041,9 @@ private fun ChatPreview.lastMessageData(client: DesktopClient): MessageData? {
  */
 private fun ChatPreview.type(): ChatType {
     return if (this.hasGroupChat()) {
-        ChatType.CT_GROUP
+        CT_GROUP
     } else {
-        ChatType.CT_PERSONAL
+        CT_PERSONAL
     }
 }
 
