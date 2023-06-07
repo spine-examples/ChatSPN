@@ -54,6 +54,7 @@ import io.spine.examples.chatspn.account.event.AccountNotCreated
 import io.spine.examples.chatspn.chat.ChatMembers
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
+import io.spine.examples.chatspn.chat.event.PersonalChatCreated
 import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.command.RemoveMessage
 import io.spine.examples.chatspn.message.command.SendMessage
@@ -180,13 +181,23 @@ public class DesktopClient(
      * Creates a new personal chat between authenticated and provided user.
      *
      * @param user user to create a personal chat with authenticated user
+     * @param onSuccess will be called when the chat successfully created
      * @throws IllegalStateException if the user has not been authenticated
      */
-    public fun createPersonalChat(user: UserId) {
+    public fun createPersonalChat(user: UserId, onSuccess: () -> Unit = {}) {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
         val command = CreatePersonalChat
             .newBuilder()
             .buildWith(authenticatedUser!!.id, user)
+        var subscription: Subscription? = null
+        subscription = observeEvent(
+            command.id,
+            PersonalChatCreated::class.java
+        )
+        {
+            stopObservation(subscription!!)
+            onSuccess()
+        }
         clientRequest()
             .command(command)
             .postAndForget()
