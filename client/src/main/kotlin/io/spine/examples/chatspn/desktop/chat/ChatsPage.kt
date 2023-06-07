@@ -83,6 +83,7 @@ import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
+import io.spine.examples.chatspn.chat.Chat.ChatType
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
 import io.spine.examples.chatspn.desktop.DesktopClient
@@ -655,6 +656,7 @@ private class ChatsPageModel(private val client: DesktopClient) {
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
     val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
+    val userProfileModalState: UserProfileModalState = UserProfileModalState()
     val authenticatedUser: UserProfile = client.authenticatedUser!!
 
     init {
@@ -816,6 +818,15 @@ private class ChatsPageModel(private val client: DesktopClient) {
     class UserSearchFieldState {
         val userEmailState: MutableState<String> = mutableStateOf("")
         val errorState: MutableState<Boolean> = mutableStateOf(false)
+    }
+
+    /**
+     * State of the modal window with the user profile.
+     */
+    class UserProfileModalState {
+        val userProfile: MutableState<UserProfile?> = mutableStateOf(null)
+        val chatState: MutableState<ChatId?> = mutableStateOf(null)
+        val isVisibleState: MutableState<Boolean> = mutableStateOf(false)
     }
 }
 
