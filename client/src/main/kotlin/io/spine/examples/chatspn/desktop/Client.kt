@@ -43,6 +43,7 @@ import io.spine.client.QueryFilter
 import io.spine.client.Subscription
 import io.spine.core.UserId
 import io.spine.examples.chatspn.AccountCreationId
+import io.spine.examples.chatspn.ChatDeletionId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.MessageRemovalId
@@ -54,6 +55,7 @@ import io.spine.examples.chatspn.account.event.AccountNotCreated
 import io.spine.examples.chatspn.chat.ChatMembers
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
+import io.spine.examples.chatspn.chat.command.DeleteChat
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated
 import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.command.RemoveMessage
@@ -252,6 +254,22 @@ public class DesktopClient(
         val command = RemoveMessage
             .newBuilder()
             .buildWith(chat, authenticatedUser!!.id, message)
+        clientRequest()
+            .command(command)
+            .postAndForget()
+    }
+
+    /**
+     * Deletes the chat.
+     *
+     * @param chat ID of the сhat to delete
+     * @throws IllegalStateException if the user has not been authenticated
+     */
+    public fun deleteChat(chat: ChatId) {
+        checkNotNull(authenticatedUser) { "The user has not been authenticated" }
+        val command = DeleteChat
+            .newBuilder()
+            .buildWith(chat, authenticatedUser!!.id)
         clientRequest()
             .command(command)
             .postAndForget()
@@ -514,6 +532,27 @@ private fun RemoveMessage.Builder.buildWith(
         .setUser(user)
         .setChat(chat)
         .setId(removalId)
+        .vBuild()
+}
+
+/**
+ * Builds command to delete the chat.
+ *
+ * @param chat ID of the chat to delete
+ * @param user ID of the user who wants to delete a chat
+ * @return command to delete the chat
+ */
+private fun DeleteChat.Builder.buildWith(
+    chat: ChatId,
+    user: UserId
+): DeleteChat {
+    val deletionId = ChatDeletionId
+        .newBuilder()
+        .setId(chat)
+        .vBuild()
+    return this
+        .setId(deletionId)
+        .setWhoDeletes(user)
         .vBuild()
 }
 
