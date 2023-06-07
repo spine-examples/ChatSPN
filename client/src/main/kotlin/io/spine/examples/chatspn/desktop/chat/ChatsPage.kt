@@ -211,7 +211,7 @@ private fun UserSearchField(model: ChatsPageModel) {
                         .clickable {
                             val email = inputText
                             viewScope.launch {
-                                model.createPersonalChat(email)
+                                model.openUserProfile(email)
                             }
                             inputText = ""
                         }
@@ -776,17 +776,44 @@ private class ChatsPageModel(private val client: DesktopClient) {
     }
 
     /**
-     * Finds user by email and creates the personal chat between authenticated and found user.
+     * Creates the personal chat between the authenticated and the provided user.
      *
-     * @param email email of the user with whom to create a personal chat
+     * Selects the created chat.
+     *
+     * @param user ID of the user with whom to create a personal chat
      */
-    fun createPersonalChat(email: String) {
+    fun createPersonalChat(user: UserId) {
+        client.createPersonalChat(user) { event ->
+            selectChat(event.id)
+        }
+    }
+
+    /**
+     * Opens a modal window with a user profile
+     * or sets an error state to the search field if the user is not found.
+     *
+     * @param email email of the user whose profile to open
+     */
+    fun openUserProfile(email: String) {
         val user = client.findUser(email)
         if (null != user) {
-            client.createPersonalChat(user.id)
+            userProfileModalState.isVisibleState.value = true
+            userProfileModalState.userProfile.value = user
+            userProfileModalState.chatState.value = findPersonalChat(user.id)
         } else {
             userSearchFieldState.errorState.value = true
         }
+    }
+
+    /**
+     * Returns the ID of the personal chat with the provided user,
+     * or `null` if the chat doesn't exist.
+     */
+    private fun findPersonalChat(user: UserId): ChatId? {
+        val chat = chatPreviewsState.value.find { chatData ->
+            chatData.type == ChatType.CT_PERSONAL && chatData.members.contains(user)
+        }
+        return chat?.id
     }
 
     /**
