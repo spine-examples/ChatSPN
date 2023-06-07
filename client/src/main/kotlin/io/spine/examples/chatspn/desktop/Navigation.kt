@@ -58,7 +58,10 @@ public class Navigation(private val client: DesktopClient) {
                 toRegistration = { currentPage.value = Page.REGISTRATION },
                 toChats = { currentPage.value = Page.CHATS }
             )
-            Page.CHATS -> ChatsPage(client)
+            Page.CHATS -> ChatsPage(
+                client,
+                toRegistration = { currentPage.value = Page.REGISTRATION }
+            )
         }
     }
 }

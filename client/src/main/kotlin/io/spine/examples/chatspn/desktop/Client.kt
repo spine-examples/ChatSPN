@@ -142,6 +142,13 @@ public class DesktopClient(
     }
 
     /**
+     * Forgets the credentials of the authenticated user.
+     */
+    public fun logOut() {
+        authenticatedUser = null
+    }
+
+    /**
      * Finds user by ID.
      *
      * @param id ID of the user to find

@@ -108,8 +108,8 @@ import kotlinx.coroutines.launch
  */
 @Composable
 @Preview
-public fun ChatsPage(client: DesktopClient) {
-    val model = remember { ChatsPageModel(client) }
+public fun ChatsPage(client: DesktopClient, toRegistration: () -> Unit) {
+    val model = remember { ChatsPageModel(client, toRegistration) }
     Row {
         LeftSidebar(model)
         ChatContent(model)
@@ -641,6 +641,7 @@ private fun UserProfileModal(model: ChatsPageModel) {
 private fun OwnProfileButtons(model: ChatsPageModel) {
     ModalButton("Log out", MaterialTheme.colorScheme.error) {
         model.userProfileModalState.isVisibleState.value = false
+        model.logOut()
     }
 }
 
@@ -740,7 +741,10 @@ private fun ShadedBackground() {
  *
  * UI Model is a layer between `@Composable` functions and client.
  */
-private class ChatsPageModel(private val client: DesktopClient) {
+private class ChatsPageModel(
+    private val client: DesktopClient,
+    private val toRegistration: () -> Unit
+) {
     private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
@@ -751,6 +755,14 @@ private class ChatsPageModel(private val client: DesktopClient) {
     init {
         updateChats(client.readChats().toChatDataList(client))
         client.observeChats { state -> updateChats(state.chatList.toChatDataList(client)) }
+    }
+
+    /**
+     * Logs out the user and navigates to the registration.
+     */
+    fun logOut() {
+        client.logOut()
+        toRegistration()
     }
 
     /**
