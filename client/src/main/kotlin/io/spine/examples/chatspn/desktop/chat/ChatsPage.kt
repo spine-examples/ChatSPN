@@ -139,7 +139,9 @@ private fun LeftSidebar(model: ChatsPageModel) {
                 .fillMaxHeight()
                 .width(280.dp)
         ) {
-            UserProfilePanel(model.authenticatedUser)
+            UserProfilePanel(
+                model.authenticatedUser
+            ) { this.clickable { model.openUserProfile(model.authenticatedUser) } }
             UserSearchField(model)
             ChatList(model)
         }
@@ -150,12 +152,15 @@ private fun LeftSidebar(model: ChatsPageModel) {
  * Represents the user's profile panel.
  */
 @Composable
-private fun UserProfilePanel(user: UserProfile) {
+private fun UserProfilePanel(
+    user: UserProfile,
+    avatarModification: Modifier.() -> Modifier = { this }
+) {
     Row(
         modifier = Modifier.padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserAvatar()
+        UserAvatar(avatarModification)
         Spacer(Modifier.size(5.dp))
         Column(horizontalAlignment = Alignment.Start) {
             Text(
@@ -880,12 +885,21 @@ private class ChatsPageModel(private val client: DesktopClient) {
     fun openUserProfile(email: String) {
         val user = client.findUser(email)
         if (null != user) {
-            userProfileModalState.isVisibleState.value = true
-            userProfileModalState.userProfile.value = user
-            userProfileModalState.chatState.value = findPersonalChat(user.id)
+            openUserProfile(user)
         } else {
             userSearchFieldState.errorState.value = true
         }
+    }
+
+    /**
+     * Opens a modal window with a user profile.
+     *
+     * @param user profile of the user to open
+     */
+    fun openUserProfile(user: UserProfile) {
+        userProfileModalState.isVisibleState.value = true
+        userProfileModalState.userProfile.value = user
+        userProfileModalState.chatState.value = findPersonalChat(user.id)
     }
 
     /**
