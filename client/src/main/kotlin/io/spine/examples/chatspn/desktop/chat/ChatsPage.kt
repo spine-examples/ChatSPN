@@ -52,6 +52,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -110,6 +112,7 @@ public fun ChatsPage(client: DesktopClient) {
         LeftSidebar(model)
         ChatContent(model)
     }
+    UserProfileModal(model)
 }
 
 /**
@@ -604,6 +607,83 @@ private fun SendMessageInput(model: ChatsPageModel) {
 }
 
 /**
+ * Represents modal window with the user profile.
+ */
+@Composable
+private fun UserProfileModal(model: ChatsPageModel) {
+    val isVisibleState = remember { model.userProfileModalState.isVisibleState }
+    val userProfile by remember { model.userProfileModalState.userProfile }
+    ModalWindow(isVisibleState) {
+        Column(
+            Modifier.width(280.dp)
+        ) {
+            UserProfilePanel(userProfile!!)
+            if (model.authenticatedUser.id.equals(userProfile?.id)) {
+                OwnProfileButtons(model)
+            } else {
+                OtherUserProfileButtons(model)
+            }
+        }
+    }
+}
+
+/**
+ * Represents buttons on the profile modal window of the authenticated user.
+ */
+@Composable
+private fun OwnProfileButtons(model: ChatsPageModel) {
+    ModalButton("Log out", MaterialTheme.colorScheme.error) {
+        model.userProfileModalState.isVisibleState.value = false
+    }
+}
+
+/**
+ * Represents buttons on the profile modal window of the other user.
+ */
+@Composable
+private fun OtherUserProfileButtons(model: ChatsPageModel) {
+    val userProfile by remember { model.userProfileModalState.userProfile }
+    val personalChat by remember { model.userProfileModalState.chatState }
+    if (null == personalChat) {
+        ModalButton("Create personal chat") {
+            model.createPersonalChat(userProfile!!.id)
+            model.userProfileModalState.isVisibleState.value = false
+        }
+    } else {
+        ModalButton("Open personal chat") {
+            model.selectChat(personalChat!!)
+            model.userProfileModalState.isVisibleState.value = false
+        }
+        ModalButton("Remove personal chat", MaterialTheme.colorScheme.error) {
+            model.userProfileModalState.isVisibleState.value = false
+        }
+    }
+}
+
+/**
+ * Represents button on the modal window.
+ */
+@Composable
+private fun ModalButton(
+    text: String,
+    contentColor: Color = MaterialTheme.colorScheme.primary,
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = Modifier
+            .fillMaxWidth(),
+        onClick = onClick,
+        shape = RoundedCornerShape(0),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = contentColor
+        )
+    ) {
+        Text(text)
+    }
+}
+
+/**
  * Represents the default modal window.
  *
  * @param isVisibleState mutable state of modal window visibility
@@ -622,7 +702,8 @@ private fun ModalWindow(
             focusable = true
         ) {
             Surface(
-                elevation = 8.dp
+                elevation = 8.dp,
+                shape = RoundedCornerShape(10)
             ) {
                 content()
             }
