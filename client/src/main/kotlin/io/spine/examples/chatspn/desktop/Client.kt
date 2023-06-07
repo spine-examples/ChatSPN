@@ -184,7 +184,10 @@ public class DesktopClient(
      * @param onSuccess will be called when the chat successfully created
      * @throws IllegalStateException if the user has not been authenticated
      */
-    public fun createPersonalChat(user: UserId, onSuccess: () -> Unit = {}) {
+    public fun createPersonalChat(
+        user: UserId,
+        onSuccess: (event: PersonalChatCreated) -> Unit = {}
+    ) {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
         val command = CreatePersonalChat
             .newBuilder()
@@ -194,9 +197,9 @@ public class DesktopClient(
             command.id,
             PersonalChatCreated::class.java
         )
-        {
+        { event ->
             stopObservation(subscription!!)
-            onSuccess()
+            onSuccess(event)
         }
         clientRequest()
             .command(command)
