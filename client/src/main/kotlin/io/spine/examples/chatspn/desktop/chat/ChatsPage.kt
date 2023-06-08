@@ -767,10 +767,15 @@ private fun ModalButton(
     contentColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
     Button(
         modifier = Modifier
             .fillMaxWidth(),
-        onClick = onClick,
+        onClick = {
+            viewScope.launch {
+                onClick()
+            }
+        },
         shape = RoundedCornerShape(0),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.background,
