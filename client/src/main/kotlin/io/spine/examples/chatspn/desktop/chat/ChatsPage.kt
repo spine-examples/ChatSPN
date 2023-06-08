@@ -155,6 +155,9 @@ private fun LeftSidebar(model: ChatsPageModel) {
 
 /**
  * Represents the user's profile panel.
+ *
+ * @param user profile of the user to display
+ * @param avatarModification additional modification for the user avatar
  */
 @Composable
 private fun UserProfilePanel(
@@ -165,7 +168,7 @@ private fun UserProfilePanel(
         modifier = Modifier.padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserAvatar(avatarModification)
+        Avatar(avatarModification)
         Spacer(Modifier.size(5.dp))
         Column(horizontalAlignment = Alignment.Start) {
             Text(
@@ -308,7 +311,7 @@ private fun ChatPreviewContent(chatName: String, lastMessage: String) {
         modifier = Modifier.padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserAvatar()
+        Avatar()
         Spacer(Modifier.size(5.dp))
         Column(horizontalAlignment = Alignment.Start) {
             Text(
@@ -393,7 +396,7 @@ private fun ChatTopbar(model: ChatsPageModel) {
             Modifier.padding(7.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            UserAvatar { this.clickable { model.openChatInfo(selectedChat) } }
+            Avatar { this.clickable { model.openChatInfo(selectedChat) } }
             Text(
                 chat.get().name,
                 modifier = Modifier.padding(start = 5.dp),
@@ -529,7 +532,7 @@ private fun MessageMenuItem(
 @Composable
 private fun MessageContent(message: MessageData) {
     Row(Modifier.padding(10.dp), verticalAlignment = Alignment.Top) {
-        UserAvatar()
+        Avatar()
         Spacer(Modifier.size(8.dp))
         Column {
             Row {

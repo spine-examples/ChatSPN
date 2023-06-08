@@ -40,12 +40,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 
 /**
- * Represents the user avatar.
+ * Represents the avatar.
  *
- * @param additionalModification additional modification for the user avatar
+ * @param additionalModification additional modification for the avatar
  */
 @Composable
-public fun UserAvatar(additionalModification: Modifier.() -> Modifier = { this }) {
+public fun Avatar(additionalModification: Modifier.() -> Modifier = { this }) {
     val imageSize = 64f
     Image(
         modifier = Modifier
