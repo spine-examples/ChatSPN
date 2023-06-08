@@ -34,6 +34,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -49,11 +50,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -330,7 +336,7 @@ private fun ChatContent(model: ChatsPageModel) {
             Box(Modifier.weight(1f)) {
                 ChatMessages(model)
             }
-            SendMessageInput(model)
+            MessageInputField(model)
         }
     }
 }
@@ -440,7 +446,7 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
             color = MaterialTheme.colorScheme.surface
         ) {
             MessageContent(message)
-            MessageDropdownMenu(model, isMenuOpen, message)
+            MessageDropdownMenu(model, isMenuOpen, message, isMyMessage)
         }
     }
 }
@@ -452,7 +458,8 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
 private fun MessageDropdownMenu(
     model: ChatsPageModel,
     isMenuOpen: MutableState<Boolean>,
-    message: MessageData
+    message: MessageData,
+    isMyMessage: Boolean
 ) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     DropdownMenu(
@@ -465,6 +472,14 @@ private fun MessageDropdownMenu(
                 model.removeMessage(message.id)
             }
             isMenuOpen.value = false
+        }
+        if (isMyMessage) {
+            MessageMenuItem("Edit", Icons.Default.Edit) {
+                model.messageInputFieldState.isEditingState.value = true
+                model.messageInputFieldState.editingMessage.value = message
+                model.messageInputFieldState.inputText.value = message.content
+                isMenuOpen.value = false
+            }
         }
     }
 }
@@ -553,52 +568,124 @@ private fun Timestamp.toStringTime(): String {
 }
 
 /**
- * Represents the input for sending a message to the chat.
+ * Represents the input field for sending and editing a message in the chat.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SendMessageInput(model: ChatsPageModel) {
-    val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    var inputText by remember { mutableStateOf("") }
-    TextField(
-        modifier = Modifier
+private fun MessageInputField(model: ChatsPageModel) {
+    var inputText by remember { model.messageInputFieldState.inputText }
+    val isEditing by remember { model.messageInputFieldState.isEditingState }
+    Box(
+        Modifier
             .fillMaxWidth()
+            .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
             .background(MaterialTheme.colorScheme.background)
-            .padding(10.dp),
-        value = inputText,
-        placeholder = {
-            Text("Type message here")
-        },
-        onValueChange = {
-            inputText = it
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary,
-        ),
-        trailingIcon = {
-            if (inputText.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .clickable {
-                            val messageContent = inputText
-                            viewScope.launch {
-                                model.sendMessage(messageContent)
-                            }
-                            inputText = ""
-                        }
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Send,
-                        contentDescription = "Send",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text("Send")
-                }
+    ) {
+        Column {
+            if (isEditing) {
+                EditMessagePanel(model)
             }
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = inputText,
+                placeholder = {
+                    Text("Type message here")
+                },
+                onValueChange = {
+                    inputText = it
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary,
+                ),
+                trailingIcon = { MessageInputFieldIcon(model) }
+            )
         }
-    )
+    }
+}
+
+/**
+ * Represents the icon button to send or edit the message.
+ */
+@Composable
+private fun MessageInputFieldIcon(model: ChatsPageModel) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    var inputText by remember { model.messageInputFieldState.inputText }
+    var isEditing by remember { model.messageInputFieldState.isEditingState }
+    var editingMessage by remember { model.messageInputFieldState.editingMessage }
+    val iconText = if (isEditing) "Edit" else "Send"
+    val icon = if (isEditing) Icons.Default.Check else Icons.Default.Send
+
+    if (inputText.isNotEmpty()) {
+        Row(
+            modifier = Modifier
+                .clickable {
+                    viewScope.launch {
+                        if (isEditing) {
+                            model.editMessage(editingMessage!!.id, inputText)
+                        } else {
+                            model.sendMessage(inputText)
+                        }
+                        isEditing = false
+                        editingMessage = null
+                        inputText = ""
+                    }
+                }
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = iconText,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(iconText)
+        }
+    }
+}
+
+/**
+ * Represents the view of the message in editing state.
+ */
+@Composable
+private fun EditMessagePanel(model: ChatsPageModel) {
+    val message by remember { model.messageInputFieldState.editingMessage }
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(Modifier.weight(1f)) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Edit",
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text("Edit message:", color = MaterialTheme.colorScheme.primary)
+            Text(
+                message!!.content,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
+            )
+        }
+        ElevatedButton(
+            modifier = Modifier
+                .width(24.dp)
+                .height(24.dp),
+            content = {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close"
+                )
+            },
+            contentPadding = PaddingValues(0.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground
+            ),
+            onClick = {
+                model.messageInputFieldState.clear()
+            }
+        )
+    }
 }
 
 /**
@@ -611,6 +698,7 @@ private class ChatsPageModel(private val client: DesktopClient) {
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
     val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
+    val messageInputFieldState: MessageInputFieldState = MessageInputFieldState()
     val authenticatedUser: UserProfile = client.authenticatedUser!!
 
     init {
@@ -647,10 +735,13 @@ private class ChatsPageModel(private val client: DesktopClient) {
     /**
      * Selects provided chat and subscribes to message changes in it.
      *
+     * Also clears the message input field state.
+     *
      * @param chat ID of the chat to select
      */
     fun selectChat(chat: ChatId) {
         selectedChatState.value = chat
+        messageInputFieldState.clear()
         updateMessages(chat, client.readMessages(chat).toMessageDataList(client))
         client.stopObservingMessages()
         client.observeMessages(
@@ -668,7 +759,7 @@ private class ChatsPageModel(private val client: DesktopClient) {
     private fun ChatId.updateMessagesState(messageView: MessageView) {
         val message = messageView.toMessageData(client)
         val chatMessages = chatMessagesStateMap[this]!!.value
-        if (chatMessages.contains(message)) {
+        if (chatMessages.findMessage(message.id) != null) {
             val newChatMessages = chatMessages.replaceMessage(message)
             updateMessages(this, newChatMessages)
         } else {
@@ -725,8 +816,18 @@ private class ChatsPageModel(private val client: DesktopClient) {
      *
      * @param message ID of the message to remove
      */
-    public fun removeMessage(message: MessageId) {
+    fun removeMessage(message: MessageId) {
         client.removeMessage(selectedChatState.value, message)
+    }
+
+    /**
+     * Edits message in the selected chat.
+     *
+     * @param message ID of the message to edit
+     * @param newContent new text content for the message
+     */
+    fun editMessage(message: MessageId, newContent: String) {
+        client.editMessage(selectedChatState.value, message, newContent)
     }
 
     /**
@@ -772,6 +873,24 @@ private class ChatsPageModel(private val client: DesktopClient) {
     class UserSearchFieldState {
         val userEmailState: MutableState<String> = mutableStateOf("")
         val errorState: MutableState<Boolean> = mutableStateOf(false)
+    }
+
+    /**
+     * State of the message input field.
+     */
+    class MessageInputFieldState {
+        val inputText: MutableState<String> = mutableStateOf("")
+        val isEditingState: MutableState<Boolean> = mutableStateOf(false)
+        val editingMessage: MutableState<MessageData?> = mutableStateOf(null)
+
+        /**
+         * Clears the state.
+         */
+        fun clear() {
+            inputText.value = ""
+            isEditingState.value = false
+            editingMessage.value = null
+        }
     }
 }
 
