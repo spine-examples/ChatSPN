@@ -724,7 +724,7 @@ private fun UserProfileModal(model: ChatsPageModel) {
 }
 
 /**
- * Represents buttons on the profile modal window of the authenticated user.
+ * Represents buttons in the profile modal window of the authenticated user.
  */
 @Composable
 private fun OwnProfileButtons(model: ChatsPageModel) {
@@ -735,7 +735,7 @@ private fun OwnProfileButtons(model: ChatsPageModel) {
 }
 
 /**
- * Represents buttons on the profile modal window of the other user.
+ * Represents buttons in the profile modal window of the another user.
  */
 @Composable
 private fun OtherUserProfileButtons(model: ChatsPageModel) {
@@ -759,7 +759,7 @@ private fun OtherUserProfileButtons(model: ChatsPageModel) {
 }
 
 /**
- * Represents button on the modal window.
+ * Represents the modal window button.
  */
 @Composable
 private fun ModalButton(
@@ -1002,7 +1002,7 @@ private class ChatsPageModel(
     }
 
     /**
-     * Opens a modal window with a user profile
+     * Opens a modal window with a user profile,
      * or sets an error state to the search field if the user is not found.
      *
      * @param email email of the user whose profile to open
@@ -1030,6 +1030,8 @@ private class ChatsPageModel(
     /**
      * Returns the ID of the personal chat with the provided user,
      * or `null` if the chat doesn't exist.
+     *
+     * @param user ID of the user with whom to find the personal chat
      */
     private fun findPersonalChat(user: UserId): ChatId? {
         val chat = chatPreviewsState.value.find { chatData ->
@@ -1194,7 +1196,7 @@ private fun ChatPreview.lastMessageData(client: DesktopClient): MessageData? {
 }
 
 /**
- * Retrieves type of chat.
+ * Retrieves chat type.
  */
 private fun ChatPreview.type(): ChatType {
     return if (this.hasGroupChat()) {

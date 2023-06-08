@@ -436,9 +436,9 @@ public class DesktopClient(
     /**
      * Observes the outcome of the command.
      *
-     * When a success or fail event is generated, subscriptions will be cancelled.
+     * When a success or failure event is emitted, subscriptions will be canceled.
      *
-     * @param id ID of the event state to observe
+     * @param id ID of the event states to observe
      * @param successEvent type of the success event to observe
      * @param onSuccess will be called when the specified success event emitted
      * @param failEvent type of the fail event to observe
