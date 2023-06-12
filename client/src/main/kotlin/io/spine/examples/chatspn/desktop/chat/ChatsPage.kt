@@ -410,6 +410,7 @@ private fun ChatTopbar(model: ChatsPageModel) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .height(54.dp)
             .drawBehind {
                 drawLine(
                     color = Color.Gray,
@@ -420,14 +421,14 @@ private fun ChatTopbar(model: ChatsPageModel) {
             },
     ) {
         Row(
-            Modifier.padding(7.dp),
+            Modifier.padding(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            UserAvatar()
+            Avatar(42f)
             Text(
                 chat.get().name,
-                modifier = Modifier.padding(start = 5.dp),
-                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(start = 8.dp),
+                style = MaterialTheme.typography.headlineMedium,
             )
         }
     }
