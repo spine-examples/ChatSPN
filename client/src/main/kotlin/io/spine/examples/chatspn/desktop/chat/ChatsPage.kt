@@ -28,6 +28,7 @@ package io.spine.examples.chatspn.desktop.chat
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,6 +47,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.onClick
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.Surface
@@ -76,11 +78,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
@@ -136,7 +143,7 @@ private fun LeftSidebar(model: ChatsPageModel) {
         Column(
             Modifier
                 .fillMaxHeight()
-                .width(280.dp)
+                .width(256.dp)
         ) {
             UserProfilePanel(model.authenticatedUser)
             UserSearchField(model)
@@ -242,14 +249,13 @@ private fun ChatList(model: ChatsPageModel) {
     val chats by model.chats().collectAsState()
     val selectedChat by model.selectedChat().collectAsState()
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
         chats.forEachIndexed { index, chat ->
             item(key = index) {
                 ChatPreviewPanel(
                     chat.name,
-                    if (chat.lastMessage != null) chat.lastMessage.content else "",
+                    chat.lastMessage,
                     chat.id.equals(selectedChat)
                 ) {
                     model.selectChat(chat.id)
@@ -257,7 +263,7 @@ private fun ChatList(model: ChatsPageModel) {
             }
         }
         item {
-            Box(Modifier.height(50.dp))
+            Box(Modifier.height(62.dp))
         }
     }
 }
@@ -268,7 +274,7 @@ private fun ChatList(model: ChatsPageModel) {
 @Composable
 private fun ChatPreviewPanel(
     chatName: String,
-    lastMessage: String,
+    lastMessage: MessageData?,
     isSelected: Boolean,
     select: () -> Unit
 ) {
@@ -292,27 +298,62 @@ private fun ChatPreviewPanel(
  * Represents the chat preview content in the chat preview panel.
  */
 @Composable
-private fun ChatPreviewContent(chatName: String, lastMessage: String) {
+private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
     Row(
-        modifier = Modifier.padding(5.dp),
+        modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserAvatar()
-        Spacer(Modifier.size(5.dp))
+        Avatar(46f)
+        Spacer(Modifier.size(12.dp))
         Column(horizontalAlignment = Alignment.Start) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = chatName,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+                Text(
+                    text = if (lastMessage == null) "" else lastMessage.whenPosted.toStringTime(),
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            Spacer(Modifier.size(9.dp))
             Text(
-                text = chatName,
-                style = MaterialTheme.typography.headlineMedium,
-            )
-            Spacer(Modifier.size(4.dp))
-            Text(
-                text = lastMessage,
-                style = MaterialTheme.typography.headlineSmall,
+                text = if (lastMessage == null) "" else lastMessage.content,
+                color = MaterialTheme.colorScheme.onSecondary,
+                style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
         }
     }
+}
+
+/**
+ * Represents the avatar.
+ */
+@Composable
+public fun Avatar(size: Float) {
+    Image(
+        modifier = Modifier
+            .size(size.dp)
+            .clip(CircleShape),
+        contentScale = ContentScale.Crop,
+        painter = object : Painter() {
+            override val intrinsicSize: Size = Size(size, size)
+            override fun DrawScope.onDraw() {
+                drawRect(
+                    Color(0xFFFC3903),
+                    size = Size(size * 4, size * 4)
+                )
+            }
+        },
+        contentDescription = "User picture"
+    )
 }
 
 /**

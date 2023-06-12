@@ -161,7 +161,7 @@ private val typography: Typography = Typography(
     ),
     bodySmall = TextStyle(
         fontFamily = SanFrancisco,
-        fontSize = 14.sp
+        fontSize = 12.sp
     ),
     labelLarge = TextStyle(
         fontFamily = SanFrancisco,
