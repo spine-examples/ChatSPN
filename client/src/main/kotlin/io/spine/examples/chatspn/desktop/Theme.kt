@@ -33,8 +33,11 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.unit.sp
 
 /**
@@ -44,12 +47,78 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 public fun ChatSpnTheme(content: @Composable () -> Unit) {
-    MaterialTheme (
+    MaterialTheme(
         colorScheme = lightColors,
         typography = typography,
         content = content
     )
 }
+
+private val SanFrancisco = FontFamily(
+    Font(
+        "font/SanFrancisco/SFUIText-Bold.ttf",
+        FontWeight.Bold,
+        FontStyle.Normal
+    ),
+    font(
+        "font/SanFrancisco/SFUIText-BoldItalic.ttf",
+        FontWeight.Bold,
+        FontStyle.Italic
+    ),
+    Font(
+        "font/SanFrancisco/SanFrancisco/SFUIText-Heavy.ttf",
+        FontWeight.ExtraBold,
+        FontStyle.Normal
+    ),
+    Font(
+        "font/SanFrancisco/SFUIText-HeavyItalic.ttf",
+        FontWeight.ExtraBold,
+        FontStyle.Italic
+    ),
+    Font(
+        "font/SanFrancisco/SFUIText-Italic.ttf",
+        FontWeight.Normal,
+        FontStyle.Italic
+    ),
+    Font(
+        "font/SanFrancisco/SFUIText-Light.ttf",
+        FontWeight.Light,
+        FontStyle.Normal
+    ),
+    Font(
+        "font/SanFrancisco/SFUIText-LightItalic.ttf",
+        FontWeight.Light,
+        FontStyle.Italic
+    ),
+    Font(
+        "font/SanFrancisco/SFUIText-Medium.ttf",
+        FontWeight.Medium,
+        FontStyle.Normal
+    ),
+    Font(
+        "font/SanFrancisco/SFUIText-MediumItalic.ttf",
+        FontWeight.Medium,
+        FontStyle.Italic
+    ),
+    Font(
+        "font/SanFrancisco/SFUIText-Regular.ttf",
+        FontWeight.Normal,
+        FontStyle.Normal
+    ),
+    Font(
+        "font/SanFrancisco/SFUIText-Semibold.ttf",
+        FontWeight.SemiBold,
+        FontStyle.Normal
+    ),
+    Font(
+        "font/SanFrancisco/SFUIText-SemiboldItalic.ttf",
+        FontWeight.SemiBold,
+        FontStyle.Italic
+    )
+)
+
+public fun font(res: String, weight: FontWeight, style: FontStyle): Font =
+    Font("font/SanFrancisco/$res.ttf", weight, style)
 
 /**
  * The light colors scheme of the application.
@@ -69,28 +138,37 @@ private val lightColors: ColorScheme = lightColorScheme(
  */
 private val typography: Typography = Typography(
     displayLarge = TextStyle(
+        fontFamily = SanFrancisco,
         fontSize = 30.sp
     ),
     headlineLarge = TextStyle(
+        fontFamily = SanFrancisco,
         fontSize = 26.sp
     ),
     headlineMedium = TextStyle(
-        fontSize = 22.sp
+        fontFamily = SanFrancisco,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Medium
     ),
-    headlineSmall= TextStyle(
+    headlineSmall = TextStyle(
+        fontFamily = SanFrancisco,
         fontSize = 14.sp,
         color = Color.Gray
     ),
     bodyMedium = TextStyle(
-        fontSize = 18.sp
+        fontFamily = SanFrancisco,
+        fontSize = 14.sp
     ),
     bodySmall = TextStyle(
+        fontFamily = SanFrancisco,
         fontSize = 14.sp
     ),
     labelLarge = TextStyle(
+        fontFamily = SanFrancisco,
         fontSize = 16.sp
     ),
     labelMedium = TextStyle(
+        fontFamily = SanFrancisco,
         fontSize = 12.sp
     )
 )
