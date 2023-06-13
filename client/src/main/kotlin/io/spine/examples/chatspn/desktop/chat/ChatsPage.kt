@@ -49,15 +49,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.ZeroCornerSize
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -77,6 +78,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -86,6 +88,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
@@ -145,100 +150,100 @@ private fun LeftSidebar(model: ChatsPageModel) {
                 .fillMaxHeight()
                 .width(256.dp)
         ) {
-            UserProfilePanel(model.authenticatedUser)
-            UserSearchField(model)
+            MenuAndSearch(model)
             ChatList(model)
         }
     }
 }
 
-/**
- * Represents the user's profile panel.
- */
 @Composable
-private fun UserProfilePanel(user: UserProfile) {
+private fun MenuAndSearch(model: ChatsPageModel) {
     Row(
-        modifier = Modifier.padding(5.dp),
+        Modifier
+            .fillMaxWidth()
+            .height(54.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserAvatar()
-        Spacer(Modifier.size(5.dp))
-        Column(horizontalAlignment = Alignment.Start) {
-            Text(
-                text = user.name,
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Spacer(Modifier.size(4.dp))
-            Text(
-                text = user.email.value,
-                color = MaterialTheme.colorScheme.onSecondary,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.headlineSmall
-            )
-        }
+        Spacer(Modifier.width(10.dp))
+        MenuButton()
+        Spacer(Modifier.width(14.dp))
+        UserSearchField(model)
+    }
+}
+
+@Composable
+private fun MenuButton() {
+    Button(
+        modifier = Modifier
+            .size(42.dp),
+        onClick = {},
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        contentPadding = PaddingValues(6.dp)
+    ) {
+        Icon(
+            Icons.Default.Menu,
+            "Menu",
+            Modifier.size(20.dp),
+            MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 
 /**
  * Represents the input field to find the user.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun UserSearchField(model: ChatsPageModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     var inputText by remember { model.userSearchFieldState.userEmailState }
     var isError by remember { model.userSearchFieldState.errorState }
-    TextField(
+    BasicTextField(
         modifier = Modifier
-            .fillMaxWidth()
+            .size(182.dp, 30.dp)
             .background(MaterialTheme.colorScheme.background)
-            .padding(0.dp, 5.dp),
+            .onPreviewKeyEvent {
+                when {
+                    (it.key == Key.Enter) -> {
+                        val email = inputText
+                        viewScope.launch {
+                            model.createPersonalChat(email)
+                        }
+                        inputText = ""
+                        true
+                    }
+                    else -> false
+                }
+            },
         value = inputText,
-        placeholder = {
-            Text(text = "example@mail.com")
-        },
-        isError = isError,
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Email,
-                contentDescription = "Email Icon"
-            )
-        },
         singleLine = true,
         onValueChange = {
             inputText = it
             isError = false
-        },
-        label = { Text(text = "Find user by email") },
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            focusedLabelColor = MaterialTheme.colorScheme.primary
-        ),
-        shape = MaterialTheme.shapes.small.copy(ZeroCornerSize),
-        trailingIcon = {
-            if (inputText.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .clickable {
-                            val email = inputText
-                            viewScope.launch {
-                                model.createPersonalChat(email)
-                            }
-                            inputText = ""
-                        }
-                        .padding(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Send,
-                        contentDescription = "Find",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text("Find")
-                }
-            }
         }
-    )
+    ) { innerTextField ->
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(size = 3.dp)
+                )
+                .padding(all = 8.dp)
+        ) {
+            if (inputText.isEmpty()) {
+                Text(
+                    text = "Search",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+            innerTextField()
+        }
+    }
 }
 
 /**
@@ -284,7 +289,7 @@ private fun ChatPreviewPanel(
             .clickable { select() }
             .background(
                 color = if (isSelected)
-                    MaterialTheme.colorScheme.surface
+                    MaterialTheme.colorScheme.inverseSurface
                 else
                     MaterialTheme.colorScheme.background
             ),
