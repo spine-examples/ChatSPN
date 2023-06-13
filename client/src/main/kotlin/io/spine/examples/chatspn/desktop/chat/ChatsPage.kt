@@ -45,6 +45,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.CircleShape
@@ -85,6 +86,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -331,7 +333,7 @@ private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
                 text = if (lastMessage == null) "" else lastMessage.content,
                 color = MaterialTheme.colorScheme.onSecondary,
                 style = MaterialTheme.typography.bodyMedium,
-                maxLines = 2,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
@@ -451,8 +453,8 @@ private fun ChatMessages(model: ChatsPageModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(5.dp, 0.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(bottom = 0.dp, start = 8.dp, top = 1.dp, end = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         messages.forEach { message ->
             item(message.id) {
@@ -460,7 +462,7 @@ private fun ChatMessages(model: ChatsPageModel) {
             }
         }
         item {
-            Box(Modifier.height(50.dp))
+            Spacer(Modifier.height(4.dp))
         }
     }
 }
@@ -474,13 +476,36 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
     val isMenuOpen = remember { mutableStateOf(false) }
+    val alignment: Alignment
+    val color: Color
+    val shape: Shape
+    if (isMyMessage) {
+        alignment = Alignment.CenterEnd
+        color = MaterialTheme.colorScheme.inverseSurface
+        shape = RoundedCornerShape(
+            topStart = 16.dp,
+            topEnd = 16.dp,
+            bottomEnd = 0.dp,
+            bottomStart = 16.dp
+        )
+    } else {
+        alignment = Alignment.CenterStart
+        color = MaterialTheme.colorScheme.surface
+        shape = RoundedCornerShape(
+            topStart = 16.dp,
+            topEnd = 16.dp,
+            bottomEnd = 16.dp,
+            bottomStart = 0.dp
+        )
+    }
     Box(
         modifier = Modifier.fillMaxWidth(),
-        contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart
+        contentAlignment = alignment
     ) {
         Surface(
             modifier = Modifier
-                .padding(4.dp)
+                .padding(horizontal = 4.dp)
+                .widthIn(0.dp, 400.dp)
                 .onClick(
                     enabled = true,
                     matcher = PointerMatcher.mouse(PointerButton.Secondary),
@@ -488,9 +513,9 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
                         isMenuOpen.value = true
                     }
                 ),
-            shape = RoundedCornerShape(size = 20.dp),
-            elevation = 8.dp,
-            color = MaterialTheme.colorScheme.surface
+            shape = shape,
+            elevation = 4.dp,
+            color = color
         ) {
             MessageContent(message)
             MessageDropdownMenu(model, isMenuOpen, message, isMyMessage)
@@ -564,16 +589,15 @@ private fun MessageMenuItem(
  */
 @Composable
 private fun MessageContent(message: MessageData) {
-    Row(Modifier.padding(10.dp), verticalAlignment = Alignment.Top) {
-        UserAvatar()
+    Row(Modifier.padding(8.dp), verticalAlignment = Alignment.Top) {
+        Avatar(42f)
         Spacer(Modifier.size(8.dp))
         Column {
-            Row {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 SenderName(message.sender.name)
-                Spacer(Modifier.size(10.dp))
+                Spacer(Modifier.size(8.dp))
                 PostedTime(message.whenPosted)
             }
-            Spacer(Modifier.size(8.dp))
             Text(
                 text = message.content,
                 style = MaterialTheme.typography.bodyMedium
@@ -600,7 +624,7 @@ private fun SenderName(username: String) {
 private fun PostedTime(time: Timestamp) {
     Text(
         text = time.toStringTime(),
-        style = MaterialTheme.typography.headlineSmall,
+        style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSecondary
     )
 }
@@ -662,15 +686,15 @@ private fun MessageInputFieldIcon(model: ChatsPageModel) {
     val iconText = if (isEditing) "Edit" else "Send"
     val icon = if (isEditing) Icons.Default.Check else Icons.Default.Send
 
-    if (inputText.isNotEmpty()) {
+    if (inputText.trim().isNotEmpty()) {
         Row(
             modifier = Modifier
                 .clickable {
                     viewScope.launch {
                         if (isEditing) {
-                            model.editMessage(editingMessage!!.id, inputText)
+                            model.editMessage(editingMessage!!.id, inputText.trim())
                         } else {
-                            model.sendMessage(inputText)
+                            model.sendMessage(inputText.trim())
                         }
                         isEditing = false
                         editingMessage = null
