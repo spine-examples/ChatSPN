@@ -85,6 +85,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -97,6 +98,7 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.protobuf.Timestamp
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
@@ -110,6 +112,7 @@ import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.stream.Collectors
+import kotlin.math.abs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -310,7 +313,7 @@ private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
         modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Avatar(46f)
+        Avatar(46f, chatName)
         Spacer(Modifier.size(12.dp))
         Column(horizontalAlignment = Alignment.Start) {
             Row(
@@ -341,26 +344,43 @@ private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
 }
 
 /**
- * Represents the avatar.
+ * Represents the default avatar.
  */
 @Composable
-public fun Avatar(size: Float) {
-    Image(
-        modifier = Modifier
-            .size(size.dp)
-            .clip(CircleShape),
-        contentScale = ContentScale.Crop,
-        painter = object : Painter() {
-            override val intrinsicSize: Size = Size(size, size)
-            override fun DrawScope.onDraw() {
-                drawRect(
-                    Color(0xFFFC3903),
-                    size = Size(size * 4, size * 4)
-                )
-            }
-        },
-        contentDescription = "User picture"
+public fun Avatar(size: Float, name: String) {
+    val gradients = listOf(
+        listOf(Color(0xFFFFC371), Color(0xFFFF5F6D)),
+        listOf(Color(0xFF95E4FC), Color(0xFF0F65D6)),
+        listOf(Color(0xFF72F877), Color(0xFF259CF1)),
+        listOf(Color(0xFF76DBFA), Color(0xFFD72DFD)),
+        listOf(Color(0xFFA6FA85), Color(0xFF22AC00D)),
+        listOf(Color(0xFFFD9696), Color(0xFFF11010))
     )
+    val gradientIndex = abs(name.hashCode()) % gradients.size
+    Box(contentAlignment = Alignment.Center) {
+        Image(
+            modifier = Modifier
+                .size(size.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop,
+            painter = object : Painter() {
+                override val intrinsicSize: Size = Size(size, size)
+                override fun DrawScope.onDraw() {
+                    drawRect(
+                        Brush.linearGradient(gradients[gradientIndex]),
+                        size = Size(size * 4, size * 4)
+                    )
+                }
+            },
+            contentDescription = "User picture"
+        )
+        Text(
+            name[0].toString(),
+            color = Color.White,
+            fontSize = (size * 0.5).sp,
+            style = MaterialTheme.typography.headlineLarge
+        )
+    }
 }
 
 /**
@@ -431,7 +451,7 @@ private fun ChatTopbar(model: ChatsPageModel) {
             Modifier.padding(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Avatar(42f)
+            Avatar(42f, chat.get().name)
             Text(
                 chat.get().name,
                 modifier = Modifier.padding(start = 8.dp),
@@ -483,6 +503,7 @@ private fun ChatMessage(
     isFirstMemberMessage: Boolean,
     isLastMemberMessage: Boolean
 ) {
+    val userAvatarText = message.sender.name
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
     val isMenuOpen = remember { mutableStateOf(false) }
@@ -492,7 +513,7 @@ private fun ChatMessage(
         contentAlignment = messageViewSettings.alignment
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
-            MessageAvatar(!isMyMessage && isLastMemberMessage)
+            MessageAvatar(!isMyMessage && isLastMemberMessage, userAvatarText)
             Column {
                 Surface(
                     modifier = Modifier
@@ -515,7 +536,7 @@ private fun ChatMessage(
                     Spacer(Modifier.height(12.dp))
                 }
             }
-            MessageAvatar(isMyMessage && isLastMemberMessage)
+            MessageAvatar(isMyMessage && isLastMemberMessage, userAvatarText)
         }
     }
 }
@@ -567,10 +588,10 @@ private fun defineMessageDisplaySettings(
  * @param isVisible if `true` displays the avatar else displays the empty space
  */
 @Composable
-private fun MessageAvatar(isVisible: Boolean) {
+private fun MessageAvatar(isVisible: Boolean, text: String) {
     Column {
         if (isVisible) {
-            Avatar(42f)
+            Avatar(42f, text)
             Spacer(Modifier.width(4.dp))
         } else {
             Spacer(Modifier.width(42.dp))

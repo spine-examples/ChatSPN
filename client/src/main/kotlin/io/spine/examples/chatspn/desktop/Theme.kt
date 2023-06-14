@@ -60,7 +60,7 @@ private val SanFrancisco = FontFamily(
         FontWeight.Bold,
         FontStyle.Normal
     ),
-    font(
+    Font(
         "font/SanFrancisco/SFUIText-BoldItalic.ttf",
         FontWeight.Bold,
         FontStyle.Italic
@@ -116,9 +116,6 @@ private val SanFrancisco = FontFamily(
         FontStyle.Italic
     )
 )
-
-public fun font(res: String, weight: FontWeight, style: FontStyle): Font =
-    Font("font/SanFrancisco/$res.ttf", weight, style)
 
 /**
  * The light colors scheme of the application.
