@@ -153,12 +153,12 @@ private val typography: Typography = Typography(
     ),
     headlineSmall = TextStyle(
         fontFamily = SanFrancisco,
-        fontSize = 14.sp,
+        fontSize = 12.sp,
         color = Color.Gray
     ),
     bodyMedium = TextStyle(
         fontFamily = SanFrancisco,
-        fontSize = 14.sp
+        fontSize = 12.sp
     ),
     bodySmall = TextStyle(
         fontFamily = SanFrancisco,
