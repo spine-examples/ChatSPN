@@ -456,9 +456,14 @@ private fun ChatMessages(model: ChatsPageModel) {
             .padding(bottom = 0.dp, start = 8.dp, top = 1.dp, end = 8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        messages.forEach { message ->
+        item {
+            Spacer(Modifier.height(4.dp))
+        }
+        messages.forEachIndexed { index, message ->
             item(message.id) {
-                ChatMessage(model, message)
+                val isFirst = messages.isFirstMemberMessage(index)
+                val isLast = messages.isLastMemberMessage(index)
+                ChatMessage(model, message, isFirst, isLast)
             }
         }
         item {
@@ -472,13 +477,60 @@ private fun ChatMessages(model: ChatsPageModel) {
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
+private fun ChatMessage(
+    model: ChatsPageModel,
+    message: MessageData,
+    isFirstMemberMessage: Boolean,
+    isLastMemberMessage: Boolean
+) {
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
     val isMenuOpen = remember { mutableStateOf(false) }
+    val messageViewSettings = defineMessageDisplaySettings(isMyMessage, isLastMemberMessage)
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = messageViewSettings.alignment
+    ) {
+        Row(verticalAlignment = Alignment.Bottom) {
+            MessageAvatar(!isMyMessage && isLastMemberMessage)
+            Column {
+                Surface(
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .onClick(
+                            enabled = true,
+                            matcher = PointerMatcher.mouse(PointerButton.Secondary),
+                            onClick = {
+                                isMenuOpen.value = true
+                            }
+                        ),
+                    shape = messageViewSettings.shape,
+                    elevation = 4.dp,
+                    color = messageViewSettings.color
+                ) {
+                    MessageContent(message, isFirstMemberMessage)
+                    MessageDropdownMenu(model, isMenuOpen, message, isMyMessage)
+                }
+                if (isLastMemberMessage) {
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
+            MessageAvatar(isMyMessage && isLastMemberMessage)
+        }
+    }
+}
+
+/**
+ * Defines the display settings of the message.
+ */
+@Composable
+private fun defineMessageDisplaySettings(
+    isMyMessage: Boolean,
+    isLastMemberMessage: Boolean
+): MessageDisplaySettings {
     val alignment: Alignment
     val color: Color
-    val shape: Shape
+    var shape: Shape
     if (isMyMessage) {
         alignment = Alignment.CenterEnd
         color = MaterialTheme.colorScheme.inverseSurface
@@ -498,27 +550,30 @@ private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
             bottomStart = 0.dp
         )
     }
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = alignment
-    ) {
-        Surface(
-            modifier = Modifier
-                .padding(horizontal = 4.dp)
-                .widthIn(0.dp, 400.dp)
-                .onClick(
-                    enabled = true,
-                    matcher = PointerMatcher.mouse(PointerButton.Secondary),
-                    onClick = {
-                        isMenuOpen.value = true
-                    }
-                ),
-            shape = shape,
-            elevation = 4.dp,
-            color = color
-        ) {
-            MessageContent(message)
-            MessageDropdownMenu(model, isMenuOpen, message, isMyMessage)
+    if (!isLastMemberMessage) {
+        shape = RoundedCornerShape(
+            topStart = 16.dp,
+            topEnd = 16.dp,
+            bottomEnd = 16.dp,
+            bottomStart = 16.dp
+        )
+    }
+    return MessageDisplaySettings(color, shape, alignment)
+}
+
+/**
+ * Represents the avatar of the user who send the message.
+ *
+ * @param isVisible if `true` displays the avatar else displays the empty space
+ */
+@Composable
+private fun MessageAvatar(isVisible: Boolean) {
+    Column {
+        if (isVisible) {
+            Avatar(42f)
+            Spacer(Modifier.width(4.dp))
+        } else {
+            Spacer(Modifier.width(42.dp))
         }
     }
 }
@@ -588,21 +643,22 @@ private fun MessageMenuItem(
  * Represents the content of the message.
  */
 @Composable
-private fun MessageContent(message: MessageData) {
-    Row(Modifier.padding(8.dp), verticalAlignment = Alignment.Top) {
-        Avatar(42f)
-        Spacer(Modifier.size(8.dp))
+private fun MessageContent(message: MessageData, withName: Boolean) {
+    Row(Modifier.padding(8.dp), verticalAlignment = Alignment.Bottom) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            if (withName) {
                 SenderName(message.sender.name)
-                Spacer(Modifier.size(8.dp))
-                PostedTime(message.whenPosted)
             }
-            Text(
-                text = message.content,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    text = message.content,
+                    Modifier.widthIn(0.dp, 300.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
+        Spacer(Modifier.size(8.dp))
+        PostedTime(message.whenPosted)
     }
 }
 
@@ -1133,3 +1189,38 @@ public typealias MessagesState = StateFlow<MessageList>
 private fun <T> List<T>.remove(index: Int): List<T> {
     return this.subList(0, index) + this.subList(index + 1, this.size)
 }
+
+/**
+ * Defines whether the message at the provided index is the first in the message sequence
+ * from the one user in the last 10 minutes.
+ */
+private fun MessageList.isFirstMemberMessage(index: Int): Boolean {
+    if (this.size - 1 < index) {
+        throw IndexOutOfBoundsException()
+    }
+    return index == 0 ||
+            !this[index].sender.equals(this[index - 1].sender) ||
+            (this[index].whenPosted.seconds - this[index - 1].whenPosted.seconds > 600)
+}
+
+/**
+ * Defines whether the message at the provided index is the last in the message sequence
+ * from the one user in the last 10 minutes.
+ */
+private fun MessageList.isLastMemberMessage(index: Int): Boolean {
+    if (this.size - 1 < index) {
+        throw IndexOutOfBoundsException()
+    }
+    return index == this.size - 1 ||
+            !this[index].sender.equals(this[index + 1].sender) ||
+            (this[index + 1].whenPosted.seconds - this[index].whenPosted.seconds > 600)
+}
+
+/**
+ * Settings to display the single message.
+ */
+private data class MessageDisplaySettings(
+    val color: Color,
+    val shape: Shape,
+    val alignment: Alignment
+)
