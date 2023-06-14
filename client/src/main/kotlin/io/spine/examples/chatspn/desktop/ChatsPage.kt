@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop.chat
+package io.spine.examples.chatspn.desktop
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -106,7 +106,6 @@ import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
-import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import java.text.SimpleDateFormat
