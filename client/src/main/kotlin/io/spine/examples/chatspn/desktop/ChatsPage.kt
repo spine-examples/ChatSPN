@@ -517,7 +517,7 @@ private fun ChatMessage(
         contentAlignment = messageViewSettings.alignment
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
-            MessageAvatar(!isMyMessage && isLastMemberMessage, userAvatarText)
+            MessageSenderAvatar(!isMyMessage && isLastMemberMessage, userAvatarText)
             Column {
                 Surface(
                     modifier = Modifier
@@ -540,7 +540,7 @@ private fun ChatMessage(
                     Spacer(Modifier.height(12.dp))
                 }
             }
-            MessageAvatar(isMyMessage && isLastMemberMessage, userAvatarText)
+            MessageSenderAvatar(isMyMessage && isLastMemberMessage, userAvatarText)
         }
     }
 }
@@ -592,7 +592,7 @@ private fun defineMessageDisplaySettings(
  * @param isVisible if `true` displays the avatar else displays the empty space
  */
 @Composable
-private fun MessageAvatar(isVisible: Boolean, text: String) {
+private fun MessageSenderAvatar(isVisible: Boolean, text: String) {
     Column {
         if (isVisible) {
             Avatar(42f, text)
