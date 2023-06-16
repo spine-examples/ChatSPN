@@ -275,9 +275,6 @@ private fun ChatList(model: ChatsPageModel) {
                 }
             }
         }
-        item {
-            Box(Modifier.height(62.dp))
-        }
     }
 }
 
@@ -832,7 +829,9 @@ private fun MessageInputFieldIcon(model: ChatsPageModel, onPressed: () -> Unit) 
 
     if (inputText.trim().isNotEmpty()) {
         Icon(
-            modifier = Modifier
+            icon,
+            "Send",
+            Modifier
                 .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
                 .clickable(
                     interactionSource = interactionSource,
@@ -843,9 +842,7 @@ private fun MessageInputFieldIcon(model: ChatsPageModel, onPressed: () -> Unit) 
                     }
                 }
                 .padding(bottom = 12.dp, end = 12.dp),
-            imageVector = icon,
-            contentDescription = "Send",
-            tint = MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.primary
         )
     }
 }
