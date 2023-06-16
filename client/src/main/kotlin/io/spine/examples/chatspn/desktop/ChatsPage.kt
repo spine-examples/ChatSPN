@@ -61,6 +61,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -209,6 +210,15 @@ private fun UserSearchField(model: ChatsPageModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     var inputText by remember { model.userSearchFieldState.userEmailState }
     var isError by remember { model.userSearchFieldState.errorState }
+    val onSearch = {
+        val email = inputText
+        viewScope.launch {
+            if (email.trim().isNotEmpty()) {
+                model.createPersonalChat(email.trim())
+            }
+        }
+        inputText = ""
+    }
     BasicTextField(
         modifier = Modifier
             .size(182.dp, 30.dp)
@@ -216,11 +226,7 @@ private fun UserSearchField(model: ChatsPageModel) {
             .onPreviewKeyEvent {
                 when {
                     (it.key == Key.Enter) -> {
-                        val email = inputText
-                        viewScope.launch {
-                            model.createPersonalChat(email)
-                        }
-                        inputText = ""
+                        onSearch()
                         true
                     }
                     else -> false
@@ -235,7 +241,6 @@ private fun UserSearchField(model: ChatsPageModel) {
     ) { innerTextField ->
         Box(
             modifier = Modifier
-                .fillMaxWidth()
                 .background(
                     color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(size = 3.dp)
@@ -249,10 +254,43 @@ private fun UserSearchField(model: ChatsPageModel) {
                     color = MaterialTheme.colorScheme.onSecondary
                 )
             }
-            innerTextField()
+            Row(
+                Modifier.fillMaxWidth(),
+                Arrangement.SpaceBetween,
+                Alignment.CenterVertically
+            ) {
+                Box(Modifier.weight(1f)) {
+                    innerTextField()
+                }
+                if (inputText.trim().isNotEmpty()) {
+                    SearchIcon(onSearch)
+                }
+            }
         }
     }
 }
+
+/**
+ * Represents the icon button for the `UserSearchField`.
+ */
+@Composable
+private fun SearchIcon(onSearch: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Icon(
+        imageVector = Icons.Default.Search,
+        contentDescription = "Search",
+        Modifier
+            .padding(horizontal = 4.dp)
+            .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onSearch
+            ),
+        tint = MaterialTheme.colorScheme.onSecondary
+    )
+}
+
 
 /**
  * Represents the list of chat previews.
