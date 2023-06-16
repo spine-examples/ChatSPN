@@ -621,12 +621,6 @@ private fun MessageDropdownMenu(
         onDismissRequest = { isMenuOpen.value = false },
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
     ) {
-        MessageMenuItem("Remove", Icons.Default.Delete) {
-            viewScope.launch {
-                model.removeMessage(message.id)
-            }
-            isMenuOpen.value = false
-        }
         if (isMyMessage) {
             MessageMenuItem("Edit", Icons.Default.Edit) {
                 model.messageInputFieldState.isEditingState.value = true
@@ -634,6 +628,12 @@ private fun MessageDropdownMenu(
                 model.messageInputFieldState.inputText.value = message.content
                 isMenuOpen.value = false
             }
+        }
+        MessageMenuItem("Remove", Icons.Default.Delete) {
+            viewScope.launch {
+                model.removeMessage(message.id)
+            }
+            isMenuOpen.value = false
         }
     }
 }
