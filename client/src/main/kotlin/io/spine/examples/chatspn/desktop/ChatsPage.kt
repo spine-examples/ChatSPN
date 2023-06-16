@@ -160,27 +160,25 @@ private fun LeftSidebar(model: ChatsPageModel) {
                 .fillMaxHeight()
                 .width(256.dp)
         ) {
-            MenuAndSearch(model)
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(Modifier.width(10.dp))
+                MenuButton()
+                Spacer(Modifier.width(14.dp))
+                UserSearchField(model)
+            }
             ChatList(model)
         }
     }
 }
 
-@Composable
-private fun MenuAndSearch(model: ChatsPageModel) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .height(54.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(10.dp))
-        MenuButton()
-        Spacer(Modifier.width(14.dp))
-        UserSearchField(model)
-    }
-}
-
+/**
+ * Represents the menu button.
+ */
 @Composable
 private fun MenuButton() {
     Button(
