@@ -66,7 +66,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -339,7 +338,8 @@ private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
             }
             Spacer(Modifier.size(9.dp))
             Text(
-                text = if (lastMessage == null) "" else lastMessage.content,
+                text = if (lastMessage == null) ""
+                else lastMessage.content.replace("\\s".toRegex(), " "),
                 color = MaterialTheme.colorScheme.onSecondary,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
@@ -759,10 +759,12 @@ private fun MessageInputField(model: ChatsPageModel) {
     var isEditing by remember { model.messageInputFieldState.isEditingState }
     var editingMessage by remember { model.messageInputFieldState.editingMessage }
     val onSend = {
-        if (isEditing) {
-            model.editMessage(editingMessage!!.id, inputText.trim())
-        } else {
-            model.sendMessage(inputText.trim())
+        if (inputText.trim().isNotEmpty()) {
+            if (isEditing) {
+                model.editMessage(editingMessage!!.id, inputText.trim())
+            } else {
+                model.sendMessage(inputText.trim())
+            }
         }
         isEditing = false
         editingMessage = null
@@ -785,6 +787,7 @@ private fun MessageInputField(model: ChatsPageModel) {
                     else -> false
                 }
             },
+        textStyle = MaterialTheme.typography.bodyMedium,
         keyboardActions = KeyboardActions(),
         value = inputText,
         onValueChange = {
@@ -797,7 +800,7 @@ private fun MessageInputField(model: ChatsPageModel) {
         ) {
             Box(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
                     .heightIn(15.dp, 192.dp)
                     .weight(1f),
                 contentAlignment = Alignment.CenterStart,
@@ -841,7 +844,7 @@ private fun MessageInputFieldIcon(model: ChatsPageModel, onPressed: () -> Unit) 
                         onPressed()
                     }
                 }
-                .padding(12.dp),
+                .padding(bottom = 12.dp, end = 12.dp),
             imageVector = icon,
             contentDescription = "Send",
             tint = MaterialTheme.colorScheme.primary
@@ -854,42 +857,51 @@ private fun MessageInputFieldIcon(model: ChatsPageModel, onPressed: () -> Unit) 
  */
 @Composable
 private fun EditMessagePanel(model: ChatsPageModel) {
+    val interactionSource = remember { MutableInteractionSource() }
     val message by remember { model.messageInputFieldState.editingMessage }
     Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        Modifier.fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(start = 16.dp, top = 8.dp, end = 12.dp),
+        Arrangement.SpaceBetween,
+        Alignment.CenterVertically
     ) {
-        Row(Modifier.weight(1f)) {
+        Row(
+            Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Edit",
-                tint = MaterialTheme.colorScheme.primary
+                Icons.Default.Edit,
+                "Edit",
+                Modifier.size(16.dp),
+                MaterialTheme.colorScheme.primary
             )
-            Text("Edit message:", color = MaterialTheme.colorScheme.primary)
             Text(
-                message!!.content,
+                "Edit message: ",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                message!!.content.replace("\\s".toRegex(), " "),
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
-        ElevatedButton(
-            modifier = Modifier
-                .width(24.dp)
-                .height(24.dp),
-            content = {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close"
-                )
-            },
-            contentPadding = PaddingValues(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.onBackground
-            ),
-            onClick = {
-                model.messageInputFieldState.clear()
-            }
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = "Close",
+            Modifier
+                .padding(start = 12.dp)
+                .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) {
+                    model.messageInputFieldState.clear()
+                },
+            tint = MaterialTheme.colorScheme.onSecondary
         )
     }
 }
