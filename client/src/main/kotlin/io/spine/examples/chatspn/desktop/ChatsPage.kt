@@ -51,6 +51,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -83,10 +84,15 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
@@ -101,7 +107,10 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.protobuf.Timestamp
@@ -546,10 +555,10 @@ private fun ChatMessage(
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
     val isMenuOpen = remember { mutableStateOf(false) }
-    val messageViewSettings = defineMessageDisplaySettings(isMyMessage, isLastMemberMessage)
+    val messageDisplaySettings = defineMessageDisplaySettings(isMyMessage, isLastMemberMessage)
     Box(
         modifier = Modifier.fillMaxWidth(),
-        contentAlignment = messageViewSettings.alignment
+        contentAlignment = messageDisplaySettings.alignment
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
             MessageSenderAvatar(!isMyMessage && isLastMemberMessage, userAvatarText)
@@ -564,11 +573,16 @@ private fun ChatMessage(
                                 isMenuOpen.value = true
                             }
                         ),
-                    shape = messageViewSettings.shape,
+                    shape = messageDisplaySettings.shape,
                     elevation = 4.dp,
-                    color = messageViewSettings.color
+                    color = messageDisplaySettings.color
                 ) {
-                    MessageContent(message, isFirstMemberMessage)
+                    MessageContent(
+                        message,
+                        isFirstMemberMessage,
+                        isMyMessage,
+                        messageDisplaySettings.arrowWidth.dp
+                    )
                     MessageDropdownMenu(model, isMenuOpen, message, isMyMessage)
                 }
                 if (isLastMemberMessage) {
@@ -590,35 +604,112 @@ private fun defineMessageDisplaySettings(
 ): MessageDisplaySettings {
     val alignment: Alignment
     val color: Color
-    var shape: Shape
+    val arrowWidth = 8f
+    val shape: Shape = messageBubbleShape(
+        16f,
+        8f,
+        if (isMyMessage) MessageBubbleArrowPlace.RIGHT_BOTTOM
+        else MessageBubbleArrowPlace.LEFT_BOTTOM,
+        !isLastMemberMessage
+    )
     if (isMyMessage) {
         alignment = Alignment.CenterEnd
         color = MaterialTheme.colorScheme.inverseSurface
-        shape = RoundedCornerShape(
-            topStart = 16.dp,
-            topEnd = 16.dp,
-            bottomEnd = 0.dp,
-            bottomStart = 16.dp
-        )
     } else {
         alignment = Alignment.CenterStart
         color = MaterialTheme.colorScheme.surface
-        shape = RoundedCornerShape(
-            topStart = 16.dp,
-            topEnd = 16.dp,
-            bottomEnd = 16.dp,
-            bottomStart = 0.dp
-        )
     }
-    if (!isLastMemberMessage) {
-        shape = RoundedCornerShape(
-            topStart = 16.dp,
-            topEnd = 16.dp,
-            bottomEnd = 16.dp,
-            bottomStart = 16.dp
-        )
+    return MessageDisplaySettings(color, shape, alignment, arrowWidth)
+}
+
+/**
+ * Creates a shape of message bubble.
+ *
+ * @param cornerRadius corner radius of the bubble
+ * @param messageArrowWidth width of the message arrow
+ * @param arrowPlace place of the message arrow
+ * @param skipArrow if is `true` the bubble shape will be without an arrow, but with space for it
+ */
+@Composable
+private fun messageBubbleShape(
+    cornerRadius: Float = 16f,
+    messageArrowWidth: Float = 8f,
+    arrowPlace: MessageBubbleArrowPlace,
+    skipArrow: Boolean = false
+): GenericShape {
+    val density = LocalDensity.current.density
+    return GenericShape { size: Size, _: LayoutDirection ->
+        val contentWidth: Float = size.width
+        val contentHeight: Float = size.height
+        val arrowWidth: Float = (messageArrowWidth * density).coerceAtMost(contentWidth)
+        val arrowHeight: Float = (arrowWidth * 3 / 4 * density).coerceAtMost(contentHeight)
+        val arrowLeft: Float
+        val arrowRight: Float
+        val arrowTop = contentHeight - arrowHeight
+        val arrowBottom = contentHeight
+
+        if (skipArrow) {
+            val rectStart = if (arrowPlace == MessageBubbleArrowPlace.LEFT_BOTTOM) arrowWidth
+            else 0f
+            val rectEnd = if (arrowPlace == MessageBubbleArrowPlace.LEFT_BOTTOM) contentWidth
+            else contentWidth - arrowWidth
+            addRoundRect(
+                RoundRect(
+                    rect = Rect(rectStart, 0f, rectEnd, contentHeight),
+                    topLeft = CornerRadius(cornerRadius, cornerRadius),
+                    topRight = CornerRadius(cornerRadius, cornerRadius),
+                    bottomLeft = CornerRadius(cornerRadius, cornerRadius),
+                    bottomRight = CornerRadius(cornerRadius, cornerRadius)
+                )
+            )
+            return@GenericShape
+        }
+
+        when (arrowPlace) {
+            MessageBubbleArrowPlace.LEFT_BOTTOM -> {
+                arrowLeft = 0f
+                arrowRight = arrowWidth
+                addRoundRect(
+                    RoundRect(
+                        rect = Rect(arrowWidth, 0f, contentWidth, contentHeight),
+                        topLeft = CornerRadius(cornerRadius, cornerRadius),
+                        topRight = CornerRadius(cornerRadius, cornerRadius),
+                        bottomRight = CornerRadius(cornerRadius, cornerRadius)
+                    )
+                )
+            }
+            MessageBubbleArrowPlace.RIGHT_BOTTOM -> {
+                arrowLeft = contentWidth - arrowWidth
+                arrowRight = contentWidth
+                addRoundRect(
+                    RoundRect(
+                        rect = Rect(0f, 0f, contentWidth - arrowWidth, contentHeight),
+                        topLeft = CornerRadius(cornerRadius, cornerRadius),
+                        topRight = CornerRadius(cornerRadius, cornerRadius),
+                        bottomLeft = CornerRadius(cornerRadius, cornerRadius)
+                    )
+                )
+            }
+        }
+
+        val path = Path().apply {
+            if (arrowPlace == MessageBubbleArrowPlace.LEFT_BOTTOM) {
+                moveTo(arrowRight, arrowTop)
+                lineTo(arrowLeft, arrowBottom)
+                lineTo(arrowRight, arrowBottom)
+            } else {
+                moveTo(arrowLeft, arrowTop)
+                lineTo(arrowRight, arrowBottom)
+                lineTo(arrowLeft, arrowBottom)
+            }
+            close()
+        }
+        this.op(this, path, PathOperation.Union)
     }
-    return MessageDisplaySettings(color, shape, alignment)
+}
+
+private enum class MessageBubbleArrowPlace {
+    LEFT_BOTTOM, RIGHT_BOTTOM
 }
 
 /**
@@ -703,8 +794,16 @@ private fun MessageMenuItem(
  * Represents the content of the message.
  */
 @Composable
-private fun MessageContent(message: MessageData, withName: Boolean) {
+private fun MessageContent(
+    message: MessageData,
+    withName: Boolean,
+    isMyMessage: Boolean,
+    horizontalPadding: Dp
+) {
     Row(Modifier.padding(8.dp), verticalAlignment = Alignment.Bottom) {
+        if (!isMyMessage) {
+            Spacer(Modifier.width(horizontalPadding))
+        }
         Column {
             if (withName) {
                 SenderName(message.sender.name)
@@ -719,6 +818,9 @@ private fun MessageContent(message: MessageData, withName: Boolean) {
         }
         Spacer(Modifier.size(8.dp))
         PostedTime(message.whenPosted)
+        if (isMyMessage) {
+            Spacer(Modifier.width(horizontalPadding))
+        }
     }
 }
 
@@ -1346,5 +1448,6 @@ private fun MessageList.isLastMemberMessage(index: Int): Boolean {
 private data class MessageDisplaySettings(
     val color: Color,
     val shape: Shape,
-    val alignment: Alignment
+    val alignment: Alignment,
+    val arrowWidth: Float
 )
