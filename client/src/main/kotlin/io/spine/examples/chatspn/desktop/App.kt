@@ -44,7 +44,7 @@ private fun app(): Unit = application {
             Window(
                 onCloseRequest = ::exitApplication,
                 title = "ChatSPN",
-                state = WindowState(size = DpSize(1000.dp, 600.dp))
+                state = WindowState(size = DpSize(1280.dp, 720.dp))
             ) {
                 window.minimumSize = Dimension(750, 450)
                 navigation.currentPage()

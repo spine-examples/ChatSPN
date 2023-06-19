@@ -24,13 +24,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop.chat
+package io.spine.examples.chatspn.desktop
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,31 +43,34 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.onClick
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.ZeroCornerSize
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -75,14 +80,39 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.protobuf.Timestamp
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
@@ -90,12 +120,14 @@ import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
-import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
+import java.awt.Cursor
+import java.awt.Cursor.getPredefinedCursor
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.stream.Collectors
+import kotlin.math.abs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -136,103 +168,138 @@ private fun LeftSidebar(model: ChatsPageModel) {
         Column(
             Modifier
                 .fillMaxHeight()
-                .width(280.dp)
+                .width(256.dp)
         ) {
-            UserProfilePanel(model.authenticatedUser)
-            UserSearchField(model)
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(Modifier.width(10.dp))
+                MenuButton()
+                Spacer(Modifier.width(14.dp))
+                UserSearchField(model)
+            }
             ChatList(model)
         }
     }
 }
 
 /**
- * Represents the user's profile panel.
+ * Represents the menu button.
  */
 @Composable
-private fun UserProfilePanel(user: UserProfile) {
-    Row(
-        modifier = Modifier.padding(5.dp),
-        verticalAlignment = Alignment.CenterVertically
+private fun MenuButton() {
+    Button(
+        modifier = Modifier
+            .size(42.dp),
+        onClick = {},
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        contentPadding = PaddingValues(6.dp)
     ) {
-        UserAvatar()
-        Spacer(Modifier.size(5.dp))
-        Column(horizontalAlignment = Alignment.Start) {
-            Text(
-                text = user.name,
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Spacer(Modifier.size(4.dp))
-            Text(
-                text = user.email.value,
-                color = MaterialTheme.colorScheme.onSecondary,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.headlineSmall
-            )
-        }
+        Icon(
+            Icons.Default.Menu,
+            "Menu",
+            Modifier.size(20.dp),
+            MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 
 /**
  * Represents the input field to find the user.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun UserSearchField(model: ChatsPageModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     var inputText by remember { model.userSearchFieldState.userEmailState }
     var isError by remember { model.userSearchFieldState.errorState }
-    TextField(
+    val onSearch = {
+        val email = inputText
+        viewScope.launch {
+            if (email.trim().isNotEmpty()) {
+                model.createPersonalChat(email.trim())
+            }
+        }
+        inputText = ""
+    }
+    BasicTextField(
         modifier = Modifier
-            .fillMaxWidth()
+            .size(182.dp, 30.dp)
             .background(MaterialTheme.colorScheme.background)
-            .padding(0.dp, 5.dp),
+            .onPreviewKeyEvent {
+                when {
+                    (it.key == Key.Enter) -> {
+                        onSearch()
+                        true
+                    }
+                    else -> false
+                }
+            },
         value = inputText,
-        placeholder = {
-            Text(text = "example@mail.com")
-        },
-        isError = isError,
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Email,
-                contentDescription = "Email Icon"
-            )
-        },
         singleLine = true,
         onValueChange = {
             inputText = it
             isError = false
-        },
-        label = { Text(text = "Find user by email") },
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            focusedLabelColor = MaterialTheme.colorScheme.primary
-        ),
-        shape = MaterialTheme.shapes.small.copy(ZeroCornerSize),
-        trailingIcon = {
-            if (inputText.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .clickable {
-                            val email = inputText
-                            viewScope.launch {
-                                model.createPersonalChat(email)
-                            }
-                            inputText = ""
-                        }
-                        .padding(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Send,
-                        contentDescription = "Find",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text("Find")
+        }
+    ) { innerTextField ->
+        Box(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(size = 3.dp)
+                )
+                .padding(all = 8.dp)
+        ) {
+            if (inputText.isEmpty()) {
+                Text(
+                    text = "Search",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+            Row(
+                Modifier.fillMaxWidth(),
+                Arrangement.SpaceBetween,
+                Alignment.CenterVertically
+            ) {
+                Box(Modifier.weight(1f)) {
+                    innerTextField()
+                }
+                if (inputText.trim().isNotEmpty()) {
+                    SearchIcon(onSearch)
                 }
             }
         }
+    }
+}
+
+/**
+ * Represents the icon button for the `UserSearchField`.
+ */
+@Composable
+private fun SearchIcon(onSearch: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Icon(
+        imageVector = Icons.Default.Search,
+        contentDescription = "Search",
+        Modifier
+            .padding(horizontal = 4.dp)
+            .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onSearch
+            ),
+        tint = MaterialTheme.colorScheme.onSecondary
     )
 }
+
 
 /**
  * Represents the list of chat previews.
@@ -242,22 +309,18 @@ private fun ChatList(model: ChatsPageModel) {
     val chats by model.chats().collectAsState()
     val selectedChat by model.selectedChat().collectAsState()
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
         chats.forEachIndexed { index, chat ->
             item(key = index) {
                 ChatPreviewPanel(
                     chat.name,
-                    if (chat.lastMessage != null) chat.lastMessage.content else "",
+                    chat.lastMessage,
                     chat.id.equals(selectedChat)
                 ) {
                     model.selectChat(chat.id)
                 }
             }
-        }
-        item {
-            Box(Modifier.height(50.dp))
         }
     }
 }
@@ -268,7 +331,7 @@ private fun ChatList(model: ChatsPageModel) {
 @Composable
 private fun ChatPreviewPanel(
     chatName: String,
-    lastMessage: String,
+    lastMessage: MessageData?,
     isSelected: Boolean,
     select: () -> Unit
 ) {
@@ -278,7 +341,7 @@ private fun ChatPreviewPanel(
             .clickable { select() }
             .background(
                 color = if (isSelected)
-                    MaterialTheme.colorScheme.surface
+                    MaterialTheme.colorScheme.inverseSurface
                 else
                     MaterialTheme.colorScheme.background
             ),
@@ -292,26 +355,79 @@ private fun ChatPreviewPanel(
  * Represents the chat preview content in the chat preview panel.
  */
 @Composable
-private fun ChatPreviewContent(chatName: String, lastMessage: String) {
+private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
     Row(
-        modifier = Modifier.padding(5.dp),
+        modifier = Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UserAvatar()
-        Spacer(Modifier.size(5.dp))
+        Avatar(46f, chatName)
+        Spacer(Modifier.size(12.dp))
         Column(horizontalAlignment = Alignment.Start) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = chatName,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+                Text(
+                    text = if (lastMessage == null) "" else lastMessage.whenPosted.toStringTime(),
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            Spacer(Modifier.size(9.dp))
             Text(
-                text = chatName,
-                style = MaterialTheme.typography.headlineMedium,
-            )
-            Spacer(Modifier.size(4.dp))
-            Text(
-                text = lastMessage,
-                style = MaterialTheme.typography.headlineSmall,
-                maxLines = 2,
+                text = if (lastMessage == null) ""
+                else lastMessage.content.replace("\\s".toRegex(), " "),
+                color = MaterialTheme.colorScheme.onSecondary,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
+    }
+}
+
+/**
+ * Represents the default avatar.
+ */
+@Composable
+public fun Avatar(size: Float, name: String) {
+    val gradients = listOf(
+        listOf(Color(0xFFFFC371), Color(0xFFFF5F6D)),
+        listOf(Color(0xFF95E4FC), Color(0xFF0F65D6)),
+        listOf(Color(0xFF72F877), Color(0xFF259CF1)),
+        listOf(Color(0xFF76DBFA), Color(0xFFD72DFD)),
+        listOf(Color(0xFFA6FA85), Color(0xFF22AC00D)),
+        listOf(Color(0xFFFD9696), Color(0xFFF11010))
+    )
+    val gradientIndex = abs(name.hashCode()) % gradients.size
+    Box(contentAlignment = Alignment.Center) {
+        Image(
+            modifier = Modifier
+                .size(size.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop,
+            painter = object : Painter() {
+                override val intrinsicSize: Size = Size(size, size)
+                override fun DrawScope.onDraw() {
+                    drawRect(
+                        Brush.linearGradient(gradients[gradientIndex]),
+                        size = Size(size * 4, size * 4)
+                    )
+                }
+            },
+            contentDescription = "User picture"
+        )
+        Text(
+            name[0].toString(),
+            color = Color.White,
+            fontSize = (size * 0.5).sp,
+            style = MaterialTheme.typography.headlineLarge
+        )
     }
 }
 
@@ -336,7 +452,7 @@ private fun ChatContent(model: ChatsPageModel) {
             Box(Modifier.weight(1f)) {
                 ChatMessages(model)
             }
-            MessageInputField(model)
+            ChatBottomBar(model)
         }
     }
 }
@@ -369,6 +485,7 @@ private fun ChatTopbar(model: ChatsPageModel) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .height(54.dp)
             .drawBehind {
                 drawLine(
                     color = Color.Gray,
@@ -379,14 +496,14 @@ private fun ChatTopbar(model: ChatsPageModel) {
             },
     ) {
         Row(
-            Modifier.padding(7.dp),
+            Modifier.padding(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            UserAvatar()
+            Avatar(42f, chat.get().name)
             Text(
                 chat.get().name,
-                modifier = Modifier.padding(start = 5.dp),
-                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(start = 8.dp),
+                style = MaterialTheme.typography.headlineMedium,
             )
         }
     }
@@ -404,16 +521,21 @@ private fun ChatMessages(model: ChatsPageModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(5.dp, 0.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(bottom = 0.dp, start = 8.dp, top = 1.dp, end = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        messages.forEach { message ->
+        item {
+            Spacer(Modifier.height(4.dp))
+        }
+        messages.forEachIndexed { index, message ->
             item(message.id) {
-                ChatMessage(model, message)
+                val isFirst = messages.isFirstMemberMessage(index)
+                val isLast = messages.isLastMemberMessage(index)
+                ChatMessage(model, message, isFirst, isLast)
             }
         }
         item {
-            Box(Modifier.height(50.dp))
+            Spacer(Modifier.height(4.dp))
         }
     }
 }
@@ -423,30 +545,186 @@ private fun ChatMessages(model: ChatsPageModel) {
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ChatMessage(model: ChatsPageModel, message: MessageData) {
+private fun ChatMessage(
+    model: ChatsPageModel,
+    message: MessageData,
+    isFirstMemberMessage: Boolean,
+    isLastMemberMessage: Boolean
+) {
+    val userAvatarText = message.sender.name
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
     val isMenuOpen = remember { mutableStateOf(false) }
+    val messageDisplaySettings = defineMessageDisplaySettings(isMyMessage, isLastMemberMessage)
     Box(
         modifier = Modifier.fillMaxWidth(),
-        contentAlignment = if (isMyMessage) Alignment.CenterEnd else Alignment.CenterStart
+        contentAlignment = messageDisplaySettings.alignment
     ) {
-        Surface(
-            modifier = Modifier
-                .padding(4.dp)
-                .onClick(
-                    enabled = true,
-                    matcher = PointerMatcher.mouse(PointerButton.Secondary),
-                    onClick = {
-                        isMenuOpen.value = true
-                    }
-                ),
-            shape = RoundedCornerShape(size = 20.dp),
-            elevation = 8.dp,
-            color = MaterialTheme.colorScheme.surface
-        ) {
-            MessageContent(message)
-            MessageDropdownMenu(model, isMenuOpen, message, isMyMessage)
+        Row(verticalAlignment = Alignment.Bottom) {
+            MessageSenderAvatar(!isMyMessage && isLastMemberMessage, userAvatarText)
+            Column {
+                Surface(
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .onClick(
+                            enabled = true,
+                            matcher = PointerMatcher.mouse(PointerButton.Secondary),
+                            onClick = {
+                                isMenuOpen.value = true
+                            }
+                        ),
+                    shape = messageDisplaySettings.shape,
+                    elevation = 4.dp,
+                    color = messageDisplaySettings.color
+                ) {
+                    MessageContent(
+                        message,
+                        isFirstMemberMessage,
+                        isMyMessage,
+                        messageDisplaySettings.arrowWidth.dp
+                    )
+                    MessageDropdownMenu(model, isMenuOpen, message, isMyMessage)
+                }
+                if (isLastMemberMessage) {
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
+            MessageSenderAvatar(isMyMessage && isLastMemberMessage, userAvatarText)
+        }
+    }
+}
+
+/**
+ * Defines the display settings of the message.
+ */
+@Composable
+private fun defineMessageDisplaySettings(
+    isMyMessage: Boolean,
+    isLastMemberMessage: Boolean
+): MessageDisplaySettings {
+    val alignment: Alignment
+    val color: Color
+    val arrowWidth = 8f
+    val shape: Shape = messageBubbleShape(
+        16f,
+        8f,
+        if (isMyMessage) MessageBubbleArrowPlace.RIGHT_BOTTOM
+        else MessageBubbleArrowPlace.LEFT_BOTTOM,
+        !isLastMemberMessage
+    )
+    if (isMyMessage) {
+        alignment = Alignment.CenterEnd
+        color = MaterialTheme.colorScheme.inverseSurface
+    } else {
+        alignment = Alignment.CenterStart
+        color = MaterialTheme.colorScheme.surface
+    }
+    return MessageDisplaySettings(color, shape, alignment, arrowWidth)
+}
+
+/**
+ * Creates a shape of message bubble.
+ *
+ * @param cornerRadius corner radius of the bubble
+ * @param messageArrowWidth width of the message arrow
+ * @param arrowPlace place of the message arrow
+ * @param skipArrow if is `true` the bubble shape will be without an arrow, but with space for it
+ */
+@Composable
+private fun messageBubbleShape(
+    cornerRadius: Float = 16f,
+    messageArrowWidth: Float = 8f,
+    arrowPlace: MessageBubbleArrowPlace,
+    skipArrow: Boolean = false
+): GenericShape {
+    val density = LocalDensity.current.density
+    return GenericShape { size: Size, _: LayoutDirection ->
+        val contentWidth: Float = size.width
+        val contentHeight: Float = size.height
+        val arrowWidth: Float = (messageArrowWidth * density).coerceAtMost(contentWidth)
+        val arrowHeight: Float = (arrowWidth * 3 / 4 * density).coerceAtMost(contentHeight)
+        val arrowLeft: Float
+        val arrowRight: Float
+        val arrowTop = contentHeight - arrowHeight
+        val arrowBottom = contentHeight
+
+        if (skipArrow) {
+            val rectStart = if (arrowPlace == MessageBubbleArrowPlace.LEFT_BOTTOM) arrowWidth
+            else 0f
+            val rectEnd = if (arrowPlace == MessageBubbleArrowPlace.LEFT_BOTTOM) contentWidth
+            else contentWidth - arrowWidth
+            addRoundRect(
+                RoundRect(
+                    rect = Rect(rectStart, 0f, rectEnd, contentHeight),
+                    topLeft = CornerRadius(cornerRadius, cornerRadius),
+                    topRight = CornerRadius(cornerRadius, cornerRadius),
+                    bottomLeft = CornerRadius(cornerRadius, cornerRadius),
+                    bottomRight = CornerRadius(cornerRadius, cornerRadius)
+                )
+            )
+            return@GenericShape
+        }
+
+        when (arrowPlace) {
+            MessageBubbleArrowPlace.LEFT_BOTTOM -> {
+                arrowLeft = 0f
+                arrowRight = arrowWidth
+                addRoundRect(
+                    RoundRect(
+                        rect = Rect(arrowWidth, 0f, contentWidth, contentHeight),
+                        topLeft = CornerRadius(cornerRadius, cornerRadius),
+                        topRight = CornerRadius(cornerRadius, cornerRadius),
+                        bottomRight = CornerRadius(cornerRadius, cornerRadius)
+                    )
+                )
+            }
+            MessageBubbleArrowPlace.RIGHT_BOTTOM -> {
+                arrowLeft = contentWidth - arrowWidth
+                arrowRight = contentWidth
+                addRoundRect(
+                    RoundRect(
+                        rect = Rect(0f, 0f, contentWidth - arrowWidth, contentHeight),
+                        topLeft = CornerRadius(cornerRadius, cornerRadius),
+                        topRight = CornerRadius(cornerRadius, cornerRadius),
+                        bottomLeft = CornerRadius(cornerRadius, cornerRadius)
+                    )
+                )
+            }
+        }
+
+        val path = Path().apply {
+            if (arrowPlace == MessageBubbleArrowPlace.LEFT_BOTTOM) {
+                moveTo(arrowRight, arrowTop)
+                lineTo(arrowLeft, arrowBottom)
+                lineTo(arrowRight, arrowBottom)
+            } else {
+                moveTo(arrowLeft, arrowTop)
+                lineTo(arrowRight, arrowBottom)
+                lineTo(arrowLeft, arrowBottom)
+            }
+            close()
+        }
+        this.op(this, path, PathOperation.Union)
+    }
+}
+
+private enum class MessageBubbleArrowPlace {
+    LEFT_BOTTOM, RIGHT_BOTTOM
+}
+
+/**
+ * Represents the avatar of the user who send the message.
+ *
+ * @param isVisible if `true` displays the avatar else displays the empty space
+ */
+@Composable
+private fun MessageSenderAvatar(isVisible: Boolean, text: String) {
+    Column {
+        if (isVisible) {
+            Avatar(42f, text)
+            Spacer(Modifier.width(4.dp))
+        } else {
+            Spacer(Modifier.width(42.dp))
         }
     }
 }
@@ -467,12 +745,6 @@ private fun MessageDropdownMenu(
         onDismissRequest = { isMenuOpen.value = false },
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
     ) {
-        MessageMenuItem("Remove", Icons.Default.Delete) {
-            viewScope.launch {
-                model.removeMessage(message.id)
-            }
-            isMenuOpen.value = false
-        }
         if (isMyMessage) {
             MessageMenuItem("Edit", Icons.Default.Edit) {
                 model.messageInputFieldState.isEditingState.value = true
@@ -480,6 +752,12 @@ private fun MessageDropdownMenu(
                 model.messageInputFieldState.inputText.value = message.content
                 isMenuOpen.value = false
             }
+        }
+        MessageMenuItem("Remove", Icons.Default.Delete) {
+            viewScope.launch {
+                model.removeMessage(message.id)
+            }
+            isMenuOpen.value = false
         }
     }
 }
@@ -516,21 +794,32 @@ private fun MessageMenuItem(
  * Represents the content of the message.
  */
 @Composable
-private fun MessageContent(message: MessageData) {
-    Row(Modifier.padding(10.dp), verticalAlignment = Alignment.Top) {
-        UserAvatar()
-        Spacer(Modifier.size(8.dp))
+private fun MessageContent(
+    message: MessageData,
+    withName: Boolean,
+    isMyMessage: Boolean,
+    horizontalPadding: Dp
+) {
+    Row(Modifier.padding(8.dp), verticalAlignment = Alignment.Bottom) {
+        if (!isMyMessage) {
+            Spacer(Modifier.width(horizontalPadding))
+        }
         Column {
-            Row {
+            if (withName) {
                 SenderName(message.sender.name)
-                Spacer(Modifier.size(10.dp))
-                PostedTime(message.whenPosted)
             }
-            Spacer(Modifier.size(8.dp))
-            Text(
-                text = message.content,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    text = message.content,
+                    Modifier.widthIn(0.dp, 300.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        Spacer(Modifier.size(8.dp))
+        PostedTime(message.whenPosted)
+        if (isMyMessage) {
+            Spacer(Modifier.width(horizontalPadding))
         }
     }
 }
@@ -553,7 +842,7 @@ private fun SenderName(username: String) {
 private fun PostedTime(time: Timestamp) {
     Text(
         text = time.toStringTime(),
-        style = MaterialTheme.typography.headlineSmall,
+        style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSecondary
     )
 }
@@ -568,37 +857,101 @@ private fun Timestamp.toStringTime(): String {
 }
 
 /**
- * Represents the input field for sending and editing a message in the chat.
+ * Represents the bottom bar of the chat content.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MessageInputField(model: ChatsPageModel) {
-    var inputText by remember { model.messageInputFieldState.inputText }
+private fun ChatBottomBar(model: ChatsPageModel) {
     val isEditing by remember { model.messageInputFieldState.isEditingState }
-    Box(
+    Column(
         Modifier
             .fillMaxWidth()
-            .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
+            .heightIn(48.dp, 224.dp)
             .background(MaterialTheme.colorScheme.background)
+            .drawBehind {
+                drawLine(
+                    color = Color.Gray,
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, 0f),
+                    strokeWidth = 1.dp.toPx()
+                )
+            },
     ) {
-        Column {
+        if (isEditing) {
+            EditMessagePanel(model)
+        }
+        MessageInputField(model)
+    }
+}
+
+/**
+ * Represents the input field for sending and editing a message in the chat.
+ */
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun MessageInputField(model: ChatsPageModel) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    var inputText by remember { model.messageInputFieldState.inputText }
+    var isEditing by remember { model.messageInputFieldState.isEditingState }
+    var editingMessage by remember { model.messageInputFieldState.editingMessage }
+    val onSend = {
+        if (inputText.trim().isNotEmpty()) {
             if (isEditing) {
-                EditMessagePanel(model)
+                model.editMessage(editingMessage!!.id, inputText.trim())
+            } else {
+                model.sendMessage(inputText.trim())
             }
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = inputText,
-                placeholder = {
-                    Text("Type message here")
-                },
-                onValueChange = {
-                    inputText = it
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary,
-                ),
-                trailingIcon = { MessageInputFieldIcon(model) }
-            )
+        }
+        isEditing = false
+        editingMessage = null
+        inputText = ""
+    }
+
+    BasicTextField(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .onPreviewKeyEvent {
+                when {
+                    (it.type == KeyEventType.KeyDown &&
+                            it.isShiftPressed &&
+                            it.key == Key.Enter) -> {
+                        viewScope.launch {
+                            onSend()
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            },
+        textStyle = MaterialTheme.typography.bodyMedium,
+        keyboardActions = KeyboardActions(),
+        value = inputText,
+        onValueChange = {
+            inputText = it
+        }
+    ) { innerTextField ->
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
+                    .heightIn(15.dp, 192.dp)
+                    .weight(1f),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                if (inputText.isEmpty()) {
+                    Text(
+                        text = "Write a message...",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
+                }
+                innerTextField()
+            }
+            if (inputText.trim().isNotEmpty()) {
+                MessageInputFieldIcon(model, onSend)
+            }
         }
     }
 }
@@ -607,39 +960,30 @@ private fun MessageInputField(model: ChatsPageModel) {
  * Represents the icon button to send or edit the message.
  */
 @Composable
-private fun MessageInputFieldIcon(model: ChatsPageModel) {
+private fun MessageInputFieldIcon(model: ChatsPageModel, onPressed: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    var inputText by remember { model.messageInputFieldState.inputText }
-    var isEditing by remember { model.messageInputFieldState.isEditingState }
-    var editingMessage by remember { model.messageInputFieldState.editingMessage }
-    val iconText = if (isEditing) "Edit" else "Send"
+    val inputText by remember { model.messageInputFieldState.inputText }
+    val isEditing by remember { model.messageInputFieldState.isEditingState }
     val icon = if (isEditing) Icons.Default.Check else Icons.Default.Send
 
-    if (inputText.isNotEmpty()) {
-        Row(
-            modifier = Modifier
-                .clickable {
+    if (inputText.trim().isNotEmpty()) {
+        Icon(
+            icon,
+            "Send",
+            Modifier
+                .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) {
                     viewScope.launch {
-                        if (isEditing) {
-                            model.editMessage(editingMessage!!.id, inputText)
-                        } else {
-                            model.sendMessage(inputText)
-                        }
-                        isEditing = false
-                        editingMessage = null
-                        inputText = ""
+                        onPressed()
                     }
                 }
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = iconText,
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Text(iconText)
-        }
+                .padding(bottom = 12.dp, end = 12.dp),
+            MaterialTheme.colorScheme.primary
+        )
     }
 }
 
@@ -648,42 +992,51 @@ private fun MessageInputFieldIcon(model: ChatsPageModel) {
  */
 @Composable
 private fun EditMessagePanel(model: ChatsPageModel) {
+    val interactionSource = remember { MutableInteractionSource() }
     val message by remember { model.messageInputFieldState.editingMessage }
     Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        Modifier.fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(start = 16.dp, top = 8.dp, end = 12.dp),
+        Arrangement.SpaceBetween,
+        Alignment.CenterVertically
     ) {
-        Row(Modifier.weight(1f)) {
+        Row(
+            Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Edit",
-                tint = MaterialTheme.colorScheme.primary
+                Icons.Default.Edit,
+                "Edit",
+                Modifier.size(16.dp),
+                MaterialTheme.colorScheme.primary
             )
-            Text("Edit message:", color = MaterialTheme.colorScheme.primary)
             Text(
-                message!!.content,
+                "Edit message: ",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                message!!.content.replace("\\s".toRegex(), " "),
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
-        ElevatedButton(
-            modifier = Modifier
-                .width(24.dp)
-                .height(24.dp),
-            content = {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close"
-                )
-            },
-            contentPadding = PaddingValues(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.onBackground
-            ),
-            onClick = {
-                model.messageInputFieldState.clear()
-            }
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = "Close",
+            Modifier
+                .padding(start = 12.dp)
+                .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) {
+                    model.messageInputFieldState.clear()
+                },
+            tint = MaterialTheme.colorScheme.onSecondary
         )
     }
 }
@@ -1062,3 +1415,39 @@ public typealias MessagesState = StateFlow<MessageList>
 private fun <T> List<T>.remove(index: Int): List<T> {
     return this.subList(0, index) + this.subList(index + 1, this.size)
 }
+
+/**
+ * Defines whether the message at the provided index is the first in the message sequence
+ * from a particular user in the last 10 minutes.
+ */
+private fun MessageList.isFirstMemberMessage(index: Int): Boolean {
+    if (this.size - 1 < index) {
+        throw IndexOutOfBoundsException()
+    }
+    return index == 0 ||
+            !this[index].sender.equals(this[index - 1].sender) ||
+            (this[index].whenPosted.seconds - this[index - 1].whenPosted.seconds > 600)
+}
+
+/**
+ * Defines whether the message at the provided index is the last in the message sequence
+ * from a particular user in the last 10 minutes.
+ */
+private fun MessageList.isLastMemberMessage(index: Int): Boolean {
+    if (this.size - 1 < index) {
+        throw IndexOutOfBoundsException()
+    }
+    return index == this.size - 1 ||
+            !this[index].sender.equals(this[index + 1].sender) ||
+            (this[index + 1].whenPosted.seconds - this[index].whenPosted.seconds > 600)
+}
+
+/**
+ * Settings to display the single message.
+ */
+private data class MessageDisplaySettings(
+    val color: Color,
+    val shape: Shape,
+    val alignment: Alignment,
+    val arrowWidth: Float
+)
