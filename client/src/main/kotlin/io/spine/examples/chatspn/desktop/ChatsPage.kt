@@ -1418,7 +1418,7 @@ private fun <T> List<T>.remove(index: Int): List<T> {
 
 /**
  * Defines whether the message at the provided index is the first in the message sequence
- * from the one user in the last 10 minutes.
+ * from a particular user in the last 10 minutes.
  */
 private fun MessageList.isFirstMemberMessage(index: Int): Boolean {
     if (this.size - 1 < index) {
@@ -1431,7 +1431,7 @@ private fun MessageList.isFirstMemberMessage(index: Int): Boolean {
 
 /**
  * Defines whether the message at the provided index is the last in the message sequence
- * from the one user in the last 10 minutes.
+ * from a particular user in the last 10 minutes.
  */
 private fun MessageList.isLastMemberMessage(index: Int): Boolean {
     if (this.size - 1 < index) {

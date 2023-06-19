@@ -116,7 +116,7 @@ public class DesktopClient(
         failSubscription = observeEvent(
             command.id,
             AccountNotCreated::class.java
-        ) { event ->
+        ) {
             stopObservation(successSubscription)
             stopObservation(failSubscription!!)
             onFail()
