@@ -579,11 +579,6 @@ private fun ChatDeletionModal(
     val chat by remember { model.chatInDeletionState }
     val isVisible = remember { mutableStateOf(false) }
     isVisible.value = model.chatInDeletionState.value != null
-    val warningText = if (chat?.type == CT_PERSONAL) {
-        "Are you sure you want to delete chat with "
-    } else {
-        "Are you sure you want to delete chat "
-    }
     ModalWindow(isVisible, { model.chatInDeletionState.value = null }) {
         Column(
             Modifier.width(300.dp)
@@ -591,7 +586,11 @@ private fun ChatDeletionModal(
         ) {
             Text(
                 buildAnnotatedString {
-                    append(warningText)
+                    if (chat?.type == CT_PERSONAL) {
+                        append("Are you sure you want to delete chat with ")
+                    } else {
+                        append("Are you sure you want to delete chat ")
+                    }
                     append(
                         AnnotatedString(
                             chat?.name ?: "",
@@ -627,6 +626,9 @@ private fun ChatDeletionModal(
     }
 }
 
+/**
+ * Represents the modal dialog button.
+ */
 @Composable
 private fun ModalDialogButton(
     text: String,
