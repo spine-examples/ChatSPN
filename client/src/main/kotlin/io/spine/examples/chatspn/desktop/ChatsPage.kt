@@ -1056,7 +1056,6 @@ private fun UserProfileModal(model: ChatsPageModel) {
         Column(
             Modifier.width(280.dp)
         ) {
-            UserProfilePanel(userProfile!!)
             if (model.authenticatedUser.id.equals(userProfile?.id)) {
                 OwnProfileButtons(model)
             } else {
@@ -1346,6 +1345,20 @@ private class ChatsPageModel(
     fun createPersonalChat(user: UserId) {
         client.createPersonalChat(user) { event ->
             selectChat(event.id)
+        }
+    }
+
+    /**
+     * Finds user by email and creates the personal chat between authenticated and found user.
+     *
+     * @param email email of the user with whom to create a personal chat
+     */
+    fun createPersonalChat(email: String) {
+        val user = client.findUser(email)
+        if (null != user) {
+            client.createPersonalChat(user.id)
+        } else {
+            userSearchFieldState.errorState.value = true
         }
     }
 
