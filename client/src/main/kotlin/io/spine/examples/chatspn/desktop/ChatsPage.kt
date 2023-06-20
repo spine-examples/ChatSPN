@@ -150,7 +150,6 @@ public fun ChatsPage(client: DesktopClient, toRegistration: () -> Unit) {
         LeftSidebar(model)
         ChatContent(model)
     }
-    UserProfileModal(model)
 }
 
 /**
@@ -1046,89 +1045,6 @@ private fun EditMessagePanel(model: ChatsPageModel) {
 }
 
 /**
- * Represents modal window with the user profile.
- */
-@Composable
-private fun UserProfileModal(model: ChatsPageModel) {
-    val isVisibleState = remember { model.userProfileModalState.isVisibleState }
-    val userProfile by remember { model.userProfileModalState.userProfile }
-    ModalWindow(isVisibleState) {
-        Column(
-            Modifier.width(280.dp)
-        ) {
-            if (model.authenticatedUser.id.equals(userProfile?.id)) {
-                OwnProfileButtons(model)
-            } else {
-                OtherUserProfileButtons(model)
-            }
-        }
-    }
-}
-
-/**
- * Represents buttons in the profile modal window of the authenticated user.
- */
-@Composable
-private fun OwnProfileButtons(model: ChatsPageModel) {
-    ModalButton("Log out", MaterialTheme.colorScheme.error) {
-        model.userProfileModalState.isVisibleState.value = false
-        model.logOut()
-    }
-}
-
-/**
- * Represents buttons in the profile modal window of the another user.
- */
-@Composable
-private fun OtherUserProfileButtons(model: ChatsPageModel) {
-    val userProfile by remember { model.userProfileModalState.userProfile }
-    val personalChat by remember { model.userProfileModalState.chatState }
-    if (null == personalChat) {
-        ModalButton("Create personal chat") {
-            model.createPersonalChat(userProfile!!.id)
-            model.userProfileModalState.isVisibleState.value = false
-        }
-    } else {
-        ModalButton("Open personal chat") {
-            model.selectChat(personalChat!!)
-            model.userProfileModalState.isVisibleState.value = false
-        }
-        ModalButton("Delete personal chat", MaterialTheme.colorScheme.error) {
-            model.deleteChat(personalChat!!)
-            model.userProfileModalState.isVisibleState.value = false
-        }
-    }
-}
-
-/**
- * Represents the modal window button.
- */
-@Composable
-private fun ModalButton(
-    text: String,
-    contentColor: Color = MaterialTheme.colorScheme.primary,
-    onClick: () -> Unit
-) {
-    val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    Button(
-        modifier = Modifier
-            .fillMaxWidth(),
-        onClick = {
-            viewScope.launch {
-                onClick()
-            }
-        },
-        shape = RoundedCornerShape(0),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = contentColor
-        )
-    ) {
-        Text(text)
-    }
-}
-
-/**
  * Represents the default modal window.
  *
  * @param isVisibleState mutable state of modal window visibility
@@ -1185,7 +1101,6 @@ private class ChatsPageModel(
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
     val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
-    val userProfileModalState: UserProfileModalState = UserProfileModalState()
     val messageInputFieldState: MessageInputFieldState = MessageInputFieldState()
     val authenticatedUser: UserProfile = client.authenticatedUser!!
 
@@ -1363,32 +1278,6 @@ private class ChatsPageModel(
     }
 
     /**
-     * Opens a modal window with a user profile,
-     * or sets an error state to the search field if the user is not found.
-     *
-     * @param email email of the user whose profile to open
-     */
-    fun openUserProfile(email: String) {
-        val user = client.findUser(email)
-        if (null != user) {
-            openUserProfile(user)
-        } else {
-            userSearchFieldState.errorState.value = true
-        }
-    }
-
-    /**
-     * Opens a modal window with a user profile.
-     *
-     * @param user profile of the user to open
-     */
-    fun openUserProfile(user: UserProfile) {
-        userProfileModalState.isVisibleState.value = true
-        userProfileModalState.userProfile.value = user
-        userProfileModalState.chatState.value = findPersonalChat(user.id)
-    }
-
-    /**
      * Returns the ID of the personal chat with the provided user,
      * or `null` if the chat doesn't exist.
      *
@@ -1399,22 +1288,6 @@ private class ChatsPageModel(
             chatData.type == CT_PERSONAL && chatData.members.contains(user)
         }
         return chat?.id
-    }
-
-    /**
-     * Opens a modal window with chat info. If the chat is personal, a user profile will be opened.
-     *
-     * @param chatId ID of the chat which info to open
-     */
-    fun openChatInfo(chatId: ChatId) {
-        val chat = chatPreviewsState.value.find { chatData -> chatId.equals(chatData.id) } ?: return
-        if (chat.type == CT_PERSONAL) {
-            val userId = chat.members.find { user -> !user.equals(authenticatedUser.id) }
-            val user = client.findUser(userId!!)
-            userProfileModalState.isVisibleState.value = true
-            userProfileModalState.userProfile.value = user
-            userProfileModalState.chatState.value = chat.id
-        }
     }
 
     /**
@@ -1446,15 +1319,6 @@ private class ChatsPageModel(
     class UserSearchFieldState {
         val userEmailState: MutableState<String> = mutableStateOf("")
         val errorState: MutableState<Boolean> = mutableStateOf(false)
-    }
-
-    /**
-     * State of the modal window with the user profile.
-     */
-    class UserProfileModalState {
-        val userProfile: MutableState<UserProfile?> = mutableStateOf(null)
-        val chatState: MutableState<ChatId?> = mutableStateOf(null)
-        val isVisibleState: MutableState<Boolean> = mutableStateOf(false)
     }
 
     /**
