@@ -62,6 +62,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
@@ -108,6 +109,10 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -150,6 +155,7 @@ public fun ChatsPage(client: DesktopClient, toRegistration: () -> Unit) {
         LeftSidebar(model)
         ChatContent(model)
     }
+    ChatDeletionModal(model)
 }
 
 /**
@@ -500,15 +506,146 @@ private fun ChatTopbar(model: ChatsPageModel) {
     ) {
         Row(
             Modifier.padding(6.dp),
-            verticalAlignment = Alignment.CenterVertically
+            Arrangement.SpaceBetween,
+            Alignment.CenterVertically
         ) {
-            Avatar(42f, chat.get().name)
-            Text(
-                chat.get().name,
-                modifier = Modifier.padding(start = 8.dp),
-                style = MaterialTheme.typography.headlineMedium,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Avatar(42f, chat.get().name)
+                Text(
+                    chat.get().name,
+                    modifier = Modifier.padding(start = 8.dp),
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+            }
+            ChatMoreButton(model, chat.get())
         }
+    }
+}
+
+/**
+ * Represents the 'More' button on the `ChatTopbar`.
+ */
+@Composable
+private fun ChatMoreButton(model: ChatsPageModel, chat: ChatData) {
+    val isMenuOpen = remember { mutableStateOf(false) }
+    Box(Modifier.clip(CircleShape)) {
+        Icon(
+            Icons.Default.MoreVert,
+            "Additional",
+            Modifier
+                .size(24.dp)
+                .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
+                .clickable(enabled = !isMenuOpen.value) {
+                    isMenuOpen.value = true
+                }
+        )
+        ChatDropdownMenu(model, isMenuOpen, chat)
+    }
+}
+
+/**
+ * Represents the context menu of the message.
+ */
+@Composable
+private fun ChatDropdownMenu(
+    model: ChatsPageModel,
+    isMenuOpen: MutableState<Boolean>,
+    chat: ChatData
+) {
+    DropdownMenu(
+        expanded = isMenuOpen.value,
+        onDismissRequest = { isMenuOpen.value = false },
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+    ) {
+        DefaultDropdownMenuItem(
+            "Delete chat",
+            Icons.Default.Delete,
+            MaterialTheme.colorScheme.error
+        ) {
+            model.chatInDeletionState.value = chat
+            isMenuOpen.value = false
+        }
+    }
+}
+
+/**
+ * Represents the modal widow with the 'chat deletion' confirmation.
+ */
+@Composable
+private fun ChatDeletionModal(
+    model: ChatsPageModel,
+) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    val chat by remember { model.chatInDeletionState }
+    val isVisible = remember { mutableStateOf(false) }
+    isVisible.value = model.chatInDeletionState.value != null
+    val warningText = if (chat?.type == CT_PERSONAL) {
+        "Are you sure you want to delete chat with "
+    } else {
+        "Are you sure you want to delete chat "
+    }
+    ModalWindow(isVisible, { model.chatInDeletionState.value = null }) {
+        Column(
+            Modifier.width(300.dp)
+                .padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 8.dp)
+        ) {
+            Text(
+                buildAnnotatedString {
+                    append(warningText)
+                    append(
+                        AnnotatedString(
+                            chat?.name ?: "",
+                            spanStyle = SpanStyle(fontWeight = FontWeight.Bold)
+                        )
+                    )
+                    append("?")
+                },
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "This action cannot be undone.",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                Modifier.fillMaxWidth(),
+                Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+                ModalDialogButton("Cancel") {
+                    model.chatInDeletionState.value = null
+                }
+                ModalDialogButton("Delete", MaterialTheme.colorScheme.error) {
+                    val id = chat!!.id
+                    viewScope.launch {
+                        model.deleteChat(id)
+                    }
+                    model.chatInDeletionState.value = null
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ModalDialogButton(
+    text: String,
+    contentColor: Color = MaterialTheme.colorScheme.primary,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = contentColor
+        ),
+        contentPadding = PaddingValues(16.dp, 4.dp)
+    ) {
+        Text(
+            text,
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
 
@@ -749,14 +886,14 @@ private fun MessageDropdownMenu(
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
     ) {
         if (isMyMessage) {
-            MessageMenuItem("Edit", Icons.Default.Edit) {
+            DefaultDropdownMenuItem("Edit", Icons.Default.Edit) {
                 model.messageInputFieldState.isEditingState.value = true
                 model.messageInputFieldState.editingMessage.value = message
                 model.messageInputFieldState.inputText.value = message.content
                 isMenuOpen.value = false
             }
         }
-        MessageMenuItem("Remove", Icons.Default.Delete) {
+        DefaultDropdownMenuItem("Remove", Icons.Default.Delete) {
             viewScope.launch {
                 model.removeMessage(message.id)
             }
@@ -766,12 +903,13 @@ private fun MessageDropdownMenu(
 }
 
 /**
- * Represents the item of the message's dropdown menu.
+ * Represents the default item of the dropdown menu.
  */
 @Composable
-private fun MessageMenuItem(
+private fun DefaultDropdownMenuItem(
     text: String,
     icon: ImageVector,
+    color: Color = Color.Black,
     onClick: () -> Unit
 ) {
     DropdownMenuItem(
@@ -780,6 +918,7 @@ private fun MessageMenuItem(
         text = {
             Text(
                 text,
+                color = color,
                 style = MaterialTheme.typography.labelMedium
             )
         },
@@ -787,7 +926,8 @@ private fun MessageMenuItem(
         leadingIcon = {
             Icon(
                 imageVector = icon,
-                contentDescription = text
+                contentDescription = text,
+                tint = color
             )
         }
     )
@@ -1053,13 +1193,17 @@ private fun EditMessagePanel(model: ChatsPageModel) {
 @Composable
 private fun ModalWindow(
     isVisibleState: MutableState<Boolean>,
+    onDismiss: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     if (isVisibleState.value) {
         ShadedBackground()
         Popup(
             alignment = Alignment.Center,
-            onDismissRequest = { isVisibleState.value = false },
+            onDismissRequest = {
+                isVisibleState.value = false
+                onDismiss()
+            },
             focusable = true
         ) {
             Surface(
@@ -1103,6 +1247,7 @@ private class ChatsPageModel(
     val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
     val messageInputFieldState: MessageInputFieldState = MessageInputFieldState()
     val authenticatedUser: UserProfile = client.authenticatedUser!!
+    val chatInDeletionState: MutableState<ChatData?> = mutableStateOf(null)
 
     init {
         updateChats(client.readChats().toChatDataList(client))

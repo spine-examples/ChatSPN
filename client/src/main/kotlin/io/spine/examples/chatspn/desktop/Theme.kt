@@ -127,7 +127,7 @@ private val lightColors: ColorScheme = lightColorScheme(
     inverseSurface = Color(0xFFB0CBF5),
     background = Color.White,
     onBackground = Color.Black,
-    error = Color(0xFFFC3903),
+    error = Color(0xFFF52525),
 )
 
 /**
@@ -151,6 +151,10 @@ private val typography: Typography = Typography(
         fontFamily = SanFrancisco,
         fontSize = 12.sp,
         color = Color.Gray
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = SanFrancisco,
+        fontSize = 14.sp
     ),
     bodyMedium = TextStyle(
         fontFamily = SanFrancisco,
