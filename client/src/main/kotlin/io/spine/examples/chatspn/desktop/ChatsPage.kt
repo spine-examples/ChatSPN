@@ -424,7 +424,7 @@ private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
  * Represents the default avatar.
  */
 @Composable
-public fun Avatar(size: Float, name: String) {
+public fun Avatar(size: Float, name: String, modifierExtender: Modifier.() -> Modifier = { this }) {
     val gradients = listOf(
         listOf(Color(0xFFFFC371), Color(0xFFFF5F6D)),
         listOf(Color(0xFF95E4FC), Color(0xFF0F65D6)),
@@ -438,7 +438,8 @@ public fun Avatar(size: Float, name: String) {
         Image(
             modifier = Modifier
                 .size(size.dp)
-                .clip(CircleShape),
+                .clip(CircleShape)
+                .modifierExtender(),
             contentScale = ContentScale.Crop,
             painter = object : Painter() {
                 override val intrinsicSize: Size = Size(size, size)
@@ -505,34 +506,92 @@ private fun ChatNotChosenBox() {
 
 @Composable
 private fun ProfileTab(model: ChatsPageModel) {
-    val user by remember { model.profileInfoTabState.userProfile }
-    Column(Modifier.fillMaxWidth()) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface),
+        Arrangement.Top,
+        Alignment.CenterHorizontally
+    ) {
         ProfileTopBar(model)
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface),
-            Alignment.TopCenter
-        ) {
-            Column(
-                Modifier
-                    .widthIn(0.dp, 480.dp)
-                    .padding(16.dp, 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Avatar(96f, user?.name ?: "")
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    user?.name ?: "",
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.headlineLarge
-                )
-                Spacer(Modifier.height(12.dp))
-                ProfileTabEmailField(user?.email?.value ?: "")
-                Spacer(Modifier.height(8.dp))
-                ProfileTabLogOutButton(model)
-            }
+        ProfileTabContent(model)
+    }
+}
+
+@Composable
+private fun ProfileTabContent(model: ChatsPageModel) {
+    val user by remember { model.profileInfoTabState.userProfile }
+    if (null == user) {
+        model.profileInfoTabState.isVisibleState.value = false
+        return
+    }
+    val chat by remember { model.profileInfoTabState.chatState }
+    val isAuthorizedUser = model.authenticatedUser
+        .equals(model.profileInfoTabState.userProfile.value)
+    Column(
+        Modifier
+            .widthIn(0.dp, 480.dp)
+            .padding(16.dp, 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Avatar(96f, user?.name ?: "")
+        Spacer(Modifier.height(4.dp))
+        Text(
+            user?.name ?: "",
+            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.headlineLarge
+        )
+        Spacer(Modifier.height(12.dp))
+        if (!isAuthorizedUser) {
+            ProfileTabMessageButton(model)
+            Spacer(Modifier.height(8.dp))
         }
+        ProfileTabEmailField(user?.email?.value ?: "")
+        Spacer(Modifier.height(8.dp))
+        if (isAuthorizedUser) {
+            ProfileTabLogOutButton(model)
+        } else if (null != chat) {
+            ProfileTabDeleteChatButton(model)
+        }
+    }
+}
+
+@Composable
+private fun ProfileTabMessageButton(model: ChatsPageModel) {
+    val user by remember { model.profileInfoTabState.userProfile }
+    val chat by remember { model.profileInfoTabState.chatState }
+    InfoTabButton(
+        "Message",
+        Icons.Default.Send
+    ) {
+        if (null != chat) {
+            model.selectChat(chat!!.id)
+        } else {
+            model.createPersonalChat(user!!.id)
+        }
+    }
+}
+
+@Composable
+private fun ProfileTabLogOutButton(model: ChatsPageModel) {
+    InfoTabButton(
+        "Log out",
+        Icons.Default.ExitToApp,
+        MaterialTheme.colorScheme.error
+    ) {
+        model.logOut()
+    }
+}
+
+@Composable
+private fun ProfileTabDeleteChatButton(model: ChatsPageModel) {
+    val chat by remember { model.profileInfoTabState.chatState }
+    InfoTabButton(
+        "Delete chat",
+        Icons.Default.Delete,
+        MaterialTheme.colorScheme.error
+    ) {
+        model.chatInDeletionState.value = chat
     }
 }
 
@@ -571,31 +630,38 @@ private fun ProfileTabEmailField(email: String) {
 }
 
 @Composable
-private fun ProfileTabLogOutButton(model: ChatsPageModel) {
+private fun InfoTabButton(
+    text: String = "",
+    icon: ImageVector? = null,
+    contentColor: Color = MaterialTheme.colorScheme.primary,
+    onClick: () -> Unit
+) {
     Box(Modifier.clip(RoundedCornerShape(8.dp))) {
         Button(
-            { model.logOut() },
+            onClick,
             Modifier
                 .fillMaxWidth()
                 .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR))),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.error
+                contentColor = contentColor
             ),
             contentPadding = PaddingValues(12.dp, 8.dp)
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Default.ExitToApp,
-                    "Log out",
-                    Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.error
-                )
-                Spacer(Modifier.width(4.dp))
+                if (icon != null) {
+                    Icon(
+                        icon,
+                        text,
+                        Modifier.size(20.dp),
+                        tint = contentColor
+                    )
+                    Spacer(Modifier.width(4.dp))
+                }
                 Text(
-                    "Log out",
-                    color = MaterialTheme.colorScheme.error,
+                    text,
+                    color = contentColor,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -615,9 +681,7 @@ private fun ProfileTopBar(model: ChatsPageModel) {
                 model.profileInfoTabState.clear()
             }
             Text("Info", style = MaterialTheme.typography.headlineMedium)
-            TextButton("Done") {
-                model.profileInfoTabState.clear()
-            }
+            Spacer(Modifier.width(76.dp))
         }
     }
 }
@@ -628,23 +692,33 @@ private fun ProfileTopBar(model: ChatsPageModel) {
 @Composable
 private fun ChatTopBar(model: ChatsPageModel) {
     val selectedChat by model.selectedChat().collectAsState()
-    val chats by model.chats().collectAsState()
-    val chat = chats.stream().filter { chat -> chat.id.equals(selectedChat) }.findFirst()
+    val chat = model.getChatData(selectedChat)!!
+    val interactionSource = remember { MutableInteractionSource() }
     TopBar {
         Row(
             Modifier.padding(6.dp),
             Arrangement.SpaceBetween,
             Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Avatar(42f, chat.get().name)
+            Row(
+                Modifier
+                    .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        model.openChatInfoTab(chat.id)
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Avatar(42f, chat.name)
                 Text(
-                    chat.get().name,
+                    chat.name,
                     modifier = Modifier.padding(start = 8.dp),
                     style = MaterialTheme.typography.headlineMedium,
                 )
             }
-            ChatMoreButton(model, chat.get())
+            ChatMoreButton(model, chat)
         }
     }
 }
@@ -783,6 +857,7 @@ private fun ChatDeletionModal(
 private fun TextButton(
     text: String,
     contentColor: Color = MaterialTheme.colorScheme.primary,
+    icon: ImageVector? = null,
     onClick: () -> Unit
 ) {
     Button(
@@ -795,6 +870,15 @@ private fun TextButton(
         ),
         contentPadding = PaddingValues(16.dp, 4.dp)
     ) {
+        if (icon != null) {
+            Icon(
+                icon,
+                text,
+                Modifier.size(20.dp),
+                tint = contentColor
+            )
+            Spacer(Modifier.width(4.dp))
+        }
         Text(
             text,
             style = MaterialTheme.typography.bodyLarge
@@ -844,7 +928,6 @@ private fun ChatMessage(
     isFirstMemberMessage: Boolean,
     isLastMemberMessage: Boolean
 ) {
-    val userAvatarText = message.sender.name
     val isMyMessage = message.sender.id
         .equals(model.authenticatedUser.id)
     val isMenuOpen = remember { mutableStateOf(false) }
@@ -854,7 +937,7 @@ private fun ChatMessage(
         contentAlignment = messageDisplaySettings.alignment
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
-            MessageSenderAvatar(!isMyMessage && isLastMemberMessage, userAvatarText)
+            MessageSenderAvatar(model, !isMyMessage && isLastMemberMessage, message.sender)
             Column {
                 Surface(
                     modifier = Modifier
@@ -882,7 +965,7 @@ private fun ChatMessage(
                     Spacer(Modifier.height(12.dp))
                 }
             }
-            MessageSenderAvatar(isMyMessage && isLastMemberMessage, userAvatarText)
+            MessageSenderAvatar(model, isMyMessage && isLastMemberMessage, message.sender)
         }
     }
 }
@@ -1011,10 +1094,19 @@ private enum class MessageBubbleArrowPlace {
  * @param isVisible if `true` displays the avatar else displays the empty space
  */
 @Composable
-private fun MessageSenderAvatar(isVisible: Boolean, text: String) {
+private fun MessageSenderAvatar(model: ChatsPageModel, isVisible: Boolean, user: UserProfile) {
+    val interactionSource = remember { MutableInteractionSource() }
     Column {
         if (isVisible) {
-            Avatar(42f, text)
+            Avatar(42f, user.name) {
+                this.pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        model.openUserProfileTab(user)
+                    }
+            }
             Spacer(Modifier.width(4.dp))
         } else {
             Spacer(Modifier.width(42.dp))
@@ -1529,6 +1621,9 @@ private class ChatsPageModel(
      */
     fun deleteChat(chat: ChatId) {
         client.deleteChat(chat)
+        if (profileInfoTabState.chatState.value?.id?.equals(chat) ?: false) {
+            profileInfoTabState.chatState.value = null
+        }
     }
 
     /**
@@ -1600,21 +1695,33 @@ private class ChatsPageModel(
             val user = client.findUser(userId!!)
             profileInfoTabState.isVisibleState.value = true
             profileInfoTabState.userProfile.value = user
-            profileInfoTabState.chatState.value = chat.id
+            profileInfoTabState.chatState.value = getChatData(chat.id)
         }
     }
 
     /**
-     * Returns the ID of the personal chat with the provided user,
+     * Returns the data of the personal chat with the provided user,
      * or `null` if the chat doesn't exist.
      *
      * @param user ID of the user with whom to find the personal chat
      */
-    private fun findPersonalChat(user: UserId): ChatId? {
+    private fun findPersonalChat(user: UserId): ChatData? {
         val chat = chatPreviewsState.value.find { chatData ->
             chatData.type == CT_PERSONAL && chatData.members.contains(user)
         }
-        return chat?.id
+        return chat
+    }
+
+    /**
+     * Returns the data of the chat by id, or `null` if the chat doesn't exist.
+     *
+     * @param chatId ID of the chat
+     */
+    fun getChatData(chatId: ChatId): ChatData? {
+        val chat = chatPreviewsState.value.find { chatData ->
+            chatData.id.equals(chatId)
+        }
+        return chat
     }
 
     /**
@@ -1671,7 +1778,7 @@ private class ChatsPageModel(
      */
     class ProfileInfoTabState {
         val userProfile: MutableState<UserProfile?> = mutableStateOf(null)
-        val chatState: MutableState<ChatId?> = mutableStateOf(null)
+        val chatState: MutableState<ChatData?> = mutableStateOf(null)
         val isVisibleState: MutableState<Boolean> = mutableStateOf(false)
 
         /**
