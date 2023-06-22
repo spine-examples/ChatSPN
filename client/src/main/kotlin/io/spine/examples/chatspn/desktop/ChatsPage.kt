@@ -541,10 +541,10 @@ private fun ProfileTabContent(model: ChatsPageModel) {
             .padding(16.dp, 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Avatar(96f, user?.name ?: "")
+        Avatar(96f, user!!.name)
         Spacer(Modifier.height(4.dp))
         Text(
-            user?.name ?: "",
+            user!!.name,
             color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.headlineLarge
         )
@@ -553,7 +553,7 @@ private fun ProfileTabContent(model: ChatsPageModel) {
             ProfileTabMessageButton(model)
             Spacer(Modifier.height(8.dp))
         }
-        ProfileTabEmailField(user?.email?.value ?: "")
+        ProfileTabEmailField(user!!.email.value)
         Spacer(Modifier.height(8.dp))
         if (isAuthenticatedUser) {
             ProfileTabLogOutButton(model)
@@ -780,7 +780,7 @@ private fun ChatMoreButton(model: ChatsPageModel, chat: ChatData) {
     Box(Modifier.clip(CircleShape)) {
         Icon(
             Icons.Default.MoreVert,
-            "Additional",
+            "More",
             Modifier
                 .size(24.dp)
                 .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
