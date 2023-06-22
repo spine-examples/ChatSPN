@@ -912,7 +912,12 @@ private fun LogoutDialog(
 }
 
 /**
- * Represents the text button.
+ * Represents the text button without a background and with an optional icon.
+ *
+ * @param text text on the button
+ * @param contentColor color of the text and icon
+ * @param icon icon to be displayed before text
+ * @param onClick callback that will be triggered when the button clicked
  */
 @Composable
 private fun TextButton(
