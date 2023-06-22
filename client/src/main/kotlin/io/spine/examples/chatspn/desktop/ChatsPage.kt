@@ -616,7 +616,7 @@ private fun ProfileTabDeleteChatButton(model: ChatsPageModel) {
  */
 @Composable
 private fun ProfileTabEmailField(email: String) {
-    Box(Modifier.clip(RoundedCornerShape(8.dp))) {
+    Box(Modifier.clip(MaterialTheme.shapes.small)) {
         Column(
             Modifier
                 .background(MaterialTheme.colorScheme.background)
@@ -658,13 +658,13 @@ private fun InfoTabButton(
     contentColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
-    Box(Modifier.clip(RoundedCornerShape(8.dp))) {
+    Box(Modifier.clip(MaterialTheme.shapes.small)) {
         Button(
             onClick,
             Modifier
                 .fillMaxWidth()
                 .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR))),
-            shape = RoundedCornerShape(8.dp),
+            shape = MaterialTheme.shapes.small,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 contentColor = contentColor
@@ -929,7 +929,7 @@ private fun TextButton(
     Button(
         onClick,
         Modifier.pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR))),
-        shape = RoundedCornerShape(8.dp),
+        shape = MaterialTheme.shapes.small,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = contentColor
@@ -1519,7 +1519,7 @@ private fun ModalWindow(
         ) {
             Surface(
                 elevation = 8.dp,
-                shape = RoundedCornerShape(10)
+                shape = MaterialTheme.shapes.small
             ) {
                 content()
             }
