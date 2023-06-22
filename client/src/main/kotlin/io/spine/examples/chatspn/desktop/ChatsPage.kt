@@ -317,8 +317,8 @@ private fun UserSearchField(model: ChatsPageModel) {
 private fun SearchIcon(onSearch: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     Icon(
-        imageVector = Icons.Default.Search,
-        contentDescription = "Search",
+        Icons.Default.Search,
+        "Search",
         Modifier
             .padding(horizontal = 4.dp)
             .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
@@ -327,7 +327,7 @@ private fun SearchIcon(onSearch: () -> Unit) {
                 indication = null,
                 onClick = onSearch
             ),
-        tint = MaterialTheme.colorScheme.onSecondary
+        MaterialTheme.colorScheme.onSecondary
     )
 }
 
@@ -339,7 +339,7 @@ private fun ChatList(model: ChatsPageModel) {
     val chats by model.chats().collectAsState()
     val selectedChat by model.selectedChat().collectAsState()
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        Modifier.fillMaxSize()
     ) {
         chats.forEachIndexed { index, chat ->
             item(key = index) {
@@ -366,7 +366,7 @@ private fun ChatPreviewPanel(
     select: () -> Unit
 ) {
     Box(
-        modifier = Modifier
+        Modifier
             .fillMaxWidth()
             .clickable { select() }
             .background(
@@ -375,7 +375,7 @@ private fun ChatPreviewPanel(
                 else
                     MaterialTheme.colorScheme.background
             ),
-        contentAlignment = Alignment.CenterStart,
+        Alignment.CenterStart,
     ) {
         ChatPreviewContent(chatName, lastMessage)
     }
@@ -387,7 +387,7 @@ private fun ChatPreviewPanel(
 @Composable
 private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
     Row(
-        modifier = Modifier.padding(8.dp),
+        Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Avatar(46f, chatName)
@@ -395,7 +395,7 @@ private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
         Column(horizontalAlignment = Alignment.Start) {
             Row(
                 Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                Arrangement.SpaceBetween
             ) {
                 Text(
                     text = chatName,
@@ -629,7 +629,7 @@ private fun ProfileTabEmailField(email: String) {
                     Icons.Default.Email,
                     "Email",
                     Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.primary
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
@@ -677,7 +677,7 @@ private fun InfoTabButton(
                         icon,
                         text,
                         Modifier.size(20.dp),
-                        tint = contentColor
+                        contentColor
                     )
                     Spacer(Modifier.width(4.dp))
                 }
@@ -754,7 +754,7 @@ private fun ChatTopBar(model: ChatsPageModel) {
 @Composable
 private fun TopBar(content: @Composable () -> Unit) {
     Surface(
-        modifier = Modifier
+        Modifier
             .fillMaxWidth()
             .height(54.dp)
             .padding(bottom = 1.dp)
@@ -936,7 +936,7 @@ private fun TextButton(
                 icon,
                 text,
                 Modifier.size(20.dp),
-                tint = contentColor
+                contentColor
             )
             Spacer(Modifier.width(4.dp))
         }
@@ -957,7 +957,7 @@ private fun ChatMessages(model: ChatsPageModel) {
         .messages(selectedChat)
         .collectAsState()
     LazyColumn(
-        modifier = Modifier
+        Modifier
             .fillMaxSize()
             .padding(horizontal = 8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -994,14 +994,14 @@ private fun ChatMessage(
     val isMenuOpen = remember { mutableStateOf(false) }
     val messageDisplaySettings = defineMessageDisplaySettings(isMyMessage, isLastMemberMessage)
     Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = messageDisplaySettings.alignment
+        Modifier.fillMaxWidth(),
+        messageDisplaySettings.alignment
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
             MessageSenderAvatar(model, !isMyMessage && isLastMemberMessage, message.sender)
             Column {
                 Surface(
-                    modifier = Modifier
+                    Modifier
                         .padding(horizontal = 4.dp)
                         .onClick(
                             enabled = true,
@@ -1485,7 +1485,7 @@ private fun EditMessagePanel(model: ChatsPageModel) {
                 ) {
                     model.messageInputFieldState.clear()
                 },
-            tint = MaterialTheme.colorScheme.onSecondary
+            MaterialTheme.colorScheme.onSecondary
         )
     }
 }
