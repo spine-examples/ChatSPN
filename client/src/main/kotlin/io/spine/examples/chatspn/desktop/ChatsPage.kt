@@ -65,7 +65,6 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -244,39 +243,18 @@ private fun MenuButton(model: ChatsPageModel) {
 /**
  * Represents the input field to find the user.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun UserSearchField(model: ChatsPageModel) {
-    val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    var inputText by remember { model.userSearchFieldState.userEmailState }
-    var isError by remember { model.userSearchFieldState.errorState }
-    val onSearch = {
-        val email = inputText
-        viewScope.launch {
-            if (email.trim().isNotEmpty()) {
-                model.createPersonalChat(email.trim())
-            }
-        }
-        inputText = ""
-    }
+    var inputText by remember { model.searchState.inputState }
+    model.search(inputText.trim())
     BasicTextField(
         modifier = Modifier
             .size(182.dp, 30.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .onPreviewKeyEvent {
-                when {
-                    (it.key == Key.Enter) -> {
-                        onSearch()
-                        true
-                    }
-                    else -> false
-                }
-            },
+            .background(MaterialTheme.colorScheme.background),
         value = inputText,
         singleLine = true,
         onValueChange = {
             inputText = it
-            isError = false
         }
     ) { innerTextField ->
         Box(
@@ -302,8 +280,10 @@ private fun UserSearchField(model: ChatsPageModel) {
                 Box(Modifier.weight(1f)) {
                     innerTextField()
                 }
-                if (inputText.trim().isNotEmpty()) {
-                    SearchIcon(onSearch)
+                if (inputText.isNotEmpty()) {
+                    CloseIcon {
+                        inputText = ""
+                    }
                 }
             }
         }
@@ -314,11 +294,11 @@ private fun UserSearchField(model: ChatsPageModel) {
  * Represents the icon button for the `UserSearchField`.
  */
 @Composable
-private fun SearchIcon(onSearch: () -> Unit) {
+private fun CloseIcon(onSearch: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     Icon(
-        imageVector = Icons.Default.Search,
-        contentDescription = "Search",
+        imageVector = Icons.Default.Close,
+        contentDescription = "Close",
         Modifier
             .padding(horizontal = 4.dp)
             .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
@@ -337,18 +317,45 @@ private fun SearchIcon(onSearch: () -> Unit) {
 @Composable
 private fun ChatList(model: ChatsPageModel) {
     val chats by model.chats().collectAsState()
+    val searchWord by remember { model.searchState.inputState }
+    val localSearchedChats by remember { model.searchState.localChats }
+    val globalSearchedUsers by remember { model.searchState.globalUsers }
     val selectedChat by model.selectedChat().collectAsState()
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        chats.forEachIndexed { index, chat ->
-            item(key = index) {
+        if (searchWord.trim().isEmpty()) {
+            chats.forEachIndexed { index, chat ->
+                item(key = index) {
+                    ChatPreviewPanel(
+                        chat.name,
+                        chat.lastMessage,
+                        chat.id.equals(selectedChat)
+                    ) {
+                        model.selectChat(chat.id)
+                    }
+                }
+            }
+        }
+        localSearchedChats.forEach { chat ->
+            item(chat.id) {
                 ChatPreviewPanel(
                     chat.name,
                     chat.lastMessage,
                     chat.id.equals(selectedChat)
                 ) {
                     model.selectChat(chat.id)
+                }
+            }
+        }
+        globalSearchedUsers.forEach { user ->
+            item(user.id) {
+                ChatPreviewPanel(
+                    user.name,
+                    null,
+                    false
+                ) {
+                    model.selectPersonalChat(user.id)
                 }
             }
         }
@@ -577,7 +584,7 @@ private fun ProfileTabMessageButton(model: ChatsPageModel) {
         if (null != chat) {
             model.selectChat(chat!!.id)
         } else {
-            model.createPersonalChat(user!!.id)
+            model.selectPersonalChat(user!!.id)
         }
     }
 }
@@ -1550,11 +1557,11 @@ private class ChatsPageModel(
     private val selectedChatState = MutableStateFlow<ChatId>(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     private val chatMessagesStateMap: MutableMap<ChatId, MutableMessagesState> = mutableMapOf()
-    val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
     val messageInputFieldState: MessageInputFieldState = MessageInputFieldState()
     val chatInDeletionState: MutableState<ChatData?> = mutableStateOf(null)
     val isLogoutDialogVisible: MutableState<Boolean> = mutableStateOf(false)
     val profileInfoTabState: ProfileInfoTabState = ProfileInfoTabState()
+    val searchState: SearchState = SearchState()
     val authenticatedUser: UserProfile = client.authenticatedUser!!
 
     init {
@@ -1607,6 +1614,7 @@ private class ChatsPageModel(
         selectedChatState.value = chat
         messageInputFieldState.clear()
         profileInfoTabState.clear()
+        searchState.clear()
         updateMessages(chat, client.readMessages(chat).toMessageDataList(client))
         client.stopObservingMessages()
         client.observeMessages(
@@ -1708,29 +1716,19 @@ private class ChatsPageModel(
     }
 
     /**
-     * Creates the personal chat between the authenticated and the provided user.
+     * Selects the personal chat between the authenticated and the provided user,
+     * if the chat doesn't exist, creates it.
      *
-     * Selects the created chat.
-     *
-     * @param user ID of the user with whom to create a personal chat
+     * @param user ID of the user with whom to select a personal chat
      */
-    fun createPersonalChat(user: UserId) {
-        client.createPersonalChat(user) { event ->
-            selectChat(event.id)
-        }
-    }
-
-    /**
-     * Finds user by email and creates the personal chat between authenticated and found user.
-     *
-     * @param email email of the user with whom to create a personal chat
-     */
-    fun createPersonalChat(email: String) {
-        val user = client.findUser(email)
-        if (null != user) {
-            client.createPersonalChat(user.id)
+    fun selectPersonalChat(user: UserId) {
+        val chat = findPersonalChat(user)
+        if (chat != null) {
+            selectChat(chat.id)
         } else {
-            userSearchFieldState.errorState.value = true
+            client.createPersonalChat(user) { event ->
+                selectChat(event.id)
+            }
         }
     }
 
@@ -1809,12 +1807,40 @@ private class ChatsPageModel(
         }
     }
 
+    fun search(searchWord: String) {
+        if (searchWord.isEmpty()) {
+            searchState.localChats.value = listOf()
+            searchState.globalUsers.value = listOf()
+            return
+        }
+        val localChats = chatPreviewsState.value.filter { chat ->
+            chat.name.contains(searchWord, true)
+        }
+        searchState.localChats.value = localChats
+        val userWithSearchedEmail = client.findUser(searchWord)
+        if (null != userWithSearchedEmail && findPersonalChat(userWithSearchedEmail.id) == null) {
+            searchState.globalUsers.value = listOf(userWithSearchedEmail)
+        } else {
+            searchState.globalUsers.value = listOf()
+        }
+    }
+
     /**
-     * State of the user search field.
+     * State of the chats search.
      */
-    class UserSearchFieldState {
-        val userEmailState: MutableState<String> = mutableStateOf("")
-        val errorState: MutableState<Boolean> = mutableStateOf(false)
+    class SearchState {
+        val inputState: MutableState<String> = mutableStateOf("")
+        val localChats: MutableState<List<ChatData>> = mutableStateOf(listOf())
+        val globalUsers: MutableState<List<UserProfile>> = mutableStateOf(listOf())
+
+        /**
+         * Clears the state.
+         */
+        fun clear() {
+            inputState.value = ""
+            localChats.value = listOf()
+            globalUsers.value = listOf()
+        }
     }
 
     /**
