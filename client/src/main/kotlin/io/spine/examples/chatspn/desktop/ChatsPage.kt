@@ -772,7 +772,7 @@ private fun TopBar(content: @Composable () -> Unit) {
 }
 
 /**
- * Represents the 'More' button on the `ChatTopbar`.
+ * Represents the 'More' button for the chat.
  */
 @Composable
 private fun ChatMoreButton(model: ChatsPageModel, chat: ChatData) {
@@ -793,7 +793,7 @@ private fun ChatMoreButton(model: ChatsPageModel, chat: ChatData) {
 }
 
 /**
- * Represents the context menu of the message.
+ * Represents the context menu of the chat.
  */
 @Composable
 private fun ChatDropdownMenu(
@@ -818,7 +818,7 @@ private fun ChatDropdownMenu(
 }
 
 /**
- * Represents the modal window with the 'chat deletion' confirmation.
+ * Represents a chat deletion confirmation modal.
  */
 @Composable
 private fun ChatDeletionDialog(
@@ -835,10 +835,9 @@ private fun ChatDeletionDialog(
         ) {
             Text(
                 buildAnnotatedString {
+                    append("Are you sure you want to delete chat ")
                     if (chat?.type == CT_PERSONAL) {
-                        append("Are you sure you want to delete chat with ")
-                    } else {
-                        append("Are you sure you want to delete chat ")
+                        append("with ")
                     }
                     append(
                         AnnotatedString(
@@ -876,7 +875,7 @@ private fun ChatDeletionDialog(
 }
 
 /**
- * Represents the modal window with the 'log out' confirmation.
+ * Represents a logout confirmation modal.
  */
 @Composable
 private fun LogoutDialog(
