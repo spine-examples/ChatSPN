@@ -162,7 +162,8 @@ public fun ChatsPage(client: DesktopClient, toRegistration: () -> Unit) {
             ChatContent(model)
         }
     }
-    ChatDeletionModal(model)
+    ChatDeletionDialog(model)
+    LogoutDialog(model)
 }
 
 /**
@@ -579,7 +580,7 @@ private fun ProfileTabLogOutButton(model: ChatsPageModel) {
         Icons.Default.ExitToApp,
         MaterialTheme.colorScheme.error
     ) {
-        model.logOut()
+        model.isLogoutDialogVisible.value = true
     }
 }
 
@@ -793,10 +794,10 @@ private fun ChatDropdownMenu(
 }
 
 /**
- * Represents the modal widow with the 'chat deletion' confirmation.
+ * Represents the modal window with the 'chat deletion' confirmation.
  */
 @Composable
-private fun ChatDeletionModal(
+private fun ChatDeletionDialog(
     model: ChatsPageModel,
 ) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
@@ -844,6 +845,43 @@ private fun ChatDeletionModal(
                         model.deleteChat(id)
                     }
                     model.chatInDeletionState.value = null
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Represents the modal window with the 'log out' confirmation.
+ */
+@Composable
+private fun LogoutDialog(
+    model: ChatsPageModel,
+) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    val isVisible = remember { model.isLogoutDialogVisible }
+    ModalWindow(isVisible, { isVisible.value = false }) {
+        Column(
+            Modifier.width(300.dp)
+                .padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 8.dp)
+        ) {
+            Text(
+                "Are you sure you want to log out?",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                Modifier.fillMaxWidth(),
+                Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+                TextButton("Cancel") {
+                    isVisible.value = false
+                }
+                TextButton("Log out", MaterialTheme.colorScheme.error) {
+                    viewScope.launch {
+                        model.logOut()
+                    }
+                    isVisible.value = false
                 }
             }
         }
@@ -1492,6 +1530,7 @@ private class ChatsPageModel(
     val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
     val messageInputFieldState: MessageInputFieldState = MessageInputFieldState()
     val chatInDeletionState: MutableState<ChatData?> = mutableStateOf(null)
+    val isLogoutDialogVisible: MutableState<Boolean> = mutableStateOf(false)
     val profileInfoTabState: ProfileInfoTabState = ProfileInfoTabState()
     val authenticatedUser: UserProfile = client.authenticatedUser!!
 
