@@ -210,9 +210,9 @@ private fun LeftSidebar(model: ChatsPageModel) {
 @Composable
 private fun MenuButton(model: ChatsPageModel) {
     val isUserProfileOpen by remember { model.profileInfoTabState.isVisibleState }
-    val isAuthorizedUser = model.authenticatedUser
+    val isAuthenticatedUser = model.authenticatedUser
         .equals(model.profileInfoTabState.userProfile.value)
-    val containerColor = if (isUserProfileOpen && isAuthorizedUser)
+    val containerColor = if (isUserProfileOpen && isAuthenticatedUser)
         MaterialTheme.colorScheme.inverseSurface
     else
         MaterialTheme.colorScheme.surface
@@ -220,7 +220,7 @@ private fun MenuButton(model: ChatsPageModel) {
         modifier = Modifier
             .size(42.dp),
         onClick = {
-            if (isUserProfileOpen && isAuthorizedUser) {
+            if (isUserProfileOpen && isAuthenticatedUser) {
                 model.profileInfoTabState.clear()
             } else {
                 model.openUserProfileTab(model.authenticatedUser)
@@ -533,7 +533,7 @@ private fun ProfileTabContent(model: ChatsPageModel) {
         return
     }
     val chat by remember { model.profileInfoTabState.chatState }
-    val isAuthorizedUser = model.authenticatedUser
+    val isAuthenticatedUser = model.authenticatedUser
         .equals(model.profileInfoTabState.userProfile.value)
     Column(
         Modifier
@@ -549,13 +549,13 @@ private fun ProfileTabContent(model: ChatsPageModel) {
             style = MaterialTheme.typography.headlineLarge
         )
         Spacer(Modifier.height(12.dp))
-        if (!isAuthorizedUser) {
+        if (!isAuthenticatedUser) {
             ProfileTabMessageButton(model)
             Spacer(Modifier.height(8.dp))
         }
         ProfileTabEmailField(user?.email?.value ?: "")
         Spacer(Modifier.height(8.dp))
-        if (isAuthorizedUser) {
+        if (isAuthenticatedUser) {
             ProfileTabLogOutButton(model)
         } else if (null != chat) {
             ProfileTabDeleteChatButton(model)
@@ -583,7 +583,7 @@ private fun ProfileTabMessageButton(model: ChatsPageModel) {
 }
 
 /**
- * Represents a button for logging out on the authorized user profile tab.
+ * Represents a button for logging out on the authenticated user profile tab.
  */
 @Composable
 private fun ProfileTabLogOutButton(model: ChatsPageModel) {
