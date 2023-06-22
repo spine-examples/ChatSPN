@@ -505,6 +505,9 @@ private fun ChatNotChosenBox() {
     }
 }
 
+/**
+ * Represents the info tab with the user profile.
+ */
 @Composable
 private fun ProfileTab(model: ChatsPageModel) {
     Column(
@@ -519,6 +522,9 @@ private fun ProfileTab(model: ChatsPageModel) {
     }
 }
 
+/**
+ * Represents the main content of the user profile tab.
+ */
 @Composable
 private fun ProfileTabContent(model: ChatsPageModel) {
     val user by remember { model.profileInfoTabState.userProfile }
@@ -557,6 +563,9 @@ private fun ProfileTabContent(model: ChatsPageModel) {
     }
 }
 
+/**
+ * Represents a button for opening a chat with a user on the user's profile tab.
+ */
 @Composable
 private fun ProfileTabMessageButton(model: ChatsPageModel) {
     val user by remember { model.profileInfoTabState.userProfile }
@@ -573,6 +582,9 @@ private fun ProfileTabMessageButton(model: ChatsPageModel) {
     }
 }
 
+/**
+ * Represents a button for logging out on the authorized user profile tab.
+ */
 @Composable
 private fun ProfileTabLogOutButton(model: ChatsPageModel) {
     InfoTabButton(
@@ -584,6 +596,9 @@ private fun ProfileTabLogOutButton(model: ChatsPageModel) {
     }
 }
 
+/**
+ * Represents a button to delete a chat with a user on the user profile tab.
+ */
 @Composable
 private fun ProfileTabDeleteChatButton(model: ChatsPageModel) {
     val chat by remember { model.profileInfoTabState.chatState }
@@ -596,6 +611,9 @@ private fun ProfileTabDeleteChatButton(model: ChatsPageModel) {
     }
 }
 
+/**
+ * Represents an email field on the user profile tab.
+ */
 @Composable
 private fun ProfileTabEmailField(email: String) {
     Box(Modifier.clip(RoundedCornerShape(8.dp))) {
@@ -630,6 +648,9 @@ private fun ProfileTabEmailField(email: String) {
     }
 }
 
+/**
+ * Represents a button on an info tab.
+ */
 @Composable
 private fun InfoTabButton(
     text: String = "",
@@ -670,6 +691,9 @@ private fun InfoTabButton(
     }
 }
 
+/**
+ * Represents the top bar on the profile tab.
+ */
 @Composable
 private fun ProfileTopBar(model: ChatsPageModel) {
     TopBar {
