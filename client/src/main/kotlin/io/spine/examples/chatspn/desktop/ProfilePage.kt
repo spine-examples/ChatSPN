@@ -52,6 +52,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -78,8 +79,6 @@ public fun ProfilePage(
     profileState: MutableState<UserProfile>,
     chatState: MutableState<ChatData?>,
     onBack: () -> Unit,
-    openModal: (content: @Composable () -> Unit) -> Unit,
-    closeModal: () -> Unit,
     toRegistration: () -> Unit,
     openChat: (user: UserId) -> Unit
 ) {
@@ -89,12 +88,11 @@ public fun ProfilePage(
             profileState,
             chatState,
             onBack,
-            openModal,
-            closeModal,
             toRegistration,
             openChat
         )
     }
+    val isChatDeletionDialogVisible = remember { model.chatDeletionModalState }
     Column(
         Modifier
             .fillMaxSize()
@@ -104,6 +102,14 @@ public fun ProfilePage(
     ) {
         ProfileTopBar(model)
         ProfilePageContent(model)
+    }
+    LogoutDialog(model)
+    if (chatState.value != null) {
+        ChatDeletionDialog(
+            isChatDeletionDialogVisible,
+            { model.deleteChat(chatState.value!!.id) },
+            chatState.value!!
+        )
     }
 }
 
@@ -188,17 +194,19 @@ private fun LogOutButton(model: ProfilePageModel) {
         Icons.Default.ExitToApp,
         MaterialTheme.colorScheme.error
     ) {
-        model.openModal(LogoutDialog(model))
+        model.logoutModalState.value = true
     }
 }
 
 /**
  * Returns a representation of the logout confirmation modal.
  */
+@Composable
 private fun LogoutDialog(
     model: ProfilePageModel,
-): @Composable () -> Unit {
-    return {
+) {
+    val isOpen = remember { model.logoutModalState }
+    ModalWindow(isOpen) {
         val viewScope = rememberCoroutineScope { Dispatchers.Default }
         Column(
             Modifier.width(300.dp)
@@ -214,13 +222,13 @@ private fun LogoutDialog(
                 Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
                 TextButton("Cancel") {
-                    model.closeModal()
+                    isOpen.value = false
                 }
                 TextButton("Log out", MaterialTheme.colorScheme.error) {
                     viewScope.launch {
                         model.logOut()
                     }
-                    model.closeModal()
+                    isOpen.value = false
                 }
             }
         }
@@ -232,22 +240,12 @@ private fun LogoutDialog(
  */
 @Composable
 private fun DeleteChatButton(model: ProfilePageModel) {
-    val chat = remember { model.chatState }
     InfoPageButton(
         "Delete chat",
         Icons.Default.Delete,
         MaterialTheme.colorScheme.error
     ) {
-        val content = ChatDeletionDialog(
-            {
-                model.closeModal()
-            },
-            {
-                model.deleteChat(chat.value!!.id)
-            },
-            chat.value!!
-        )
-        model.openModal(content)
+        model.chatDeletionModalState.value = true
     }
 }
 
@@ -339,11 +337,11 @@ private class ProfilePageModel(
     val userProfile: MutableState<UserProfile>,
     val chatState: MutableState<ChatData?>,
     val onBack: () -> Unit,
-    val openModal: (content: @Composable () -> Unit) -> Unit,
-    val closeModal: () -> Unit,
     private val toRegistration: () -> Unit,
     val openChat: (user: UserId) -> Unit
 ) {
+    val chatDeletionModalState: MutableState<Boolean> = mutableStateOf(false)
+    val logoutModalState: MutableState<Boolean> = mutableStateOf(false)
     val authenticatedUser: UserProfile
         get() {
             return client.authenticatedUser!!

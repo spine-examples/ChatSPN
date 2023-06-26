@@ -127,7 +127,6 @@ public fun CurrentPage(client: DesktopClient) {
             ConfiguredProfilePage(client, model)
         }
     }
-    CustomModalWindow(model)
 }
 
 /**
@@ -146,12 +145,7 @@ private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
     } else {
         ChatPage(
             client,
-            model.selectedChat(),
-            { content ->
-                model.modalWindowState.isOpen.value = true
-                model.modalWindowState.content = content
-            },
-            { model.modalWindowState.isOpen.value = false },
+            selectedChat,
             { model.openChatInfo(it) },
             { model.openUserProfile(it) }
         )
@@ -168,27 +162,9 @@ private fun ConfiguredProfilePage(client: DesktopClient, model: NavigationModel)
         model.profilePageState.userProfile,
         model.profilePageState.chatState,
         { model.currentPage.value = Page.CHAT },
-        {
-            model.modalWindowState.isOpen.value = true
-            model.modalWindowState.content = it
-        },
-        { model.modalWindowState.clear() },
         { model.currentPage.value = Page.REGISTRATION },
         { model.selectPersonalChat(it) }
     )
-}
-
-/**
- * Represents a modal window with content specified in the navigation model.
- */
-@Composable
-private fun CustomModalWindow(model: NavigationModel) {
-    val isOpen = remember { model.modalWindowState.isOpen }
-    ModalWindow(
-        isOpen,
-    ) {
-        model.modalWindowState.content()
-    }
 }
 
 /**
@@ -465,12 +441,11 @@ private fun ChatNotChosenBox() {
 }
 
 /**
- * UI Model for the [Navigation].
+ * UI Model for the navigation.
  */
 private class NavigationModel(private val client: DesktopClient) {
     private val selectedChatState: MutableState<ChatData?> = mutableStateOf(null)
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
-    val modalWindowState: ModalWindowState = ModalWindowState()
     val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
     val currentPage: MutableState<Page> = mutableStateOf(Page.REGISTRATION)
     val profilePageState: ProfilePageState = ProfilePageState()
@@ -628,22 +603,6 @@ private class ProfilePageState {
 private class UserSearchFieldState {
     val userEmailState: MutableState<String> = mutableStateOf("")
     val errorState: MutableState<Boolean> = mutableStateOf(false)
-}
-
-/**
- * State of the modal window.
- */
-private class ModalWindowState {
-    val isOpen: MutableState<Boolean> = mutableStateOf(false)
-    var content: @Composable () -> Unit = {}
-
-    /**
-     * Clears the state.
-     */
-    fun clear() {
-        isOpen.value = false
-        content = { }
-    }
 }
 
 /**

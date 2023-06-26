@@ -97,10 +97,6 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -110,7 +106,6 @@ import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
-import io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL
 import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import java.awt.Cursor
@@ -132,8 +127,6 @@ import kotlinx.coroutines.launch
 public fun ChatPage(
     client: DesktopClient,
     chatState: MutableState<ChatData?>,
-    openModal: (content: @Composable () -> Unit) -> Unit,
-    closeModal: () -> Unit,
     openChatInfo: (chat: ChatId) -> Unit,
     openUserProfile: (user: UserId) -> Unit
 ) {
@@ -141,12 +134,11 @@ public fun ChatPage(
         ChatsPageModel(
             client,
             chatState,
-            openModal,
-            closeModal,
             openChatInfo,
             openUserProfile
         )
     }
+    val isChatDeletionDialogVisible = remember { model.chatDeletionModalState }
     model.observeMessages()
     Column(
         Modifier.fillMaxSize()
@@ -157,6 +149,11 @@ public fun ChatPage(
         }
         ChatBottomBar(model)
     }
+    ChatDeletionDialog(
+        isChatDeletionDialogVisible,
+        { model.deleteChat(chatState.value!!.id) },
+        chatState.value!!
+    )
 }
 
 /**
@@ -235,68 +232,8 @@ private fun ChatDropdownMenu(
             Icons.Default.Delete,
             MaterialTheme.colorScheme.error
         ) {
-            model.openModal(
-                ChatDeletionDialog(
-                    { model.closeModal() },
-                    { model.deleteChat(chat.id) },
-                    chat
-                )
-            )
+            model.chatDeletionModalState.value = true
             isMenuOpen.value = false
-        }
-    }
-}
-
-/**
- * Returns a representation of the chat deletion confirmation modal.
- */
-public fun ChatDeletionDialog(
-    onDismiss: () -> Unit,
-    onDelete: () -> Unit,
-    chat: ChatData
-): @Composable () -> Unit {
-    return {
-        val viewScope = rememberCoroutineScope()
-        Column(
-            Modifier.width(300.dp)
-                .padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 8.dp)
-        ) {
-            Text(
-                buildAnnotatedString {
-                    append("Are you sure you want to delete chat ")
-                    if (chat.type == CT_PERSONAL) {
-                        append("with ")
-                    }
-                    append(
-                        AnnotatedString(
-                            chat.name,
-                            spanStyle = SpanStyle(fontWeight = FontWeight.Bold)
-                        )
-                    )
-                    append("?")
-                },
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                "This action cannot be undone.",
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Spacer(Modifier.height(8.dp))
-            Row(
-                Modifier.fillMaxWidth(),
-                Arrangement.spacedBy(8.dp, Alignment.End)
-            ) {
-                TextButton("Cancel") {
-                    onDismiss()
-                }
-                TextButton("Delete", MaterialTheme.colorScheme.error) {
-                    viewScope.launch {
-                        onDelete()
-                    }
-                    onDismiss()
-                }
-            }
         }
     }
 }
@@ -843,13 +780,12 @@ private fun EditMessagePanel(model: ChatsPageModel) {
 private class ChatsPageModel(
     private val client: DesktopClient,
     val chatState: MutableState<ChatData?>,
-    val openModal: (content: @Composable () -> Unit) -> Unit,
-    val closeModal: () -> Unit,
     val openChatInfo: (chat: ChatId) -> Unit,
     val openUserProfile: (user: UserId) -> Unit
 ) {
     private val messagesState: MutableMessagesState = MutableStateFlow(listOf())
     val messageInputFieldState: MessageInputFieldState = MessageInputFieldState()
+    val chatDeletionModalState: MutableState<Boolean> = mutableStateOf(false)
     val authenticatedUser: UserProfile
         get() {
             return client.authenticatedUser!!

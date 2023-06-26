@@ -28,8 +28,11 @@ package io.spine.examples.chatspn.desktop
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,6 +49,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,11 +64,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import io.spine.examples.chatspn.chat.Chat
 import java.awt.Cursor
 import kotlin.math.abs
+import kotlinx.coroutines.launch
 
 /**
  * Represents the top bar with the configurable content.
@@ -147,7 +162,7 @@ public fun ModalWindow(
     if (isVisibleState.value) {
         ShadedBackground()
         Popup(
-            alignment = Alignment.Center,
+            popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = {
                 isVisibleState.value = false
                 onDismiss()
@@ -165,6 +180,26 @@ public fun ModalWindow(
 }
 
 /**
+ * [PopupPositionProvider] with the position in the center of the window.
+ */
+private class WindowCenterOffsetPositionProvider(
+    private val x: Int = 0,
+    private val y: Int = 0
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset {
+        return IntOffset(
+            (windowSize.width - popupContentSize.width) / 2 + x,
+            (windowSize.height - popupContentSize.height) / 2 + y
+        )
+    }
+}
+
+/**
  * Represents the partially transparent black background.
  *
  * The user cannot click on elements behind it.
@@ -177,6 +212,65 @@ public fun ShadedBackground() {
                 .fillMaxSize()
                 .background(Color(0x33000000))
         )
+    }
+}
+
+/**
+ * Returns a representation of the chat deletion confirmation modal.
+ *
+ * @param isVisibleState mutable state of dialog visibility
+ * @param onDelete callback that will be triggered when the 'delete' button clicked
+ * @param chat chat which data display in the dialog
+ */
+@Composable
+public fun ChatDeletionDialog(
+    isVisibleState: MutableState<Boolean>,
+    onDelete: () -> Unit,
+    chat: ChatData
+) {
+    val viewScope = rememberCoroutineScope()
+    ModalWindow(isVisibleState) {
+        Column(
+            Modifier.width(300.dp)
+                .padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 8.dp)
+        ) {
+            Text(
+                buildAnnotatedString {
+                    append("Are you sure you want to delete chat ")
+                    if (chat.type == Chat.ChatType.CT_PERSONAL) {
+                        append("with ")
+                    }
+                    append(
+                        AnnotatedString(
+                            chat.name,
+                            spanStyle = SpanStyle(fontWeight = FontWeight.Bold)
+                        )
+                    )
+                    append("?")
+                },
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "This action cannot be undone.",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                Modifier.fillMaxWidth(),
+                Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+                TextButton("Cancel") {
+                    isVisibleState.value = false
+                }
+                TextButton("Delete", MaterialTheme.colorScheme.error) {
+                    viewScope.launch {
+                        onDelete()
+                    }
+                    isVisibleState.value = false
+                }
+            }
+        }
     }
 }
 
