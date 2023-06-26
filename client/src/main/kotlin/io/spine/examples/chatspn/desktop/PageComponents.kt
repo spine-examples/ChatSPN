@@ -216,7 +216,7 @@ public fun ShadedBackground() {
 }
 
 /**
- * Returns a representation of the chat deletion confirmation modal.
+ * Representation of the chat deletion confirmation modal.
  *
  * @param isVisibleState mutable state of dialog visibility
  * @param onDelete callback that will be triggered when the 'delete' button clicked
@@ -228,7 +228,6 @@ public fun ChatDeletionDialog(
     onDelete: () -> Unit,
     chat: ChatData
 ) {
-    val viewScope = rememberCoroutineScope()
     ModalWindow(isVisibleState) {
         Column(
             Modifier.width(300.dp)
@@ -256,20 +255,32 @@ public fun ChatDeletionDialog(
                 style = MaterialTheme.typography.bodyLarge
             )
             Spacer(Modifier.height(8.dp))
-            Row(
-                Modifier.fillMaxWidth(),
-                Arrangement.spacedBy(8.dp, Alignment.End)
-            ) {
-                TextButton("Cancel") {
-                    isVisibleState.value = false
-                }
-                TextButton("Delete", MaterialTheme.colorScheme.error) {
-                    viewScope.launch {
-                        onDelete()
-                    }
-                    isVisibleState.value = false
-                }
+            ChatDeletionDialogButtons(isVisibleState, onDelete)
+        }
+    }
+}
+
+/**
+ * Represents the buttons of the `ChatDeletionDialog`.
+ */
+@Composable
+private fun ChatDeletionDialogButtons(
+    isVisibleState: MutableState<Boolean>,
+    onDelete: () -> Unit
+) {
+    val viewScope = rememberCoroutineScope()
+    Row(
+        Modifier.fillMaxWidth(),
+        Arrangement.spacedBy(8.dp, Alignment.End)
+    ) {
+        TextButton("Cancel") {
+            isVisibleState.value = false
+        }
+        TextButton("Delete", MaterialTheme.colorScheme.error) {
+            viewScope.launch {
+                onDelete()
             }
+            isVisibleState.value = false
         }
     }
 }
