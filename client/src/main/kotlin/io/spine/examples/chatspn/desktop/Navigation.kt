@@ -93,44 +93,46 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 /**
- * Provides navigation through application and page composition.
+ * Represents the current page of the application.
+ *
+ * It will be recomposed when the page changes.
  */
-public class Navigation(private val client: DesktopClient) {
-
-    /**
-     * Represents the current page of the application.
-     *
-     * It will be recomposed when the page changes.
-     */
-    @Composable
-    public fun currentPage() {
-        val model = remember { NavigationModel(client) }
-        val currentPage = remember { model.currentPage }
-        when (currentPage.value) {
-            Page.REGISTRATION -> RegistrationPage(
-                client,
-                toLogin = { currentPage.value = Page.LOGIN },
-                toChats = { currentPage.value = Page.CHAT }
-            )
-            Page.LOGIN -> LoginPage(
-                client,
-                toRegistration = { currentPage.value = Page.REGISTRATION },
-                toChats = { currentPage.value = Page.CHAT }
-            )
-            Page.CHAT -> Row {
-                model.prepareChatPage()
-                LeftSidebar(model)
-                ConfiguredChatPage(client, model)
+@Composable
+public fun CurrentPage(client: DesktopClient) {
+    val model = remember { NavigationModel(client) }
+    val currentPage = remember { model.currentPage }
+    when (currentPage.value) {
+        Page.REGISTRATION -> RegistrationPage(
+            client,
+            toLogin = { currentPage.value = Page.LOGIN },
+            toChats = {
+                currentPage.value = Page.CHAT
+                model.observeChats()
             }
-            Page.PROFILE -> Row {
-                LeftSidebar(model)
-                ConfiguredProfilePage(client, model)
+        )
+        Page.LOGIN -> LoginPage(
+            client,
+            toRegistration = { currentPage.value = Page.REGISTRATION },
+            toChats = {
+                currentPage.value = Page.CHAT
+                model.observeChats()
             }
+        )
+        Page.CHAT -> Row {
+            LeftSidebar(model)
+            ConfiguredChatPage(client, model)
         }
-        CustomModalWindow(model)
+        Page.PROFILE -> Row {
+            LeftSidebar(model)
+            ConfiguredProfilePage(client, model)
+        }
     }
+    CustomModalWindow(model)
 }
 
+/**
+ * Represents 'Chat' page configured by navigation model
+ */
 @Composable
 private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
     val chats by model.chats().collectAsState()
@@ -150,12 +152,15 @@ private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
                 model.modalWindowState.content = content
             },
             { model.modalWindowState.isOpen.value = false },
-            { model.openChatInfoTab(it) },
-            { model.openUserProfileTab(it) }
+            { model.openChatInfo(it) },
+            { model.openUserProfile(it) }
         )
     }
 }
 
+/**
+ * Represents 'Profile' page configured by navigation model
+ */
 @Composable
 private fun ConfiguredProfilePage(client: DesktopClient, model: NavigationModel) {
     ProfilePage(
@@ -173,6 +178,9 @@ private fun ConfiguredProfilePage(client: DesktopClient, model: NavigationModel)
     )
 }
 
+/**
+ * Represents a modal window with content specified in the navigation model.
+ */
 @Composable
 private fun CustomModalWindow(model: NavigationModel) {
     val isOpen = remember { model.modalWindowState.isOpen }
@@ -184,7 +192,7 @@ private fun CustomModalWindow(model: NavigationModel) {
 }
 
 /**
- * Represents the left sidebar on the `Chats` page.
+ * Represents the left sidebar.
  */
 @Composable
 private fun LeftSidebar(model: NavigationModel) {
@@ -241,7 +249,7 @@ private fun MenuButton(model: NavigationModel) {
             if (isUserProfileOpen && isAuthenticatedUser) {
                 model.profilePageState.clear()
             } else {
-                model.openUserProfileTab(model.authenticatedUser.id)
+                model.openUserProfile(model.authenticatedUser.id)
             }
         },
         shape = CircleShape,
@@ -456,6 +464,9 @@ private fun ChatNotChosenBox() {
     }
 }
 
+/**
+ * UI Model for the [Navigation].
+ */
 private class NavigationModel(private val client: DesktopClient) {
     private val selectedChatState: MutableState<ChatData?> = mutableStateOf(null)
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
@@ -468,7 +479,10 @@ private class NavigationModel(private val client: DesktopClient) {
             return client.authenticatedUser!!
         }
 
-    fun prepareChatPage() {
+    /**
+     * Reads chat previews and subscribes to their updates.
+     */
+    fun observeChats() {
         updateChats(client.readChats().toChatDataList(client))
         client.observeChats { state -> updateChats(state.chatList.toChatDataList(client)) }
     }
@@ -488,16 +502,35 @@ private class NavigationModel(private val client: DesktopClient) {
     }
 
     /**
-     * Creates the personal chat between the authenticated and the provided user.
+     * Selects provided chat and opens the 'Chat' page.
      *
-     * Selects the created chat.
-     *
-     * @param user ID of the user with whom to create a personal chat
+     * @param chat ID of the chat to select
      */
-    fun createPersonalChat(user: UserId) {
-        client.createPersonalChat(user) { event ->
-            selectChat(event.id)
+    fun selectChat(chat: ChatId) {
+        selectedChatState.value = getChatData(chat)
+        currentPage.value = Page.CHAT
+        profilePageState.clear()
+    }
+
+    /**
+     * Returns the data of the chat by id, or `null` if the chat doesn't exist.
+     *
+     * @param chatId ID of the chat
+     */
+    fun getChatData(chatId: ChatId): ChatData? {
+        val chat = chatPreviewsState.value.find { chatData ->
+            chatData.id.equals(chatId)
         }
+        return chat
+    }
+
+    /**
+     * Updates the model with new chats.
+     *
+     * @param chats new list of user chats
+     */
+    private fun updateChats(chats: ChatList) {
+        chatPreviewsState.value = chats
     }
 
     /**
@@ -532,40 +565,6 @@ private class NavigationModel(private val client: DesktopClient) {
     }
 
     /**
-     * Selects provided chat and subscribes to message changes in it.
-     *
-     * Also clears the message input field state.
-     *
-     * @param chat ID of the chat to select
-     */
-    fun selectChat(chat: ChatId) {
-        selectedChatState.value = getChatData(chat)
-        currentPage.value = Page.CHAT
-        profilePageState.clear()
-    }
-
-    /**
-     * Returns the data of the chat by id, or `null` if the chat doesn't exist.
-     *
-     * @param chatId ID of the chat
-     */
-    fun getChatData(chatId: ChatId): ChatData? {
-        val chat = chatPreviewsState.value.find { chatData ->
-            chatData.id.equals(chatId)
-        }
-        return chat
-    }
-
-    /**
-     * Updates the model with new chats.
-     *
-     * @param chats new list of user chats
-     */
-    private fun updateChats(chats: ChatList) {
-        chatPreviewsState.value = chats
-    }
-
-    /**
      * Returns the data of the personal chat with the provided user,
      * or `null` if the chat doesn't exist.
      *
@@ -579,23 +578,11 @@ private class NavigationModel(private val client: DesktopClient) {
     }
 
     /**
-     * Deletes the chat.
-     *
-     * @param chat ID of the chat to delete
-     */
-    fun deleteChat(chat: ChatId) {
-        client.deleteChat(chat)
-        if (profilePageState.chatState.value?.id?.equals(chat) ?: false) {
-            profilePageState.chatState.value = null
-        }
-    }
-
-    /**
-     * Opens a tab with a user profile.
+     * Opens a page with a user profile.
      *
      * @param userId id of the user to open profile
      */
-    fun openUserProfileTab(userId: UserId) {
+    fun openUserProfile(userId: UserId) {
         val user = client.findUser(userId)
         profilePageState.userProfile.value = user ?: UserProfile.getDefaultInstance()
         profilePageState.chatState.value = if (null == user) null else findPersonalChat(user.id)
@@ -603,11 +590,11 @@ private class NavigationModel(private val client: DesktopClient) {
     }
 
     /**
-     * Opens a tab with chat info. If the chat is personal, a user profile will be opened.
+     * Opens a page with chat info. If the chat is personal, a user profile will be opened.
      *
      * @param chatId ID of the chat which info to open
      */
-    fun openChatInfoTab(chatId: ChatId) {
+    fun openChatInfo(chatId: ChatId) {
         val chat = chatPreviewsState.value.find { chatData -> chatId.equals(chatData.id) } ?: return
         if (chat.type == Chat.ChatType.CT_PERSONAL) {
             val userId = chat.members.find { user -> !user.equals(authenticatedUser.id) }
