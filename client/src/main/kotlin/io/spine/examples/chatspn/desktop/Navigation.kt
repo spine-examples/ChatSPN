@@ -220,8 +220,7 @@ private fun MenuButton(model: NavigationModel) {
     else
         MaterialTheme.colorScheme.surface
     Button(
-        modifier = Modifier
-            .size(42.dp),
+        modifier = Modifier.size(42.dp),
         onClick = {
             if (isUserProfileOpen && isAuthenticatedUser) {
                 model.profilePageState.clear()
