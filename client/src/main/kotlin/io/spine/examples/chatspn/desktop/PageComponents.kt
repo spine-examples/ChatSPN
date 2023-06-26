@@ -68,6 +68,8 @@ import kotlin.math.abs
 
 /**
  * Represents the top bar with the configurable content.
+ *
+ * @param content content of the top bar
  */
 @Composable
 public fun TopBar(content: @Composable () -> Unit) {
@@ -180,6 +182,10 @@ public fun ShadedBackground() {
 
 /**
  * Represents the default avatar.
+ *
+ * @param size width and height of the avatar
+ * @param name name to write it first letter on the avatar and choose background
+ * @param modifierExtender extension for the modifier
  */
 @Composable
 public fun Avatar(size: Float, name: String, modifierExtender: Modifier.() -> Modifier = { this }) {
