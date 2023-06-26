@@ -136,16 +136,17 @@ public fun CurrentPage(client: DesktopClient) {
 private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
     val chats by model.chats().collectAsState()
     val selectedChat = remember { model.selectedChat() }
+    val chatData = model.getChatData(selectedChat.value)
     val isChatSelected = chats
         .stream()
         .map { chat -> chat.id }
-        .anyMatch { id -> id.equals(selectedChat.value?.id) }
+        .anyMatch { id -> id.equals(selectedChat.value) }
     if (!isChatSelected) {
         ChatNotChosenBox()
     } else {
         ChatPage(
             client,
-            selectedChat,
+            chatData!!,
             { model.openChatInfo(it) },
             { model.openUserProfile(it) }
         )
@@ -348,7 +349,7 @@ private fun ChatList(model: NavigationModel) {
                 ChatPreviewPanel(
                     chat.name,
                     chat.lastMessage,
-                    chat.id.equals(selectedChat.value?.id)
+                    chat.id.equals(selectedChat.value)
                 ) {
                     model.selectChat(chat.id)
                 }
@@ -444,7 +445,8 @@ private fun ChatNotChosenBox() {
  * UI Model for the navigation.
  */
 private class NavigationModel(private val client: DesktopClient) {
-    private val selectedChatState: MutableState<ChatData?> = mutableStateOf(null)
+    private val selectedChatState: MutableState<ChatId> =
+        mutableStateOf(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
     val currentPage: MutableState<Page> = mutableStateOf(Page.REGISTRATION)
@@ -472,7 +474,7 @@ private class NavigationModel(private val client: DesktopClient) {
     /**
      * Returns the state of the selected chat.
      */
-    fun selectedChat(): MutableState<ChatData?> {
+    fun selectedChat(): MutableState<ChatId> {
         return selectedChatState
     }
 
@@ -482,7 +484,7 @@ private class NavigationModel(private val client: DesktopClient) {
      * @param chat ID of the chat to select
      */
     fun selectChat(chat: ChatId) {
-        selectedChatState.value = getChatData(chat)
+        selectedChatState.value = chat
         currentPage.value = Page.CHAT
         profilePageState.clear()
     }

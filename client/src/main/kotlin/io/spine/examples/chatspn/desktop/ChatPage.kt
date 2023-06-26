@@ -126,18 +126,19 @@ import kotlinx.coroutines.launch
 @Preview
 public fun ChatPage(
     client: DesktopClient,
-    chatState: MutableState<ChatData?>,
+    chatData: ChatData,
     openChatInfo: (chat: ChatId) -> Unit,
     openUserProfile: (user: UserId) -> Unit
 ) {
     val model = remember {
         ChatsPageModel(
             client,
-            chatState,
+            chatData,
             openChatInfo,
             openUserProfile
         )
     }
+    model.chatData = chatData
     val isChatDeletionDialogVisible = remember { model.chatDeletionModalState }
     model.observeMessages()
     Column(
@@ -151,8 +152,8 @@ public fun ChatPage(
     }
     ChatDeletionDialog(
         isChatDeletionDialogVisible,
-        { model.deleteChat(chatState.value!!.id) },
-        chatState.value!!
+        { model.deleteChat(chatData.id) },
+        chatData
     )
 }
 
@@ -161,7 +162,7 @@ public fun ChatPage(
  */
 @Composable
 private fun ChatTopBar(model: ChatsPageModel) {
-    val chatData = remember { model.chatState }
+    val chatData = model.chatData
     val interactionSource = remember { MutableInteractionSource() }
     TopBar {
         Row(
@@ -176,18 +177,18 @@ private fun ChatTopBar(model: ChatsPageModel) {
                         interactionSource = interactionSource,
                         indication = null
                     ) {
-                        model.openChatInfo(chatData.value!!.id)
+                        model.openChatInfo(chatData.id)
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Avatar(42f, chatData.value!!.name)
+                Avatar(42f, chatData.name)
                 Text(
-                    chatData.value!!.name,
+                    chatData.name,
                     modifier = Modifier.padding(start = 8.dp),
                     style = MaterialTheme.typography.headlineMedium,
                 )
             }
-            ChatMoreButton(model, chatData.value!!)
+            ChatMoreButton(model)
         }
     }
 }
@@ -196,7 +197,7 @@ private fun ChatTopBar(model: ChatsPageModel) {
  * Represents the 'More' button for the chat.
  */
 @Composable
-private fun ChatMoreButton(model: ChatsPageModel, chat: ChatData) {
+private fun ChatMoreButton(model: ChatsPageModel) {
     val isMenuOpen = remember { mutableStateOf(false) }
     Box(Modifier.clip(CircleShape)) {
         Icon(
@@ -209,7 +210,7 @@ private fun ChatMoreButton(model: ChatsPageModel, chat: ChatData) {
                     isMenuOpen.value = true
                 }
         )
-        ChatDropdownMenu(model, isMenuOpen, chat)
+        ChatDropdownMenu(model, isMenuOpen)
     }
 }
 
@@ -219,8 +220,7 @@ private fun ChatMoreButton(model: ChatsPageModel, chat: ChatData) {
 @Composable
 private fun ChatDropdownMenu(
     model: ChatsPageModel,
-    isMenuOpen: MutableState<Boolean>,
-    chat: ChatData
+    isMenuOpen: MutableState<Boolean>
 ) {
     DropdownMenu(
         expanded = isMenuOpen.value,
@@ -243,7 +243,6 @@ private fun ChatDropdownMenu(
  */
 @Composable
 private fun ChatMessages(model: ChatsPageModel) {
-    val chat = remember { model.chatState }
     val messages by model
         .messages()
         .collectAsState()
@@ -779,7 +778,7 @@ private fun EditMessagePanel(model: ChatsPageModel) {
  */
 private class ChatsPageModel(
     private val client: DesktopClient,
-    val chatState: MutableState<ChatData?>,
+    var chatData: ChatData,
     val openChatInfo: (chat: ChatId) -> Unit,
     val openUserProfile: (user: UserId) -> Unit
 ) {
@@ -796,10 +795,10 @@ private class ChatsPageModel(
      */
     fun observeMessages() {
         messageInputFieldState.clear()
-        messagesState.value = client.readMessages(chatState.value!!.id).toMessageDataList(client)
+        messagesState.value = client.readMessages(chatData.id).toMessageDataList(client)
         client.stopObservingMessages()
         client.observeMessages(
-            chatState.value!!.id,
+            chatData.id,
             { messageView -> updateMessagesState(messageView) },
             { messageDeleted -> updateMessagesState(messageDeleted) })
     }
@@ -849,7 +848,7 @@ private class ChatsPageModel(
      * @param content message text content
      */
     fun sendMessage(content: String) {
-        client.sendMessage(chatState.value!!.id, content)
+        client.sendMessage(chatData.id, content)
     }
 
     /**
@@ -858,7 +857,7 @@ private class ChatsPageModel(
      * @param message ID of the message to remove
      */
     fun removeMessage(message: MessageId) {
-        client.removeMessage(chatState.value!!.id, message)
+        client.removeMessage(chatData.id, message)
     }
 
     /**
@@ -868,7 +867,7 @@ private class ChatsPageModel(
      * @param newContent new text content for the message
      */
     fun editMessage(message: MessageId, newContent: String) {
-        client.editMessage(chatState.value!!.id, message, newContent)
+        client.editMessage(chatData.id, message, newContent)
     }
 
     /**
