@@ -147,7 +147,7 @@ public fun ChatPage(
             openUserProfile
         )
     }
-    model.prepareMessages()
+    model.observeMessages()
     Column(
         Modifier.fillMaxSize()
     ) {
@@ -859,9 +859,12 @@ private class ChatsPageModel(
             return client.authenticatedUser!!
         }
 
-    fun prepareMessages() {
+    /**
+     * Reads messages in the chat and subscribes to their updates.
+     */
+    fun observeMessages() {
         messageInputFieldState.clear()
-        updateMessages(client.readMessages(chatState.value!!.id).toMessageDataList(client))
+        messagesState.value = client.readMessages(chatState.value!!.id).toMessageDataList(client)
         client.stopObservingMessages()
         client.observeMessages(
             chatState.value!!.id,
@@ -887,9 +890,9 @@ private class ChatsPageModel(
         val chatMessages = messagesState.value
         if (chatMessages.findMessage(message.id) != null) {
             val newChatMessages = chatMessages.replaceMessage(message)
-            updateMessages(newChatMessages)
+            messagesState.value = newChatMessages
         } else {
-            updateMessages(chatMessages + message)
+            messagesState.value = chatMessages + message
         }
     }
 
@@ -904,28 +907,8 @@ private class ChatsPageModel(
         if (message != null) {
             val messageIndex = chatMessages.indexOf(message)
             val newChatMessages = chatMessages.remove(messageIndex)
-            updateMessages(newChatMessages)
+            messagesState.value = newChatMessages
         }
-    }
-
-    /**
-     * Finds user by ID.
-     *
-     * @param id ID of the user to find
-     * @return found user profile or `null` if user is not found
-     */
-    fun findUser(id: UserId): UserProfile? {
-        return client.findUser(id)
-    }
-
-    /**
-     * Finds user by email.
-     *
-     * @param email email of the user to find
-     * @return found user profile or `null` if user not found
-     */
-    fun findUser(email: String): UserProfile? {
-        return client.findUser(email)
     }
 
     /**
@@ -954,15 +937,6 @@ private class ChatsPageModel(
      */
     fun editMessage(message: MessageId, newContent: String) {
         client.editMessage(chatState.value!!.id, message, newContent)
-    }
-
-    /**
-     * Updates the model with new messages.
-     *
-     * @param messages new list of messages in the chat
-     */
-    private fun updateMessages(messages: MessageList) {
-        messagesState.value = messages
     }
 
     /**
