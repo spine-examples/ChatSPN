@@ -108,7 +108,7 @@ public fun ProfilePage(
 }
 
 /**
- * Represents the top bar on the profile tab.
+ * Represents the top bar on the profile page.
  */
 @Composable
 private fun ProfileTopBar(model: ProfilePageModel) {
@@ -170,7 +170,7 @@ private fun ProfilePageContent(model: ProfilePageModel) {
 @Composable
 private fun MessageButton(model: ProfilePageModel) {
     val user = remember { model.userProfile }
-    InfoTabButton(
+    InfoPageButton(
         "Message",
         Icons.Default.Send
     ) {
@@ -183,7 +183,7 @@ private fun MessageButton(model: ProfilePageModel) {
  */
 @Composable
 private fun LogOutButton(model: ProfilePageModel) {
-    InfoTabButton(
+    InfoPageButton(
         "Log out",
         Icons.Default.ExitToApp,
         MaterialTheme.colorScheme.error
@@ -233,7 +233,7 @@ private fun LogoutDialog(
 @Composable
 private fun DeleteChatButton(model: ProfilePageModel) {
     val chat = remember { model.chatState }
-    InfoTabButton(
+    InfoPageButton(
         "Delete chat",
         Icons.Default.Delete,
         MaterialTheme.colorScheme.error
@@ -289,10 +289,10 @@ private fun EmailField(email: String) {
 }
 
 /**
- * Represents a button on an info tab.
+ * Represents a default button on the info page.
  */
 @Composable
-private fun InfoTabButton(
+private fun InfoPageButton(
     text: String = "",
     icon: ImageVector? = null,
     contentColor: Color = MaterialTheme.colorScheme.primary,
@@ -331,6 +331,9 @@ private fun InfoTabButton(
     }
 }
 
+/**
+ * UI Model for the [ProfilePage].
+ */
 private class ProfilePageModel(
     private val client: DesktopClient,
     val userProfile: MutableState<UserProfile>,
