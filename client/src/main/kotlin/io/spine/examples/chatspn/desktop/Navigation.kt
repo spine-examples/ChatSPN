@@ -120,61 +120,57 @@ public class Navigation(private val client: DesktopClient) {
             Page.CHAT -> Row {
                 model.prepareChatPage()
                 LeftSidebar(model)
-                val chats by model.chats().collectAsState()
-                val selectedChat = remember { model.selectedChat() }
-                val isChatSelected = chats
-                    .stream()
-                    .map { chat -> chat.id }
-                    .anyMatch { id -> id.equals(selectedChat.value?.id) }
-                if (!isChatSelected) {
-                    ChatNotChosenBox()
-                } else {
-                    ChatPage(
-                        client,
-                        model.selectedChat(),
-                        { content ->
-                            model.modalWindowState.isOpen.value = true
-                            model.modalWindowState.content = content
-                        },
-                        {
-                            model.modalWindowState.isOpen.value = false
-                        },
-                        {
-                            model.openChatInfoTab(it)
-                        },
-                        {
-                            model.openUserProfileTab(it)
-                        }
-                    )
-                }
+                ConfiguredChatPage(client, model)
             }
             Page.PROFILE -> Row {
                 LeftSidebar(model)
-                ProfilePage(
-                    client,
-                    model.profilePageState.userProfile,
-                    model.profilePageState.chatState,
-                    {
-                        model.currentPage.value = Page.CHAT
-                    },
-                    { content ->
-                        model.modalWindowState.isOpen.value = true
-                        model.modalWindowState.content = content
-                    },
-                    {
-                        model.modalWindowState.isOpen.value = false
-                    },
-                    {
-                        model.currentPage.value = Page.REGISTRATION
-                    },
-                    {
-                        model.selectPersonalChat(it)
-                    }
-                )
+                ConfiguredProfilePage(client, model)
             }
         }
         CustomModalWindow(model)
     }
+}
+
+@Composable
+private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
+    val chats by model.chats().collectAsState()
+    val selectedChat = remember { model.selectedChat() }
+    val isChatSelected = chats
+        .stream()
+        .map { chat -> chat.id }
+        .anyMatch { id -> id.equals(selectedChat.value?.id) }
+    if (!isChatSelected) {
+        ChatNotChosenBox()
+    } else {
+        ChatPage(
+            client,
+            model.selectedChat(),
+            { content ->
+                model.modalWindowState.isOpen.value = true
+                model.modalWindowState.content = content
+            },
+            { model.modalWindowState.isOpen.value = false },
+            { model.openChatInfoTab(it) },
+            { model.openUserProfileTab(it) }
+        )
+    }
+}
+
+@Composable
+private fun ConfiguredProfilePage(client: DesktopClient, model: NavigationModel) {
+    ProfilePage(
+        client,
+        model.profilePageState.userProfile,
+        model.profilePageState.chatState,
+        { model.currentPage.value = Page.CHAT },
+        {
+            model.modalWindowState.isOpen.value = true
+            model.modalWindowState.content = it
+        },
+        { model.modalWindowState.clear() },
+        { model.currentPage.value = Page.REGISTRATION },
+        { model.selectPersonalChat(it) }
+    )
 }
 
 @Composable
