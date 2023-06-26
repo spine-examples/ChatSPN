@@ -237,12 +237,8 @@ private fun ChatDropdownMenu(
         ) {
             model.openModal(
                 ChatDeletionDialog(
-                    {
-                        model.closeModal()
-                    },
-                    {
-                        model.deleteChat(chat.id)
-                    },
+                    { model.closeModal() },
+                    { model.deleteChat(chat.id) },
                     chat
                 )
             )
