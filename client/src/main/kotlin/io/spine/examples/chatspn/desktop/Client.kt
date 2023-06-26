@@ -143,10 +143,12 @@ public class DesktopClient(
     }
 
     /**
-     * Forgets the credentials of the authenticated user.
+     * Forgets the credentials of the authenticated user and cancels subscriptions.
      */
     public fun logOut() {
         authenticatedUser = null
+        stopChatsObservation()
+        stopObservingMessages()
     }
 
     /**
