@@ -90,7 +90,6 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
 import io.spine.core.UserId
@@ -122,7 +121,7 @@ public fun ChatPage(
     openUserProfile: (user: UserId) -> Unit
 ) {
     val model = remember {
-        ChatsPageModel(
+        ChatPageModel(
             client,
             chatData,
             openChatInfo,
@@ -152,7 +151,7 @@ public fun ChatPage(
  * Displays the top bar of chat content.
  */
 @Composable
-private fun ChatTopBar(model: ChatsPageModel) {
+private fun ChatTopBar(model: ChatPageModel) {
     val chatData = model.chatData
     val interactionSource = remember { MutableInteractionSource() }
     TopBar {
@@ -188,7 +187,7 @@ private fun ChatTopBar(model: ChatsPageModel) {
  * Displays the 'More' button for the chat.
  */
 @Composable
-private fun ChatMoreButton(model: ChatsPageModel) {
+private fun ChatMoreButton(model: ChatPageModel) {
     val isMenuOpen = remember { mutableStateOf(false) }
     Box(Modifier.clip(CircleShape)) {
         Icon(
@@ -201,7 +200,7 @@ private fun ChatMoreButton(model: ChatsPageModel) {
                     isMenuOpen.value = true
                 }
         )
-        ChatDropdownMenu(model, isMenuOpen)
+        ChatDropdownMenu(isMenuOpen, model)
     }
 }
 
@@ -210,8 +209,8 @@ private fun ChatMoreButton(model: ChatsPageModel) {
  */
 @Composable
 private fun ChatDropdownMenu(
-    model: ChatsPageModel,
-    isMenuOpen: MutableState<Boolean>
+    isMenuOpen: MutableState<Boolean>,
+    model: ChatPageModel
 ) {
     DropdownMenu(
         expanded = isMenuOpen.value,
@@ -233,7 +232,7 @@ private fun ChatDropdownMenu(
  * Displays the list of messages in the chat.
  */
 @Composable
-private fun ChatMessages(model: ChatsPageModel) {
+private fun ChatMessages(model: ChatPageModel) {
     val messages by model
         .messages()
         .collectAsState()
@@ -250,7 +249,15 @@ private fun ChatMessages(model: ChatsPageModel) {
             item(message.id) {
                 val isFirst = messages.isFirstMemberMessage(index)
                 val isLast = messages.isLastMemberMessage(index)
-                ChatMessage(model, message, isFirst, isLast)
+                val isMyMessage = message.sender.id
+                    .equals(model.authenticatedUser.id)
+                val messageSettings = defineMessageSettings(
+                    message,
+                    isMyMessage,
+                    isFirst,
+                    isLast
+                )
+                ChatMessage(messageSettings, model)
             }
         }
         item {
@@ -262,52 +269,32 @@ private fun ChatMessages(model: ChatsPageModel) {
 /**
  * Displays a single message view in the chat.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatMessage(
-    model: ChatsPageModel,
-    message: MessageData,
-    isFirstMemberMessage: Boolean,
-    isLastMemberMessage: Boolean
+    settings: MessageSettings,
+    model: ChatPageModel
 ) {
-    val isMyMessage = message.sender.id
-        .equals(model.authenticatedUser.id)
-    val isMenuOpen = remember { mutableStateOf(false) }
-    val messageDisplaySettings = defineMessageDisplaySettings(isMyMessage, isLastMemberMessage)
     Box(
         Modifier.fillMaxWidth(),
-        messageDisplaySettings.alignment
+        settings.alignment
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
-            MessageSenderAvatar(message.sender, model, !isMyMessage && isLastMemberMessage)
+            MessageSenderAvatar(
+                settings.data.sender,
+                model,
+                !settings.isMyMessage && settings.isLast
+            )
             Column {
-                Surface(
-                    Modifier
-                        .padding(horizontal = 4.dp)
-                        .onClick(
-                            enabled = true,
-                            matcher = PointerMatcher.mouse(PointerButton.Secondary),
-                            onClick = {
-                                isMenuOpen.value = true
-                            }
-                        ),
-                    shape = messageDisplaySettings.shape,
-                    elevation = 4.dp,
-                    color = messageDisplaySettings.color
-                ) {
-                    MessageContent(
-                        message,
-                        isFirstMemberMessage,
-                        isMyMessage,
-                        messageDisplaySettings.arrowWidth.dp
-                    )
-                    MessageDropdownMenu(model, isMenuOpen, message, isMyMessage)
-                }
-                if (isLastMemberMessage) {
+                MessageSurface(settings, model)
+                if (settings.isLast) {
                     Spacer(Modifier.height(12.dp))
                 }
             }
-            MessageSenderAvatar(message.sender, model, isMyMessage && isLastMemberMessage)
+            MessageSenderAvatar(
+                settings.data.sender,
+                model,
+                settings.isMyMessage && settings.isLast
+            )
         }
     }
 }
@@ -316,10 +303,12 @@ private fun ChatMessage(
  * Defines the display settings of the message.
  */
 @Composable
-private fun defineMessageDisplaySettings(
+private fun defineMessageSettings(
+    data: MessageData,
     isMyMessage: Boolean,
-    isLastMemberMessage: Boolean
-): MessageDisplaySettings {
+    isFirst: Boolean,
+    isLast: Boolean
+): MessageSettings {
     val alignment: Alignment
     val color: Color
     val arrowWidth = 8f
@@ -328,7 +317,7 @@ private fun defineMessageDisplaySettings(
         8f,
         if (isMyMessage) MessageBubbleArrowPlace.RIGHT_BOTTOM
         else MessageBubbleArrowPlace.LEFT_BOTTOM,
-        !isLastMemberMessage
+        !isLast
     )
     if (isMyMessage) {
         alignment = Alignment.CenterEnd
@@ -337,7 +326,16 @@ private fun defineMessageDisplaySettings(
         alignment = Alignment.CenterStart
         color = MaterialTheme.colorScheme.surface
     }
-    return MessageDisplaySettings(color, shape, alignment, arrowWidth)
+    return MessageSettings(
+        data,
+        color,
+        shape,
+        alignment,
+        arrowWidth,
+        isFirst,
+        isLast,
+        isMyMessage
+    )
 }
 
 /**
@@ -346,7 +344,7 @@ private fun defineMessageDisplaySettings(
  * @param isVisible if `true` displays the avatar else displays the empty space
  */
 @Composable
-private fun MessageSenderAvatar(user: UserProfile, model: ChatsPageModel, isVisible: Boolean) {
+private fun MessageSenderAvatar(user: UserProfile, model: ChatPageModel, isVisible: Boolean) {
     val interactionSource = remember { MutableInteractionSource() }
     Column {
         if (isVisible) {
@@ -366,15 +364,40 @@ private fun MessageSenderAvatar(user: UserProfile, model: ChatsPageModel, isVisi
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun MessageSurface(
+    settings: MessageSettings,
+    model: ChatPageModel
+) {
+    val isMenuOpen = remember { mutableStateOf(false) }
+    Surface(
+        Modifier
+            .padding(horizontal = 4.dp)
+            .onClick(
+                enabled = true,
+                matcher = PointerMatcher.mouse(PointerButton.Secondary),
+                onClick = {
+                    isMenuOpen.value = true
+                }
+            ),
+        shape = settings.shape,
+        elevation = 4.dp,
+        color = settings.color
+    ) {
+        MessageContent(settings)
+        MessageDropdownMenu(isMenuOpen, settings, model)
+    }
+}
+
 /**
  * Displays the context menu of the message.
  */
 @Composable
 private fun MessageDropdownMenu(
-    model: ChatsPageModel,
     isMenuOpen: MutableState<Boolean>,
-    message: MessageData,
-    isMyMessage: Boolean
+    messageSettings: MessageSettings,
+    model: ChatPageModel
 ) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     DropdownMenu(
@@ -382,17 +405,17 @@ private fun MessageDropdownMenu(
         onDismissRequest = { isMenuOpen.value = false },
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
     ) {
-        if (isMyMessage) {
+        if (messageSettings.isMyMessage) {
             DefaultDropdownMenuItem("Edit", Icons.Default.Edit) {
                 model.messageInputFieldState.isEditingState.value = true
-                model.messageInputFieldState.editingMessage.value = message
-                model.messageInputFieldState.inputText.value = message.content
+                model.messageInputFieldState.editingMessage.value = messageSettings.data
+                model.messageInputFieldState.inputText.value = messageSettings.data.content
                 isMenuOpen.value = false
             }
         }
         DefaultDropdownMenuItem("Remove", Icons.Default.Delete) {
             viewScope.launch {
-                model.removeMessage(message.id)
+                model.removeMessage(messageSettings.data.id)
             }
             isMenuOpen.value = false
         }
@@ -439,32 +462,27 @@ private fun DefaultDropdownMenuItem(
  * Displays the content of the message.
  */
 @Composable
-private fun MessageContent(
-    message: MessageData,
-    withName: Boolean,
-    isMyMessage: Boolean,
-    horizontalPadding: Dp
-) {
+private fun MessageContent(settings: MessageSettings) {
     Row(Modifier.padding(8.dp), verticalAlignment = Alignment.Bottom) {
-        if (!isMyMessage) {
-            Spacer(Modifier.width(horizontalPadding))
+        if (!settings.isMyMessage) {
+            Spacer(Modifier.width(settings.arrowWidth.dp))
         }
         Column {
-            if (withName) {
-                SenderName(message.sender.name)
+            if (settings.isFirst) {
+                SenderName(settings.data.sender.name)
             }
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = message.content,
+                    text = settings.data.content,
                     Modifier.widthIn(0.dp, 300.dp),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
         Spacer(Modifier.size(8.dp))
-        WhenMessagePosted(message.whenPosted)
-        if (isMyMessage) {
-            Spacer(Modifier.width(horizontalPadding))
+        WhenMessagePosted(settings.data.whenPosted)
+        if (settings.isMyMessage) {
+            Spacer(Modifier.width(settings.arrowWidth.dp))
         }
     }
 }
@@ -496,7 +514,7 @@ private fun WhenMessagePosted(time: Timestamp) {
  * Displays the bottom bar of the chat content.
  */
 @Composable
-private fun ChatBottomBar(model: ChatsPageModel) {
+private fun ChatBottomBar(model: ChatPageModel) {
     val isEditing by remember { model.messageInputFieldState.isEditingState }
     Column(
         Modifier
@@ -524,7 +542,7 @@ private fun ChatBottomBar(model: ChatsPageModel) {
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun MessageInputField(model: ChatsPageModel) {
+private fun MessageInputField(model: ChatPageModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     var inputText by remember { model.messageInputFieldState.inputText }
     var isEditing by remember { model.messageInputFieldState.isEditingState }
@@ -596,7 +614,7 @@ private fun MessageInputField(model: ChatsPageModel) {
  * Displays the icon button to send or edit the message.
  */
 @Composable
-private fun MessageInputFieldIcon(model: ChatsPageModel, onPressed: () -> Unit) {
+private fun MessageInputFieldIcon(model: ChatPageModel, onPressed: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
     val inputText by remember { model.messageInputFieldState.inputText }
@@ -627,7 +645,7 @@ private fun MessageInputFieldIcon(model: ChatsPageModel, onPressed: () -> Unit) 
  * Displays the view of the message in editing state.
  */
 @Composable
-private fun EditMessagePanel(model: ChatsPageModel) {
+private fun EditMessagePanel(model: ChatPageModel) {
     val interactionSource = remember { MutableInteractionSource() }
     val message by remember { model.messageInputFieldState.editingMessage }
     Row(
@@ -682,7 +700,7 @@ private fun EditMessagePanel(model: ChatsPageModel) {
  *
  * UI Model is a layer between `@Composable` functions and client.
  */
-private class ChatsPageModel(
+private class ChatPageModel(
     private val client: DesktopClient,
     var chatData: ChatData,
     val openChatInfo: (chat: ChatId) -> Unit,
@@ -936,9 +954,13 @@ private fun MessageList.isLastMemberMessage(index: Int): Boolean {
 /**
  * Settings to display the single message.
  */
-private data class MessageDisplaySettings(
+private data class MessageSettings(
+    val data: MessageData,
     val color: Color,
     val shape: Shape,
     val alignment: Alignment,
-    val arrowWidth: Float
+    val arrowWidth: Float,
+    val isFirst: Boolean,
+    val isLast: Boolean,
+    val isMyMessage: Boolean
 )
