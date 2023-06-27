@@ -27,8 +27,6 @@
 package io.spine.examples.chatspn.desktop
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -43,14 +41,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -59,7 +53,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -78,15 +71,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
@@ -247,267 +237,21 @@ private fun ChatMessages(model: ChatPageModel) {
         }
         messages.forEachIndexed { index, message ->
             item(message.id) {
-                val isFirst = messages.isFirstMemberMessage(index)
-                val isLast = messages.isLastMemberMessage(index)
-                val isMyMessage = message.sender.id
-                    .equals(model.authenticatedUser.id)
-                val messageSettings = defineMessageSettings(
+                ChatMessage(
                     message,
-                    isMyMessage,
-                    isFirst,
-                    isLast
+                    model.chatData.id,
+                    messages.isFirstMemberMessage(index),
+                    messages.isLastMemberMessage(index),
+                    { model.startMessageEditing(message) },
+                    { model.openUserProfile(message.sender.id) },
+                    model.client
                 )
-                ChatMessage(messageSettings, model)
             }
         }
         item {
             Spacer(Modifier.height(4.dp))
         }
     }
-}
-
-/**
- * Displays a single message view in the chat.
- */
-@Composable
-private fun ChatMessage(
-    settings: MessageSettings,
-    model: ChatPageModel
-) {
-    Box(
-        Modifier.fillMaxWidth(),
-        settings.alignment
-    ) {
-        Row(verticalAlignment = Alignment.Bottom) {
-            MessageSenderAvatar(
-                settings.data.sender,
-                model,
-                !settings.isMyMessage && settings.isLast
-            )
-            Column {
-                MessageSurface(settings, model)
-                if (settings.isLast) {
-                    Spacer(Modifier.height(12.dp))
-                }
-            }
-            MessageSenderAvatar(
-                settings.data.sender,
-                model,
-                settings.isMyMessage && settings.isLast
-            )
-        }
-    }
-}
-
-/**
- * Defines the display settings of the message.
- */
-@Composable
-private fun defineMessageSettings(
-    data: MessageData,
-    isMyMessage: Boolean,
-    isFirst: Boolean,
-    isLast: Boolean
-): MessageSettings {
-    val alignment: Alignment
-    val color: Color
-    val arrowWidth = 8f
-    val shape: Shape = MessageBubbleShape(
-        16f,
-        8f,
-        if (isMyMessage) MessageBubbleArrowPlace.RIGHT_BOTTOM
-        else MessageBubbleArrowPlace.LEFT_BOTTOM,
-        !isLast
-    )
-    if (isMyMessage) {
-        alignment = Alignment.CenterEnd
-        color = MaterialTheme.colorScheme.inverseSurface
-    } else {
-        alignment = Alignment.CenterStart
-        color = MaterialTheme.colorScheme.surface
-    }
-    return MessageSettings(
-        data,
-        color,
-        shape,
-        alignment,
-        arrowWidth,
-        isFirst,
-        isLast,
-        isMyMessage
-    )
-}
-
-/**
- * Displays an avatar of the user who sent the message.
- *
- * @param isVisible if `true` displays the avatar else displays the empty space
- */
-@Composable
-private fun MessageSenderAvatar(user: UserProfile, model: ChatPageModel, isVisible: Boolean) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Column {
-        if (isVisible) {
-            Avatar(42f, user.name) {
-                this.pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
-                    .clickable(
-                        interactionSource = interactionSource,
-                        indication = null
-                    ) {
-                        model.openUserProfile(user.id)
-                    }
-            }
-            Spacer(Modifier.width(4.dp))
-        } else {
-            Spacer(Modifier.width(42.dp))
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun MessageSurface(
-    settings: MessageSettings,
-    model: ChatPageModel
-) {
-    val isMenuOpen = remember { mutableStateOf(false) }
-    Surface(
-        Modifier
-            .padding(horizontal = 4.dp)
-            .onClick(
-                enabled = true,
-                matcher = PointerMatcher.mouse(PointerButton.Secondary),
-                onClick = {
-                    isMenuOpen.value = true
-                }
-            ),
-        shape = settings.shape,
-        elevation = 4.dp,
-        color = settings.color
-    ) {
-        MessageContent(settings)
-        MessageDropdownMenu(isMenuOpen, settings, model)
-    }
-}
-
-/**
- * Displays the context menu of the message.
- */
-@Composable
-private fun MessageDropdownMenu(
-    isMenuOpen: MutableState<Boolean>,
-    messageSettings: MessageSettings,
-    model: ChatPageModel
-) {
-    val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    DropdownMenu(
-        expanded = isMenuOpen.value,
-        onDismissRequest = { isMenuOpen.value = false },
-        modifier = Modifier.background(MaterialTheme.colorScheme.background),
-    ) {
-        if (messageSettings.isMyMessage) {
-            DefaultDropdownMenuItem("Edit", Icons.Default.Edit) {
-                model.messageInputFieldState.isEditingState.value = true
-                model.messageInputFieldState.editingMessage.value = messageSettings.data
-                model.messageInputFieldState.inputText.value = messageSettings.data.content
-                isMenuOpen.value = false
-            }
-        }
-        DefaultDropdownMenuItem("Remove", Icons.Default.Delete) {
-            viewScope.launch {
-                model.removeMessage(messageSettings.data.id)
-            }
-            isMenuOpen.value = false
-        }
-    }
-}
-
-/**
- * Displays the default item of the dropdown menu.
- *
- * @param label text to be displayed in the item
- * @param icon icon to be displayed on the inner left side of the element
- * @param color color of the text and icon
- * @param onClick callback that will be triggered when the item clicked
- */
-@Composable
-private fun DefaultDropdownMenuItem(
-    label: String,
-    icon: ImageVector,
-    color: Color = Color.Black,
-    onClick: () -> Unit
-) {
-    DropdownMenuItem(
-        modifier = Modifier
-            .height(30.dp),
-        text = {
-            Text(
-                label,
-                color = color,
-                style = MaterialTheme.typography.labelMedium
-            )
-        },
-        onClick = onClick,
-        leadingIcon = {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = color
-            )
-        }
-    )
-}
-
-/**
- * Displays the content of the message.
- */
-@Composable
-private fun MessageContent(settings: MessageSettings) {
-    Row(Modifier.padding(8.dp), verticalAlignment = Alignment.Bottom) {
-        if (!settings.isMyMessage) {
-            Spacer(Modifier.width(settings.arrowWidth.dp))
-        }
-        Column {
-            if (settings.isFirst) {
-                SenderName(settings.data.sender.name)
-            }
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    text = settings.data.content,
-                    Modifier.widthIn(0.dp, 300.dp),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-        Spacer(Modifier.size(8.dp))
-        WhenMessagePosted(settings.data.whenPosted)
-        if (settings.isMyMessage) {
-            Spacer(Modifier.width(settings.arrowWidth.dp))
-        }
-    }
-}
-
-/**
- * Displays the name of the user who sent this message.
- */
-@Composable
-private fun SenderName(username: String) {
-    Text(
-        text = username,
-        style = MaterialTheme.typography.headlineMedium
-    )
-}
-
-/**
- * Displays the time when the message was posted.
- */
-@Composable
-private fun WhenMessagePosted(time: Timestamp) {
-    Text(
-        text = time.toStringTime(),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSecondary
-    )
 }
 
 /**
@@ -701,7 +445,7 @@ private fun EditMessagePanel(model: ChatPageModel) {
  * UI Model is a layer between `@Composable` functions and client.
  */
 private class ChatPageModel(
-    private val client: DesktopClient,
+    val client: DesktopClient,
     var chatData: ChatData,
     val openChatInfo: (chat: ChatId) -> Unit,
     val openUserProfile: (user: UserId) -> Unit
@@ -776,12 +520,14 @@ private class ChatPageModel(
     }
 
     /**
-     * Removes message from the selected chat.
+     * Opens the message editing panel.
      *
-     * @param message ID of the message to remove
+     * @param message message data to start editing
      */
-    fun removeMessage(message: MessageId) {
-        client.removeMessage(chatData.id, message)
+    fun startMessageEditing(message: MessageData) {
+        messageInputFieldState.isEditingState.value = true
+        messageInputFieldState.editingMessage.value = message
+        messageInputFieldState.inputText.value = message.content
     }
 
     /**
@@ -950,17 +696,3 @@ private fun MessageList.isLastMemberMessage(index: Int): Boolean {
             !this[index].sender.equals(this[index + 1].sender) ||
             (this[index + 1].whenPosted.seconds - this[index].whenPosted.seconds > 600)
 }
-
-/**
- * Settings to display the single message.
- */
-private data class MessageSettings(
-    val data: MessageData,
-    val color: Color,
-    val shape: Shape,
-    val alignment: Alignment,
-    val arrowWidth: Float,
-    val isFirst: Boolean,
-    val isLast: Boolean,
-    val isMyMessage: Boolean
-)
