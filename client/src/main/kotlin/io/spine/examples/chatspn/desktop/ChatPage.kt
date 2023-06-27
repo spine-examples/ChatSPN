@@ -48,7 +48,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Surface
@@ -77,14 +76,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
@@ -96,10 +89,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
 import io.spine.core.UserId
@@ -332,7 +323,7 @@ private fun defineMessageDisplaySettings(
     val alignment: Alignment
     val color: Color
     val arrowWidth = 8f
-    val shape: Shape = messageBubbleShape(
+    val shape: Shape = MessageBubbleShape(
         16f,
         8f,
         if (isMyMessage) MessageBubbleArrowPlace.RIGHT_BOTTOM
@@ -347,99 +338,6 @@ private fun defineMessageDisplaySettings(
         color = MaterialTheme.colorScheme.surface
     }
     return MessageDisplaySettings(color, shape, alignment, arrowWidth)
-}
-
-/**
- * Creates a shape of message bubble.
- *
- * @param cornerRadius corner radius of the bubble
- * @param messageArrowWidth width of the message arrow
- * @param arrowPlace place of the message arrow
- * @param skipArrow if is `true` the bubble shape will be without an arrow, but with space for it
- */
-@Composable
-private fun messageBubbleShape(
-    cornerRadius: Float = 16f,
-    messageArrowWidth: Float = 8f,
-    arrowPlace: MessageBubbleArrowPlace,
-    skipArrow: Boolean = false
-): GenericShape {
-    val density = LocalDensity.current.density
-    return GenericShape { size: Size, _: LayoutDirection ->
-        val contentWidth: Float = size.width
-        val contentHeight: Float = size.height
-        val arrowWidth: Float = (messageArrowWidth * density).coerceAtMost(contentWidth)
-        val arrowHeight: Float = (arrowWidth * 3 / 4 * density).coerceAtMost(contentHeight)
-        val arrowLeft: Float
-        val arrowRight: Float
-        val arrowTop = contentHeight - arrowHeight
-        val arrowBottom = contentHeight
-
-        if (skipArrow) {
-            val rectStart = if (arrowPlace == MessageBubbleArrowPlace.LEFT_BOTTOM) arrowWidth
-            else 0f
-            val rectEnd = if (arrowPlace == MessageBubbleArrowPlace.LEFT_BOTTOM) contentWidth
-            else contentWidth - arrowWidth
-            addRoundRect(
-                RoundRect(
-                    rect = Rect(rectStart, 0f, rectEnd, contentHeight),
-                    topLeft = CornerRadius(cornerRadius, cornerRadius),
-                    topRight = CornerRadius(cornerRadius, cornerRadius),
-                    bottomLeft = CornerRadius(cornerRadius, cornerRadius),
-                    bottomRight = CornerRadius(cornerRadius, cornerRadius)
-                )
-            )
-            return@GenericShape
-        }
-
-        when (arrowPlace) {
-            MessageBubbleArrowPlace.LEFT_BOTTOM -> {
-                arrowLeft = 0f
-                arrowRight = arrowWidth
-                addRoundRect(
-                    RoundRect(
-                        rect = Rect(arrowWidth, 0f, contentWidth, contentHeight),
-                        topLeft = CornerRadius(cornerRadius, cornerRadius),
-                        topRight = CornerRadius(cornerRadius, cornerRadius),
-                        bottomRight = CornerRadius(cornerRadius, cornerRadius)
-                    )
-                )
-            }
-            MessageBubbleArrowPlace.RIGHT_BOTTOM -> {
-                arrowLeft = contentWidth - arrowWidth
-                arrowRight = contentWidth
-                addRoundRect(
-                    RoundRect(
-                        rect = Rect(0f, 0f, contentWidth - arrowWidth, contentHeight),
-                        topLeft = CornerRadius(cornerRadius, cornerRadius),
-                        topRight = CornerRadius(cornerRadius, cornerRadius),
-                        bottomLeft = CornerRadius(cornerRadius, cornerRadius)
-                    )
-                )
-            }
-        }
-
-        val path = Path().apply {
-            if (arrowPlace == MessageBubbleArrowPlace.LEFT_BOTTOM) {
-                moveTo(arrowRight, arrowTop)
-                lineTo(arrowLeft, arrowBottom)
-                lineTo(arrowRight, arrowBottom)
-            } else {
-                moveTo(arrowLeft, arrowTop)
-                lineTo(arrowRight, arrowBottom)
-                lineTo(arrowLeft, arrowBottom)
-            }
-            close()
-        }
-        this.op(this, path, PathOperation.Union)
-    }
-}
-
-/**
- * Position of the message arrow.
- */
-private enum class MessageBubbleArrowPlace {
-    LEFT_BOTTOM, RIGHT_BOTTOM
 }
 
 /**
