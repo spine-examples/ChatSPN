@@ -82,7 +82,7 @@ import kotlin.math.abs
 import kotlinx.coroutines.launch
 
 /**
- * Represents the top bar with the configurable content.
+ * Displays the top bar with the configurable content.
  *
  * @param content content of the top bar
  */
@@ -107,7 +107,7 @@ public fun TopBar(content: @Composable () -> Unit) {
 }
 
 /**
- * Represents the text button without a background and with an optional icon.
+ * Displays the text button without a background and with an optional icon.
  *
  * @param text text on the button
  * @param contentColor color of the text and icon
@@ -148,7 +148,7 @@ public fun TextButton(
 }
 
 /**
- * Represents the default modal window.
+ * Displays the default modal window.
  *
  * @param isVisibleState mutable state of modal window visibility
  * @param content content of the modal window
@@ -200,7 +200,7 @@ private class WindowCenterOffsetPositionProvider(
 }
 
 /**
- * Represents the partially transparent black background.
+ * Displays the partially transparent black background.
  *
  * The user cannot click on elements behind it.
  */
@@ -261,7 +261,7 @@ public fun ChatDeletionDialog(
 }
 
 /**
- * Represents the buttons of the `ChatDeletionDialog`.
+ * Displays the buttons of the `ChatDeletionDialog`.
  */
 @Composable
 private fun ChatDeletionDialogButtons(
@@ -286,7 +286,8 @@ private fun ChatDeletionDialogButtons(
 }
 
 /**
- * Represents the default avatar.
+ * Displays a round avatar with the first letter of the provided name
+ * on a gradient background.
  *
  * @param size width and height of the avatar
  * @param name name to write it first letter on the avatar and choose background

@@ -93,7 +93,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 /**
- * Represents the current page of the application.
+ * Displays the current page of the application.
  *
  * It will be recomposed when the page changes.
  */
@@ -130,7 +130,7 @@ public fun CurrentPage(client: DesktopClient) {
 }
 
 /**
- * Represents 'Chat' page configured by navigation model
+ * Displays 'Chat' page configured by navigation model.
  */
 @Composable
 private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
@@ -154,7 +154,7 @@ private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
 }
 
 /**
- * Represents 'Profile' page configured by navigation model
+ * Displays 'Profile' page configured by navigation model.
  */
 @Composable
 private fun ConfiguredProfilePage(client: DesktopClient, model: NavigationModel) {
@@ -169,7 +169,7 @@ private fun ConfiguredProfilePage(client: DesktopClient, model: NavigationModel)
 }
 
 /**
- * Represents the left sidebar.
+ * Displays the left sidebar.
  */
 @Composable
 private fun LeftSidebar(model: NavigationModel) {
@@ -207,7 +207,7 @@ private fun LeftSidebar(model: NavigationModel) {
 }
 
 /**
- * Represents the menu button.
+ * Displays the menu button.
  */
 @Composable
 private fun MenuButton(model: NavigationModel) {
@@ -244,7 +244,7 @@ private fun MenuButton(model: NavigationModel) {
 }
 
 /**
- * Represents the input field to find the user.
+ * Displays the input field to find the user.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -313,7 +313,7 @@ private fun UserSearchField(model: NavigationModel) {
 }
 
 /**
- * Represents the icon button for the `UserSearchField`.
+ * Displays the icon button for the `UserSearchField`.
  */
 @Composable
 private fun SearchIcon(onSearch: () -> Unit) {
@@ -334,7 +334,7 @@ private fun SearchIcon(onSearch: () -> Unit) {
 }
 
 /**
- * Represents the list of chat previews.
+ * Displays the list of chat previews.
  */
 @Composable
 private fun ChatList(model: NavigationModel) {
@@ -358,7 +358,7 @@ private fun ChatList(model: NavigationModel) {
 }
 
 /**
- * Represents the chat preview in the chats list.
+ * Displays the chat preview in the chats list.
  */
 @Composable
 private fun ChatPreviewPanel(
@@ -384,7 +384,7 @@ private fun ChatPreviewPanel(
 }
 
 /**
- * Represents the chat preview content in the chat preview panel.
+ * Displays the chat preview content in the chat preview panel.
  */
 @Composable
 private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
@@ -424,7 +424,7 @@ private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
 }
 
 /**
- * Represents content when no one chat is selected.
+ * Displays content when no one chat is selected.
  */
 @Composable
 private fun ChatNotChosenBox() {
@@ -433,7 +433,7 @@ private fun ChatNotChosenBox() {
         Alignment.Center
     ) {
         Text(
-            text = "Choose the chat",
+            text = "Choose a chat",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onSecondary,
         )

@@ -118,7 +118,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 /**
- * Represents the 'Chat' page in the application.
+ * Displays the 'Chat' page in the application.
  *
  * @param client desktop client
  */
@@ -158,7 +158,7 @@ public fun ChatPage(
 }
 
 /**
- * Represents the top bar of chat content.
+ * Displays the top bar of chat content.
  */
 @Composable
 private fun ChatTopBar(model: ChatsPageModel) {
@@ -194,7 +194,7 @@ private fun ChatTopBar(model: ChatsPageModel) {
 }
 
 /**
- * Represents the 'More' button for the chat.
+ * Displays the 'More' button for the chat.
  */
 @Composable
 private fun ChatMoreButton(model: ChatsPageModel) {
@@ -215,7 +215,7 @@ private fun ChatMoreButton(model: ChatsPageModel) {
 }
 
 /**
- * Represents the context menu of the chat.
+ * Displays the context menu of the chat.
  */
 @Composable
 private fun ChatDropdownMenu(
@@ -239,7 +239,7 @@ private fun ChatDropdownMenu(
 }
 
 /**
- * Represents the list of messages in the chat.
+ * Displays the list of messages in the chat.
  */
 @Composable
 private fun ChatMessages(model: ChatsPageModel) {
@@ -269,7 +269,7 @@ private fun ChatMessages(model: ChatsPageModel) {
 }
 
 /**
- * Represents the single message view in the chat.
+ * Displays a single message view in the chat.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -288,7 +288,7 @@ private fun ChatMessage(
         messageDisplaySettings.alignment
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
-            MessageSenderAvatar(model, !isMyMessage && isLastMemberMessage, message.sender)
+            MessageSenderAvatar(message.sender, model, !isMyMessage && isLastMemberMessage)
             Column {
                 Surface(
                     Modifier
@@ -316,7 +316,7 @@ private fun ChatMessage(
                     Spacer(Modifier.height(12.dp))
                 }
             }
-            MessageSenderAvatar(model, isMyMessage && isLastMemberMessage, message.sender)
+            MessageSenderAvatar(message.sender, model, isMyMessage && isLastMemberMessage)
         }
     }
 }
@@ -435,17 +435,20 @@ private fun messageBubbleShape(
     }
 }
 
+/**
+ * Position of the message arrow.
+ */
 private enum class MessageBubbleArrowPlace {
     LEFT_BOTTOM, RIGHT_BOTTOM
 }
 
 /**
- * Represents the avatar of the user who send the message.
+ * Displays an avatar of the user who sent the message.
  *
  * @param isVisible if `true` displays the avatar else displays the empty space
  */
 @Composable
-private fun MessageSenderAvatar(model: ChatsPageModel, isVisible: Boolean, user: UserProfile) {
+private fun MessageSenderAvatar(user: UserProfile, model: ChatsPageModel, isVisible: Boolean) {
     val interactionSource = remember { MutableInteractionSource() }
     Column {
         if (isVisible) {
@@ -466,7 +469,7 @@ private fun MessageSenderAvatar(model: ChatsPageModel, isVisible: Boolean, user:
 }
 
 /**
- * Represents the context menu of the message.
+ * Displays the context menu of the message.
  */
 @Composable
 private fun MessageDropdownMenu(
@@ -499,11 +502,16 @@ private fun MessageDropdownMenu(
 }
 
 /**
- * Represents the default item of the dropdown menu.
+ * Displays the default item of the dropdown menu.
+ *
+ * @param label text to be displayed in the item
+ * @param icon icon to be displayed on the inner left side of the element
+ * @param color color of the text and icon
+ * @param onClick callback that will be triggered when the item clicked
  */
 @Composable
 private fun DefaultDropdownMenuItem(
-    text: String,
+    label: String,
     icon: ImageVector,
     color: Color = Color.Black,
     onClick: () -> Unit
@@ -513,7 +521,7 @@ private fun DefaultDropdownMenuItem(
             .height(30.dp),
         text = {
             Text(
-                text,
+                label,
                 color = color,
                 style = MaterialTheme.typography.labelMedium
             )
@@ -522,7 +530,7 @@ private fun DefaultDropdownMenuItem(
         leadingIcon = {
             Icon(
                 imageVector = icon,
-                contentDescription = text,
+                contentDescription = label,
                 tint = color
             )
         }
@@ -530,7 +538,7 @@ private fun DefaultDropdownMenuItem(
 }
 
 /**
- * Represents the content of the message.
+ * Displays the content of the message.
  */
 @Composable
 private fun MessageContent(
@@ -564,7 +572,7 @@ private fun MessageContent(
 }
 
 /**
- * Represents the name of the user who sent this message.
+ * Displays the name of the user who sent this message.
  */
 @Composable
 private fun SenderName(username: String) {
@@ -575,7 +583,7 @@ private fun SenderName(username: String) {
 }
 
 /**
- * Represents the time when the message was posted.
+ * Displays the time when the message was posted.
  */
 @Composable
 private fun PostedTime(time: Timestamp) {
@@ -587,7 +595,7 @@ private fun PostedTime(time: Timestamp) {
 }
 
 /**
- * Represents the bottom bar of the chat content.
+ * Displays the bottom bar of the chat content.
  */
 @Composable
 private fun ChatBottomBar(model: ChatsPageModel) {
@@ -614,7 +622,7 @@ private fun ChatBottomBar(model: ChatsPageModel) {
 }
 
 /**
- * Represents the input field for sending and editing a message in the chat.
+ * Displays the input field for sending and editing a message in the chat.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -687,7 +695,7 @@ private fun MessageInputField(model: ChatsPageModel) {
 }
 
 /**
- * Represents the icon button to send or edit the message.
+ * Displays the icon button to send or edit the message.
  */
 @Composable
 private fun MessageInputFieldIcon(model: ChatsPageModel, onPressed: () -> Unit) {
@@ -718,7 +726,7 @@ private fun MessageInputFieldIcon(model: ChatsPageModel, onPressed: () -> Unit) 
 }
 
 /**
- * Represents the view of the message in editing state.
+ * Displays the view of the message in editing state.
  */
 @Composable
 private fun EditMessagePanel(model: ChatsPageModel) {

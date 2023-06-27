@@ -71,7 +71,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Represents the page with the user profile.
+ * Displays the page with the user profile.
  */
 @Composable
 public fun ProfilePage(
@@ -114,7 +114,7 @@ public fun ProfilePage(
 }
 
 /**
- * Represents the top bar on the profile page.
+ * Displays the top bar on the profile page.
  */
 @Composable
 private fun ProfileTopBar(model: ProfilePageModel) {
@@ -134,7 +134,7 @@ private fun ProfileTopBar(model: ProfilePageModel) {
 }
 
 /**
- * Represents the main content of the user profile page.
+ * Displays the main content of the user profile page.
  */
 @Composable
 private fun ProfilePageContent(model: ProfilePageModel) {
@@ -171,7 +171,7 @@ private fun ProfilePageContent(model: ProfilePageModel) {
 }
 
 /**
- * Represents a button for opening a chat with a user.
+ * Displays a button for opening a chat with a user.
  */
 @Composable
 private fun MessageButton(model: ProfilePageModel) {
@@ -185,7 +185,7 @@ private fun MessageButton(model: ProfilePageModel) {
 }
 
 /**
- * Represents a button for logging out.
+ * Displays a button for logging out.
  */
 @Composable
 private fun LogOutButton(model: ProfilePageModel) {
@@ -236,7 +236,7 @@ private fun LogoutDialog(
 }
 
 /**
- * Represents a button to delete a chat with a user.
+ * Displays a button to delete a chat with a user.
  */
 @Composable
 private fun DeleteChatButton(model: ProfilePageModel) {
@@ -250,7 +250,7 @@ private fun DeleteChatButton(model: ProfilePageModel) {
 }
 
 /**
- * Represents an email field.
+ * Displays an email field.
  */
 @Composable
 private fun EmailField(email: String) {
@@ -287,7 +287,7 @@ private fun EmailField(email: String) {
 }
 
 /**
- * Represents a default button on the info page.
+ * Displays a default button on the info page.
  */
 @Composable
 private fun InfoPageButton(
