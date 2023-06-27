@@ -462,7 +462,7 @@ private fun MessageContent(
             }
         }
         Spacer(Modifier.size(8.dp))
-        PostedTime(message.whenPosted)
+        WhenMessagePosted(message.whenPosted)
         if (isMyMessage) {
             Spacer(Modifier.width(horizontalPadding))
         }
@@ -484,7 +484,7 @@ private fun SenderName(username: String) {
  * Displays the time when the message was posted.
  */
 @Composable
-private fun PostedTime(time: Timestamp) {
+private fun WhenMessagePosted(time: Timestamp) {
     Text(
         text = time.toStringTime(),
         style = MaterialTheme.typography.bodySmall,
