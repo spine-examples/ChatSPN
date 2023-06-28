@@ -99,6 +99,9 @@ public fun ChatDeletionDialog(
 
 /**
  * Displays the buttons of the `ChatDeletionDialog`.
+ *
+ * @param isVisibleState mutable state of dialog visibility
+ * @param onDelete callback that will be triggered when the 'delete' button clicked
  */
 @Composable
 private fun ChatDeletionDialogButtons(

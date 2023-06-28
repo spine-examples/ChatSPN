@@ -67,6 +67,13 @@ import io.spine.examples.chatspn.desktop.navigation.ChatData
 
 /**
  * Displays the page with the user profile.
+ *
+ * @param client desktop client
+ * @param profileState state of the profile to display
+ * @param chatState state of the chat between authenticated user and provided
+ * @param onBack callback that will be triggered when the 'Back' button clicked
+ * @param toRegistration navigation to the 'Registration' page
+ * @param openChat function to open chat between authenticated user and provided
  */
 @Composable
 public fun ProfilePage(
@@ -246,6 +253,13 @@ private fun EmailField(email: String) {
 
 /**
  * UI Model for the [ProfilePage].
+ *
+ * @param client desktop client
+ * @param userProfile user profile
+ * @param chatState state of the chat between authenticated user and provided
+ * @param onBack callback that will be triggered when the 'Back' button clicked
+ * @param toRegistration navigation to the 'Registration' page
+ * @param openChat function to open chat between authenticated user and provided
  */
 private class ProfilePageModel(
     private val client: DesktopClient,
