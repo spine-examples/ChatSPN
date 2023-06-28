@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import java.awt.Cursor
 
 /**
- * Displays a rounded button that takes max width.
+ * Displays a rounded button that takes max width of its parent container.
  *
  * @param text text on the button
  * @param icon icon to be displayed before text
