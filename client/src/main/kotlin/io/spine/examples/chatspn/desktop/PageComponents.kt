@@ -245,7 +245,7 @@ public fun Avatar(size: Float, name: String, modifierExtender: Modifier.() -> Mo
             contentDescription = "User picture"
         )
         Text(
-            name[0].toString(),
+            if (name.isNotEmpty()) name[0].toString() else "",
             color = Color.White,
             fontSize = (size * 0.5).sp,
             style = MaterialTheme.typography.headlineLarge

@@ -26,9 +26,6 @@
 
 package io.spine.examples.chatspn.desktop
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -63,17 +60,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.google.protobuf.Timestamp
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.Chat
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
-import java.text.SimpleDateFormat
-import java.util.*
 import java.util.stream.Collectors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -137,6 +130,23 @@ private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
             chatData!!,
             { model.openChatInfo(it) },
             { model.openUserProfile(it) }
+        )
+    }
+}
+
+/**
+ * Displays content when no one chat is selected.
+ */
+@Composable
+private fun ChatNotChosenBox() {
+    Box(
+        Modifier.fillMaxSize(),
+        Alignment.Center
+    ) {
+        Text(
+            text = "Choose a chat",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSecondary,
         )
     }
 }
@@ -211,6 +221,7 @@ private fun MenuButton(model: NavigationModel) {
         modifier = Modifier.size(42.dp),
         onClick = {
             if (isUserProfileOpen && isAuthenticatedUser) {
+                model.currentPage.value = Page.CHAT
                 model.profilePageState.clear()
             } else {
                 model.openUserProfile(model.authenticatedUser.id)
@@ -263,97 +274,13 @@ private fun ChatList(model: NavigationModel) {
         chats.forEachIndexed { index, chat ->
             item(key = index) {
                 ChatPreviewPanel(
-                    chat.name,
-                    chat.lastMessage,
+                    chat,
                     chat.id.equals(selectedChat.value)
                 ) {
                     model.selectChat(chat.id)
                 }
             }
         }
-    }
-}
-
-/**
- * Displays the chat preview in the chats list.
- */
-@Composable
-private fun ChatPreviewPanel(
-    chatName: String,
-    lastMessage: MessageData?,
-    isSelected: Boolean,
-    select: () -> Unit
-) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clickable { select() }
-            .background(
-                color = if (isSelected)
-                    MaterialTheme.colorScheme.inverseSurface
-                else
-                    MaterialTheme.colorScheme.background
-            ),
-        Alignment.CenterStart,
-    ) {
-        ChatPreviewContent(chatName, lastMessage)
-    }
-}
-
-/**
- * Displays the chat preview content in the chat preview panel.
- */
-@Composable
-private fun ChatPreviewContent(chatName: String, lastMessage: MessageData?) {
-    Row(
-        Modifier.padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Avatar(46f, chatName)
-        Spacer(Modifier.size(12.dp))
-        Column(horizontalAlignment = Alignment.Start) {
-            Row(
-                Modifier.fillMaxWidth(),
-                Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = chatName,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-                Text(
-                    text = if (lastMessage == null) "" else lastMessage.whenPosted.toStringTime(),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            Spacer(Modifier.size(9.dp))
-            Text(
-                text = if (lastMessage == null) ""
-                else lastMessage.content.replace("\\s".toRegex(), " "),
-                color = MaterialTheme.colorScheme.onSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
-
-/**
- * Displays content when no one chat is selected.
- */
-@Composable
-private fun ChatNotChosenBox() {
-    Box(
-        Modifier.fillMaxSize(),
-        Alignment.Center
-    ) {
-        Text(
-            text = "Choose a chat",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onSecondary,
-        )
     }
 }
 
@@ -521,15 +448,6 @@ private class ProfilePageState {
 private class UserSearchFieldState {
     val userEmailState: MutableState<String> = mutableStateOf("")
     val errorState: MutableState<Boolean> = mutableStateOf(false)
-}
-
-/**
- * Converts `Timestamp` to the `hh:mm` string.
- */
-public fun Timestamp.toStringTime(): String {
-    val date = Date(this.seconds * 1000)
-    val format = SimpleDateFormat("hh:mm", Locale.getDefault())
-    return format.format(date)
 }
 
 /**
