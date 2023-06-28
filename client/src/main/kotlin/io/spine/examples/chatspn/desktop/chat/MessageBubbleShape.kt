@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop
+package io.spine.examples.chatspn.desktop.chat
 
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.runtime.Composable

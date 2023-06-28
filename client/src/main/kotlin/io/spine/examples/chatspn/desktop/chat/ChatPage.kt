@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop
+package io.spine.examples.chatspn.desktop.chat
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
@@ -75,6 +75,13 @@ import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
+import io.spine.examples.chatspn.desktop.profile.ChatDeletionDialog
+import io.spine.examples.chatspn.desktop.DesktopClient
+import io.spine.examples.chatspn.desktop.component.Avatar
+import io.spine.examples.chatspn.desktop.component.DefaultDropdownMenu
+import io.spine.examples.chatspn.desktop.component.DefaultDropdownMenuItem
+import io.spine.examples.chatspn.desktop.component.TopBar
+import io.spine.examples.chatspn.desktop.navigation.ChatData
 import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import java.awt.Cursor

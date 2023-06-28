@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop
+package io.spine.examples.chatspn.desktop.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -66,6 +66,12 @@ import androidx.compose.ui.unit.dp
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
+import io.spine.examples.chatspn.desktop.DesktopClient
+import io.spine.examples.chatspn.desktop.component.Avatar
+import io.spine.examples.chatspn.desktop.component.ModalWindow
+import io.spine.examples.chatspn.desktop.component.TextButton
+import io.spine.examples.chatspn.desktop.component.TopBar
+import io.spine.examples.chatspn.desktop.navigation.ChatData
 import java.awt.Cursor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

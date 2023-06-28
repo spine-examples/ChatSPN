@@ -24,7 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop
+package io.spine.examples.chatspn.desktop.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,6 +67,12 @@ import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.Chat
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
+import io.spine.examples.chatspn.desktop.DesktopClient
+import io.spine.examples.chatspn.desktop.LoginPage
+import io.spine.examples.chatspn.desktop.RegistrationPage
+import io.spine.examples.chatspn.desktop.chat.ChatPage
+import io.spine.examples.chatspn.desktop.chat.MessageData
+import io.spine.examples.chatspn.desktop.profile.ProfilePage
 import java.util.stream.Collectors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
