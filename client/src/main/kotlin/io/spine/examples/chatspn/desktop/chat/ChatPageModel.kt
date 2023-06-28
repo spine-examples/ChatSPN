@@ -45,6 +45,11 @@ import kotlinx.coroutines.flow.StateFlow
  * UI Model for the [ChatPage].
  *
  * UI Model is a layer between `@Composable` functions and client.
+ *
+ * @param client desktop client
+ * @param chatData data of the chat to display
+ * @param openChatInfo function to open the chat info
+ * @param openUserProfile function to open the user profile
  */
 public class ChatPageModel(
     public val client: DesktopClient,

@@ -56,6 +56,10 @@ import kotlinx.coroutines.launch
 
 /**
  * Displays the input field for sending and editing a message in the chat.
+ *
+ * @param inputText state of the text in the input field
+ * @param icon icon to display
+ * @param onSubmit callback that will be triggered on the search
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

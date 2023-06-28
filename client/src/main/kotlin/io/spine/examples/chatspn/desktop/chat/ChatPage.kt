@@ -94,6 +94,9 @@ import kotlinx.coroutines.flow.StateFlow
  * Displays the 'Chat' page in the application.
  *
  * @param client desktop client
+ * @param chatData data of the chat to display
+ * @param openChatInfo function to open the chat info
+ * @param openUserProfile function to open the user profile
  */
 @Composable
 @Preview
