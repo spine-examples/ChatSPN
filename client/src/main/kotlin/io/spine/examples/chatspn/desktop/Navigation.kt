@@ -116,7 +116,7 @@ public fun CurrentPage(client: DesktopClient) {
 @Composable
 private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
     val chats by model.chats().collectAsState()
-    val selectedChat = remember { model.selectedChat() }
+    val selectedChat = remember { model.selectedChat }
     val chatData = model.chatData(selectedChat.value)
     val isChatSelected = chats
         .stream()
@@ -267,7 +267,7 @@ private fun UserSearchField(model: NavigationModel) {
 @Composable
 private fun ChatList(model: NavigationModel) {
     val chats by model.chats().collectAsState()
-    val selectedChat = model.selectedChat()
+    val selectedChat = model.selectedChat
     LazyColumn(
         Modifier.fillMaxSize()
     ) {
@@ -288,9 +288,8 @@ private fun ChatList(model: NavigationModel) {
  * UI Model for the navigation.
  */
 private class NavigationModel(private val client: DesktopClient) {
-    private val selectedChatState: MutableState<ChatId> =
-        mutableStateOf(ChatId.getDefaultInstance())
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
+    val selectedChat: MutableState<ChatId> = mutableStateOf(ChatId.getDefaultInstance())
     val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
     val currentPage: MutableState<Page> = mutableStateOf(Page.REGISTRATION)
     val profilePageState: ProfilePageState = ProfilePageState()
@@ -315,19 +314,12 @@ private class NavigationModel(private val client: DesktopClient) {
     }
 
     /**
-     * Returns the state of the selected chat.
-     */
-    fun selectedChat(): MutableState<ChatId> {
-        return selectedChatState
-    }
-
-    /**
      * Selects provided chat and opens the 'Chat' page.
      *
      * @param chat ID of the chat to select
      */
     fun selectChat(chat: ChatId) {
-        selectedChatState.value = chat
+        selectedChat.value = chat
         currentPage.value = Page.CHAT
         profilePageState.clear()
     }
