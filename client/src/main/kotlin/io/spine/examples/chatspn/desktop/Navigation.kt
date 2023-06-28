@@ -117,7 +117,7 @@ public fun CurrentPage(client: DesktopClient) {
 private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
     val chats by model.chats().collectAsState()
     val selectedChat = remember { model.selectedChat() }
-    val chatData = model.getChatData(selectedChat.value)
+    val chatData = model.chatData(selectedChat.value)
     val isChatSelected = chats
         .stream()
         .map { chat -> chat.id }
@@ -337,7 +337,7 @@ private class NavigationModel(private val client: DesktopClient) {
      *
      * @param chatId ID of the chat
      */
-    fun getChatData(chatId: ChatId): ChatData? {
+    fun chatData(chatId: ChatId): ChatData? {
         val chat = chatPreviewsState.value.find { chatData ->
             chatData.id.equals(chatId)
         }
@@ -420,7 +420,7 @@ private class NavigationModel(private val client: DesktopClient) {
             val userId = chat.members.find { user -> !user.equals(authenticatedUser.id) }
             val user = client.findUser(userId!!)
             profilePageState.userProfile.value = user!!
-            profilePageState.chatState.value = getChatData(chat.id)
+            profilePageState.chatState.value = chatData(chat.id)
             currentPage.value = Page.PROFILE
         }
     }
