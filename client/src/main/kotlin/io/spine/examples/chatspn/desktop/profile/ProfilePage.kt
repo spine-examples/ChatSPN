@@ -30,7 +30,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,8 +44,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -58,10 +55,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
@@ -69,10 +62,10 @@ import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.desktop.component.Avatar
 import io.spine.examples.chatspn.desktop.component.ModalWindow
+import io.spine.examples.chatspn.desktop.component.RoundedMaxWidthButton
 import io.spine.examples.chatspn.desktop.component.TextButton
 import io.spine.examples.chatspn.desktop.component.TopBar
 import io.spine.examples.chatspn.desktop.navigation.ChatData
-import java.awt.Cursor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -182,7 +175,7 @@ private fun ProfilePageContent(model: ProfilePageModel) {
 @Composable
 private fun MessageButton(model: ProfilePageModel) {
     val user = remember { model.userProfile }
-    InfoPageButton(
+    RoundedMaxWidthButton(
         "Message",
         Icons.Default.Send
     ) {
@@ -195,7 +188,7 @@ private fun MessageButton(model: ProfilePageModel) {
  */
 @Composable
 private fun LogOutButton(model: ProfilePageModel) {
-    InfoPageButton(
+    RoundedMaxWidthButton(
         "Log out",
         Icons.Default.ExitToApp,
         MaterialTheme.colorScheme.error
@@ -246,7 +239,7 @@ private fun LogoutDialog(
  */
 @Composable
 private fun DeleteChatButton(model: ProfilePageModel) {
-    InfoPageButton(
+    RoundedMaxWidthButton(
         "Delete chat",
         Icons.Default.Delete,
         MaterialTheme.colorScheme.error
@@ -289,49 +282,6 @@ private fun EmailField(email: String) {
             )
         }
 
-    }
-}
-
-/**
- * Displays a default button on the info page.
- */
-@Composable
-private fun InfoPageButton(
-    text: String = "",
-    icon: ImageVector? = null,
-    contentColor: Color = MaterialTheme.colorScheme.primary,
-    onClick: () -> Unit
-) {
-    Box(Modifier.clip(MaterialTheme.shapes.small)) {
-        Button(
-            onClick,
-            Modifier
-                .fillMaxWidth()
-                .pointerHoverIcon(PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))),
-            shape = MaterialTheme.shapes.small,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = contentColor
-            ),
-            contentPadding = PaddingValues(12.dp, 8.dp)
-        ) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                if (icon != null) {
-                    Icon(
-                        icon,
-                        text,
-                        Modifier.size(20.dp),
-                        contentColor
-                    )
-                    Spacer(Modifier.width(4.dp))
-                }
-                Text(
-                    text,
-                    color = contentColor,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-        }
     }
 }
 
