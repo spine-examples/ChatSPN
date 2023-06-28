@@ -52,7 +52,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -202,11 +201,7 @@ private fun ChatDropdownMenu(
     isMenuOpen: MutableState<Boolean>,
     model: ChatPageModel
 ) {
-    DropdownMenu(
-        expanded = isMenuOpen.value,
-        onDismissRequest = { isMenuOpen.value = false },
-        modifier = Modifier.background(MaterialTheme.colorScheme.background),
-    ) {
+    DefaultDropdownMenu(isMenuOpen) {
         DefaultDropdownMenuItem(
             "Delete chat",
             Icons.Default.Delete,
@@ -453,10 +448,6 @@ private class ChatPageModel(
     private val messagesState: MutableMessagesState = MutableStateFlow(listOf())
     val messageInputFieldState: MessageInputFieldState = MessageInputFieldState()
     val chatDeletionModalState: MutableState<Boolean> = mutableStateOf(false)
-    val authenticatedUser: UserProfile
-        get() {
-            return client.authenticatedUser!!
-        }
 
     /**
      * Reads messages in the chat and subscribes to their updates.

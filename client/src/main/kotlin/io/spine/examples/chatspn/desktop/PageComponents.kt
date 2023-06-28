@@ -41,6 +41,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Surface
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -249,4 +251,60 @@ public fun Avatar(size: Float, name: String, modifierExtender: Modifier.() -> Mo
             style = MaterialTheme.typography.headlineLarge
         )
     }
+}
+
+/**
+ * Displays the default dropdown menu.
+ *
+ * @param isOpenState menu visibility state
+ * @param content content of the dropdown menu
+ */
+@Composable
+public fun DefaultDropdownMenu(
+    isOpenState: MutableState<Boolean>,
+    content: @Composable () -> Unit
+) {
+    DropdownMenu(
+        expanded = isOpenState.value,
+        onDismissRequest = { isOpenState.value = false },
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+    ) {
+        content()
+    }
+}
+
+/**
+ * Displays the default item of the dropdown menu.
+ *
+ * @param label text to be displayed in the item
+ * @param icon icon to be displayed on the inner left side of the element
+ * @param color color of the text and icon
+ * @param onClick callback that will be triggered when the item clicked
+ */
+@Composable
+public fun DefaultDropdownMenuItem(
+    label: String,
+    icon: ImageVector,
+    color: Color = Color.Black,
+    onClick: () -> Unit
+) {
+    DropdownMenuItem(
+        modifier = Modifier
+            .height(30.dp),
+        text = {
+            Text(
+                label,
+                color = color,
+                style = MaterialTheme.typography.labelMedium
+            )
+        },
+        onClick = onClick,
+        leadingIcon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = color
+            )
+        }
+    )
 }

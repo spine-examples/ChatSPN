@@ -28,7 +28,6 @@ package io.spine.examples.chatspn.desktop
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.PointerMatcher
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -46,9 +45,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,8 +54,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -200,11 +194,7 @@ private fun MessageDropdownMenu(
     model: MessageModel,
 ) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    DropdownMenu(
-        expanded = isMenuOpen.value,
-        onDismissRequest = { isMenuOpen.value = false },
-        modifier = Modifier.background(MaterialTheme.colorScheme.background),
-    ) {
+    DefaultDropdownMenu(isMenuOpen) {
         if (model.isMyMessage) {
             DefaultDropdownMenuItem("Edit", Icons.Default.Edit) {
                 model.startMessageEditing()
@@ -218,42 +208,6 @@ private fun MessageDropdownMenu(
             isMenuOpen.value = false
         }
     }
-}
-
-/**
- * Displays the default item of the dropdown menu.
- *
- * @param label text to be displayed in the item
- * @param icon icon to be displayed on the inner left side of the element
- * @param color color of the text and icon
- * @param onClick callback that will be triggered when the item clicked
- */
-@Composable
-public fun DefaultDropdownMenuItem(
-    label: String,
-    icon: ImageVector,
-    color: Color = Color.Black,
-    onClick: () -> Unit
-) {
-    DropdownMenuItem(
-        modifier = Modifier
-            .height(30.dp),
-        text = {
-            Text(
-                label,
-                color = color,
-                style = MaterialTheme.typography.labelMedium
-            )
-        },
-        onClick = onClick,
-        leadingIcon = {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = color
-            )
-        }
-    )
 }
 
 /**
