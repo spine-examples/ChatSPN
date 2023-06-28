@@ -51,7 +51,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,13 +60,10 @@ import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.desktop.component.Avatar
-import io.spine.examples.chatspn.desktop.component.ModalWindow
 import io.spine.examples.chatspn.desktop.component.RoundedMaxWidthButton
 import io.spine.examples.chatspn.desktop.component.TextButton
 import io.spine.examples.chatspn.desktop.component.TopBar
 import io.spine.examples.chatspn.desktop.navigation.ChatData
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * Displays the page with the user profile.
@@ -102,7 +98,7 @@ public fun ProfilePage(
         ProfileTopBar(model)
         ProfilePageContent(model)
     }
-    LogoutDialog(model)
+    LogoutDialog(model.logoutModalState) { model.logOut() }
     if (chatState.value != null) {
         ChatDeletionDialog(
             isChatDeletionDialogVisible,
@@ -194,43 +190,6 @@ private fun LogOutButton(model: ProfilePageModel) {
         MaterialTheme.colorScheme.error
     ) {
         model.logoutModalState.value = true
-    }
-}
-
-/**
- * Returns a representation of the logout confirmation modal.
- */
-@Composable
-private fun LogoutDialog(
-    model: ProfilePageModel,
-) {
-    val isOpen = remember { model.logoutModalState }
-    ModalWindow(isOpen) {
-        val viewScope = rememberCoroutineScope { Dispatchers.Default }
-        Column(
-            Modifier.width(300.dp)
-                .padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 8.dp)
-        ) {
-            Text(
-                "Are you sure you want to log out?",
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Spacer(Modifier.height(8.dp))
-            Row(
-                Modifier.fillMaxWidth(),
-                Arrangement.spacedBy(8.dp, Alignment.End)
-            ) {
-                TextButton("Cancel") {
-                    isOpen.value = false
-                }
-                TextButton("Log out", MaterialTheme.colorScheme.error) {
-                    viewScope.launch {
-                        model.logOut()
-                    }
-                    isOpen.value = false
-                }
-            }
-        }
     }
 }
 
