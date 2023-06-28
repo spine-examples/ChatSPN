@@ -30,69 +30,64 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
- * Displays the input field for searching.
- *
- * @param inputText state of the text in the input field
- * @param onSearch callback that will be triggered on the search
+ * Displays the input field for sending and editing a message in the chat.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-public fun SearchField(
+public fun MessageInputField(
     inputText: MutableState<String>,
-    onSearch: () -> Unit
+    icon: ImageVector,
+    onSubmit: () -> Unit
 ) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
     BasicTextField(
         modifier = Modifier
-            .size(182.dp, 30.dp)
             .background(MaterialTheme.colorScheme.background)
             .onPreviewKeyEvent {
                 when {
-                    (it.key == Key.Enter) -> {
-                        onSearch()
+                    (it.type == KeyEventType.KeyDown &&
+                            it.isShiftPressed &&
+                            it.key == Key.Enter) -> {
+                        viewScope.launch {
+                            onSubmit()
+                        }
                         true
                     }
                     else -> false
                 }
             },
+        textStyle = MaterialTheme.typography.bodyMedium,
+        keyboardActions = KeyboardActions(),
         value = inputText.value,
-        singleLine = true,
         onValueChange = {
             inputText.value = it
         }
     ) { innerTextField ->
-        Box(
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(size = 3.dp)
-                )
-                .padding(all = 8.dp)
-        ) {
-            DecoratedTextField(inputText, "Search", Icons.Default.Search, onSearch) {
-                innerTextField()
-            }
-        }
+        DecoratedTextField(inputText, icon, onSubmit, innerTextField)
     }
 }
 
@@ -100,42 +95,48 @@ public fun SearchField(
  * Displays decorated text field with placeholder and icon.
  *
  * @param inputText state of the text in the input field
- * @param placeholder placeholder text to display
  * @param icon icon to display
- * @param onIconClick callback that will be triggered when the icon clicked
+ * @param onSubmit callback that will be triggered when the icon clicked
  * @param innerTextField text field to decorate
  */
 @Composable
 private fun DecoratedTextField(
     inputText: MutableState<String>,
-    placeholder: String = "",
     icon: ImageVector,
-    onIconClick: () -> Unit,
+    onSubmit: () -> Unit,
     innerTextField: @Composable () -> Unit
 ) {
-    if (inputText.value.isEmpty()) {
-        Text(
-            text = placeholder,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSecondary
-        )
-    }
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
     Row(
-        Modifier.fillMaxWidth(),
-        Arrangement.SpaceBetween,
-        Alignment.CenterVertically
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Box(Modifier.weight(1f)) {
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .heightIn(15.dp, 192.dp)
+                .weight(1f),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            if (inputText.value.isEmpty()) {
+                Text(
+                    text = "Write a message...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
             innerTextField()
         }
         if (inputText.value.trim().isNotEmpty()) {
             IconButton(
                 icon,
-                MaterialTheme.colorScheme.onSecondary,
-                { this.padding(horizontal = 4.dp) },
-                onIconClick
-            )
+                MaterialTheme.colorScheme.primary,
+                { this.padding(bottom = 12.dp, end = 12.dp) }
+            ) {
+                viewScope.launch {
+                    onSubmit()
+                }
+            }
         }
     }
 }
-

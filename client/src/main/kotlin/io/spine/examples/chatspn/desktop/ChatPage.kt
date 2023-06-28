@@ -43,8 +43,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -61,21 +59,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isShiftPressed
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
@@ -89,12 +79,9 @@ import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import java.awt.Cursor
 import java.awt.Cursor.getPredefinedCursor
-import java.util.*
 import java.util.stream.Collectors
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 /**
  * Displays the 'Chat' page in the application.
@@ -272,111 +259,35 @@ private fun ChatBottomBar(model: ChatPageModel) {
         if (isEditing) {
             EditMessagePanel(model)
         }
-        MessageInputField(model)
+        ConfiguredMessageInputField(model)
     }
 }
 
 /**
  * Displays the input field for sending and editing a message in the chat.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun MessageInputField(model: ChatPageModel) {
-    val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    var inputText by remember { model.messageInputFieldState.inputText }
+private fun ConfiguredMessageInputField(model: ChatPageModel) {
+    val inputText = remember { model.messageInputFieldState.inputText }
     var isEditing by remember { model.messageInputFieldState.isEditingState }
     var editingMessage by remember { model.messageInputFieldState.editingMessage }
-    val onSend = {
-        if (inputText.trim().isNotEmpty()) {
+    val onSubmit = {
+        if (inputText.value.trim().isNotEmpty()) {
             if (isEditing) {
-                model.editMessage(editingMessage!!.id, inputText.trim())
+                model.editMessage(editingMessage!!.id, inputText.value.trim())
             } else {
-                model.sendMessage(inputText.trim())
+                model.sendMessage(inputText.value.trim())
             }
         }
         isEditing = false
         editingMessage = null
-        inputText = ""
+        inputText.value = ""
     }
-
-    BasicTextField(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .onPreviewKeyEvent {
-                when {
-                    (it.type == KeyEventType.KeyDown &&
-                            it.isShiftPressed &&
-                            it.key == Key.Enter) -> {
-                        viewScope.launch {
-                            onSend()
-                        }
-                        true
-                    }
-                    else -> false
-                }
-            },
-        textStyle = MaterialTheme.typography.bodyMedium,
-        keyboardActions = KeyboardActions(),
-        value = inputText,
-        onValueChange = {
-            inputText = it
-        }
-    ) { innerTextField ->
-        Row(
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Box(
-                modifier = Modifier
-                    .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
-                    .heightIn(15.dp, 192.dp)
-                    .weight(1f),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                if (inputText.isEmpty()) {
-                    Text(
-                        text = "Write a message...",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
-                innerTextField()
-            }
-            if (inputText.trim().isNotEmpty()) {
-                MessageInputFieldIcon(model, onSend)
-            }
-        }
-    }
-}
-
-/**
- * Displays the icon button to send or edit the message.
- */
-@Composable
-private fun MessageInputFieldIcon(model: ChatPageModel, onPressed: () -> Unit) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    val inputText by remember { model.messageInputFieldState.inputText }
-    val isEditing by remember { model.messageInputFieldState.isEditingState }
-    val icon = if (isEditing) Icons.Default.Check else Icons.Default.Send
-
-    if (inputText.trim().isNotEmpty()) {
-        Icon(
-            icon,
-            "Send",
-            Modifier
-                .pointerHoverIcon(PointerIcon(getPredefinedCursor(Cursor.HAND_CURSOR)))
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null
-                ) {
-                    viewScope.launch {
-                        onPressed()
-                    }
-                }
-                .padding(bottom = 12.dp, end = 12.dp),
-            MaterialTheme.colorScheme.primary
-        )
+    if (isEditing) {
+        inputText.value = editingMessage!!.content
+        MessageInputField(inputText, Icons.Default.Check, onSubmit)
+    } else {
+        MessageInputField(inputText, Icons.Default.Send, onSubmit)
     }
 }
 
