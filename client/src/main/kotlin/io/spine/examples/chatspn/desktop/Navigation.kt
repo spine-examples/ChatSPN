@@ -28,7 +28,6 @@ package io.spine.examples.chatspn.desktop
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,12 +43,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -62,18 +58,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
@@ -83,7 +72,6 @@ import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.Chat
 import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.MessagePreview
-import java.awt.Cursor
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.stream.Collectors
@@ -246,91 +234,20 @@ private fun MenuButton(model: NavigationModel) {
 /**
  * Displays the input field to find the user.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun UserSearchField(model: NavigationModel) {
     val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    var inputText by remember { model.userSearchFieldState.userEmailState }
-    var isError by remember { model.userSearchFieldState.errorState }
+    val inputText = remember { model.userSearchFieldState.userEmailState }
     val onSearch = {
-        val email = inputText
+        val email = inputText.value
         viewScope.launch {
             if (email.trim().isNotEmpty()) {
                 model.createPersonalChat(email.trim())
             }
         }
-        inputText = ""
+        inputText.value = ""
     }
-    BasicTextField(
-        modifier = Modifier
-            .size(182.dp, 30.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .onPreviewKeyEvent {
-                when {
-                    (it.key == Key.Enter) -> {
-                        onSearch()
-                        true
-                    }
-                    else -> false
-                }
-            },
-        value = inputText,
-        singleLine = true,
-        onValueChange = {
-            inputText = it
-            isError = false
-        }
-    ) { innerTextField ->
-        Box(
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(size = 3.dp)
-                )
-                .padding(all = 8.dp)
-        ) {
-            if (inputText.isEmpty()) {
-                Text(
-                    text = "Search",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
-            }
-            Row(
-                Modifier.fillMaxWidth(),
-                Arrangement.SpaceBetween,
-                Alignment.CenterVertically
-            ) {
-                Box(Modifier.weight(1f)) {
-                    innerTextField()
-                }
-                if (inputText.trim().isNotEmpty()) {
-                    SearchIcon(onSearch)
-                }
-            }
-        }
-    }
-}
-
-/**
- * Displays the icon button for the `UserSearchField`.
- */
-@Composable
-private fun SearchIcon(onSearch: () -> Unit) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Icon(
-        Icons.Default.Search,
-        "Search",
-        Modifier
-            .padding(horizontal = 4.dp)
-            .pointerHoverIcon(PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onSearch
-            ),
-        MaterialTheme.colorScheme.onSecondary
-    )
+    SearchField(inputText, onSearch)
 }
 
 /**
