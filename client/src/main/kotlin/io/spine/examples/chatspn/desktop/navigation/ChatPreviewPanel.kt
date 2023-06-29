@@ -48,6 +48,8 @@ import io.spine.examples.chatspn.desktop.component.Avatar
 import java.text.SimpleDateFormat
 import java.util.*
 
+private val HOURS_AND_MINUTES_FORMAT = SimpleDateFormat("hh:mm", Locale.getDefault())
+
 /**
  * Displays the chat preview panel.
  *
@@ -100,7 +102,7 @@ private fun ChatPreviewContent(chat: ChatData) {
                 )
                 Text(
                     text = if (chat.lastMessage == null) ""
-                    else chat.lastMessage.whenPosted.toStringTime(),
+                    else chat.lastMessage.whenPosted.toHoursAndMinutes(),
                     color = MaterialTheme.colorScheme.onSecondary,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -121,8 +123,7 @@ private fun ChatPreviewContent(chat: ChatData) {
 /**
  * Converts `Timestamp` to the `hh:mm` string.
  */
-public fun Timestamp.toStringTime(): String {
+public fun Timestamp.toHoursAndMinutes(): String {
     val date = Date(this.seconds * 1000)
-    val format = SimpleDateFormat("hh:mm", Locale.getDefault())
-    return format.format(date)
+    return HOURS_AND_MINUTES_FORMAT.format(date)
 }
