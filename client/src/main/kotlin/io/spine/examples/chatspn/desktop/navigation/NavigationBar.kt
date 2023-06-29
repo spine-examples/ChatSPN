@@ -50,15 +50,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * Displays the left sidebar.
@@ -141,18 +138,9 @@ private fun MenuButton(model: NavigationModel) {
  */
 @Composable
 private fun UserSearchField(model: NavigationModel) {
-    val viewScope = rememberCoroutineScope { Dispatchers.Default }
-    val inputText = remember { model.userSearchFieldState.userEmailState }
-    val onSearch = {
-        val email = inputText.value
-        viewScope.launch {
-            if (email.trim().isNotEmpty()) {
-                model.createPersonalChat(email.trim())
-            }
-        }
-        inputText.value = ""
-    }
-    SearchField(inputText, onSearch)
+    val inputText = remember { model.searchState.inputState }
+    model.search(inputText.value.trim())
+    SearchField(inputText)
 }
 
 /**
@@ -161,17 +149,45 @@ private fun UserSearchField(model: NavigationModel) {
 @Composable
 private fun ChatList(model: NavigationModel) {
     val chats by model.chats().collectAsState()
+    val searchWord by remember { model.searchState.inputState }
+    val localSearchedChats by remember { model.searchState.localChats }
+    val globalSearchedUsers by remember { model.searchState.globalUsers }
     val selectedChat = model.selectedChat
     LazyColumn(
         Modifier.fillMaxSize()
     ) {
-        chats.forEachIndexed { index, chat ->
-            item(key = index) {
+        if (searchWord.trim().isEmpty()) {
+            chats.forEachIndexed { index, chat ->
+                item(key = index) {
+                    ChatPreviewPanel(
+                        chat.name,
+                        chat.lastMessage,
+                        chat.id.equals(selectedChat.value)
+                    ) {
+                        model.selectChat(chat.id)
+                    }
+                }
+            }
+        }
+        localSearchedChats.forEach { chat ->
+            item(chat.id) {
                 ChatPreviewPanel(
-                    chat,
+                    chat.name,
+                    chat.lastMessage,
                     chat.id.equals(selectedChat.value)
                 ) {
                     model.selectChat(chat.id)
+                }
+            }
+        }
+        globalSearchedUsers.forEach { user ->
+            item(user.id) {
+                ChatPreviewPanel(
+                    user.name,
+                    null,
+                    false
+                ) {
+                    model.selectPersonalChat(user.id)
                 }
             }
         }

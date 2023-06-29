@@ -36,18 +36,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalLocalization
 import androidx.compose.ui.unit.dp
 import io.spine.examples.chatspn.desktop.component.IconButton
 
@@ -55,27 +52,15 @@ import io.spine.examples.chatspn.desktop.component.IconButton
  * Displays the input field for searching.
  *
  * @param inputText state of the text in the input field
- * @param onSearch callback that will be triggered on the search
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 public fun SearchField(
-    inputText: MutableState<String>,
-    onSearch: () -> Unit
+    inputText: MutableState<String>
 ) {
     BasicTextField(
         modifier = Modifier
             .size(182.dp, 30.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .onPreviewKeyEvent {
-                when {
-                    (it.key == Key.Enter) -> {
-                        onSearch()
-                        true
-                    }
-                    else -> false
-                }
-            },
+            .background(MaterialTheme.colorScheme.background),
         value = inputText.value,
         singleLine = true,
         onValueChange = {
@@ -90,8 +75,8 @@ public fun SearchField(
                 )
                 .padding(all = 8.dp)
         ) {
-            DecoratedTextField(inputText, "Search", Icons.Default.Search, onSearch) {
-                innerTextField()
+            DecoratedTextField(inputText, "Search", Icons.Default.Close, innerTextField) {
+                inputText.value = ""
             }
         }
     }
@@ -103,16 +88,16 @@ public fun SearchField(
  * @param inputText state of the text in the input field
  * @param placeholder placeholder text to display
  * @param icon icon to display
- * @param onIconClick callback that will be triggered when the icon clicked
  * @param innerTextField text field to decorate
+ * @param onIconClick callback that will be triggered when the icon clicked
  */
 @Composable
 private fun DecoratedTextField(
     inputText: MutableState<String>,
     placeholder: String = "",
     icon: ImageVector,
-    onIconClick: () -> Unit,
-    innerTextField: @Composable () -> Unit
+    innerTextField: @Composable () -> Unit,
+    onIconClick: () -> Unit
 ) {
     if (inputText.value.isEmpty()) {
         Text(

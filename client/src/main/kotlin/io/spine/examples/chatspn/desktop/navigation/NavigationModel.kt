@@ -46,7 +46,7 @@ import kotlinx.coroutines.flow.StateFlow
 public class NavigationModel(private val client: DesktopClient) {
     private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
     public val selectedChat: MutableState<ChatId> = mutableStateOf(ChatId.getDefaultInstance())
-    public val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
+    public val searchState: SearchState = SearchState()
     public val currentPage: MutableState<Page> = mutableStateOf(Page.REGISTRATION)
     public val profilePageState: ProfilePageState = ProfilePageState()
     public val authenticatedUser: UserProfile
@@ -78,6 +78,7 @@ public class NavigationModel(private val client: DesktopClient) {
         selectedChat.value = chat
         currentPage.value = Page.CHAT
         profilePageState.clear()
+        searchState.clear()
     }
 
     /**
@@ -118,17 +119,21 @@ public class NavigationModel(private val client: DesktopClient) {
         }
     }
 
-    /**
-     * Finds user by email and creates the personal chat between authenticated and found user.
-     *
-     * @param email email of the user with whom to create a personal chat
-     */
-    public fun createPersonalChat(email: String) {
-        val user = client.findUser(email)
-        if (null != user) {
-            client.createPersonalChat(user.id)
+    public fun search(searchWord: String) {
+        if (searchWord.isEmpty()) {
+            searchState.localChats.value = listOf()
+            searchState.globalUsers.value = listOf()
+            return
+        }
+        val localChats = chatPreviewsState.value.filter { chat ->
+            chat.name.contains(searchWord, true)
+        }
+        searchState.localChats.value = localChats
+        val userWithSearchedEmail = client.findUser(searchWord)
+        if (null != userWithSearchedEmail && findPersonalChat(userWithSearchedEmail.id) == null) {
+            searchState.globalUsers.value = listOf(userWithSearchedEmail)
         } else {
-            userSearchFieldState.errorState.value = true
+            searchState.globalUsers.value = listOf()
         }
     }
 
@@ -192,11 +197,21 @@ public class ProfilePageState {
 }
 
 /**
- * State of the user search field.
+ * State of the chats search.
  */
-public class UserSearchFieldState {
-    public val userEmailState: MutableState<String> = mutableStateOf("")
-    public val errorState: MutableState<Boolean> = mutableStateOf(false)
+public class SearchState {
+    public val inputState: MutableState<String> = mutableStateOf("")
+    public val localChats: MutableState<List<ChatData>> = mutableStateOf(listOf())
+    public val globalUsers: MutableState<List<UserProfile>> = mutableStateOf(listOf())
+
+    /**
+     * Clears the state.
+     */
+    public fun clear() {
+        inputState.value = ""
+        localChats.value = listOf()
+        globalUsers.value = listOf()
+    }
 }
 
 /**

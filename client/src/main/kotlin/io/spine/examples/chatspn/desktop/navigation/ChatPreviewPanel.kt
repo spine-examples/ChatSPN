@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
+import io.spine.examples.chatspn.desktop.chat.MessageData
 import io.spine.examples.chatspn.desktop.component.Avatar
 import java.text.SimpleDateFormat
 import java.util.*
@@ -57,7 +58,8 @@ import java.util.*
  */
 @Composable
 public fun ChatPreviewPanel(
-    chat: ChatData,
+    chatName: String,
+    lastMessage: MessageData?,
     isHighlighted: Boolean,
     onClick: () -> Unit
 ) {
@@ -73,7 +75,7 @@ public fun ChatPreviewPanel(
             ),
         Alignment.CenterStart,
     ) {
-        ChatPreviewContent(chat)
+        ChatPreviewContent(chatName, lastMessage)
     }
 }
 
@@ -81,12 +83,15 @@ public fun ChatPreviewPanel(
  * Displays the chat preview content in the chat preview panel.
  */
 @Composable
-private fun ChatPreviewContent(chat: ChatData) {
+private fun ChatPreviewContent(
+    chatName: String,
+    lastMessage: MessageData?
+) {
     Row(
         Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Avatar(46f, chat.name)
+        Avatar(46f, chatName)
         Spacer(Modifier.size(12.dp))
         Column(horizontalAlignment = Alignment.Start) {
             Row(
@@ -94,21 +99,21 @@ private fun ChatPreviewContent(chat: ChatData) {
                 Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = chat.name,
+                    text = chatName,
                     color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.headlineMedium,
                 )
                 Text(
-                    text = if (chat.lastMessage == null) ""
-                    else chat.lastMessage.whenPosted.toStringTime(),
+                    text = if (lastMessage == null) ""
+                    else lastMessage.whenPosted.toStringTime(),
                     color = MaterialTheme.colorScheme.onSecondary,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
             Spacer(Modifier.size(9.dp))
             Text(
-                text = if (chat.lastMessage == null) ""
-                else chat.lastMessage.content.replace("\\s".toRegex(), " "),
+                text = if (lastMessage == null) ""
+                else lastMessage.content.replace("\\s".toRegex(), " "),
                 color = MaterialTheme.colorScheme.onSecondary,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
