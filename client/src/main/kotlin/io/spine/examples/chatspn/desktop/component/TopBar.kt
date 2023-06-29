@@ -23,39 +23,41 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package io.spine.examples.chatspn.desktop
 
-import androidx.compose.ui.unit.DpSize
+package io.spine.examples.chatspn.desktop.component
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.application
-import io.spine.examples.chatspn.desktop.navigation.CurrentPage
-import java.awt.Dimension
-
-private val client = DesktopClient()
 
 /**
- * The root component of the desktop application.
+ * Displays the top bar with the configurable content.
+ *
+ * @param content content of the top bar
  */
-private fun app(): Unit = application {
-    ChatSpnTheme(
-        content = {
-            Window(
-                onCloseRequest = ::exitApplication,
-                title = "ChatSPN",
-                state = WindowState(size = DpSize(1280.dp, 720.dp))
-            ) {
-                window.minimumSize = Dimension(750, 450)
-                CurrentPage(client)
+@Composable
+public fun TopBar(content: @Composable () -> Unit) {
+    Surface(
+        Modifier
+            .fillMaxWidth()
+            .height(54.dp)
+            .padding(bottom = 1.dp)
+            .drawBehind {
+                drawLine(
+                    color = Color.Gray,
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = 1.dp.toPx()
+                )
             }
-        }
-    )
-}
-
-/**
- * Entry point of the desktop application.
- */
-public fun main() {
-    app()
+    ) {
+        content()
+    }
 }
