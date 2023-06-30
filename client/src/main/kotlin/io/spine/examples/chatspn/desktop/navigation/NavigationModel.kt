@@ -207,7 +207,13 @@ public enum class Page {
 }
 
 /**
- * Data for the chat preview.
+ * Data that describes the chat.
+ *
+ * @property id ID of the chat
+ * @property name name of the chat, or name of the chat partner in the personal chat
+ * @property lastMessage last message in the chat
+ * @property members list of the members in the chat
+ * @property type type of the chat
  */
 public data class ChatData(
     val id: ChatId,
