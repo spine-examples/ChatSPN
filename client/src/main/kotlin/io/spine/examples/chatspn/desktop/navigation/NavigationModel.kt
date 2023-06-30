@@ -119,6 +119,15 @@ public class NavigationModel(private val client: DesktopClient) {
         }
     }
 
+    /**
+     * Searches chats and users by provided search word.
+     *
+     * Search rules:
+     * - the chat will be found if its name or name parts starts with `searchWord`;
+     * - the user will be found if his e-mail address is equal to `searchWord`.
+     *
+     * The results will update the model search state.
+     */
     public fun search(searchWord: String) {
         if (searchWord.isEmpty()) {
             searchState.localChats.value = listOf()
@@ -126,12 +135,18 @@ public class NavigationModel(private val client: DesktopClient) {
             return
         }
         val localChats = chatPreviewsState.value.filter { chat ->
-            chat.name.contains(searchWord, true)
-        }
-        searchState.localChats.value = localChats
+            (chat.name.split(" ") + chat.name)
+                .find { it.startsWith(searchWord, true) } != null
+        }.toMutableList()
         val userWithSearchedEmail = client.findUser(searchWord)
-        if (null != userWithSearchedEmail && findPersonalChat(userWithSearchedEmail.id) == null) {
-            searchState.globalUsers.value = listOf(userWithSearchedEmail)
+        searchState.localChats.value = localChats
+        if (null != userWithSearchedEmail) {
+            val personalChat = findPersonalChat(userWithSearchedEmail.id)
+            if (personalChat == null) {
+                searchState.globalUsers.value = listOf(userWithSearchedEmail)
+            } else {
+                localChats += personalChat
+            }
         } else {
             searchState.globalUsers.value = listOf()
         }
