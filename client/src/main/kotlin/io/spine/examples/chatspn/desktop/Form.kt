@@ -31,26 +31,26 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
+import java.awt.Cursor
 
 /**
  * Represents the layout for the form.
@@ -62,19 +62,19 @@ public fun FormBox(
     FormContent: @Composable () -> Unit
 ) {
     Box(
-        modifier = Modifier
+        Modifier
             .fillMaxSize()
             .padding(10.dp),
-        contentAlignment = Alignment.Center
+        Alignment.Center
     ) {
         Column(
             Modifier
-                .width(500.dp)
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+                .width(396.dp)
+                .clip(MaterialTheme.shapes.medium),
         ) {
-            FormContent()
+            Box(Modifier.background(MaterialTheme.colorScheme.surface)) {
+                FormContent()
+            }
         }
     }
 }
@@ -95,7 +95,6 @@ public fun FormHeader(text: String) {
 /**
  * Represents a form input field with the functionality to display an error.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun FormField(
     label: String,
@@ -104,36 +103,44 @@ public fun FormField(
     errorState: MutableState<Boolean>,
     errorText: MutableState<String>
 ) {
-    Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            FormFieldLabel(label)
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background),
-                value = valueState.value,
-                placeholder = {
-                    Text(placeholder)
-                },
-                onValueChange = {
-                    valueState.value = it
-                    errorState.value = false
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                    errorIndicatorColor = MaterialTheme.colorScheme.error
-                ),
-                isError = errorState.value,
-                trailingIcon = {
-                    if (errorState.value) {
-                        Icon(
-                            imageVector = Icons.Outlined.Warning,
-                            contentDescription = "Warning",
-                            tint = MaterialTheme.colorScheme.error
+    Column(
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        FormFieldLabel(label)
+        BasicTextField(
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.medium),
+            textStyle = MaterialTheme.typography.bodyMedium,
+            keyboardActions = KeyboardActions(),
+            value = valueState.value,
+            onValueChange = {
+                valueState.value = it
+                errorState.value = false
+            }
+        ) { innerTextField ->
+            Row(
+                Modifier.background(MaterialTheme.colorScheme.background),
+                Arrangement.SpaceBetween,
+                Alignment.Bottom
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
+                        .heightIn(15.dp, 192.dp)
+                        .weight(1f),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    if (valueState.value.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
+                    innerTextField()
                 }
-            )
+            }
         }
         FormFieldError(errorState.value, errorText.value)
     }
@@ -146,8 +153,8 @@ public fun FormField(
 private fun FormFieldLabel(text: String) {
     Text(
         text = text,
-        modifier = Modifier.width(50.dp),
-        style = MaterialTheme.typography.labelLarge
+        modifier = Modifier.padding(start = 4.dp),
+        style = MaterialTheme.typography.headlineMedium
     )
 }
 
@@ -157,8 +164,7 @@ private fun FormFieldLabel(text: String) {
 @Composable
 private fun FormFieldError(isError: Boolean, text: String) {
     if (isError) {
-        Row {
-            Spacer(Modifier.width(50.dp))
+        Row(Modifier.padding(start = 4.dp)) {
             Text(
                 text = text,
                 color = MaterialTheme.colorScheme.error,
@@ -175,12 +181,16 @@ private fun FormFieldError(isError: Boolean, text: String) {
 public fun PrimaryButton(text: String, onClick: () -> Unit) {
     Button(
         onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .pointerHoverIcon(PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))),
+        shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         )
     ) {
-        Text(text)
+        Text(text, style = MaterialTheme.typography.headlineMedium)
     }
 }
 
@@ -191,11 +201,15 @@ public fun PrimaryButton(text: String, onClick: () -> Unit) {
 public fun SecondaryButton(text: String, onClick: () -> Unit) {
     Button(
         onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .pointerHoverIcon(PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))),
+        shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.background,
+            containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.primary
         )
     ) {
-        Text(text)
+        Text(text, style = MaterialTheme.typography.headlineMedium)
     }
 }
