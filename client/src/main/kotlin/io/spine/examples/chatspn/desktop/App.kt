@@ -30,10 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import io.spine.examples.chatspn.desktop.navigation.CurrentPage
 import java.awt.Dimension
 
 private val client = DesktopClient()
-private val navigation = Navigation(client)
 
 /**
  * The root component of the desktop application.
@@ -47,7 +47,7 @@ private fun app(): Unit = application {
                 state = WindowState(size = DpSize(1280.dp, 720.dp))
             ) {
                 window.minimumSize = Dimension(750, 450)
-                navigation.currentPage()
+                CurrentPage(client)
             }
         }
     )

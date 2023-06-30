@@ -24,47 +24,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.desktop
+package io.spine.examples.chatspn.desktop.component
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
 /**
- * Provides navigation through application and page composition.
+ * Displays the top bar with the configurable content.
+ *
+ * @param content content of the top bar
  */
-public class Navigation(private val client: DesktopClient) {
-    private val currentPage: MutableState<Page> = mutableStateOf(Page.REGISTRATION)
-
-    /**
-     * Represents the current page of the application.
-     *
-     * It will be recomposed when the page changes.
-     */
-    @Composable
-    public fun currentPage() {
-        val page by remember { currentPage }
-        when (page) {
-            Page.REGISTRATION -> RegistrationPage(
-                client,
-                toLogin = { currentPage.value = Page.LOGIN },
-                toChats = { currentPage.value = Page.CHATS }
-            )
-            Page.LOGIN -> LoginPage(
-                client,
-                toRegistration = { currentPage.value = Page.REGISTRATION },
-                toChats = { currentPage.value = Page.CHATS }
-            )
-            Page.CHATS -> ChatsPage(client)
-        }
+@Composable
+public fun TopBar(content: @Composable () -> Unit) {
+    Surface(
+        Modifier
+            .fillMaxWidth()
+            .height(54.dp)
+            .padding(bottom = 1.dp)
+            .drawBehind {
+                drawLine(
+                    color = Color.Gray,
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
+    ) {
+        content()
     }
-}
-
-/**
- * Pages in the application.
- */
-private enum class Page {
-    CHATS, LOGIN, REGISTRATION
 }
