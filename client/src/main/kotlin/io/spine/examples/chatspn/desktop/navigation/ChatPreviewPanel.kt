@@ -45,10 +45,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.protobuf.Timestamp
 import io.spine.examples.chatspn.desktop.component.Avatar
+import io.spine.examples.chatspn.desktop.toHoursAndMinutes
 import java.text.SimpleDateFormat
 import java.util.*
-
-private val HOURS_AND_MINUTES_FORMAT = SimpleDateFormat("hh:mm", Locale.getDefault())
 
 /**
  * Displays the chat preview panel.
@@ -118,12 +117,4 @@ private fun ChatPreviewContent(chat: ChatData) {
             )
         }
     }
-}
-
-/**
- * Converts `Timestamp` to the `hh:mm` string.
- */
-public fun Timestamp.toHoursAndMinutes(): String {
-    val date = Date(this.seconds * 1000)
-    return HOURS_AND_MINUTES_FORMAT.format(date)
 }

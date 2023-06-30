@@ -65,7 +65,7 @@ import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.desktop.component.Avatar
 import io.spine.examples.chatspn.desktop.component.DefaultDropdownMenu
 import io.spine.examples.chatspn.desktop.component.DefaultDropdownMenuItem
-import io.spine.examples.chatspn.desktop.navigation.toHoursAndMinutes
+import io.spine.examples.chatspn.desktop.toHoursAndMinutes
 import java.awt.Cursor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
