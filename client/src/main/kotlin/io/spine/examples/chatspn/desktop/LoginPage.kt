@@ -43,7 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Represents the 'Login' page in the application.
+ * Displays the 'Login' page in the application.
  *
  * @param client desktop client
  * @param toRegistration navigation to the 'Registration' page

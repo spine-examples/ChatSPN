@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
 import java.awt.Cursor
 
 /**
- * Represents the layout for the form.
+ * Displays the layout for the form.
  *
  * @param FormContent the content to be composed inside the form layout
  */
@@ -80,7 +80,7 @@ public fun FormBox(
 }
 
 /**
- * Represents the form header.
+ * Displays the form header.
  */
 @Composable
 public fun FormHeader(text: String) {
@@ -93,7 +93,7 @@ public fun FormHeader(text: String) {
 }
 
 /**
- * Represents a form input field with the functionality to display an error.
+ * Displays a form input field with the functionality to display an error.
  */
 @Composable
 public fun FormField(
@@ -119,35 +119,47 @@ public fun FormField(
                 errorState.value = false
             }
         ) { innerTextField ->
-            Row(
-                Modifier.background(MaterialTheme.colorScheme.background),
-                Arrangement.SpaceBetween,
-                Alignment.Bottom
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
-                        .heightIn(15.dp, 192.dp)
-                        .weight(1f),
-                    contentAlignment = Alignment.CenterStart,
-                ) {
-                    if (valueState.value.isEmpty()) {
-                        Text(
-                            text = placeholder,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                    innerTextField()
-                }
-            }
+            FormFieldDecoratedInput(valueState, placeholder, innerTextField)
         }
         FormFieldError(errorState.value, errorText.value)
     }
 }
 
 /**
- * Represents the form field label.
+ * Displays the decorated text field for the form field.
+ */
+@Composable
+private fun FormFieldDecoratedInput(
+    valueState: MutableState<String>,
+    placeholder: String = "",
+    innerTextField: @Composable () -> Unit
+) {
+    Row(
+        Modifier.background(MaterialTheme.colorScheme.background),
+        Arrangement.SpaceBetween,
+        Alignment.Bottom
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
+                .heightIn(15.dp, 192.dp)
+                .weight(1f),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            if (valueState.value.isEmpty()) {
+                Text(
+                    text = placeholder,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+            innerTextField()
+        }
+    }
+}
+
+/**
+ * Displays the form field label.
  */
 @Composable
 private fun FormFieldLabel(text: String) {
@@ -159,7 +171,7 @@ private fun FormFieldLabel(text: String) {
 }
 
 /**
- * Represents the form field error text.
+ * Displays the form field error text.
  */
 @Composable
 private fun FormFieldError(isError: Boolean, text: String) {
@@ -175,7 +187,7 @@ private fun FormFieldError(isError: Boolean, text: String) {
 }
 
 /**
- * Represents the primary button.
+ * Displays the primary button.
  */
 @Composable
 public fun PrimaryButton(text: String, onClick: () -> Unit) {
@@ -195,7 +207,7 @@ public fun PrimaryButton(text: String, onClick: () -> Unit) {
 }
 
 /**
- * Represents the secondary button.
+ * Displays the secondary button.
  */
 @Composable
 public fun SecondaryButton(text: String, onClick: () -> Unit) {
