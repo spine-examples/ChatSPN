@@ -53,7 +53,7 @@ import io.spine.examples.chatspn.desktop.navigation.ChatData
 import kotlinx.coroutines.launch
 
 /**
- * Representation of the chat deletion confirmation modal.
+ * A modal dialog allowing to delete some chat.
  *
  * @param isVisibleState mutable state of dialog visibility
  * @param onDelete callback that will be triggered when the 'delete' button clicked

@@ -49,7 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Returns a representation of the logout confirmation modal.
+ * A modal dialog allowing the current user to log out.
  *
  * @param isVisibleState mutable state of dialog visibility
  * @param onLogOut callback that will be triggered when the 'Log out' button clicked
