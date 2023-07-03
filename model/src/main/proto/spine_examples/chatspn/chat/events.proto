@@ -43,11 +43,17 @@ message PersonalChatCreated {
     // The ID of the created chat.
     ChatId id = 1;
 
-    // The user who created the chat.
+    // The ID of the user who created the chat.
     spine.core.UserId creator = 2 [(required) = true];
 
-    // The second member into the created personal chat.
-    spine.core.UserId member = 3 [(required) = true];
+    // The name of the user who created the chat.
+    string creator_name = 3 [(required) = true];
+
+    // The second member ID into the created personal chat.
+    spine.core.UserId member = 4 [(required) = true];
+
+    // The second member name into the created personal chat.
+    string member_name = 5 [(required) = true];
 }
 
 // A new group chat has been created.
