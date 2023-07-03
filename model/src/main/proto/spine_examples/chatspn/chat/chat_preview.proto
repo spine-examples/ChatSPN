@@ -39,60 +39,22 @@ import "spine_examples/chatspn/identifiers.proto";
 import "spine_examples/chatspn/chat/chat.proto";
 import "spine_examples/chatspn/account/user_profile.proto";
 import "spine_examples/chatspn/message/message.proto";
+import "spine_examples/chatspn/message/message_view.proto";
 import "google/protobuf/timestamp.proto";
 
 // Single chat preview.
+//
+// Individual for each user.
+//
 message ChatPreview {
     option (entity) = { kind: PROJECTION };
 
-    // The ID of the chat.
-    ChatId id = 1;
+    // The ID of the chat preview.
+    ChatPreviewId id = 1;
+
+    // Name of the chat.
+    string name = 2;
 
     // The last posted message in this chat.
-    MessagePreview last_message = 2;
-
-    // View of the chat.
-    oneof view {
-
-        // Store view info about two members to display a view of another member for each user.
-        PersonalChatView personal_chat = 3;
-
-        // Store the same view info of the group chat for all members.
-        GroupChatView group_chat = 4;
-    }
-}
-
-// View of the group chat.
-message GroupChatView {
-
-    // Group chat name.
-    string name = 1;
-}
-
-// View info about two members to display a view of another member
-// for each user in the personal chat.
-//
-message PersonalChatView {
-
-    // The ID of the creator.
-    spine.core.UserId creator = 1 [(required) = true];
-
-    // The ID of the second member in the personal chat.
-    spine.core.UserId member = 2 [(required) = true];
-}
-
-// Single message preview.
-message MessagePreview {
-
-    // The ID of the message.
-    MessageId id = 1 [(required) = true];
-
-    // The ID of the user who posted this message.
-    spine.core.UserId user = 2 [(required) = true];
-
-    // The message text content.
-    string content = 3 [(required) = true];
-
-    // Time when this message was posted.
-    google.protobuf.Timestamp when_posted = 4 [(required) = true];
+    spine_examples.chatspn.message.MessageView last_message = 3;
 }

@@ -34,6 +34,8 @@ option java_package = "io.spine.examples.chatspn";
 option java_outer_classname = "IdentifiersProto";
 option java_multiple_files = true;
 
+import "spine/core/user_id.proto";
+
 // Identifies a chat.
 message ChatId {
 
@@ -77,4 +79,14 @@ message MessageRemovalOperationId {
 message AccountCreationId {
 
     string uuid = 1 [(required) = true];
+}
+
+// Identifies a chat preview.
+message ChatPreviewId {
+
+    // The ID of the chat.
+    ChatId chat = 1 [(required) = true];
+
+    // The ID of the user for whom this preview is intended.
+    spine.core.UserId user = 2 [(required) = true];
 }
