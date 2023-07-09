@@ -42,6 +42,16 @@ message ChatId {
     string uuid = 1 [(required) = true];
 }
 
+// Identifies a chat card.
+message ChatCardId {
+
+    // The ID of the chat.
+    ChatId chat = 1 [(required) = true];
+
+    // The ID of the user for whom this card is intended.
+    spine.core.UserId user = 2 [(required) = true];
+}
+
 // Identifies a chat deletion process.
 message ChatDeletionId {
 
@@ -79,14 +89,4 @@ message MessageRemovalOperationId {
 message AccountCreationId {
 
     string uuid = 1 [(required) = true];
-}
-
-// Identifies a chat preview.
-message ChatPreviewId {
-
-    // The ID of the chat.
-    ChatId chat = 1 [(required) = true];
-
-    // The ID of the user for whom this preview is intended.
-    spine.core.UserId user = 2 [(required) = true];
 }

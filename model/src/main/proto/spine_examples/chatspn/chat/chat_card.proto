@@ -25,27 +25,45 @@
  */
 syntax = "proto3";
 
-package spine_examples.chatspn.account;
+package spine_examples.chatspn.chat;
 
 import "spine/options.proto";
 
 option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.account";
-option java_outer_classname = "UserChatsProto";
+option java_package = "io.spine.examples.chatspn.chat";
+option java_outer_classname = "ChatCardProto";
 option java_multiple_files = true;
 
-import "google/protobuf/timestamp.proto";
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
-import "spine_examples/chatspn/chat/chat_preview.proto";
+import "spine_examples/chatspn/chat/chat.proto";
+import "spine_examples/chatspn/account/user_profile.proto";
+import "spine_examples/chatspn/message/message.proto";
+import "spine_examples/chatspn/message/message_view.proto";
+import "google/protobuf/timestamp.proto";
 
-// Chats in which the user is a member.
-message UserChats {
+// Single chat card.
+//
+// Individual for each user.
+//
+message ChatCard {
     option (entity) = { kind: PROJECTION };
 
-    // The ID of the user.
-    spine.core.UserId id = 1;
+    // The ID of the chat card.
+    ChatCardId id = 1;
 
-    // Previews of chats in which the user is a member.
-    repeated spine_examples.chatspn.chat.ChatPreview chat = 2 [(distinct) = true];
+    // ID of the chat to which the card is dedicated.
+    ChatId chat_id = 2 [(required) = true, (column) = true];
+
+    // ID of the user for whom the card is intended.
+    spine.core.UserId card_owner = 3 [(required) = true, (column) = true];
+
+    // Name of the chat.
+    string name = 4 [(required) = true];
+
+    // Type of the chat.
+    spine_examples.chatspn.chat.Chat.ChatType type = 5 [(required) = true];
+
+    // The last posted message in this chat.
+    spine_examples.chatspn.message.MessageView last_message = 6;
 }
