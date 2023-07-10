@@ -91,8 +91,8 @@ final class ChatTest extends ContextAwareTest {
         var creatorChatCard = personalChatCard(command, command.getCreator());
         var membersChatCard = personalChatCard(command, command.getMember());
 
-        context().assertState(creatorChatCard.getId(), creatorChatCard);
-        context().assertState(membersChatCard.getId(), membersChatCard);
+        context().assertState(creatorChatCard.getCardId(), creatorChatCard);
+        context().assertState(membersChatCard.getCardId(), membersChatCard);
     }
 
     @Test
@@ -116,8 +116,8 @@ final class ChatTest extends ContextAwareTest {
         var ownerChatCard = groupChatCard(chat, chat.getOwner());
         var memberChatCard = groupChatCard(chat, chat.getMember(1));
 
-        context().assertState(ownerChatCard.getId(), ownerChatCard);
-        context().assertState(memberChatCard.getId(), memberChatCard);
+        context().assertState(ownerChatCard.getCardId(), ownerChatCard);
+        context().assertState(memberChatCard.getCardId(), memberChatCard);
     }
 
     @Nested
@@ -261,7 +261,7 @@ final class ChatTest extends ContextAwareTest {
             context().receivesCommand(command);
             var chatCard = groupChatCard(chat, membersToAdd.get(0));
 
-            context().assertState(chatCard.getId(), chatCard);
+            context().assertState(chatCard.getCardId(), chatCard);
         }
 
         @Test

@@ -100,7 +100,7 @@ final class TestUser {
      */
     private List<ChatCard> readChats() {
         var byCardOwnerFilter = QueryFilter.eq(
-                ChatCard.Column.cardOwner(),
+                ChatCard.Column.viewer(),
                 userId()
         );
         var userChatsList = client
@@ -117,7 +117,7 @@ final class TestUser {
      */
     private void observeChats() {
         var byCardOwnerFilter = EntityStateFilter.eq(
-                ChatCard.Field.cardOwner(),
+                ChatCard.Field.viewer(),
                 userId()
         );
         client.onBehalfOf(userId())
@@ -126,8 +126,8 @@ final class TestUser {
               .observe(updatedChatCard -> {
                   var optionalChatCard = chats
                           .stream()
-                          .filter(card -> card.getId()
-                                              .equals(updatedChatCard.getId()))
+                          .filter(card -> card.getCardId()
+                                              .equals(updatedChatCard.getCardId()))
                           .findFirst();
                   optionalChatCard.ifPresent(chats::remove);
                   chats.add(updatedChatCard);

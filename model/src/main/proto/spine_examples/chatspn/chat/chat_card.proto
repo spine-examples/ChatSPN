@@ -50,13 +50,13 @@ message ChatCard {
     option (entity) = { kind: PROJECTION };
 
     // The ID of the chat card.
-    ChatCardId id = 1;
-
-    // ID of the chat to which the card is dedicated.
-    ChatId chat_id = 2 [(required) = true, (column) = true];
+    ChatCardId card_id = 1;
 
     // ID of the user for whom the card is intended.
-    spine.core.UserId card_owner = 3 [(required) = true, (column) = true];
+    spine.core.UserId viewer = 2 [(required) = true, (column) = true];
+
+    // ID of the chat to which the card is dedicated.
+    ChatId chat_id = 3 [(required) = true, (column) = true];
 
     // Name of the chat.
     string name = 4 [(required) = true];

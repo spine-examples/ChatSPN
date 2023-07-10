@@ -54,43 +54,43 @@ public final class ChatCardProjection
 
     @Subscribe
     void on(PersonalChatCreated e) {
-        var cardOwner = builder().getId()
+        var viewer = builder().getCardId()
                                  .getUser();
-        var chat = builder().getId()
+        var chat = builder().getCardId()
                             .getChat();
         String chatName;
         if (e.getCreator()
-             .equals(cardOwner)) {
+             .equals(viewer)) {
             chatName = e.getMemberName();
         } else {
             chatName = e.getCreatorName();
         }
         builder().setName(chatName)
-                 .setCardOwner(cardOwner)
+                 .setViewer(viewer)
                  .setChatId(chat)
                  .setType(CT_PERSONAL);
     }
 
     @Subscribe
     void on(GroupChatCreated e) {
-        var cardOwner = builder().getId()
+        var cardOwner = builder().getCardId()
                                  .getUser();
-        var chat = builder().getId()
+        var chat = builder().getCardId()
                             .getChat();
         builder().setName(e.getName())
-                 .setCardOwner(cardOwner)
+                 .setViewer(cardOwner)
                  .setChatId(chat)
                  .setType(CT_GROUP);
     }
 
     @Subscribe
     void on(MembersAdded e) {
-        var cardOwner = builder().getId()
+        var cardOwner = builder().getCardId()
                                  .getUser();
-        var chat = builder().getId()
+        var chat = builder().getCardId()
                             .getChat();
         builder().setName(e.getChatName())
-                 .setCardOwner(cardOwner)
+                 .setViewer(cardOwner)
                  .setChatId(chat)
                  .setType(CT_GROUP);
     }

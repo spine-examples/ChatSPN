@@ -143,8 +143,8 @@ final class MessageRemovalTest extends ContextAwareTest {
         var ownerChatCard = chatCard(chat, chat.getOwner());
         var memberChatCard = chatCard(chat, chat.getMember(1));
 
-        context().assertState(ownerChatCard.getId(), ownerChatCard);
-        context().assertState(memberChatCard.getId(), memberChatCard);
+        context().assertState(ownerChatCard.getCardId(), ownerChatCard);
+        context().assertState(memberChatCard.getCardId(), memberChatCard);
     }
 
     @Test
@@ -159,8 +159,8 @@ final class MessageRemovalTest extends ContextAwareTest {
         var ownerChatCard = chatCardWithMessage(chat, lastMessage, chat.getOwner());
         var memberChatCard = chatCardWithMessage(chat, lastMessage, chat.getMember(1));
 
-        context().assertState(ownerChatCard.getId(), ownerChatCard);
-        context().assertState(memberChatCard.getId(), memberChatCard);
+        context().assertState(ownerChatCard.getCardId(), ownerChatCard);
+        context().assertState(memberChatCard.getCardId(), memberChatCard);
     }
 
     @Nested

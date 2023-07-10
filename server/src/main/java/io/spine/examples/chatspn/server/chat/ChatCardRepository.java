@@ -105,7 +105,7 @@ public final class ChatCardRepository
         var previews = reader.read(ctx.actorContext(), chatFilter);
         return previews
                 .stream()
-                .map(ChatCard::getId)
+                .map(ChatCard::getCardId)
                 .collect(toImmutableSet());
     }
 

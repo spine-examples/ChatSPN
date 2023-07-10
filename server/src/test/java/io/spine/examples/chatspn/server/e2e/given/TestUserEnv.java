@@ -34,7 +34,6 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.account.command.CreateAccount;
-import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
@@ -97,8 +96,8 @@ public final class TestUserEnv {
         }
         var chatCard = ChatCard
                 .newBuilder()
-                .setId(chatCardId)
-                .setCardOwner(cardOwner)
+                .setCardId(chatCardId)
+                .setViewer(cardOwner)
                 .setChatId(command.getId())
                 .setName(chatName)
                 .setType(CT_PERSONAL)

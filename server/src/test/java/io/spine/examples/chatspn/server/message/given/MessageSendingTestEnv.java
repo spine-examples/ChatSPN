@@ -141,9 +141,9 @@ public final class MessageSendingTestEnv {
                 .vBuild();
         var state = ChatCard
                 .newBuilder()
-                .setId(chatCardId)
+                .setCardId(chatCardId)
                 .setChatId(chat.getId())
-                .setCardOwner(user)
+                .setViewer(user)
                 .setName(chat.getName())
                 .setType(CT_GROUP)
                 .setLastMessage(messageView)

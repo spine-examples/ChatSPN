@@ -390,9 +390,9 @@ public final class ChatTestEnv {
         var chatCardId = chatCardId(chat.getId(), user);
         var chatCard = ChatCard
                 .newBuilder()
-                .setId(chatCardId)
+                .setCardId(chatCardId)
                 .setChatId(chat.getId())
-                .setCardOwner(user)
+                .setViewer(user)
                 .setName(chat.getName())
                 .setType(CT_GROUP)
                 .vBuild();
@@ -410,9 +410,9 @@ public final class ChatTestEnv {
         }
         var chatCard = ChatCard
                 .newBuilder()
-                .setId(chatCardId)
+                .setCardId(chatCardId)
                 .setChatId(command.getId())
-                .setCardOwner(user)
+                .setViewer(user)
                 .setName(name)
                 .setType(CT_PERSONAL)
                 .vBuild();

@@ -147,8 +147,8 @@ final class MessageEditingTest extends ContextAwareTest {
         var memberChatCard =
                 chatCardWithEditedMessage(chat, command, chat.getMember(1));
 
-        context().assertState(ownerChatCard.getId(), ownerChatCard);
-        context().assertState(memberChatCard.getId(), memberChatCard);
+        context().assertState(ownerChatCard.getCardId(), ownerChatCard);
+        context().assertState(memberChatCard.getCardId(), memberChatCard);
     }
 
     @Test
@@ -164,8 +164,8 @@ final class MessageEditingTest extends ContextAwareTest {
         var memberChatCard =
                 chatCardWithMessage(chat, lastMessage, chat.getMember(1));
 
-        context().assertState(ownerChatCard.getId(), ownerChatCard);
-        context().assertState(memberChatCard.getId(), memberChatCard);
+        context().assertState(ownerChatCard.getCardId(), ownerChatCard);
+        context().assertState(memberChatCard.getCardId(), memberChatCard);
     }
 
     @Nested
