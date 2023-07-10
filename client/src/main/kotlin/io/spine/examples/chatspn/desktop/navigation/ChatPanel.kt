@@ -51,7 +51,7 @@ import io.spine.examples.chatspn.message.MessageView
 /**
  * Displays the chat panel.
  *
- * @param chat data of the chat to display
+ * @param chat card of the chat to display
  * @param isHighlighted whether the panel is highlighted
  * @param onClick callback that will be triggered when the panel clicked
  */
@@ -107,7 +107,7 @@ private fun ChatPanelContent(chat: ChatCard) {
             }
             Spacer(Modifier.size(9.dp))
             Text(
-                text = if (null == chat.lastMessage) ""
+                text = if (chat.lastMessage.equals(MessageView.getDefaultInstance())) ""
                 else chat.lastMessage.content.replace("\\s".toRegex(), " "),
                 color = MaterialTheme.colorScheme.onSecondary,
                 style = MaterialTheme.typography.bodyMedium,
