@@ -27,51 +27,80 @@
 package io.spine.examples.chatspn.server.chat;
 
 import io.spine.core.Subscribe;
-import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.GroupChatView;
-import io.spine.examples.chatspn.chat.MessagePreview;
-import io.spine.examples.chatspn.chat.PersonalChatView;
+import io.spine.examples.chatspn.ChatCardId;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
+import io.spine.examples.chatspn.chat.event.MembersAdded;
+import io.spine.examples.chatspn.chat.event.MembersRemoved;
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated;
+import io.spine.examples.chatspn.chat.event.UserLeftChat;
+import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.server.projection.Projection;
 
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
+
 /**
- * Single chat preview.
+ * Single chat card.
+ *
+ * <p>Individual for each user.
  */
-public final class ChatPreviewProjection
-        extends Projection<ChatId, ChatPreview, ChatPreview.Builder> {
+public final class ChatCardProjection
+        extends Projection<ChatCardId, ChatCard, ChatCard.Builder> {
 
     @Subscribe
     void on(PersonalChatCreated e) {
-        var view = PersonalChatView
-                .newBuilder()
-                .setCreator(e.getCreator())
-                .setMember(e.getMember())
-                .vBuild();
-        builder().setId(e.getId())
-                 .setPersonalChat(view);
+        var cardOwner = builder().getId()
+                                 .getUser();
+        var chat = builder().getId()
+                            .getChat();
+        String chatName;
+        if (e.getCreator()
+             .equals(cardOwner)) {
+            chatName = e.getMemberName();
+        } else {
+            chatName = e.getCreatorName();
+        }
+        builder().setName(chatName)
+                 .setCardOwner(cardOwner)
+                 .setChatId(chat)
+                 .setType(CT_PERSONAL);
     }
 
     @Subscribe
     void on(GroupChatCreated e) {
-        var view = GroupChatView
-                .newBuilder()
-                .setName(e.getName())
-                .vBuild();
-        builder().setId(e.getId())
-                 .setGroupChat(view);
+        var cardOwner = builder().getId()
+                                 .getUser();
+        var chat = builder().getId()
+                            .getChat();
+        builder().setName(e.getName())
+                 .setCardOwner(cardOwner)
+                 .setChatId(chat)
+                 .setType(CT_GROUP);
+    }
+
+    @Subscribe
+    void on(MembersAdded e) {
+        var cardOwner = builder().getId()
+                                 .getUser();
+        var chat = builder().getId()
+                            .getChat();
+        builder().setName(e.getChatName())
+                 .setCardOwner(cardOwner)
+                 .setChatId(chat)
+                 .setType(CT_GROUP);
     }
 
     @Subscribe
     void on(MessagePosted e) {
-        var message = MessagePreview
+        var message = MessageView
                 .newBuilder()
                 .setId(e.getId())
+                .setChat(e.getChat())
                 .setUser(e.getUser())
                 .setContent(e.getContent())
                 .setWhenPosted(e.getWhenPosted())
@@ -84,9 +113,10 @@ public final class ChatPreviewProjection
         var lastMessage = state().getLastMessage();
         if (e.getId()
              .equals(lastMessage.getId())) {
-            var message = MessagePreview
+            var message = MessageView
                     .newBuilder()
                     .setId(e.getId())
+                    .setChat(e.getChat())
                     .setUser(e.getUser())
                     .setContent(e.getContent())
                     .setWhenPosted(lastMessage.getWhenPosted())
@@ -100,12 +130,22 @@ public final class ChatPreviewProjection
         var lastMessage = state().getLastMessage();
         if (e.getId()
              .equals(lastMessage.getId())) {
-            builder().setLastMessage(MessagePreview.getDefaultInstance());
+            builder().setLastMessage(MessageView.getDefaultInstance());
         }
     }
 
     @Subscribe
     void on(ChatMarkedAsDeleted e) {
+        setDeleted(true);
+    }
+
+    @Subscribe
+    void on(MembersRemoved e) {
+        setDeleted(true);
+    }
+
+    @Subscribe
+    void on(UserLeftChat e) {
         setDeleted(true);
     }
 }
