@@ -35,6 +35,7 @@ import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.DesktopClient
+import io.spine.examples.chatspn.desktop.remove
 import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import java.util.stream.Collectors
@@ -264,12 +265,3 @@ private typealias MutableMessagesState = MutableStateFlow<MessageList>
  * Immutable state of messages in the chat.
  */
 public typealias MessagesState = StateFlow<MessageList>
-
-/**
- * Returns the new list without an element on provided index.
- *
- * @param index index of the element to remove
- */
-public fun <T> List<T>.remove(index: Int): List<T> {
-    return this.subList(0, index) + this.subList(index + 1, this.size)
-}

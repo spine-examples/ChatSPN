@@ -34,7 +34,7 @@ import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.chat.Chat
 import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.DesktopClient
-import io.spine.examples.chatspn.desktop.chat.remove
+import io.spine.examples.chatspn.desktop.remove
 import java.util.stream.Collectors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
