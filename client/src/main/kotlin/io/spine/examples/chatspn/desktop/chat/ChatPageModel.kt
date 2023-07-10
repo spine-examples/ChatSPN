@@ -33,8 +33,8 @@ import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.account.UserProfile
+import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.DesktopClient
-import io.spine.examples.chatspn.desktop.navigation.ChatData
 import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
 import java.util.stream.Collectors
@@ -47,13 +47,13 @@ import kotlinx.coroutines.flow.StateFlow
  * UI Model is a layer between `@Composable` functions and client.
  *
  * @param client desktop client
- * @param chatData data of the chat to display
+ * @param chatCard data of the chat to display
  * @param openChatInfo function to open the chat info
  * @param openUserProfile function to open the user profile
  */
 public class ChatPageModel(
     public val client: DesktopClient,
-    public var chatData: ChatData,
+    public var chatCard: ChatCard,
     public val openChatInfo: (chat: ChatId) -> Unit,
     public val openUserProfile: (user: UserId) -> Unit
 ) {
@@ -66,10 +66,10 @@ public class ChatPageModel(
      */
     public fun observeMessages() {
         messageInputFieldState.clear()
-        messagesState.value = client.readMessages(chatData.id).toMessageDataList(client)
+        messagesState.value = client.readMessages(chatCard.chatId).toMessageDataList(client)
         client.stopObservingMessages()
         client.observeMessages(
-            chatData.id,
+            chatCard.chatId,
             { messageView -> updateMessagesState(messageView) },
             { messageDeleted -> updateMessagesState(messageDeleted) })
     }
@@ -119,7 +119,7 @@ public class ChatPageModel(
      * @param content message text content
      */
     public fun sendMessage(content: String) {
-        client.sendMessage(chatData.id, content)
+        client.sendMessage(chatCard.chatId, content)
     }
 
     /**
@@ -140,7 +140,7 @@ public class ChatPageModel(
      * @param newContent new text content for the message
      */
     public fun editMessage(message: MessageId, newContent: String) {
-        client.editMessage(chatData.id, message, newContent)
+        client.editMessage(chatCard.chatId, message, newContent)
     }
 
     /**
@@ -270,6 +270,6 @@ public typealias MessagesState = StateFlow<MessageList>
  *
  * @param index index of the element to remove
  */
-private fun <T> List<T>.remove(index: Int): List<T> {
+public fun <T> List<T>.remove(index: Int): List<T> {
     return this.subList(0, index) + this.subList(index + 1, this.size)
 }

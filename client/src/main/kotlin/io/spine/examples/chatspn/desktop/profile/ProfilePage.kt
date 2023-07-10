@@ -58,12 +58,12 @@ import androidx.compose.ui.unit.dp
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
+import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.desktop.component.Avatar
 import io.spine.examples.chatspn.desktop.component.RoundedMaxWidthButton
 import io.spine.examples.chatspn.desktop.component.TextButton
 import io.spine.examples.chatspn.desktop.component.TopBar
-import io.spine.examples.chatspn.desktop.navigation.ChatData
 
 /**
  * Displays the page with the user profile.
@@ -79,7 +79,7 @@ import io.spine.examples.chatspn.desktop.navigation.ChatData
 public fun ProfilePage(
     client: DesktopClient,
     profileState: MutableState<UserProfile>,
-    chatState: MutableState<ChatData?>,
+    chatState: MutableState<ChatCard?>,
     onBack: () -> Unit,
     toRegistration: () -> Unit,
     openChat: (user: UserId) -> Unit
@@ -106,10 +106,10 @@ public fun ProfilePage(
         ProfilePageContent(model)
     }
     LogoutDialog(model.logoutModalState) { model.logOut() }
-    if (chatState.value != null) {
+    if (null != chatState.value) {
         ChatDeletionDialog(
             isChatDeletionDialogVisible,
-            { model.deleteChat(chatState.value!!.id) },
+            { model.deleteChat(chatState.value!!.chatId) },
             chatState.value!!
         )
     }
@@ -166,7 +166,7 @@ private fun ProfilePageContent(model: ProfilePageModel) {
         Spacer(Modifier.height(8.dp))
         if (isAuthenticatedUser) {
             LogOutButton(model)
-        } else if (chat.value != null) {
+        } else if (null != chat.value) {
             DeleteChatButton(model)
         }
     }
@@ -264,7 +264,7 @@ private fun EmailField(email: String) {
 private class ProfilePageModel(
     private val client: DesktopClient,
     val userProfile: MutableState<UserProfile>,
-    val chatState: MutableState<ChatData?>,
+    val chatState: MutableState<ChatCard?>,
     val onBack: () -> Unit,
     private val toRegistration: () -> Unit,
     val openChat: (user: UserId) -> Unit

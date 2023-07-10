@@ -43,17 +43,18 @@ import io.spine.client.QueryFilter
 import io.spine.client.Subscription
 import io.spine.core.UserId
 import io.spine.examples.chatspn.AccountCreationId
+import io.spine.examples.chatspn.ChatCardId
 import io.spine.examples.chatspn.ChatDeletionId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.MessageRemovalId
-import io.spine.examples.chatspn.account.UserChats
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.account.command.CreateAccount
 import io.spine.examples.chatspn.account.event.AccountCreated
 import io.spine.examples.chatspn.account.event.AccountNotCreated
+import io.spine.examples.chatspn.chat.Chat.ChatType
+import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.chat.ChatMembers
-import io.spine.examples.chatspn.chat.ChatPreview
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
 import io.spine.examples.chatspn.chat.command.DeleteChat
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated
@@ -218,9 +219,15 @@ public class DesktopClient(
         onSuccess: (event: PersonalChatCreated) -> Unit = {}
     ) {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
+        val userProfile = findUser(user)
         val command = CreatePersonalChat
             .newBuilder()
-            .buildWith(authenticatedUser!!.id, user)
+            .buildWith(
+                authenticatedUser!!.id,
+                authenticatedUser!!.name,
+                user,
+                userProfile!!.name
+            )
         var subscription: Subscription? = null
         subscription = observeEvent(
             command.id,
@@ -308,13 +315,38 @@ public class DesktopClient(
      *
      * @throws IllegalStateException if the user has not been authenticated
      */
-    public fun readChats(): List<ChatPreview> {
+    public fun readChats(): List<ChatCard> {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
+        val byViewerFilter = QueryFilter.eq(
+            ChatCard.Column.viewer(),
+            authenticatedUser!!.id
+        )
         val chats = clientRequest()
-            .select(UserChats::class.java)
-            .byId(authenticatedUser!!.id)
-            .run()[0]
-        return chats.chatList
+            .select(ChatCard::class.java)
+            .where(byViewerFilter)
+            .run()
+        return chats
+    }
+
+    /**
+     * Returns personal chats where the provided user is a member.
+     *
+     * @param user ID of the user whose personal chats to read
+     */
+    public fun readPersonalChats(user: UserId): List<ChatCard> {
+        val byViewerFilter = QueryFilter.eq(
+            ChatCard.Column.viewer(),
+            user
+        )
+        val byTypeFilter = QueryFilter.eq(
+            ChatCard.Column.type(),
+            ChatType.CT_PERSONAL
+        )
+        val chats = clientRequest()
+            .select(ChatCard::class.java)
+            .where(byViewerFilter, byTypeFilter)
+            .run()
+        return chats
     }
 
     /**
@@ -323,14 +355,22 @@ public class DesktopClient(
      * @param onUpdate will be called when the user's chats updated
      * @throws IllegalStateException if the user has not been authenticated
      */
-    public fun observeChats(onUpdate: (state: UserChats) -> Unit) {
+    public fun observeChats(
+        onUpdate: (chat: ChatCard) -> Unit,
+        onDelete: (chat: ChatCardId) -> Unit
+    ) {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
-        val subscription = clientRequest()
-            .subscribeTo(UserChats::class.java)
-            .byId(authenticatedUser!!.id)
+        val byViewerFilter = EntityStateFilter.eq(
+            ChatCard.Field.viewer(),
+            authenticatedUser!!.id
+        )
+        val updateSubscription = clientRequest()
+            .subscribeTo(ChatCard::class.java)
+            .where(byViewerFilter)
+            .whenNoLongerMatching(ChatCardId::class.java, onDelete)
             .observe(onUpdate)
             .post()
-        userChatsSubscriptions.add(subscription)
+        userChatsSubscriptions.add(updateSubscription)
     }
 
     /**
@@ -509,12 +549,16 @@ private fun CreateAccount.Builder.buildWith(email: String, name: String): Create
  */
 private fun CreatePersonalChat.Builder.buildWith(
     creator: UserId,
-    member: UserId
+    creatorName: String,
+    member: UserId,
+    memberName: String
 ): CreatePersonalChat {
     return this
         .setId(ChatId.generate())
         .setCreator(creator)
+        .setCreatorName(creatorName)
         .setMember(member)
+        .setMemberName(memberName)
         .vBuild()
 }
 
