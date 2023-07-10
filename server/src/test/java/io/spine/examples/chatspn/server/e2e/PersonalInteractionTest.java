@@ -65,7 +65,7 @@ final class PersonalInteractionTest extends ServerRunningTest {
         // Artem opens the chat and sends messages.
         var artemChats = artem.chats();
         var artemConversation = artem.openChat(artemChats.get(0)
-                                                       .getChatId());
+                                                         .getChatId());
         artemConversation.sendMessage("Hi!");
         artemConversation.sendMessage("I'm fine");
         artemConversation.sendMessage("And you");

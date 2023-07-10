@@ -89,7 +89,7 @@ public class NavigationModel(private val client: DesktopClient) {
     }
 
     /**
-     * Returns the card of the chat by id, or `null` if the chat doesn't exist.
+     * Returns the card of the chat by ID, or `null` if the chat doesn't exist.
      *
      * @param chatId ID of the chat
      */
