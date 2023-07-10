@@ -545,7 +545,9 @@ private fun CreateAccount.Builder.buildWith(email: String, name: String): Create
  * Builds command to create a personal chat between provided users.
  *
  * @param creator ID of the user who creates a personal chat
+ * @param creatorName name of the user who creates a personal chat
  * @param member ID of the user to create a personal chat with
+ * @param memberName name of the user to create a personal chat with
  * @return command to create a personal chat
  */
 private fun CreatePersonalChat.Builder.buildWith(

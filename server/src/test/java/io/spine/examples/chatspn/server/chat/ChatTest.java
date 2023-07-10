@@ -83,7 +83,7 @@ final class ChatTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("create `ChatCard` projection projections for each member " +
+    @DisplayName("create `ChatCard` projections for each member " +
             "after personal chat creation")
     void updateProjectionsAfterPersonalChatCreation() {
         var command = createPersonalChatCommand();

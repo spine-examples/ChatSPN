@@ -42,9 +42,11 @@ import "spine_examples/chatspn/message/message.proto";
 import "spine_examples/chatspn/message/message_view.proto";
 import "google/protobuf/timestamp.proto";
 
-// Single chat card.
+// Member's view of the chat.
 //
-// Individual for each user.
+// General information about chat without all messages history.
+//
+// Each member in the chat has an individual chat card.
 //
 message ChatCard {
     option (entity) = { kind: PROJECTION };

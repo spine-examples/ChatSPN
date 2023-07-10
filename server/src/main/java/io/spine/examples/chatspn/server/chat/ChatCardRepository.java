@@ -91,6 +91,14 @@ public final class ChatCardRepository
                                                         event.getChat()));
     }
 
+    /**
+     * Returns ID's of chat cards of provided users in the chat.
+     *
+     * @param users
+     *         user IDs whose chat card IDs to return
+     * @param chat
+     *         ID of the chat which card IDs to return
+     */
     private static ImmutableSet<ChatCardId> toUsersInChat(List<UserId> users, ChatId chat) {
         return users
                 .stream()
@@ -98,6 +106,14 @@ public final class ChatCardRepository
                 .collect(toImmutableSet());
     }
 
+    /**
+     * Returns ID's of chat cards of all members in the chat.
+     *
+     * @param chatId
+     *         ID of the chat which card IDs to return
+     * @param ctx
+     *         event context
+     */
     private ImmutableSet<ChatCardId> toEverybodyInChat(ChatId chatId, EventContext ctx) {
         var reader = new ProjectionReader<ChatCardId, ChatCard>(context().stand(),
                                                                 ChatCard.class);
@@ -109,6 +125,9 @@ public final class ChatCardRepository
                 .collect(toImmutableSet());
     }
 
+    /**
+     * Builds {@code ChatCardId}.
+     */
     private static ChatCardId chatCardId(ChatId chat, UserId user) {
         return ChatCardId
                 .newBuilder()

@@ -45,9 +45,7 @@ import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
 
 /**
- * Single chat card.
- *
- * <p>Individual for each user.
+ * {@link ChatCard} projection.
  */
 public final class ChatCardProjection
         extends Projection<ChatCardId, ChatCard, ChatCard.Builder> {
@@ -55,7 +53,7 @@ public final class ChatCardProjection
     @Subscribe
     void on(PersonalChatCreated e) {
         var viewer = builder().getCardId()
-                                 .getUser();
+                              .getUser();
         var chat = builder().getCardId()
                             .getChat();
         String chatName;
