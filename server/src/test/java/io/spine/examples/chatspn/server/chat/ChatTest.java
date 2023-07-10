@@ -40,26 +40,25 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.addMembers
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterAddition;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatAfterRemoval;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatCardId;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.chatDeleted;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createDeletedGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createPersonalChatIn;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.emptyUserChats;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatCard;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatCreatedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatPreview;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.lastMemberLeftChat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.leaveChat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersAdded;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeAddedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.membersRemoved;
+import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatCard;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatCreatedFrom;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalChatPreview;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.removeMembersCommandWith;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userCannotLeaveChat;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userChats;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userLeftChat;
 
 @DisplayName("`Chat` should")
@@ -84,18 +83,16 @@ final class ChatTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("create a `ChatPreview` projection and update the `UserChats` projection " +
+    @DisplayName("create `ChatCard` projection projections for each member " +
             "after personal chat creation")
     void updateProjectionsAfterPersonalChatCreation() {
         var command = createPersonalChatCommand();
         context().receivesCommand(command);
-        var chatPreview = personalChatPreview(command);
-        var creatorChats = userChats(chatPreview, command.getCreator());
-        var memberChats = userChats(chatPreview, command.getMember());
+        var creatorChatCard = personalChatCard(command, command.getCreator());
+        var membersChatCard = personalChatCard(command, command.getMember());
 
-        context().assertState(chatPreview.getId(), chatPreview);
-        context().assertState(creatorChats.getId(), creatorChats);
-        context().assertState(memberChats.getId(), memberChats);
+        context().assertState(creatorChatCard.getId(), creatorChatCard);
+        context().assertState(membersChatCard.getId(), membersChatCard);
     }
 
     @Test
@@ -112,18 +109,15 @@ final class ChatTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("create a `ChatPreview` projection and update the `UserChats` projection " +
+    @DisplayName("create `ChatCard` projections for each member " +
             "after group chat creation")
     void updateProjectionsAfterGroupChatCreation() {
-        var command = createGroupChatCommand();
-        context().receivesCommand(command);
-        var chatPreview = groupChatPreview(command);
-        var creatorChats = userChats(chatPreview, command.getCreator());
-        var memberChats = userChats(chatPreview, command.getMember(1));
+        var chat = createGroupChatIn(context());
+        var ownerChatCard = groupChatCard(chat, chat.getOwner());
+        var memberChatCard = groupChatCard(chat, chat.getMember(1));
 
-        context().assertState(chatPreview.getId(), chatPreview);
-        context().assertState(creatorChats.getId(), creatorChats);
-        context().assertState(memberChats.getId(), memberChats);
+        context().assertState(ownerChatCard.getId(), ownerChatCard);
+        context().assertState(memberChatCard.getId(), memberChatCard);
     }
 
     @Nested
@@ -164,15 +158,17 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("update the `UserChats` projection after members removal")
-        void updateUserChatsProjection() {
+        @DisplayName("and delete `ChatCard` projections of removed members")
+        void deleteChatCardProjection() {
             var chat = createGroupChatIn(context());
             var membersToRemove = ImmutableList.of(chat.getMember(1));
             var command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
-            var removedMemberChats = emptyUserChats(membersToRemove.get(0));
+            var chatCardId = chatCardId(chat.getId(), membersToRemove.get(0));
 
-            context().assertState(removedMemberChats.getId(), removedMemberChats);
+            context().assertEntity(chatCardId, ChatCardProjection.class)
+                     .deletedFlag()
+                     .isTrue();
         }
 
         @Test
@@ -257,15 +253,15 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("update `the `UserChats` projection after members addition")
-        void updateUserChatsProjection() {
+        @DisplayName("and create the `ChatCard` projection for added members")
+        void createChatCardProjection() {
             var chat = createGroupChatIn(context());
             var membersToAdd = ImmutableList.of(GivenUserId.generated());
             var command = addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
-            var addedMemberChats = userChats(chat, membersToAdd.get(0));
+            var chatCard = groupChatCard(chat, membersToAdd.get(0));
 
-            context().assertState(addedMemberChats.getId(), addedMemberChats);
+            context().assertState(chatCard.getId(), chatCard);
         }
 
         @Test
@@ -345,14 +341,18 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("update `the `UserChats` projection after the member leaves")
-        void updateUserChatsProjection() {
+        @DisplayName("and delete member's `ChatCard` projection after the member leaves")
+        void deleteChatCardProjection() {
             var chat = createGroupChatIn(context());
-            var command = leaveChat(chat, chat.getMember(1));
+            var user = chat.getMember(1);
+            var command = leaveChat(chat, user);
             context().receivesCommand(command);
-            var userChats = emptyUserChats(command.getUser());
 
-            context().assertState(userChats.getId(), userChats);
+            var chatCardId = chatCardId(chat.getId(), user);
+
+            context().assertEntity(chatCardId, ChatCardProjection.class)
+                     .deletedFlag()
+                     .isTrue();
         }
 
         @Test

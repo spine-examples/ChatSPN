@@ -27,12 +27,13 @@
 package io.spine.examples.chatspn.server.message.given;
 
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.MessagePreview;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.message.Message;
+import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
@@ -40,7 +41,7 @@ import io.spine.examples.chatspn.message.event.MessageRemoved;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeRemoved;
 
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatView;
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 
 public final class MessageRemovalTestEnv {
 
@@ -150,28 +151,44 @@ public final class MessageRemovalTestEnv {
                 .vBuild();
     }
 
-    public static ChatPreview chatPreview(Chat chat) {
-        var state = ChatPreview
+    public static ChatCard chatCardWithMessage(Chat chat, Message message, UserId user) {
+        var messageView = MessageView
                 .newBuilder()
-                .setId(chat.getId())
-                .setGroupChat(groupChatView(chat.getName()))
-                .setLastMessage(MessagePreview.getDefaultInstance())
+                .setId(message.getId())
+                .setChat(message.getChat())
+                .setUser(message.getUser())
+                .setContent(message.getContent())
+                .buildPartial();
+        var chatCardId = ChatCardId
+                .newBuilder()
+                .setUser(user)
+                .setChat(chat.getId())
+                .vBuild();
+        var state = ChatCard
+                .newBuilder()
+                .setId(chatCardId)
+                .setChatId(chat.getId())
+                .setCardOwner(user)
+                .setName(chat.getName())
+                .setType(CT_GROUP)
+                .setLastMessage(messageView)
                 .vBuild();
         return state;
     }
 
-    public static ChatPreview chatPreviewWithMessage(Chat chat, Message message) {
-        var messageView = MessagePreview
+    public static ChatCard chatCard(Chat chat, UserId user) {
+        var chatCardId = ChatCardId
                 .newBuilder()
-                .setId(message.getId())
-                .setUser(message.getUser())
-                .setContent(message.getContent())
-                .buildPartial();
-        var state = ChatPreview
+                .setUser(user)
+                .setChat(chat.getId())
+                .vBuild();
+        var state = ChatCard
                 .newBuilder()
-                .setId(chat.getId())
-                .setGroupChat(groupChatView(chat.getName()))
-                .setLastMessage(messageView)
+                .setId(chatCardId)
+                .setChatId(chat.getId())
+                .setCardOwner(user)
+                .setName(chat.getName())
+                .setType(CT_GROUP)
                 .vBuild();
         return state;
     }

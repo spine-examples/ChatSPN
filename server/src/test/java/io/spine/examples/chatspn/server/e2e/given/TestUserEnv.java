@@ -28,13 +28,14 @@ package io.spine.examples.chatspn.server.e2e.given;
 
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.AccountCreationId;
+import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.account.command.CreateAccount;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.PersonalChatView;
+import io.spine.examples.chatspn.chat.Chat;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.MessageView;
@@ -43,6 +44,9 @@ import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.net.EmailAddress;
 import io.spine.testing.core.given.GivenUserId;
+
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
+import static io.spine.testing.TestValues.randomString;
 
 public final class TestUserEnv {
 
@@ -72,23 +76,34 @@ public final class TestUserEnv {
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setCreator(creator)
+                .setCreatorName(randomString())
                 .setMember(member)
+                .setMemberName(randomString())
                 .vBuild();
         return command;
     }
 
-    public static ChatPreview chatPreview(CreatePersonalChat command) {
-        var view = PersonalChatView
+    public static ChatCard chatCard(CreatePersonalChat command, UserId cardOwner) {
+        var chatCardId = ChatCardId
                 .newBuilder()
-                .setCreator(command.getCreator())
-                .setMember(command.getMember())
+                .setUser(cardOwner)
+                .setChat(command.getId())
                 .vBuild();
-        var chatPreview = ChatPreview
+        String chatName;
+        if(command.getCreator().equals(cardOwner)){
+            chatName = command.getMemberName();
+        } else {
+            chatName = command.getCreatorName();
+        }
+        var chatCard = ChatCard
                 .newBuilder()
-                .setId(command.getId())
-                .setPersonalChat(view)
+                .setId(chatCardId)
+                .setCardOwner(cardOwner)
+                .setChatId(command.getId())
+                .setName(chatName)
+                .setType(CT_PERSONAL)
                 .vBuild();
-        return chatPreview;
+        return chatCard;
     }
 
     public static SendMessage sendMessageCommand(ChatId chatId, UserId userId, String content) {

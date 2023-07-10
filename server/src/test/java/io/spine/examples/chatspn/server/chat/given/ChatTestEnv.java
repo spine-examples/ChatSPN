@@ -28,13 +28,11 @@ package io.spine.examples.chatspn.server.chat.given;
 
 import com.google.common.collect.ImmutableList;
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.GroupChatView;
-import io.spine.examples.chatspn.chat.PersonalChatView;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
@@ -75,7 +73,9 @@ public final class ChatTestEnv {
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setCreator(GivenUserId.generated())
+                .setCreatorName(randomString())
                 .setMember(GivenUserId.generated())
+                .setMemberName(randomString())
                 .vBuild();
         return command;
     }
@@ -85,7 +85,9 @@ public final class ChatTestEnv {
                 .newBuilder()
                 .setId(c.getId())
                 .setCreator(c.getCreator())
+                .setCreatorName(c.getCreatorName())
                 .setMember(c.getMember())
+                .setMemberName(c.getMemberName())
                 .vBuild();
         return event;
     }
@@ -171,7 +173,9 @@ public final class ChatTestEnv {
                 .newBuilder()
                 .setId(chat.getId())
                 .setCreator(chat.getMember(0))
+                .setCreatorName(randomString())
                 .setMember(chat.getMember(1))
+                .setMemberName(randomString())
                 .vBuild();
         ctx.receivesCommand(command);
         return chat;
@@ -374,69 +378,44 @@ public final class ChatTestEnv {
         return state;
     }
 
-    public static ChatPreview personalChatPreview(CreatePersonalChat c) {
-        var view = PersonalChatView
+    public static ChatCardId chatCardId(ChatId chat, UserId user) {
+        return ChatCardId
                 .newBuilder()
-                .setCreator(c.getCreator())
-                .setMember(c.getMember())
+                .setChat(chat)
+                .setUser(user)
                 .vBuild();
-        var state = ChatPreview
-                .newBuilder()
-                .setId(c.getId())
-                .setPersonalChat(view)
-                .vBuild();
-        return state;
     }
 
-    public static ChatPreview groupChatPreview(CreateGroupChat c) {
-        var state = ChatPreview
+    public static ChatCard groupChatCard(Chat chat, UserId user) {
+        var chatCardId = chatCardId(chat.getId(), user);
+        var chatCard = ChatCard
                 .newBuilder()
-                .setId(c.getId())
-                .setGroupChat(groupChatView(c.getName()))
+                .setId(chatCardId)
+                .setChatId(chat.getId())
+                .setCardOwner(user)
+                .setName(chat.getName())
+                .setType(CT_GROUP)
                 .vBuild();
-        return state;
+        return chatCard;
     }
 
-    public static ChatPreview groupChatPreview(Chat chat) {
-        var state = ChatPreview
+    public static ChatCard personalChatCard(CreatePersonalChat command, UserId user) {
+        var chatCardId = chatCardId(command.getId(), user);
+        String name;
+        if (command.getMember()
+                   .equals(user)) {
+            name = command.getCreatorName();
+        } else {
+            name = command.getMemberName();
+        }
+        var chatCard = ChatCard
                 .newBuilder()
-                .setId(chat.getId())
-                .setGroupChat(groupChatView(chat.getName()))
-                .vBuild();
-        return state;
-    }
-
-    public static GroupChatView groupChatView(String name) {
-        var view = GroupChatView
-                .newBuilder()
+                .setId(chatCardId)
+                .setChatId(command.getId())
+                .setCardOwner(user)
                 .setName(name)
+                .setType(CT_PERSONAL)
                 .vBuild();
-        return view;
-    }
-
-    public static UserChats userChats(ChatPreview chatPreview, UserId user) {
-        var state = UserChats
-                .newBuilder()
-                .setId(user)
-                .addChat(chatPreview)
-                .vBuild();
-        return state;
-    }
-
-    public static UserChats userChats(Chat groupChat, UserId user) {
-        var state = UserChats
-                .newBuilder()
-                .setId(user)
-                .addChat(groupChatPreview(groupChat))
-                .vBuild();
-        return state;
-    }
-
-    public static UserChats emptyUserChats(UserId user) {
-        var state = UserChats
-                .newBuilder()
-                .setId(user)
-                .vBuild();
-        return state;
+        return chatCard;
     }
 }

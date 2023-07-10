@@ -37,8 +37,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createDeletedGroupChatIn;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userChats;
-import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.chatPreview;
+import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.chatCard;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messageCannotBeSentFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messageFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageSendingTestEnv.messagePostedFrom;
@@ -107,16 +106,16 @@ public final class MessageSendingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("update last message in `ChatPreview` and `UserChats` projections")
+    @DisplayName("update the last message in each member's `ChatCard` projections")
     void updateLastMessage() {
         var chat = createRandomChatIn(context());
         var command = randomSendMessageCommand(chat);
         context().receivesCommand(command);
-        var chatPreview = chatPreview(chat, command);
-        var userChats = userChats(chatPreview, chat.getMember(0));
+        var ownerChatCard = chatCard(chat, command, chat.getOwner());
+        var memberChatCard = chatCard(chat, command, chat.getMember(1));
 
-        context().assertState(chatPreview.getId(), chatPreview);
-        context().assertState(userChats.getId(), userChats);
+        context().assertState(ownerChatCard.getId(), ownerChatCard);
+        context().assertState(memberChatCard.getId(), memberChatCard);
     }
 
     @Nested

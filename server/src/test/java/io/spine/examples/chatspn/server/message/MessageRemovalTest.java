@@ -38,9 +38,8 @@ import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userChats;
-import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.chatPreview;
-import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.chatPreviewWithMessage;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.chatCard;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.chatCardWithMessage;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeMarkedAsRemovedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageCannotBeRemovedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.messageFrom;
@@ -134,22 +133,22 @@ final class MessageRemovalTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("update the last message in `ChatPreview` and `UserChats` projections " +
+    @DisplayName("update the last message in `ChatCard` projections " +
             "if the removed message was the last one")
     void updateLastMessage() {
         var chat = createRandomChatIn(context());
         var message = sendRandomMessageTo(chat, context());
         var command = removeMessageCommand(message);
         context().receivesCommand(command);
-        var chatPreview = chatPreview(chat);
-        var userChats = userChats(chatPreview, chat.getMember(0));
+        var ownerChatCard = chatCard(chat, chat.getOwner());
+        var memberChatCard = chatCard(chat, chat.getMember(1));
 
-        context().assertState(chatPreview.getId(), chatPreview);
-        context().assertState(userChats.getId(), userChats);
+        context().assertState(ownerChatCard.getId(), ownerChatCard);
+        context().assertState(memberChatCard.getId(), memberChatCard);
     }
 
     @Test
-    @DisplayName("not update the last message in the `ChatPreview` projection " +
+    @DisplayName("not update the last message in the `ChatCard` projections " +
             "if the removed message wasn't the last one")
     void notUpdateLastMessage() {
         var chat = createRandomChatIn(context());
@@ -157,9 +156,11 @@ final class MessageRemovalTest extends ContextAwareTest {
         var lastMessage = sendRandomMessageTo(chat, context());
         var command = removeMessageCommand(message);
         context().receivesCommand(command);
-        var chatPreview = chatPreviewWithMessage(chat, lastMessage);
+        var ownerChatCard = chatCardWithMessage(chat, lastMessage, chat.getOwner());
+        var memberChatCard = chatCardWithMessage(chat, lastMessage, chat.getMember(1));
 
-        context().assertState(chatPreview.getId(), chatPreview);
+        context().assertState(ownerChatCard.getId(), ownerChatCard);
+        context().assertState(memberChatCard.getId(), memberChatCard);
     }
 
     @Nested
