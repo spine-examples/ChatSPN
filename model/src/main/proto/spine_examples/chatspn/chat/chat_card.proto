@@ -62,7 +62,7 @@ message ChatCard {
     string name = 4 [(required) = true];
 
     // Type of the chat.
-    spine_examples.chatspn.chat.Chat.ChatType type = 5 [(required) = true];
+    spine_examples.chatspn.chat.Chat.ChatType type = 5 [(required) = true, (column) = true];
 
     // The last posted message in this chat.
     spine_examples.chatspn.message.MessageView last_message = 6;
