@@ -81,29 +81,6 @@ public final class TestUserEnv {
         return command;
     }
 
-    public static ChatCard chatCard(CreatePersonalChat command, UserId cardOwner) {
-        var chatCardId = ChatCardId
-                .newBuilder()
-                .setUser(cardOwner)
-                .setChat(command.getId())
-                .vBuild();
-        String chatName;
-        if(command.getCreator().equals(cardOwner)){
-            chatName = command.getMemberName();
-        } else {
-            chatName = command.getCreatorName();
-        }
-        var chatCard = ChatCard
-                .newBuilder()
-                .setCardId(chatCardId)
-                .setViewer(cardOwner)
-                .setChatId(command.getId())
-                .setName(chatName)
-                .setType(CT_PERSONAL)
-                .vBuild();
-        return chatCard;
-    }
-
     public static SendMessage sendMessageCommand(ChatId chatId, UserId userId, String content) {
         var sendMessage = SendMessage
                 .newBuilder()

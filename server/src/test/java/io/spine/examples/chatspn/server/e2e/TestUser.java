@@ -52,7 +52,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.client.OrderBy.Direction.ASCENDING;
 import static io.spine.client.QueryFilter.eq;
 import static io.spine.examples.chatspn.server.ExpectedOnlyAssertions.assertExpectedFields;
-import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.chatCard;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.createAccount;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.createPersonalChat;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.deleteChatCommand;
@@ -162,8 +161,7 @@ final class TestUser {
     Conversation createPersonalChatWith(UserId user) {
         var command = createPersonalChat(userId(), user);
         postCommand(command);
-        var chatCard = chatCard(command, userId());
-        var conversation = new Conversation(chatCard.getChatId());
+        var conversation = new Conversation(command.getId());
         return conversation;
     }
 
