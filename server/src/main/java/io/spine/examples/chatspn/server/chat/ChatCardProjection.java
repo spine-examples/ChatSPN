@@ -56,14 +56,7 @@ public final class ChatCardProjection
                               .getUser();
         var chat = builder().getCardId()
                             .getChat();
-        String chatName;
-        if (e.getCreator()
-             .equals(viewer)) {
-            chatName = e.getMemberName();
-        } else {
-            chatName = e.getCreatorName();
-        }
-        builder().setName(chatName)
+        builder().setName(e.partnerName(viewer))
                  .setViewer(viewer)
                  .setChatId(chat)
                  .setType(CT_PERSONAL);

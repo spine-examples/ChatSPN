@@ -39,6 +39,7 @@ import "spine_examples/chatspn/identifiers.proto";
 
 // Tells to create a new personal chat.
 message CreatePersonalChat {
+    option (is).java_type = "CreatePersonalChatMixin";
 
     // The ID of the chat to create.
     ChatId id = 1;

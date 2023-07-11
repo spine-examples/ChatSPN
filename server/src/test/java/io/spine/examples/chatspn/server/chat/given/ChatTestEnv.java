@@ -400,19 +400,12 @@ public final class ChatTestEnv {
 
     public static ChatCard personalChatCard(CreatePersonalChat command, UserId user) {
         var chatCardId = chatCardId(command.getId(), user);
-        String name;
-        if (command.getMember()
-                   .equals(user)) {
-            name = command.getCreatorName();
-        } else {
-            name = command.getMemberName();
-        }
         var chatCard = ChatCard
                 .newBuilder()
                 .setCardId(chatCardId)
                 .setChatId(command.getId())
                 .setViewer(user)
-                .setName(name)
+                .setName(command.partnerName(user))
                 .setType(CT_PERSONAL)
                 .vBuild();
         return chatCard;
