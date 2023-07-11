@@ -57,7 +57,6 @@ import java.util.List;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatDeletionId;
-import static io.spine.testing.TestValues.randomString;
 import static java.util.stream.Collectors.toList;
 
 public final class ChatTestEnv {
@@ -73,9 +72,9 @@ public final class ChatTestEnv {
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setCreator(GivenUserId.generated())
-                .setCreatorName(randomString())
+                .setCreatorName("John Doe")
                 .setMember(GivenUserId.generated())
-                .setMemberName(randomString())
+                .setMemberName("Emma Smith")
                 .vBuild();
         return command;
     }
@@ -110,7 +109,7 @@ public final class ChatTestEnv {
                 .setCreator(GivenUserId.generated())
                 .addMember(GivenUserId.generated())
                 .addMember(GivenUserId.generated())
-                .setName(randomString())
+                .setName("Group chat name")
                 .vBuild();
         return command;
     }
@@ -144,7 +143,7 @@ public final class ChatTestEnv {
         var chat = Chat
                 .newBuilder()
                 .setId(ChatId.generate())
-                .setName(randomString())
+                .setName("Awesome group chat name")
                 .setType(CT_GROUP)
                 .setOwner(owner)
                 .addMember(owner)
@@ -173,9 +172,9 @@ public final class ChatTestEnv {
                 .newBuilder()
                 .setId(chat.getId())
                 .setCreator(chat.getMember(0))
-                .setCreatorName(randomString())
+                .setCreatorName("John Doe")
                 .setMember(chat.getMember(1))
-                .setMemberName(randomString())
+                .setMemberName("Emma Smith")
                 .vBuild();
         ctx.receivesCommand(command);
         return chat;

@@ -43,8 +43,6 @@ import io.spine.testing.server.blackbox.BlackBoxContext;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.spine.testing.TestValues.randomString;
-
 public final class ChatDeletionTestEnv {
 
     /**
@@ -60,7 +58,7 @@ public final class ChatDeletionTestEnv {
                     .newBuilder()
                     .setId(MessageId.generate())
                     .setChat(chat.getId())
-                    .setContent(randomString())
+                    .setContent("Hello, this is my message text")
                     .setUser(chat.getMember(0))
                     .buildPartial();
             var sendMessage = SendMessage

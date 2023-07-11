@@ -45,7 +45,6 @@ import io.spine.net.EmailAddress;
 import io.spine.testing.core.given.GivenUserId;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
-import static io.spine.testing.TestValues.randomString;
 
 public final class TestUserEnv {
 
@@ -75,9 +74,9 @@ public final class TestUserEnv {
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setCreator(creator)
-                .setCreatorName(randomString())
+                .setCreatorName("John Doe")
                 .setMember(member)
-                .setMemberName(randomString())
+                .setMemberName("Emma Smith")
                 .vBuild();
         return command;
     }

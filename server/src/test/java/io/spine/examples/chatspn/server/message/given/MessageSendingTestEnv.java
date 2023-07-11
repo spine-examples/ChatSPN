@@ -55,7 +55,7 @@ public final class MessageSendingTestEnv {
                 .setId(MessageId.generate())
                 .setUser(chat.getMember(0))
                 .setChat(chat.getId())
-                .setContent(randomString())
+                .setContent("Hello, this is my message text")
                 .vBuild();
         return command;
     }
@@ -66,7 +66,7 @@ public final class MessageSendingTestEnv {
                 .setId(MessageId.generate())
                 .setUser(userId)
                 .setChat(chat.getId())
-                .setContent(randomString())
+                .setContent("Hello, this is my message text")
                 .vBuild();
         return command;
     }

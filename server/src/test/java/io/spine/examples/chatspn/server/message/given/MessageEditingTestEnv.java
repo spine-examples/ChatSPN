@@ -41,7 +41,6 @@ import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageCann
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageContentCannotBeUpdated;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
-import static io.spine.testing.TestValues.randomString;
 
 public final class MessageEditingTestEnv {
 
@@ -57,7 +56,7 @@ public final class MessageEditingTestEnv {
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(message.getUser())
-                .setSuggestedContent(randomString())
+                .setSuggestedContent("Hello, this is my edited message text")
                 .vBuild();
         return command;
     }
@@ -68,7 +67,7 @@ public final class MessageEditingTestEnv {
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(userId)
-                .setSuggestedContent(randomString())
+                .setSuggestedContent("Hello, this is my edited message text")
                 .vBuild();
         return command;
     }
@@ -79,7 +78,7 @@ public final class MessageEditingTestEnv {
                 .setId(messageId)
                 .setChat(message.getChat())
                 .setUser(message.getUser())
-                .setSuggestedContent(randomString())
+                .setSuggestedContent("Hello, this is my edited message text")
                 .vBuild();
         return command;
     }

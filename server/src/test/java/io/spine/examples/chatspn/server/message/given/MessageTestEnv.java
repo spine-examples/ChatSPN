@@ -36,7 +36,6 @@ import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
-import static io.spine.testing.TestValues.randomString;
 
 public final class MessageTestEnv {
 
@@ -51,7 +50,7 @@ public final class MessageTestEnv {
         var chat = Chat
                 .newBuilder()
                 .setId(ChatId.generate())
-                .setName(randomString())
+                .setName("The best group chat name")
                 .setType(CT_GROUP)
                 .setOwner(owner)
                 .addMember(owner)
@@ -74,7 +73,7 @@ public final class MessageTestEnv {
                 .setId(MessageId.generate())
                 .setChat(chat.getId())
                 .setUser(chat.getMember(0))
-                .setContent(randomString())
+                .setContent("Hello, this is my message text")
                 .buildPartial();
         var command = SendMessage
                 .newBuilder()
