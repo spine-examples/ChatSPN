@@ -108,7 +108,7 @@ public class NavigationModel(private val client: DesktopClient) {
      */
     private fun updateChatsState(chat: ChatCard) {
         val chats = chatCards.value
-        if (null != chats.findChat(chat.chatId)) {
+        if (null != chats.find(chat.chatId)) {
             val newChats = chats.replaceChat(chat)
             chatCards.value = newChats
         } else {
@@ -237,7 +237,7 @@ public typealias ChatList = List<ChatCard>
  * @param id ID of the chat to find
  * @return found chat or `null` if chat is not found
  */
-private fun ChatList.findChat(id: ChatId): ChatCard? {
+private fun ChatList.find(id: ChatId): ChatCard? {
     val message = this
         .stream()
         .filter { chat -> chat.chatId.equals(id) }
@@ -254,7 +254,7 @@ private fun ChatList.findChat(id: ChatId): ChatCard? {
  * @param newChat chat to replace
  */
 private fun ChatList.replaceChat(newChat: ChatCard): ChatList {
-    val oldChat = this.findChat(newChat.chatId)
+    val oldChat = this.find(newChat.chatId)
     val chatIndex = this.indexOf(oldChat)
     val leftPart = this.subList(0, chatIndex)
     val rightPart = this.subList(chatIndex + 1, this.size)
