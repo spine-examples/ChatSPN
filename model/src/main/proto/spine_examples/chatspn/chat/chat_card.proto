@@ -61,6 +61,9 @@ message ChatCard {
     ChatId chat_id = 3 [(required) = true, (column) = true];
 
     // Name of the chat.
+    //
+    // A group chat has its own name, but in a personal chat it is the name of the second member.
+    //
     string name = 4 [(required) = true];
 
     // Type of the chat.

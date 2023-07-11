@@ -92,7 +92,7 @@ public final class ChatCardRepository
     }
 
     /**
-     * Returns ID's of chat cards of provided users in the chat.
+     * Returns IDs of chat cards of provided users in the chat.
      *
      * @param users
      *         user IDs whose chat card IDs to return
@@ -107,7 +107,7 @@ public final class ChatCardRepository
     }
 
     /**
-     * Returns ID's of chat cards of all members in the chat.
+     * Returns IDs of chat cards of all members in the chat.
      *
      * @param chatId
      *         ID of the chat which card IDs to return
