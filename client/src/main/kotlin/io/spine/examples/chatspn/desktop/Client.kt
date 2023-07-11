@@ -355,7 +355,7 @@ public class DesktopClient(
      * @param onUpdate will be called when chat in which authenticated user is a member is updated
      *                 or when an authenticated user joins a new chat
      * @param onLeave will be called when the authenticated user leaves the chat
-     *                 or when the chat is deleted
+     *                or when the chat is deleted
      * @throws IllegalStateException if the user has not been authenticated
      */
     public fun observeChats(
