@@ -28,13 +28,11 @@ package io.spine.examples.chatspn.server.e2e.given;
 
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.AccountCreationId;
-import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.account.command.CreateAccount;
-import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.MessageView;
@@ -43,8 +41,6 @@ import io.spine.examples.chatspn.message.command.RemoveMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.net.EmailAddress;
 import io.spine.testing.core.given.GivenUserId;
-
-import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
 
 public final class TestUserEnv {
 
