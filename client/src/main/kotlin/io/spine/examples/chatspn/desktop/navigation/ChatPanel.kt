@@ -99,16 +99,14 @@ private fun ChatPanelContent(chat: ChatCard) {
                     style = MaterialTheme.typography.headlineMedium,
                 )
                 Text(
-                    text = if (chat.lastMessage.equals(MessageView.getDefaultInstance())) ""
-                    else chat.lastMessage.whenPosted.toHoursAndMinutes(),
+                    text = chat.whenLastMessagePosted(),
                     color = MaterialTheme.colorScheme.onSecondary,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
             Spacer(Modifier.size(9.dp))
             Text(
-                text = if (chat.lastMessage.equals(MessageView.getDefaultInstance())) ""
-                else chat.lastMessage.content.replace("\\s".toRegex(), " "),
+                text = chat.lastMessage.content.replace("\\s".toRegex(), " "),
                 color = MaterialTheme.colorScheme.onSecondary,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
@@ -116,4 +114,13 @@ private fun ChatPanelContent(chat: ChatCard) {
             )
         }
     }
+}
+
+/**
+ * Returns a string `hh:mm` of the time when the last message was posted in the chat,
+ * or an empty string if there is no last message in the chat.
+ */
+private fun ChatCard.whenLastMessagePosted(): String {
+    return if (this.lastMessage.equals(MessageView.getDefaultInstance())) ""
+    else this.lastMessage.whenPosted.toHoursAndMinutes()
 }
