@@ -352,13 +352,15 @@ public class DesktopClient(
     /**
      * Observes chats of the authenticated user.
      *
-     * @param onUpdate will be called when some user chat is updated or when a user joins a new chat
-     * @param onDelete will be called when the user ceases to be a member of a chat
+     * @param onUpdate will be called when chat in which authenticated user is a member is updated
+     *                 or when an authenticated user joins a new chat
+     * @param onLeave will be called when the authenticated user leaves the chat
+     *                 or when the chat is deleted
      * @throws IllegalStateException if the user has not been authenticated
      */
     public fun observeChats(
         onUpdate: (chat: ChatCard) -> Unit,
-        onDelete: (chat: ChatCardId) -> Unit
+        onLeave: (chat: ChatCardId) -> Unit
     ) {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
         val byViewerFilter = EntityStateFilter.eq(
@@ -368,7 +370,7 @@ public class DesktopClient(
         val updateSubscription = clientRequest()
             .subscribeTo(ChatCard::class.java)
             .where(byViewerFilter)
-            .whenNoLongerMatching(ChatCardId::class.java, onDelete)
+            .whenNoLongerMatching(ChatCardId::class.java, onLeave)
             .observe(onUpdate)
             .post()
         userChatsSubscriptions.add(updateSubscription)
