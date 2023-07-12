@@ -41,6 +41,7 @@ import "spine_examples/chatspn/chat/chat.proto";
 // Members in the chat.
 message ChatMembers {
     option (entity) = { kind: PROJECTION };
+    option (is).java_type = "ChatMembersMixin";
 
     // The ID of the chat.
     ChatId id = 1;

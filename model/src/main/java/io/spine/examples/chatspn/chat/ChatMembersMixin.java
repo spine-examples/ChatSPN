@@ -1,0 +1,66 @@
+/*
+ * Copyright 2023, TeamDev. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Redistribution and use in source and/or binary forms, with or without
+ * modification, must retain the above copyright notice and the following
+ * disclaimer.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package io.spine.examples.chatspn.chat;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.Immutable;
+import io.spine.annotation.GeneratedMixin;
+import io.spine.core.UserId;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+
+/**
+ * Defines a convenience API for the {@link ChatMembers} projection.
+ */
+@Immutable
+@GeneratedMixin
+public interface ChatMembersMixin extends ChatMembersOrBuilder {
+
+    /**
+     * Returns chat members that are chatmates for the viewer.
+     *
+     * <p>All chat members are the chatmates for each other, except for themselves.
+     *
+     * @param viewer ID of the user who intends to get chatmates
+     * @return viewer's chatmates
+     * @throws IllegalArgumentException if viewer is not a chat member
+     */
+    default ImmutableSet<ChatMember> chatmatesFor(UserId viewer) {
+        checkNotNull(viewer);
+        var members = getMemberList();
+        var chatmates = members
+                .stream()
+                .filter(member -> !member.getId()
+                                         .equals(viewer))
+                .collect(toImmutableSet());
+        if (chatmates.size() == members.size()) {
+            throw new IllegalArgumentException("Chatmates viewer is not a chat member");
+        }
+        return chatmates;
+    }
+}
