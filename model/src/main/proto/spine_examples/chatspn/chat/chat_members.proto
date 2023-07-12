@@ -36,6 +36,7 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
+import "spine_examples/chatspn/chat/chat.proto";
 
 // Members in the chat.
 message ChatMembers {
@@ -49,5 +50,5 @@ message ChatMembers {
     // It may be empty when the last member left the chat.
     // In this case, the chat and this projection will be deleted.
     //
-    repeated spine.core.UserId member = 2 [(distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember member = 2 [(distinct) = true];
 }

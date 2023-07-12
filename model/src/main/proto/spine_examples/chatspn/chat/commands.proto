@@ -36,25 +36,19 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
+import "spine_examples/chatspn/chat/chat.proto";
 
 // Tells to create a new personal chat.
 message CreatePersonalChat {
-    option (is).java_type = "CreatePersonalChatMixin";
 
     // The ID of the chat to create.
     ChatId id = 1;
 
-    // The ID of the user who tells to create the chat.
-    spine.core.UserId creator = 2 [(required) = true];
+    // The user who tells to create the chat.
+    spine_examples.chatspn.chat.ChatMember creator = 2 [(required) = true];
 
-    // The name of the user who tells to create the chat.
-    string creator_name = 3 [(required) = true];
-
-    // The ID of the user to include into the personal chat as a second member.
-    spine.core.UserId member = 4 [(required) = true];
-
-    // The name of the user to include into the personal chat as a second member.
-    string member_name = 5 [(required) = true];
+    // The user to include into the personal chat as a second member.
+    spine_examples.chatspn.chat.ChatMember member = 4 [(required) = true];
 }
 
 // Tells to create a new group chat.
@@ -64,13 +58,13 @@ message CreateGroupChat {
     ChatId id = 1;
 
     // The user who tells to create the chat.
-    spine.core.UserId creator = 2 [(required) = true];
+    spine_examples.chatspn.chat.ChatMember creator = 2 [(required) = true];
 
     // Users to include into the chat as members.
     //
     // This list does not include a `creator`.
     //
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember member = 3 [(required) = true, (distinct) = true];
 
     // The name of the chat to create.
     string name = 4 [(required) = true];
@@ -86,7 +80,7 @@ message AddMembers {
     spine.core.UserId who_adds = 2 [(required) = true];
 
     // Users to add into the chat as members.
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember member = 3 [(required) = true, (distinct) = true];
 }
 
 // Tells to remove members from the chat.
@@ -99,7 +93,7 @@ message RemoveMembers {
     spine.core.UserId who_removes = 2 [(required) = true];
 
     // Members to remove from the chat.
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember member = 3 [(required) = true, (distinct) = true];
 }
 
 // The user's intention to leave the chat.
@@ -109,5 +103,5 @@ message LeaveChat {
     ChatId chat = 1;
 
     // The user who wants to leave the chat.
-    spine.core.UserId user = 2 [(required) = true];
+    spine_examples.chatspn.chat.ChatMember user = 2 [(required) = true];
 }

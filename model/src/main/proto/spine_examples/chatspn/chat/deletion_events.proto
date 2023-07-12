@@ -36,6 +36,7 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
+import "spine_examples/chatspn/chat/chat.proto";
 
 // The chat has been deleted.
 message ChatDeleted {
@@ -48,7 +49,7 @@ message ChatDeleted {
     spine.core.UserId who_deleted = 2 [(required) = true];
 
     // The members of the deleted chat.
-    repeated spine.core.UserId member = 3 [(distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember member = 3 [(distinct) = true];
 }
 
 // The chat has been marked as deleted.
@@ -62,7 +63,7 @@ message ChatMarkedAsDeleted {
     spine.core.UserId who_deleted = 2 [(required) = true];
 
     // The members of the deleted chat.
-    repeated spine.core.UserId member = 3 [(distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember member = 3 [(distinct) = true];
 }
 
 // The chat deletion process failed.

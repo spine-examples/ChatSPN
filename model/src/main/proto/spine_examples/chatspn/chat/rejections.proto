@@ -36,6 +36,7 @@ option java_multiple_files = false;
 import "spine/core/user_id.proto";
 import "spine/net/email_address.proto";
 import "spine_examples/chatspn/identifiers.proto";
+import "spine_examples/chatspn/chat/chat.proto";
 
 // New members cannot be added to this chat.
 //
@@ -47,14 +48,14 @@ import "spine_examples/chatspn/identifiers.proto";
 //
 message MembersCannotBeAdded {
 
-  // The ID of the chat in which members couldn't be added.
-  ChatId id = 1;
+    // The ID of the chat in which members couldn't be added.
+    ChatId id = 1;
 
-  // The user who originally tells to add new members.
-  spine.core.UserId who_adds = 2 [(required) = true];
+    // The user who originally tells to add new members.
+    spine.core.UserId who_adds = 2 [(required) = true];
 
-  // The users that were originally suggested to be added to the chat as members.
-  repeated spine.core.UserId suggested_member = 3 [(required) = true, (distinct) = true];
+    // The users that were originally suggested to be added to the chat as members.
+    repeated spine_examples.chatspn.chat.ChatMember suggested_member = 3 [(required) = true, (distinct) = true];
 }
 
 // Members cannot be removed from this chat.
@@ -74,7 +75,7 @@ message MembersCannotBeRemoved {
     spine.core.UserId who_removes = 2 [(required) = true];
 
     // Members who couldn't be removed from the chat.
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember member = 3 [(required) = true, (distinct) = true];
 }
 
 // User cannot leave the chat.
@@ -89,5 +90,5 @@ message UserCannotLeaveChat {
     ChatId chat = 1;
 
     // The user who originally wanted to leave the chat.
-    spine.core.UserId user = 2 [(required) = true];
+    spine_examples.chatspn.chat.ChatMember user = 2 [(required) = true];
 }
