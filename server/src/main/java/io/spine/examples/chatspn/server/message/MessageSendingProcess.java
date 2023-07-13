@@ -27,16 +27,16 @@
 package io.spine.examples.chatspn.server.message;
 
 import io.spine.core.CommandContext;
-import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.message.MessageSending;
 import io.spine.examples.chatspn.message.command.PostMessage;
 import io.spine.examples.chatspn.message.command.SendMessage;
 import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.event.MessageSent;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeSent;
-import io.spine.examples.chatspn.server.ChatMembersReader;
+import io.spine.examples.chatspn.server.ChatCardReader;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
@@ -50,10 +50,10 @@ public final class MessageSendingProcess
         extends ProcessManager<MessageId, MessageSending, MessageSending.Builder> {
 
     /**
-     * Reads the {@link ChatMembers} projection.
+     * Reads the {@link ChatCard} projection.
      */
     @MonotonicNonNull
-    private ChatMembersReader chatMembers;
+    private ChatCardReader chatCard;
 
     /**
      * Issues a command to post message to the chat.
@@ -65,7 +65,7 @@ public final class MessageSendingProcess
     @Command
     PostMessage on(SendMessage c, CommandContext ctx) throws MessageCannotBeSent {
         builder().setId(c.getId());
-        if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
+        if (chatCard.isMember(c.getChat(), c.getUser(), ctx)) {
             return PostMessage
                     .newBuilder()
                     .setId(c.getId())
@@ -98,7 +98,7 @@ public final class MessageSendingProcess
                 .vBuild();
     }
 
-    void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        chatMembers = new ChatMembersReader(reader);
+    void inject(ProjectionReader<ChatCardId, ChatCard> reader) {
+        chatCard = new ChatCardReader(reader);
     }
 }

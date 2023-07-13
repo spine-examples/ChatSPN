@@ -28,7 +28,7 @@ package io.spine.examples.chatspn.server.message;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.message.MessageEditing;
 import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageContentCannotBeUpdated;
@@ -57,6 +57,6 @@ public final class MessageEditingRepository
     @Override
     protected void configure(MessageEditingProcess p) {
         super.configure(p);
-        p.inject(new ProjectionReader<>(context().stand(), ChatMembers.class));
+        p.inject(new ProjectionReader<>(context().stand(), ChatCard.class));
     }
 }

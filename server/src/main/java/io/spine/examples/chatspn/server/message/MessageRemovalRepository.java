@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.MessageRemovalOperationId;
-import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
@@ -60,7 +60,7 @@ public final class MessageRemovalRepository
     @Override
     protected void configure(MessageRemovalProcess p) {
         super.configure(p);
-        p.inject(new ProjectionReader<>(context().stand(), ChatMembers.class));
+        p.inject(new ProjectionReader<>(context().stand(), ChatCard.class));
     }
 
     private static Set<MessageRemovalId> withMessageRemovalId(MessageRemovalOperationId id) {

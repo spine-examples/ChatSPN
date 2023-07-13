@@ -32,7 +32,6 @@ import io.spine.examples.chatspn.server.account.UserAggregate;
 import io.spine.examples.chatspn.server.account.UserProfileRepository;
 import io.spine.examples.chatspn.server.chat.ChatAggregate;
 import io.spine.examples.chatspn.server.chat.ChatDeletionRepository;
-import io.spine.examples.chatspn.server.chat.ChatMembersRepository;
 import io.spine.examples.chatspn.server.chat.ChatCardRepository;
 import io.spine.examples.chatspn.server.message.MessageAggregate;
 import io.spine.examples.chatspn.server.message.MessageEditingRepository;
@@ -67,7 +66,6 @@ public final class ChatsContext {
                 .add(DefaultRepository.of(ChatAggregate.class))
                 .add(DefaultRepository.of(MessageAggregate.class))
                 .add(new UserProfileRepository())
-                .add(new ChatMembersRepository())
                 .add(new MessageSendingRepository())
                 .add(new MessageEditingRepository())
                 .add(new MessageRemovalRepository())
