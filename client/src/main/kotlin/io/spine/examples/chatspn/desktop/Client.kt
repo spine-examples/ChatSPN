@@ -310,27 +310,6 @@ public class DesktopClient(
     }
 
     /**
-     * Returns personal chats where the provided user is a member.
-     *
-     * @param user ID of the user whose personal chats to read
-     */
-    public fun readPersonalChats(user: UserId): List<ChatCard> {
-        val byViewerFilter = QueryFilter.eq(
-            ChatCard.Column.viewer(),
-            user
-        )
-        val byTypeFilter = QueryFilter.eq(
-            ChatCard.Column.type(),
-            ChatType.CT_PERSONAL
-        )
-        val chats = clientRequest()
-            .select(ChatCard::class.java)
-            .where(byViewerFilter, byTypeFilter)
-            .run()
-        return chats
-    }
-
-    /**
      * Observes chats of the authenticated user.
      *
      * @param onUpdate will be called when chat in which authenticated user is a member is updated

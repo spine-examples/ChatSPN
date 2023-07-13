@@ -31,7 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
-import io.spine.examples.chatspn.chat.Chat
+import io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL
 import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.desktop.remove
@@ -154,12 +154,14 @@ public class NavigationModel(private val client: DesktopClient) {
      * @param user ID of the user with whom to find the personal chat
      */
     private fun findPersonalChat(user: UserId): ChatCard? {
-        val providedUserChats = client.readPersonalChats(user)
-        val authenticatedUserChats = client.readPersonalChats(authenticatedUser.id)
-        val chat = authenticatedUserChats.find { chat ->
-            providedUserChats.any { providedUserChat -> providedUserChat.chatId.equals(chat.chatId) }
-        }
-        return chat
+        val optionalChat = chatCards.value
+            .stream()
+            .filter { chatCard ->
+                chatCard.type == CT_PERSONAL &&
+                        (chatCard.memberList[0].id.equals(user) ||
+                                chatCard.memberList[1].id.equals(user))
+            }.findAny()
+        return if (optionalChat.isPresent) optionalChat.get() else null
     }
 
     /**
@@ -182,7 +184,7 @@ public class NavigationModel(private val client: DesktopClient) {
      */
     public fun openChatInfo(chatId: ChatId) {
         val chat = chatCards.value.find { chatCard -> chatId.equals(chatCard.chatId) } ?: return
-        if (chat.type == Chat.ChatType.CT_PERSONAL) {
+        if (chat.type == CT_PERSONAL) {
             val chatmate = chat
                 .memberList
                 .find { member -> !member.id.equals(authenticatedUser.id) }
