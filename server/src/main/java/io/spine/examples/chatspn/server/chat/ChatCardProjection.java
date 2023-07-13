@@ -44,6 +44,7 @@ import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.server.projection.Projection;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
@@ -68,6 +69,7 @@ public final class ChatCardProjection
     void on(GroupChatCreated e) {
         builder().setViewer(viewerId())
                  .setChatId(chatId())
+                 .addMember(e.getCreator())
                  .addAllMember(e.getMemberList())
                  .setType(CT_GROUP)
                  .setGroupChatName(e.getName());
@@ -79,12 +81,14 @@ public final class ChatCardProjection
                  .setChatId(chatId())
                  .setType(CT_GROUP)
                  .setGroupChatName(e.getChatName());
-        e.getMemberList()
-         .stream()
-         .filter(member -> !state()
-                 .getMemberList()
-                 .contains(member))
-         .forEach(member -> builder().addMember(member));
+        var members = new ArrayList<ChatMember>();
+        members.addAll(e.getOldMemberList());
+        members.addAll(e.getNewMemberList());
+        members.stream()
+               .filter(member -> !state()
+                       .getMemberList()
+                       .contains(member))
+               .forEach(member -> builder().addMember(member));
     }
 
     @Subscribe

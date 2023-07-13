@@ -82,8 +82,7 @@ public final class ChatCardRepository
                       (event, context) -> toEverybodyInChat(event.getChat(), context))
                .route(MessageMarkedAsDeleted.class,
                       (event, context) -> toEverybodyInChat(event.getChat(), context))
-               .route(MembersAdded.class,
-                      (event, context) -> toEverybodyInChat(event.getId(), context))
+               .route(MembersAdded.class, (event, context) -> toExistingAndNewMembers(event))
                .route(MembersRemoved.class,
                       (event, context) -> toEverybodyInChat(event.getId(), context))
                .route(UserLeftChat.class,
@@ -117,10 +116,23 @@ public final class ChatCardRepository
         var reader = new ProjectionReader<ChatCardId, ChatCard>(context().stand(),
                                                                 ChatCard.class);
         var chatFilter = eq(ChatCard.Field.chatId(), chatId);
-        var previews = reader.read(ctx.actorContext(), chatFilter);
-        return previews
+        var cards = reader.read(ctx.actorContext(), chatFilter);
+        return cards
                 .stream()
                 .map(ChatCard::getCardId)
+                .collect(toImmutableSet());
+    }
+
+    /**
+     * Returns IDs of chat cards of old and new members in the chat.
+     */
+    private static ImmutableSet<ChatCardId> toExistingAndNewMembers(MembersAdded event) {
+        var members = new ArrayList<ChatMember>();
+        members.addAll(event.getNewMemberList());
+        members.addAll(event.getOldMemberList());
+        return members
+                .stream()
+                .map(member -> chatCardId(event.getId(), member.getId()))
                 .collect(toImmutableSet());
     }
 

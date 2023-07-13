@@ -219,7 +219,8 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
                     .setId(c.getId())
                     .setChatName(state().getName())
                     .setWhoAdded(c.getWhoAdds())
-                    .addAllMember(newMembers)
+                    .addAllNewMember(newMembers)
+                    .addAllOldMember(state().getMemberList())
                     .vBuild();
         }
         throw MembersCannotBeAdded
@@ -232,7 +233,7 @@ public final class ChatAggregate extends Aggregate<ChatId, Chat, Chat.Builder> {
 
     @Apply
     private void event(MembersAdded e) {
-        builder().addAllMember(e.getMemberList());
+        builder().addAllMember(e.getNewMemberList());
     }
 
     /**

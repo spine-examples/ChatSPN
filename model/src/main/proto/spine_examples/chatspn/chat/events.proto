@@ -85,7 +85,10 @@ message MembersAdded {
     spine.core.UserId who_added = 3 [(required) = true];
 
     // Users who were added to the chat as members.
-    repeated spine_examples.chatspn.chat.ChatMember member = 4 [(required) = true, (distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember new_member = 4 [(required) = true, (distinct) = true];
+
+    // Members in the chat before addition.
+    repeated spine_examples.chatspn.chat.ChatMember old_member = 5 [(required) = true, (distinct) = true];
 }
 
 // Members have been removed from the chat.
