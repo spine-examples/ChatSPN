@@ -35,7 +35,6 @@ import io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL
 import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.desktop.remove
-import java.util.stream.Collectors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -154,14 +153,13 @@ public class NavigationModel(private val client: DesktopClient) {
      * @param user ID of the user with whom to find the personal chat
      */
     private fun findPersonalChat(user: UserId): ChatCard? {
-        val optionalChat = chatCards.value
-            .stream()
-            .filter { chatCard ->
+        val chat = chatCards.value
+            .find { chatCard ->
                 chatCard.type == CT_PERSONAL &&
                         (chatCard.memberList[0].id.equals(user) ||
                                 chatCard.memberList[1].id.equals(user))
-            }.findAny()
-        return if (optionalChat.isPresent) optionalChat.get() else null
+            }
+        return chat
     }
 
     /**
@@ -185,12 +183,12 @@ public class NavigationModel(private val client: DesktopClient) {
     public fun openChatInfo(chatId: ChatId) {
         val chat = chatCards.value.find { chatCard -> chatId.equals(chatCard.chatId) } ?: return
         if (chat.type == CT_PERSONAL) {
-            val chatmate = chat
+            val secondMember = chat
                 .memberList
                 .find { member -> !member.id.equals(authenticatedUser.id) }
-            val user = client.findUser(chatmate!!.id)
+            val user = client.findUser(secondMember!!.id)
             profilePageState.userProfile.value = user!!
-            profilePageState.chatState.value = chatCard(chat.chatId)
+            profilePageState.chatState.value = chat
             currentPage.value = Page.PROFILE
         }
     }
@@ -240,14 +238,11 @@ public typealias ChatList = List<ChatCard>
  * @return found chat or `null` if chat is not found
  */
 private fun ChatList.find(id: ChatId): ChatCard? {
-    val message = this
-        .stream()
-        .filter { chat -> chat.chatId.equals(id) }
-        .collect(Collectors.toList())
-    if (message.isEmpty()) {
+    val chats = this.filter { chat -> chat.chatId.equals(id) }
+    if (chats.isEmpty()) {
         return null
     }
-    return message[0]
+    return chats[0]
 }
 
 /**
