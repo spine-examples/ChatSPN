@@ -183,8 +183,8 @@ public class NavigationModel(private val client: DesktopClient) {
     public fun openChatInfo(chatId: ChatId) {
         val chat = chatCards.value.find { chatCard -> chatId.equals(chatCard.chatId) } ?: return
         if (chat.type == Chat.ChatType.CT_PERSONAL) {
-            val chatmate = client
-                .readChatMembers(chatId)
+            val chatmate = chat
+                .memberList
                 .find { member -> !member.id.equals(authenticatedUser.id) }
             val user = client.findUser(chatmate!!.id)
             profilePageState.userProfile.value = user!!

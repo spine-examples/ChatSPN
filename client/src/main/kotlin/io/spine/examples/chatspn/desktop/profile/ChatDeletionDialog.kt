@@ -50,6 +50,7 @@ import io.spine.examples.chatspn.chat.Chat
 import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.component.ModalWindow
 import io.spine.examples.chatspn.desktop.component.TextButton
+import io.spine.examples.chatspn.desktop.name
 import kotlinx.coroutines.launch
 
 /**

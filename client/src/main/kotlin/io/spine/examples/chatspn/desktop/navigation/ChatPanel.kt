@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.component.Avatar
+import io.spine.examples.chatspn.desktop.name
 import io.spine.examples.chatspn.desktop.toHoursAndMinutes
 import io.spine.examples.chatspn.message.MessageView
 

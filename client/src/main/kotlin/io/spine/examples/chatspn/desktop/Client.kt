@@ -55,7 +55,6 @@ import io.spine.examples.chatspn.account.event.AccountNotCreated
 import io.spine.examples.chatspn.chat.Chat.ChatType
 import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.chat.ChatMember
-import io.spine.examples.chatspn.chat.ChatMembers
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
 import io.spine.examples.chatspn.chat.command.DeleteChat
 import io.spine.examples.chatspn.chat.event.PersonalChatCreated
@@ -189,23 +188,6 @@ public class DesktopClient(
             return null
         }
         return profiles[0]
-    }
-
-    /**
-     * Reads members of the chat by the chat ID.
-     *
-     * @param chat ID of the chat to read members from
-     * @return list of chat members, or an empty list if the chat does not exist
-     */
-    public fun readChatMembers(chat: ChatId): List<ChatMember> {
-        val projections = clientRequest()
-            .select(ChatMembers::class.java)
-            .byId(chat)
-            .run()
-        if (projections.isEmpty()) {
-            return listOf()
-        }
-        return projections[0].memberList
     }
 
     /**
@@ -561,7 +543,7 @@ private fun CreatePersonalChat.Builder.buildWith(
 }
 
 /**
- * Creates chat member from the user profile.
+ * Creates `ChatMember` from the `UserProfile`.
  */
 private fun UserProfile.asChatMember(): ChatMember {
     return ChatMember

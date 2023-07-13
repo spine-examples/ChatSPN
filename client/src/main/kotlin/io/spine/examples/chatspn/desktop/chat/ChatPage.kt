@@ -79,6 +79,7 @@ import io.spine.examples.chatspn.desktop.component.Avatar
 import io.spine.examples.chatspn.desktop.component.DefaultDropdownMenu
 import io.spine.examples.chatspn.desktop.component.DefaultDropdownMenuItem
 import io.spine.examples.chatspn.desktop.component.TopBar
+import io.spine.examples.chatspn.desktop.name
 import java.awt.Cursor
 import java.awt.Cursor.getPredefinedCursor
 
