@@ -90,10 +90,10 @@ final class ChatTest extends ContextAwareTest {
         var command = createPersonalChatCommand();
         context().receivesCommand(command);
         var creatorChatCard = personalChatCard(command, command.getCreator());
-        var membersChatCard = personalChatCard(command, command.getMember());
+        var memberChatCard = personalChatCard(command, command.getMember());
 
         context().assertState(creatorChatCard.getCardId(), creatorChatCard);
-        context().assertState(membersChatCard.getCardId(), membersChatCard);
+        context().assertState(memberChatCard.getCardId(), memberChatCard);
     }
 
     @Test
