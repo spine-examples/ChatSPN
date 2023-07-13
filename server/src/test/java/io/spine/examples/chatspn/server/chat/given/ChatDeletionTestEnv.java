@@ -59,7 +59,8 @@ public final class ChatDeletionTestEnv {
                     .setId(MessageId.generate())
                     .setChat(chat.getId())
                     .setContent("Hello, this is my message text")
-                    .setUser(chat.getMember(0))
+                    .setUser(chat.getMember(0)
+                                 .getId())
                     .buildPartial();
             var sendMessage = SendMessage
                     .newBuilder()

@@ -42,8 +42,6 @@ import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.server.projection.Projection;
 
-import java.util.ArrayList;
-
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
 
@@ -65,9 +63,10 @@ public final class ChatCardProjection
                 .addMember(e.getCreator())
                 .addMember(e.getMember())
                 .vBuild();
-        var chatmates = chatMembers.chatmatesFor(viewer);
-        builder().setName(new ArrayList<>(chatmates).get(0)
-                                                    .getName())
+        var chatmates = chatMembers.chatmatesFor(viewer)
+                                   .asList();
+        builder().setName(chatmates.get(0)
+                                   .getName())
                  .setViewer(viewer)
                  .setChatId(chat)
                  .setType(CT_PERSONAL);

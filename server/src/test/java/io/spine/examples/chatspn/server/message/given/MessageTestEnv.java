@@ -32,10 +32,10 @@ import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.command.SendMessage;
-import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
+import static io.spine.examples.chatspn.server.chat.given.GivenChatMember.chatMember;
 
 public final class MessageTestEnv {
 
@@ -46,15 +46,15 @@ public final class MessageTestEnv {
     }
 
     public static Chat createRandomChatIn(BlackBoxContext context) {
-        var owner = GivenUserId.generated();
+        var owner = chatMember("John Doe");
         var chat = Chat
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setName("The best group chat name")
                 .setType(CT_GROUP)
-                .setOwner(owner)
+                .setOwner(owner.getId())
                 .addMember(owner)
-                .addMember(GivenUserId.generated())
+                .addMember(chatMember("Emma Smith"))
                 .vBuild();
         var command = CreateGroupChat
                 .newBuilder()
@@ -72,7 +72,8 @@ public final class MessageTestEnv {
                 .newBuilder()
                 .setId(MessageId.generate())
                 .setChat(chat.getId())
-                .setUser(chat.getMember(0))
+                .setUser(chat.getMember(0)
+                             .getId())
                 .setContent("Hello, this is my message text")
                 .buildPartial();
         var command = SendMessage

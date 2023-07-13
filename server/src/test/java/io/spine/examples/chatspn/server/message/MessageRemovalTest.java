@@ -156,7 +156,7 @@ final class MessageRemovalTest extends ContextAwareTest {
         var lastMessage = sendRandomMessageTo(chat, context());
         var command = removeMessageCommand(message);
         context().receivesCommand(command);
-        var ownerChatCard = chatCardWithMessage(chat, lastMessage, chat.getOwner());
+        var ownerChatCard = chatCardWithMessage(chat, lastMessage, chat.getMember(0));
         var memberChatCard = chatCardWithMessage(chat, lastMessage, chat.getMember(1));
 
         context().assertState(ownerChatCard.getCardId(), ownerChatCard);

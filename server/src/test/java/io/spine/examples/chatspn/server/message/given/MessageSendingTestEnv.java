@@ -39,7 +39,6 @@ import io.spine.examples.chatspn.message.event.MessageSent;
 import io.spine.examples.chatspn.message.rejection.SendingRejections.MessageCannotBeSent;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
-import static io.spine.testing.TestValues.randomString;
 
 public final class MessageSendingTestEnv {
 
@@ -53,7 +52,8 @@ public final class MessageSendingTestEnv {
         var command = SendMessage
                 .newBuilder()
                 .setId(MessageId.generate())
-                .setUser(chat.getMember(0))
+                .setUser(chat.getMember(0)
+                             .getId())
                 .setChat(chat.getId())
                 .setContent("Hello, this is my message text")
                 .vBuild();

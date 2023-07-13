@@ -112,7 +112,8 @@ public final class MessageSendingTest extends ContextAwareTest {
         var command = randomSendMessageCommand(chat);
         context().receivesCommand(command);
         var ownerChatCard = chatCard(chat, command, chat.getOwner());
-        var memberChatCard = chatCard(chat, command, chat.getMember(1));
+        var memberChatCard = chatCard(chat, command, chat.getMember(1)
+                                                         .getId());
 
         context().assertState(ownerChatCard.getCardId(), ownerChatCard);
         context().assertState(memberChatCard.getCardId(), memberChatCard);

@@ -102,7 +102,8 @@ final class ChatDeletionTest extends ContextAwareTest {
         @DisplayName("update the state as expected")
         void state() {
             var chat = createPersonalChatIn(context());
-            var command = deleteChatCommand(chat, chat.getMember(1));
+            var command = deleteChatCommand(chat, chat.getMember(1)
+                                                      .getId());
             context().receivesCommand(command);
 
             context().assertEntity(command.chat(), ChatAggregate.class)
@@ -138,7 +139,8 @@ final class ChatDeletionTest extends ContextAwareTest {
                 "if the chat is a group and the user who deletes is not an owner")
         void rejectIfNotOwnerInGroup() {
             var chat = createGroupChatIn(context());
-            var command = deleteChatCommand(chat, chat.getMember(1));
+            var command = deleteChatCommand(chat, chat.getMember(1)
+                                                      .getId());
             context().receivesCommand(command);
             var expected = chatCannotBeMarkedAsDeletedFrom(command);
 

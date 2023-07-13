@@ -33,6 +33,7 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.account.command.CreateAccount;
+import io.spine.examples.chatspn.chat.ChatMember;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.MessageView;
@@ -65,14 +66,12 @@ public final class TestUserEnv {
         return command;
     }
 
-    public static CreatePersonalChat createPersonalChat(UserId creator, UserId member) {
+    public static CreatePersonalChat createPersonalChat(ChatMember creator, ChatMember member) {
         var command = CreatePersonalChat
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setCreator(creator)
-                .setCreatorName("John Doe")
                 .setMember(member)
-                .setMemberName("Emma Smith")
                 .vBuild();
         return command;
     }
@@ -146,5 +145,13 @@ public final class TestUserEnv {
                 .setWhoDeletes(user)
                 .vBuild();
         return deleteChat;
+    }
+
+    public static ChatMember chatMember(UserId id, String name) {
+        return ChatMember
+                .newBuilder()
+                .setId(id)
+                .setName(name)
+                .vBuild();
     }
 }

@@ -33,6 +33,8 @@ import io.spine.examples.chatspn.ChatDeletionId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatCard;
+import io.spine.examples.chatspn.chat.ChatMember;
+import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
@@ -49,7 +51,6 @@ import io.spine.examples.chatspn.chat.event.UserLeftChat;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeAdded;
 import io.spine.examples.chatspn.chat.rejection.Rejections.MembersCannotBeRemoved;
 import io.spine.examples.chatspn.chat.rejection.Rejections.UserCannotLeaveChat;
-import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.blackbox.BlackBoxContext;
 
 import java.util.List;
@@ -57,6 +58,7 @@ import java.util.List;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.chatDeletionId;
+import static io.spine.examples.chatspn.server.chat.given.GivenChatMember.chatMember;
 import static java.util.stream.Collectors.toList;
 
 public final class ChatTestEnv {
@@ -71,10 +73,8 @@ public final class ChatTestEnv {
         var command = CreatePersonalChat
                 .newBuilder()
                 .setId(ChatId.generate())
-                .setCreator(GivenUserId.generated())
-                .setCreatorName("John Doe")
-                .setMember(GivenUserId.generated())
-                .setMemberName("Emma Smith")
+                .setCreator(chatMember("John Doe"))
+                .setMember(chatMember("Emma Smith"))
                 .vBuild();
         return command;
     }
@@ -84,9 +84,7 @@ public final class ChatTestEnv {
                 .newBuilder()
                 .setId(c.getId())
                 .setCreator(c.getCreator())
-                .setCreatorName(c.getCreatorName())
                 .setMember(c.getMember())
-                .setMemberName(c.getMemberName())
                 .vBuild();
         return event;
     }
@@ -106,9 +104,9 @@ public final class ChatTestEnv {
         var command = CreateGroupChat
                 .newBuilder()
                 .setId(ChatId.generate())
-                .setCreator(GivenUserId.generated())
-                .addMember(GivenUserId.generated())
-                .addMember(GivenUserId.generated())
+                .setCreator(chatMember("John Doe"))
+                .addMember(chatMember("Emma Smith"))
+                .addMember(chatMember("Giordano Bruno"))
                 .setName("Group chat name")
                 .vBuild();
         return command;
@@ -133,21 +131,22 @@ public final class ChatTestEnv {
                 .addMember(c.getCreator())
                 .addAllMember(c.getMemberList())
                 .setName(c.getName())
-                .setOwner(c.getCreator())
+                .setOwner(c.getCreator()
+                           .getId())
                 .vBuild();
         return state;
     }
 
     public static Chat createGroupChatIn(BlackBoxContext ctx) {
-        var owner = GivenUserId.generated();
+        var owner = chatMember("John Doe");
         var chat = Chat
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setName("Awesome group chat name")
                 .setType(CT_GROUP)
-                .setOwner(owner)
+                .setOwner(owner.getId())
                 .addMember(owner)
-                .addMember(GivenUserId.generated())
+                .addMember(chatMember("Emma Smith"))
                 .vBuild();
         var command = CreateGroupChat
                 .newBuilder()
@@ -165,16 +164,14 @@ public final class ChatTestEnv {
                 .newBuilder()
                 .setId(ChatId.generate())
                 .setType(CT_PERSONAL)
-                .addMember(GivenUserId.generated())
-                .addMember(GivenUserId.generated())
+                .addMember(chatMember("Emma Smith"))
+                .addMember(chatMember("John Doe"))
                 .vBuild();
         var command = CreatePersonalChat
                 .newBuilder()
                 .setId(chat.getId())
                 .setCreator(chat.getMember(0))
-                .setCreatorName("John Doe")
                 .setMember(chat.getMember(1))
-                .setMemberName("Emma Smith")
                 .vBuild();
         ctx.receivesCommand(command);
         return chat;
@@ -195,18 +192,20 @@ public final class ChatTestEnv {
         var command = AddMembers
                 .newBuilder()
                 .setId(chat.getId())
-                .setWhoAdds(chat.getMember(0))
-                .addMember(GivenUserId.generated())
+                .setWhoAdds(chat.getMember(0)
+                                .getId())
+                .addMember(chatMember("Giordano Bruno"))
                 .vBuild();
         return command;
     }
 
     public static AddMembers addMembersCommandWith(Chat chat,
-                                                   List<UserId> membersToAdd) {
+                                                   List<ChatMember> membersToAdd) {
         var command = AddMembers
                 .newBuilder()
                 .setId(chat.getId())
-                .setWhoAdds(chat.getMember(0))
+                .setWhoAdds(chat.getMember(0)
+                                .getId())
                 .addAllMember(membersToAdd)
                 .vBuild();
         return command;
@@ -218,14 +217,14 @@ public final class ChatTestEnv {
                 .newBuilder()
                 .setId(chat.getId())
                 .setWhoAdds(whoAdds)
-                .addMember(GivenUserId.generated())
+                .addMember(chatMember("Giordano Bruno"))
                 .vBuild();
         return command;
     }
 
     public static MembersAdded membersAdded(AddMembers c,
                                             String chatName,
-                                            List<UserId> addedMembers) {
+                                            List<ChatMember> addedMembers) {
         var event = MembersAdded
                 .newBuilder()
                 .setId(c.getId())
@@ -246,7 +245,7 @@ public final class ChatTestEnv {
         return rejection;
     }
 
-    public static Chat chatAfterAddition(Chat chat, List<UserId> addedMembers) {
+    public static Chat chatAfterAddition(Chat chat, List<ChatMember> addedMembers) {
         var state = Chat
                 .newBuilder()
                 .setId(chat.getId())
@@ -269,19 +268,20 @@ public final class ChatTestEnv {
     }
 
     public static RemoveMembers removeMembersCommandWith(Chat chat,
-                                                         List<UserId> membersToRemove) {
+                                                         List<ChatMember> membersToRemove) {
         var command = RemoveMembers
                 .newBuilder()
                 .setId(chat.getId())
-                .setWhoRemoves(chat.getMember(0))
+                .setWhoRemoves(chat.getMember(0)
+                                   .getId())
                 .addAllMember(membersToRemove)
                 .vBuild();
         return command;
     }
 
     public static MembersRemoved membersRemoved(RemoveMembers command,
-                                                List<UserId> remainingMembers,
-                                                List<UserId> removedMembers) {
+                                                List<ChatMember> remainingMembers,
+                                                List<ChatMember> removedMembers) {
         var event = MembersRemoved
                 .newBuilder()
                 .setId(command.getId())
@@ -292,7 +292,7 @@ public final class ChatTestEnv {
         return event;
     }
 
-    public static Chat chatAfterRemoval(Chat chat, List<UserId> remainingMembers) {
+    public static Chat chatAfterRemoval(Chat chat, List<ChatMember> remainingMembers) {
         var state = Chat
                 .newBuilder()
                 .setId(chat.getId())
@@ -314,7 +314,7 @@ public final class ChatTestEnv {
         return rejection;
     }
 
-    public static LeaveChat leaveChat(Chat chat, UserId user) {
+    public static LeaveChat leaveChat(Chat chat, ChatMember user) {
         var command = LeaveChat
                 .newBuilder()
                 .setChat(chat.getId())
@@ -349,7 +349,8 @@ public final class ChatTestEnv {
         var event = ChatDeleted
                 .newBuilder()
                 .setId(deletionId)
-                .setWhoDeleted(c.getUser())
+                .setWhoDeleted(c.getUser()
+                                .getId())
                 .vBuild();
         return event;
     }
@@ -385,27 +386,40 @@ public final class ChatTestEnv {
                 .vBuild();
     }
 
-    public static ChatCard groupChatCard(Chat chat, UserId user) {
-        var chatCardId = chatCardId(chat.getId(), user);
+    public static ChatCard groupChatCard(Chat chat, ChatMember viewer) {
+        return groupChatCard(chat, viewer.getId());
+    }
+
+    public static ChatCard groupChatCard(Chat chat, UserId viewerId) {
+        var chatCardId = chatCardId(chat.getId(), viewerId);
         var chatCard = ChatCard
                 .newBuilder()
                 .setCardId(chatCardId)
                 .setChatId(chat.getId())
-                .setViewer(user)
+                .setViewer(viewerId)
                 .setName(chat.getName())
                 .setType(CT_GROUP)
                 .vBuild();
         return chatCard;
     }
 
-    public static ChatCard personalChatCard(CreatePersonalChat command, UserId user) {
-        var chatCardId = chatCardId(command.getId(), user);
+    public static ChatCard personalChatCard(CreatePersonalChat command, ChatMember viewer) {
+        var chatCardId = chatCardId(command.getId(), viewer.getId());
+        var chatMembers = ChatMembers
+                .newBuilder()
+                .setId(command.getId())
+                .addMember(command.getCreator())
+                .addMember(command.getMember())
+                .vBuild();
+        var chatmates = chatMembers.chatmatesFor(viewer.getId())
+                                   .asList();
         var chatCard = ChatCard
                 .newBuilder()
                 .setCardId(chatCardId)
                 .setChatId(command.getId())
-                .setViewer(user)
-                .setName(command.partnerName(user))
+                .setViewer(viewer.getId())
+                .setName(chatmates.get(0)
+                                  .getName())
                 .setType(CT_PERSONAL)
                 .vBuild();
         return chatCard;

@@ -60,6 +60,7 @@ import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.personalCh
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.removeMembersCommandWith;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userCannotLeaveChat;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userLeftChat;
+import static io.spine.examples.chatspn.server.chat.given.GivenChatMember.chatMember;
 
 @DisplayName("`Chat` should")
 final class ChatTest extends ContextAwareTest {
@@ -128,10 +129,11 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and emit the `MembersRemoved` if at least one member can be removed")
         void event() {
             var chat = createGroupChatIn(context());
-            var randomUser = GivenUserId.generated();
-            var chatOwner = chat.getOwner();
+            var randomUser = chatMember("Unknown user");
+            var chatOwner = chat.getMember(0);
             var commonChatMember = chat.getMember(1);
-            var membersToRemove = ImmutableList.of(randomUser, chatOwner, commonChatMember);
+            var membersToRemove = ImmutableList
+                    .of(randomUser, chatOwner, commonChatMember);
             var command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
             var remainingMembers = ImmutableList.of(chatOwner);
@@ -145,10 +147,11 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and change state to expected if at least one member can be removed")
         void state() {
             var chat = createGroupChatIn(context());
-            var randomUser = GivenUserId.generated();
-            var chatOwner = chat.getOwner();
+            var randomUser = chatMember("Unknown user");
+            var chatOwner = chat.getMember(0);
             var commonChatMember = chat.getMember(1);
-            var membersToRemove = ImmutableList.of(randomUser, chatOwner, commonChatMember);
+            var membersToRemove = ImmutableList
+                    .of(randomUser, chatOwner, commonChatMember);
             var command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
             var remainingMembers = ImmutableList.of(chatOwner);
@@ -164,7 +167,8 @@ final class ChatTest extends ContextAwareTest {
             var membersToRemove = ImmutableList.of(chat.getMember(1));
             var command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
-            var chatCardId = chatCardId(chat.getId(), membersToRemove.get(0));
+            var chatCardId = chatCardId(chat.getId(), membersToRemove.get(0)
+                                                                     .getId());
 
             context().assertEntity(chatCardId, ChatCardProjection.class)
                      .deletedFlag()
@@ -188,7 +192,8 @@ final class ChatTest extends ContextAwareTest {
                 "if the user who removes is not a chat owner")
         void rejectIfNotOwner() {
             var chat = createGroupChatIn(context());
-            var command = removeMembersCommandWith(chat, chat.getMember(1));
+            var command = removeMembersCommandWith(chat, chat.getMember(1)
+                                                             .getId());
             context().receivesCommand(command);
             var expected = membersCannotBeRemovedFrom(command);
 
@@ -201,7 +206,7 @@ final class ChatTest extends ContextAwareTest {
         void rejectIfNotGroup() {
             var chat = createPersonalChatIn(context());
             var commonChatMember = chat.getMember(1);
-            var command = removeMembersCommandWith(chat, commonChatMember);
+            var command = removeMembersCommandWith(chat, commonChatMember.getId());
             context().receivesCommand(command);
             var expected = membersCannotBeRemovedFrom(command);
 
@@ -213,7 +218,8 @@ final class ChatTest extends ContextAwareTest {
                 "if all members to remove are not in the chat")
         void rejectIfNoOneToRemove() {
             var chat = createGroupChatIn(context());
-            var membersToRemove = ImmutableList.of(GivenUserId.generated());
+            var membersToRemove = ImmutableList
+                    .of(chatMember("Unknown user"));
             var command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
             var expected = membersCannotBeRemovedFrom(command);
@@ -230,7 +236,8 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and emit the `MembersAdded` if at least one member can be added")
         void event() {
             var chat = createGroupChatIn(context());
-            var membersToAdd = ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
+            var membersToAdd = ImmutableList
+                    .of(chatMember("Sun Tzu"), chat.getMember(0));
             var command = addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
             var addedMembers = ImmutableList.of(membersToAdd.get(0));
@@ -243,7 +250,8 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and change state to expected if at least one member can be added")
         void state() {
             var chat = createGroupChatIn(context());
-            var membersToAdd = ImmutableList.of(GivenUserId.generated(), chat.getMember(0));
+            var membersToAdd = ImmutableList
+                    .of(chatMember("Sun Tzu"), chat.getMember(0));
             var command = addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
             var addedMembers = ImmutableList.of(membersToAdd.get(0));
@@ -256,7 +264,7 @@ final class ChatTest extends ContextAwareTest {
         @DisplayName("and create the `ChatCard` projection for added members")
         void createChatCardProjection() {
             var chat = createGroupChatIn(context());
-            var membersToAdd = ImmutableList.of(GivenUserId.generated());
+            var membersToAdd = ImmutableList.of(chatMember("Sun Tzu"));
             var command = addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
             var chatCard = groupChatCard(chat, membersToAdd.get(0));
@@ -305,7 +313,8 @@ final class ChatTest extends ContextAwareTest {
                 "if all members to add already in the chat")
         void rejectIfAlreadyMembers() {
             var chat = createGroupChatIn(context());
-            var membersToAdd = ImmutableList.of(chat.getMember(0), chat.getMember(1));
+            var membersToAdd = ImmutableList
+                    .of(chat.getMember(0), chat.getMember(1));
             var command = addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
             var expected = membersCannotBeAddedFrom(command);
@@ -348,7 +357,7 @@ final class ChatTest extends ContextAwareTest {
             var command = leaveChat(chat, user);
             context().receivesCommand(command);
 
-            var chatCardId = chatCardId(chat.getId(), user);
+            var chatCardId = chatCardId(chat.getId(), user.getId());
 
             context().assertEntity(chatCardId, ChatCardProjection.class)
                      .deletedFlag()
@@ -360,7 +369,8 @@ final class ChatTest extends ContextAwareTest {
                 " if the last member leaves the chat")
         void lastMemberLeftTheChat() {
             var chat = createGroupChatIn(context());
-            var removeMembers = removeMembersCommandWith(chat, ImmutableList.of(chat.getMember(1)));
+            var removeMembers = removeMembersCommandWith(chat,
+                                                         ImmutableList.of(chat.getMember(1)));
             context().receivesCommand(removeMembers);
             var command = leaveChat(chat, chat.getMember(0));
             context().receivesCommand(command);
@@ -381,7 +391,7 @@ final class ChatTest extends ContextAwareTest {
                 "if the user is not a member")
         void rejectIfNotMember() {
             var chat = createGroupChatIn(context());
-            var command = leaveChat(chat, GivenUserId.generated());
+            var command = leaveChat(chat, chatMember("Unknown user"));
             context().receivesCommand(command);
             var expected = userCannotLeaveChat(command);
 

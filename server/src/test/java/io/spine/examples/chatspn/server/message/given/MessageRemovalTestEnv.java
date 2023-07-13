@@ -32,6 +32,7 @@ import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatCard;
+import io.spine.examples.chatspn.chat.ChatMember;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
@@ -151,7 +152,7 @@ public final class MessageRemovalTestEnv {
                 .vBuild();
     }
 
-    public static ChatCard chatCardWithMessage(Chat chat, Message message, UserId user) {
+    public static ChatCard chatCardWithMessage(Chat chat, Message message, ChatMember user) {
         var messageView = MessageView
                 .newBuilder()
                 .setId(message.getId())
@@ -161,14 +162,14 @@ public final class MessageRemovalTestEnv {
                 .buildPartial();
         var chatCardId = ChatCardId
                 .newBuilder()
-                .setUser(user)
+                .setUser(user.getId())
                 .setChat(chat.getId())
                 .vBuild();
         var state = ChatCard
                 .newBuilder()
                 .setCardId(chatCardId)
                 .setChatId(chat.getId())
-                .setViewer(user)
+                .setViewer(user.getId())
                 .setName(chat.getName())
                 .setType(CT_GROUP)
                 .setLastMessage(messageView)
@@ -176,17 +177,21 @@ public final class MessageRemovalTestEnv {
         return state;
     }
 
-    public static ChatCard chatCard(Chat chat, UserId user) {
+    public static ChatCard chatCard(Chat chat, ChatMember viewer) {
+        return chatCard(chat, viewer.getId());
+    }
+
+    public static ChatCard chatCard(Chat chat, UserId viewerId) {
         var chatCardId = ChatCardId
                 .newBuilder()
-                .setUser(user)
+                .setUser(viewerId)
                 .setChat(chat.getId())
                 .vBuild();
         var state = ChatCard
                 .newBuilder()
                 .setCardId(chatCardId)
                 .setChatId(chat.getId())
-                .setViewer(user)
+                .setViewer(viewerId)
                 .setName(chat.getName())
                 .setType(CT_GROUP)
                 .vBuild();

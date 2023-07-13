@@ -145,7 +145,8 @@ final class MessageEditingTest extends ContextAwareTest {
         context().receivesCommand(command);
         var ownerChatCard = chatCardWithEditedMessage(chat, command, chat.getOwner());
         var memberChatCard =
-                chatCardWithEditedMessage(chat, command, chat.getMember(1));
+                chatCardWithEditedMessage(chat, command, chat.getMember(1)
+                                                             .getId());
 
         context().assertState(ownerChatCard.getCardId(), ownerChatCard);
         context().assertState(memberChatCard.getCardId(), memberChatCard);
@@ -160,7 +161,7 @@ final class MessageEditingTest extends ContextAwareTest {
         var lastMessage = sendRandomMessageTo(chat, context());
         var command = editMessageCommand(message);
         context().receivesCommand(command);
-        var ownerChatCard = chatCardWithMessage(chat, lastMessage, chat.getOwner());
+        var ownerChatCard = chatCardWithMessage(chat, lastMessage, chat.getMember(0));
         var memberChatCard =
                 chatCardWithMessage(chat, lastMessage, chat.getMember(1));
 
@@ -206,7 +207,8 @@ final class MessageEditingTest extends ContextAwareTest {
             var message = sendRandomMessageTo(chat, context());
             var command = editMessageCommandWith(message, MessageId.generate());
             context().receivesCommand(command);
-            var expected = messageContentCannotBeUpdatedFrom(command);
+            var expected =
+                    messageContentCannotBeUpdatedFrom(command);
 
             context().assertEvent(expected);
         }
@@ -217,9 +219,11 @@ final class MessageEditingTest extends ContextAwareTest {
         void rejectBecauseEditorNonOwner() {
             var chat = createRandomChatIn(context());
             var message = sendRandomMessageTo(chat, context());
-            var command = editMessageCommandWith(message, chat.getMember(1));
+            var command = editMessageCommandWith(message, chat.getMember(1)
+                                                              .getId());
             context().receivesCommand(command);
-            var expected = messageContentCannotBeUpdatedFrom(command);
+            var expected =
+                    messageContentCannotBeUpdatedFrom(command);
 
             context().assertEvent(expected);
         }
