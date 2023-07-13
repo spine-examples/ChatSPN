@@ -54,6 +54,7 @@ import io.spine.examples.chatspn.account.event.AccountCreated
 import io.spine.examples.chatspn.account.event.AccountNotCreated
 import io.spine.examples.chatspn.chat.Chat.ChatType
 import io.spine.examples.chatspn.chat.ChatCard
+import io.spine.examples.chatspn.chat.ChatMember
 import io.spine.examples.chatspn.chat.ChatMembers
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
 import io.spine.examples.chatspn.chat.command.DeleteChat
@@ -196,7 +197,7 @@ public class DesktopClient(
      * @param chat ID of the chat to read members from
      * @return list of chat members, or an empty list if the chat does not exist
      */
-    public fun readChatMembers(chat: ChatId): List<UserId> {
+    public fun readChatMembers(chat: ChatId): List<ChatMember> {
         val projections = clientRequest()
             .select(ChatMembers::class.java)
             .byId(chat)
@@ -223,10 +224,8 @@ public class DesktopClient(
         val command = CreatePersonalChat
             .newBuilder()
             .buildWith(
-                authenticatedUser!!.id,
-                authenticatedUser!!.name,
-                user,
-                userProfile!!.name
+                authenticatedUser!!,
+                userProfile!!
             )
         var subscription: Subscription? = null
         subscription = observeEvent(
@@ -546,24 +545,29 @@ private fun CreateAccount.Builder.buildWith(email: String, name: String): Create
 /**
  * Builds command to create a personal chat between provided users.
  *
- * @param creator ID of the user who creates a personal chat
- * @param creatorName name of the user who creates a personal chat
- * @param member ID of the user to create a personal chat with
- * @param memberName name of the user to create a personal chat with
+ * @param creator profile of the user who creates a personal chat
+ * @param member profile of the user to create a personal chat with
  * @return command to create a personal chat
  */
 private fun CreatePersonalChat.Builder.buildWith(
-    creator: UserId,
-    creatorName: String,
-    member: UserId,
-    memberName: String
+    creator: UserProfile,
+    member: UserProfile,
 ): CreatePersonalChat {
     return this
         .setId(ChatId.generate())
-        .setCreator(creator)
-        .setCreatorName(creatorName)
-        .setMember(member)
-        .setMemberName(memberName)
+        .setCreator(creator.asChatMember())
+        .setMember(member.asChatMember())
+        .vBuild()
+}
+
+/**
+ * Creates chat member from the user profile.
+ */
+private fun UserProfile.asChatMember(): ChatMember {
+    return ChatMember
+        .newBuilder()
+        .setId(this.id)
+        .setName(this.name)
         .vBuild()
 }
 
