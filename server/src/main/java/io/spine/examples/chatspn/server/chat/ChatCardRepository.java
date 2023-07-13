@@ -34,6 +34,7 @@ import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatCard;
+import io.spine.examples.chatspn.chat.ChatMember;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
@@ -99,10 +100,10 @@ public final class ChatCardRepository
      * @param chat
      *         ID of the chat which card IDs to return
      */
-    private static ImmutableSet<ChatCardId> toUsersInChat(List<UserId> users, ChatId chat) {
+    private static ImmutableSet<ChatCardId> toUsersInChat(List<ChatMember> users, ChatId chat) {
         return users
                 .stream()
-                .map(user -> chatCardId(chat, user))
+                .map(user -> chatCardId(chat, user.getId()))
                 .collect(toImmutableSet());
     }
 

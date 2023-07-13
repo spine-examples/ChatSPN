@@ -32,6 +32,7 @@ import io.spine.core.ActorContext;
 import io.spine.core.CommandContext;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.chat.ChatMember;
 import io.spine.examples.chatspn.chat.ChatMembers;
 
 /**
@@ -60,7 +61,9 @@ public final class ChatMembersReader {
         var isMember = projections
                 .get(0)
                 .getMemberList()
-                .contains(userId);
+                .stream()
+                .anyMatch(member -> member.getId()
+                                          .equals(userId));
         return isMember;
     }
 
@@ -69,7 +72,7 @@ public final class ChatMembersReader {
      *
      * <p>If the chat with the provided ID does not exist, returns an empty list.
      */
-    public ImmutableList<UserId> members(ChatId chat, ActorContext ctx) {
+    public ImmutableList<ChatMember> members(ChatId chat, ActorContext ctx) {
         var projections = reader.read(ImmutableSet.of(chat), ctx);
         if (projections.isEmpty()) {
             return ImmutableList.of();

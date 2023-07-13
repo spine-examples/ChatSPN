@@ -29,6 +29,7 @@ package io.spine.examples.chatspn.server.chat;
 import io.spine.core.Subscribe;
 import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.chat.ChatCard;
+import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
@@ -40,6 +41,8 @@ import io.spine.examples.chatspn.message.event.MessageContentUpdated;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.server.projection.Projection;
+
+import java.util.ArrayList;
 
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
@@ -56,7 +59,15 @@ public final class ChatCardProjection
                               .getUser();
         var chat = builder().getCardId()
                             .getChat();
-        builder().setName(e.partnerName(viewer))
+        var chatMembers = ChatMembers
+                .newBuilder()
+                .setId(chat)
+                .addMember(e.getCreator())
+                .addMember(e.getMember())
+                .vBuild();
+        var chatmates = chatMembers.chatmatesFor(viewer);
+        builder().setName(new ArrayList<>(chatmates).get(0)
+                                                    .getName())
                  .setViewer(viewer)
                  .setChatId(chat)
                  .setType(CT_PERSONAL);
