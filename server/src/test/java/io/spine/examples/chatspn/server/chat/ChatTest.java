@@ -161,18 +161,23 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("and delete `ChatCard` projections of removed members")
-        void deleteChatCardProjection() {
+        @DisplayName("and delete `ChatCard` projections of removed members, " +
+                "and update `ChatCard` projections for remaining members")
+        void updateChatCardProjections() {
             var chat = createGroupChatIn(context());
             var membersToRemove = ImmutableList.of(chat.getMember(1));
             var command = removeMembersCommandWith(chat, membersToRemove);
             context().receivesCommand(command);
-            var chatCardId = chatCardId(chat.getId(), membersToRemove.get(0)
-                                                                     .getId());
+            var removedMemberChatCardId = chatCardId(chat.getId(), membersToRemove.get(0)
+                                                                                  .getId());
+            var remainingMembers = ImmutableList.of(chat.getMember(0));
+            var chatAfterRemoval = chatAfterRemoval(chat, remainingMembers);
+            var ownerChatCard = groupChatCard(chatAfterRemoval, chat.getMember(0));
 
-            context().assertEntity(chatCardId, ChatCardProjection.class)
+            context().assertEntity(removedMemberChatCardId, ChatCardProjection.class)
                      .deletedFlag()
                      .isTrue();
+            context().assertState(ownerChatCard.getCardId(), ownerChatCard);
         }
 
         @Test
@@ -241,7 +246,7 @@ final class ChatTest extends ContextAwareTest {
             var command = addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
             var addedMembers = ImmutableList.of(membersToAdd.get(0));
-            var expected = membersAdded(command, chat.getName(), addedMembers);
+            var expected = membersAdded(command, chat, addedMembers);
 
             context().assertEvent(expected);
         }
@@ -261,15 +266,21 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("and create the `ChatCard` projection for added members")
-        void createChatCardProjection() {
+        @DisplayName("and create `ChatCard` projections for added members " +
+                "and update `ChatCard` projections for already existing members")
+        void updateChatCardProjections() {
             var chat = createGroupChatIn(context());
             var membersToAdd = ImmutableList.of(chatMember("Sun Tzu"));
             var command = addMembersCommandWith(chat, membersToAdd);
             context().receivesCommand(command);
-            var chatCard = groupChatCard(chat, membersToAdd.get(0));
+            var chatAfterAddition = chatAfterAddition(chat, membersToAdd);
+            var ownerChatCard = groupChatCard(chatAfterAddition, chat.getMember(0));
+            var oldMemberChatCard = groupChatCard(chatAfterAddition, chat.getMember(1));
+            var newMemberChatCard = groupChatCard(chatAfterAddition, membersToAdd.get(0));
 
-            context().assertState(chatCard.getCardId(), chatCard);
+            context().assertState(ownerChatCard.getCardId(), ownerChatCard);
+            context().assertState(oldMemberChatCard.getCardId(), oldMemberChatCard);
+            context().assertState(newMemberChatCard.getCardId(), newMemberChatCard);
         }
 
         @Test
@@ -350,18 +361,22 @@ final class ChatTest extends ContextAwareTest {
         }
 
         @Test
-        @DisplayName("and delete member's `ChatCard` projection after the member leaves")
-        void deleteChatCardProjection() {
+        @DisplayName("and delete member's `ChatCard` projection after the member leaves, " +
+                "and update `ChatCard` projections for remaining members")
+        void updateChatCardProjections() {
             var chat = createGroupChatIn(context());
             var user = chat.getMember(1);
             var command = leaveChat(chat, user);
             context().receivesCommand(command);
 
-            var chatCardId = chatCardId(chat.getId(), user.getId());
+            var deletedChatCardId = chatCardId(chat.getId(), user.getId());
+            var chatAfterLeaving = chat(chat, command);
+            var ownerChatCard = groupChatCard(chatAfterLeaving, chat.getMember(0));
 
-            context().assertEntity(chatCardId, ChatCardProjection.class)
+            context().assertEntity(deletedChatCardId, ChatCardProjection.class)
                      .deletedFlag()
                      .isTrue();
+            context().assertState(ownerChatCard.getCardId(), ownerChatCard);
         }
 
         @Test

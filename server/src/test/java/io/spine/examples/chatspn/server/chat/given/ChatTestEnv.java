@@ -34,7 +34,6 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.Chat;
 import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.chat.ChatMember;
-import io.spine.examples.chatspn.chat.ChatMembers;
 import io.spine.examples.chatspn.chat.command.AddMembers;
 import io.spine.examples.chatspn.chat.command.CreateGroupChat;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
@@ -223,14 +222,15 @@ public final class ChatTestEnv {
     }
 
     public static MembersAdded membersAdded(AddMembers c,
-                                            String chatName,
+                                            Chat chat,
                                             List<ChatMember> addedMembers) {
         var event = MembersAdded
                 .newBuilder()
                 .setId(c.getId())
-                .setChatName(chatName)
+                .setChatName(chat.getName())
                 .setWhoAdded(c.getWhoAdds())
-                .addAllMember(addedMembers)
+                .addAllNewMember(addedMembers)
+                .addAllOldMember(chat.getMemberList())
                 .vBuild();
         return event;
     }
@@ -397,7 +397,8 @@ public final class ChatTestEnv {
                 .setCardId(chatCardId)
                 .setChatId(chat.getId())
                 .setViewer(viewerId)
-                .setName(chat.getName())
+                .addAllMember(chat.getMemberList())
+                .setGroupChatName(chat.getName())
                 .setType(CT_GROUP)
                 .vBuild();
         return chatCard;
@@ -405,21 +406,13 @@ public final class ChatTestEnv {
 
     public static ChatCard personalChatCard(CreatePersonalChat command, ChatMember viewer) {
         var chatCardId = chatCardId(command.getId(), viewer.getId());
-        var chatMembers = ChatMembers
-                .newBuilder()
-                .setId(command.getId())
-                .addMember(command.getCreator())
-                .addMember(command.getMember())
-                .vBuild();
-        var chatmates = chatMembers.chatmatesFor(viewer.getId())
-                                   .asList();
         var chatCard = ChatCard
                 .newBuilder()
                 .setCardId(chatCardId)
                 .setChatId(command.getId())
                 .setViewer(viewer.getId())
-                .setName(chatmates.get(0)
-                                  .getName())
+                .addMember(command.getCreator())
+                .addMember(command.getMember())
                 .setType(CT_PERSONAL)
                 .vBuild();
         return chatCard;

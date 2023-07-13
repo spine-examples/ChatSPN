@@ -170,7 +170,7 @@ public final class MessageRemovalTestEnv {
                 .setCardId(chatCardId)
                 .setChatId(chat.getId())
                 .setViewer(user.getId())
-                .setName(chat.getName())
+                .setGroupChatName(chat.getName())
                 .setType(CT_GROUP)
                 .setLastMessage(messageView)
                 .vBuild();
@@ -192,7 +192,7 @@ public final class MessageRemovalTestEnv {
                 .setCardId(chatCardId)
                 .setChatId(chat.getId())
                 .setViewer(viewerId)
-                .setName(chat.getName())
+                .setGroupChatName(chat.getName())
                 .setType(CT_GROUP)
                 .vBuild();
         return state;

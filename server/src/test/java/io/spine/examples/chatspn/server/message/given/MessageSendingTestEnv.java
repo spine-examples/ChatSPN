@@ -144,7 +144,7 @@ public final class MessageSendingTestEnv {
                 .setCardId(chatCardId)
                 .setChatId(chat.getId())
                 .setViewer(user)
-                .setName(chat.getName())
+                .setGroupChatName(chat.getName())
                 .setType(CT_GROUP)
                 .setLastMessage(messageView)
                 .vBuild();
