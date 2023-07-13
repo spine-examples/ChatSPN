@@ -27,9 +27,11 @@
 package io.spine.examples.chatspn.server.chat;
 
 import io.spine.core.Subscribe;
+import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatCardId;
+import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.chat.ChatCard;
-import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.ChatMember;
 import io.spine.examples.chatspn.chat.event.ChatMarkedAsDeleted;
 import io.spine.examples.chatspn.chat.event.GroupChatCreated;
 import io.spine.examples.chatspn.chat.event.MembersAdded;
@@ -42,6 +44,8 @@ import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.server.projection.Projection;
 
+import java.util.List;
+
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL;
 
@@ -53,47 +57,34 @@ public final class ChatCardProjection
 
     @Subscribe
     void on(PersonalChatCreated e) {
-        var viewer = builder().getCardId()
-                              .getUser();
-        var chat = builder().getCardId()
-                            .getChat();
-        var chatMembers = ChatMembers
-                .newBuilder()
-                .setId(chat)
-                .addMember(e.getCreator())
-                .addMember(e.getMember())
-                .vBuild();
-        var chatmates = chatMembers.chatmatesFor(viewer)
-                                   .asList();
-        builder().setName(chatmates.get(0)
-                                   .getName())
-                 .setViewer(viewer)
-                 .setChatId(chat)
+        builder().setViewer(viewerId())
+                 .setChatId(chatId())
+                 .addMember(e.getCreator())
+                 .addMember(e.getMember())
                  .setType(CT_PERSONAL);
     }
 
     @Subscribe
     void on(GroupChatCreated e) {
-        var cardOwner = builder().getCardId()
-                                 .getUser();
-        var chat = builder().getCardId()
-                            .getChat();
-        builder().setName(e.getName())
-                 .setViewer(cardOwner)
-                 .setChatId(chat)
-                 .setType(CT_GROUP);
+        builder().setViewer(viewerId())
+                 .setChatId(chatId())
+                 .addAllMember(e.getMemberList())
+                 .setType(CT_GROUP)
+                 .setGroupChatName(e.getName());
     }
 
     @Subscribe
     void on(MembersAdded e) {
-        var cardOwner = builder().getCardId()
-                                 .getUser();
-        var chat = builder().getCardId()
-                            .getChat();
-        builder().setName(e.getChatName())
-                 .setViewer(cardOwner)
-                 .setChatId(chat)
-                 .setType(CT_GROUP);
+        builder().setViewer(viewerId())
+                 .setChatId(chatId())
+                 .setType(CT_GROUP)
+                 .setGroupChatName(e.getChatName());
+        e.getMemberList()
+         .stream()
+         .filter(member -> !state()
+                 .getMemberList()
+                 .contains(member))
+         .forEach(member -> builder().addMember(member));
     }
 
     @Subscribe
@@ -142,11 +133,48 @@ public final class ChatCardProjection
 
     @Subscribe
     void on(MembersRemoved e) {
-        setDeleted(true);
+        builder().clearMember()
+                 .addAllMember(e.getRemainingMemberList());
+        if (!isMember(e.getRemainingMemberList(), viewerId())) {
+            setDeleted(true);
+        }
     }
 
     @Subscribe
     void on(UserLeftChat e) {
-        setDeleted(true);
+        var userIndex = state()
+                .getMemberList()
+                .indexOf(e.getUser());
+        builder().removeMember(userIndex);
+        if (viewerId().equals(e.getUser()
+                               .getId())) {
+            setDeleted(true);
+        }
+    }
+
+    /**
+     * Extracts viewer ID from the card ID.
+     */
+    private UserId viewerId() {
+        return builder().getCardId()
+                        .getUser();
+    }
+
+    /**
+     * Extracts chat ID from the card ID.
+     */
+    private ChatId chatId() {
+        return builder().getCardId()
+                        .getChat();
+    }
+
+    /**
+     * Tells whether the given user is a part of the specified member list.
+     */
+    private static boolean isMember(List<ChatMember> members, UserId user) {
+        return members
+                .stream()
+                .anyMatch(member -> member.getId()
+                                          .equals(user));
     }
 }

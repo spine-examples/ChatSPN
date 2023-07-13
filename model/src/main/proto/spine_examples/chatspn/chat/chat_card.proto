@@ -60,15 +60,15 @@ message ChatCard {
     // ID of the chat to which the card is dedicated.
     ChatId chat_id = 3 [(required) = true, (column) = true];
 
-    // Name of the chat.
-    //
-    // A group chat has its own name, but in a personal chat it is the name of the second member.
-    //
-    string name = 4 [(required) = true];
-
     // Type of the chat.
-    spine_examples.chatspn.chat.Chat.ChatType type = 5 [(required) = true, (column) = true];
+    spine_examples.chatspn.chat.Chat.ChatType type = 4 [(required) = true, (column) = true];
 
     // The last posted message in this chat.
-    spine_examples.chatspn.message.MessageView last_message = 6;
+    spine_examples.chatspn.message.MessageView last_message = 5;
+
+    // List of the chat members.
+    repeated spine_examples.chatspn.chat.ChatMember member = 6 [(distinct) = true];
+
+    // Chat name if it is a group chat, otherwise it should be empty.
+    string group_chat_name = 7;
 }

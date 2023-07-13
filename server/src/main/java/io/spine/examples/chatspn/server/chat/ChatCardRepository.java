@@ -83,13 +83,11 @@ public final class ChatCardRepository
                .route(MessageMarkedAsDeleted.class,
                       (event, context) -> toEverybodyInChat(event.getChat(), context))
                .route(MembersAdded.class,
-                      (event, context) -> toUsersInChat(event.getMemberList(), event.getId()))
+                      (event, context) -> toEverybodyInChat(event.getId(), context))
                .route(MembersRemoved.class,
-                      (event, context) -> toUsersInChat(event.getRemovedMemberList(),
-                                                        event.getId()))
+                      (event, context) -> toEverybodyInChat(event.getId(), context))
                .route(UserLeftChat.class,
-                      (event, context) -> toUsersInChat(ImmutableList.of(event.getUser()),
-                                                        event.getChat()));
+                      (event, context) -> toEverybodyInChat(event.getChat(), context));
     }
 
     /**
