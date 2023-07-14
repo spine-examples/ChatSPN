@@ -34,10 +34,22 @@ option java_package = "io.spine.examples.chatspn";
 option java_outer_classname = "IdentifiersProto";
 option java_multiple_files = true;
 
+import "spine/core/user_id.proto";
+
 // Identifies a chat.
 message ChatId {
 
     string uuid = 1 [(required) = true];
+}
+
+// Identifies a chat card.
+message ChatCardId {
+
+    // The ID of the chat.
+    ChatId chat = 1 [(required) = true];
+
+    // The ID of the user for whom this card is intended.
+    spine.core.UserId user = 2 [(required) = true];
 }
 
 // Identifies a chat deletion process.

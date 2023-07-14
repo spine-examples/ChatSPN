@@ -47,9 +47,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.spine.examples.chatspn.chat.Chat
+import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.component.ModalWindow
 import io.spine.examples.chatspn.desktop.component.TextButton
-import io.spine.examples.chatspn.desktop.navigation.ChatData
+import io.spine.examples.chatspn.desktop.name
 import kotlinx.coroutines.launch
 
 /**
@@ -63,7 +64,7 @@ import kotlinx.coroutines.launch
 public fun ChatDeletionDialog(
     isVisibleState: MutableState<Boolean>,
     onDelete: () -> Unit,
-    chat: ChatData
+    chat: ChatCard
 ) {
     ModalWindow(isVisibleState) {
         Column(

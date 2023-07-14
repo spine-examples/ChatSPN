@@ -23,31 +23,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.chat;
+package io.spine.examples.chatspn.desktop
 
-import "spine/options.proto";
-
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat";
-option java_outer_classname = "ChatMembersProto";
-option java_multiple_files = true;
-
-import "spine/core/user_id.proto";
-import "spine_examples/chatspn/identifiers.proto";
-
-// Members in the chat.
-message ChatMembers {
-    option (entity) = { kind: PROJECTION };
-
-    // The ID of the chat.
-    ChatId id = 1;
-
-    // List of the chat members.
-    //
-    // It may be empty when the last member left the chat.
-    // In this case, the chat and this projection will be deleted.
-    //
-    repeated spine.core.UserId member = 2 [(distinct) = true];
+/**
+ * Returns the new list without an element on provided index.
+ *
+ * @param index index of the element to remove
+ */
+public fun <T> List<T>.remove(index: Int): List<T> {
+    return this.subList(0, index) + this.subList(index + 1, this.size)
 }

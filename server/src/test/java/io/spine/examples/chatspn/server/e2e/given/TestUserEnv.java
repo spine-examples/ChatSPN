@@ -33,8 +33,7 @@ import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.MessageRemovalId;
 import io.spine.examples.chatspn.account.command.CreateAccount;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.PersonalChatView;
+import io.spine.examples.chatspn.chat.ChatMember;
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat;
 import io.spine.examples.chatspn.chat.command.DeleteChat;
 import io.spine.examples.chatspn.message.MessageView;
@@ -67,7 +66,7 @@ public final class TestUserEnv {
         return command;
     }
 
-    public static CreatePersonalChat createPersonalChat(UserId creator, UserId member) {
+    public static CreatePersonalChat createPersonalChat(ChatMember creator, ChatMember member) {
         var command = CreatePersonalChat
                 .newBuilder()
                 .setId(ChatId.generate())
@@ -75,20 +74,6 @@ public final class TestUserEnv {
                 .setMember(member)
                 .vBuild();
         return command;
-    }
-
-    public static ChatPreview chatPreview(CreatePersonalChat command) {
-        var view = PersonalChatView
-                .newBuilder()
-                .setCreator(command.getCreator())
-                .setMember(command.getMember())
-                .vBuild();
-        var chatPreview = ChatPreview
-                .newBuilder()
-                .setId(command.getId())
-                .setPersonalChat(view)
-                .vBuild();
-        return chatPreview;
     }
 
     public static SendMessage sendMessageCommand(ChatId chatId, UserId userId, String content) {
@@ -160,5 +145,13 @@ public final class TestUserEnv {
                 .setWhoDeletes(user)
                 .vBuild();
         return deleteChat;
+    }
+
+    public static ChatMember chatMember(UserId id, String name) {
+        return ChatMember
+                .newBuilder()
+                .setId(id)
+                .setName(name)
+                .vBuild();
     }
 }

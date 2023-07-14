@@ -27,10 +27,10 @@
 package io.spine.examples.chatspn.server.message.given;
 
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.MessagePreview;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.EditMessage;
@@ -40,8 +40,7 @@ import io.spine.examples.chatspn.message.event.MessageEditingFailed;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageCannotBeEdited;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageContentCannotBeUpdated;
 
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatView;
-import static io.spine.testing.TestValues.randomString;
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 
 public final class MessageEditingTestEnv {
 
@@ -57,7 +56,7 @@ public final class MessageEditingTestEnv {
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(message.getUser())
-                .setSuggestedContent(randomString())
+                .setSuggestedContent("Hello, this is my edited message text")
                 .vBuild();
         return command;
     }
@@ -68,7 +67,7 @@ public final class MessageEditingTestEnv {
                 .setId(message.getId())
                 .setChat(message.getChat())
                 .setUser(userId)
-                .setSuggestedContent(randomString())
+                .setSuggestedContent("Hello, this is my edited message text")
                 .vBuild();
         return command;
     }
@@ -79,7 +78,7 @@ public final class MessageEditingTestEnv {
                 .setId(messageId)
                 .setChat(message.getChat())
                 .setUser(message.getUser())
-                .setSuggestedContent(randomString())
+                .setSuggestedContent("Hello, this is my edited message text")
                 .vBuild();
         return command;
     }
@@ -161,17 +160,26 @@ public final class MessageEditingTestEnv {
         return rejection;
     }
 
-    public static ChatPreview chatPreview(Chat chat, EditMessage command) {
-        var messageView = MessagePreview
+    public static ChatCard chatCardWithEditedMessage(Chat chat, EditMessage command, UserId user) {
+        var messageView = MessageView
                 .newBuilder()
                 .setId(command.getId())
+                .setChat(command.getChat())
                 .setUser(command.getUser())
                 .setContent(command.getSuggestedContent())
                 .buildPartial();
-        var state = ChatPreview
+        var chatCardId = ChatCardId
                 .newBuilder()
-                .setId(chat.getId())
-                .setGroupChat(groupChatView(chat.getName()))
+                .setUser(user)
+                .setChat(chat.getId())
+                .vBuild();
+        var state = ChatCard
+                .newBuilder()
+                .setCardId(chatCardId)
+                .setChatId(chat.getId())
+                .setViewer(user)
+                .setGroupChatName(chat.getName())
+                .setType(CT_GROUP)
                 .setLastMessage(messageView)
                 .vBuild();
         return state;

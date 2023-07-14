@@ -31,12 +31,10 @@ import androidx.compose.runtime.mutableStateOf
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.account.UserProfile
-import io.spine.examples.chatspn.chat.Chat
-import io.spine.examples.chatspn.chat.ChatPreview
-import io.spine.examples.chatspn.chat.MessagePreview
+import io.spine.examples.chatspn.chat.Chat.ChatType.CT_PERSONAL
+import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.DesktopClient
-import io.spine.examples.chatspn.desktop.chat.MessageData
-import java.util.stream.Collectors
+import io.spine.examples.chatspn.desktop.remove
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -44,7 +42,7 @@ import kotlinx.coroutines.flow.StateFlow
  * UI Model for the navigation.
  */
 public class NavigationModel(private val client: DesktopClient) {
-    private val chatPreviewsState = MutableStateFlow<ChatList>(listOf())
+    private val chatCards = MutableStateFlow<ChatList>(listOf())
     public val selectedChat: MutableState<ChatId> = mutableStateOf(ChatId.getDefaultInstance())
     public val userSearchFieldState: UserSearchFieldState = UserSearchFieldState()
     public val currentPage: MutableState<Page> = mutableStateOf(Page.REGISTRATION)
@@ -58,15 +56,24 @@ public class NavigationModel(private val client: DesktopClient) {
      * Reads chat previews and subscribes to their updates.
      */
     public fun observeChats() {
-        updateChats(client.readChats().toChatDataList(client))
-        client.observeChats { state -> updateChats(state.chatList.toChatDataList(client)) }
+        chatCards.value = client.readChats()
+        client.observeChats(
+            { chatCard -> updateChatsState(chatCard) },
+            { removedCardId ->
+                val chats = chatCards.value
+                val cardIndex = chats.indexOfFirst { card ->
+                    removedCardId.equals(card.cardId)
+                }
+                chatCards.value = chats.remove(cardIndex)
+            }
+        )
     }
 
     /**
      * Returns the state of the user's chats.
      */
     public fun chats(): StateFlow<ChatList> {
-        return chatPreviewsState
+        return chatCards
     }
 
     /**
@@ -81,24 +88,31 @@ public class NavigationModel(private val client: DesktopClient) {
     }
 
     /**
-     * Returns the data of the chat by id, or `null` if the chat doesn't exist.
+     * Returns the card of the chat by ID, or `null` if the chat doesn't exist.
      *
      * @param chatId ID of the chat
      */
-    public fun chatData(chatId: ChatId): ChatData? {
-        val chat = chatPreviewsState.value.find { chatData ->
-            chatData.id.equals(chatId)
+    public fun chatCard(chatId: ChatId): ChatCard? {
+        val chat = chatCards.value.find { chatCard ->
+            chatCard.chatId.equals(chatId)
         }
         return chat
     }
 
     /**
-     * Updates the model with new chats.
+     * Updates the state of chats by adding a new chat
+     * or editing existing one if chat ID matches.
      *
-     * @param chats new list of user chats
+     * @param chat card of the chat to update the state
      */
-    private fun updateChats(chats: ChatList) {
-        chatPreviewsState.value = chats
+    private fun updateChatsState(chat: ChatCard) {
+        val chats = chatCards.value
+        if (null != chats.find(chat.chatId)) {
+            val newChats = chats.replaceChat(chat)
+            chatCards.value = newChats
+        } else {
+            chatCards.value = chats + chat
+        }
     }
 
     /**
@@ -109,8 +123,8 @@ public class NavigationModel(private val client: DesktopClient) {
      */
     public fun selectPersonalChat(user: UserId) {
         val chat = findPersonalChat(user)
-        if (chat != null) {
-            selectChat(chat.id)
+        if (null != chat) {
+            selectChat(chat.chatId)
         } else {
             client.createPersonalChat(user) { event ->
                 selectChat(event.id)
@@ -133,15 +147,18 @@ public class NavigationModel(private val client: DesktopClient) {
     }
 
     /**
-     * Returns the data of the personal chat with the provided user,
+     * Returns the card of the personal chat with the provided user,
      * or `null` if the chat doesn't exist.
      *
      * @param user ID of the user with whom to find the personal chat
      */
-    private fun findPersonalChat(user: UserId): ChatData? {
-        val chat = chatPreviewsState.value.find { chatData ->
-            chatData.type == Chat.ChatType.CT_PERSONAL && chatData.members.contains(user)
-        }
+    private fun findPersonalChat(user: UserId): ChatCard? {
+        val chat = chatCards.value
+            .find { chatCard ->
+                chatCard.type == CT_PERSONAL &&
+                        (chatCard.memberList[0].id.equals(user) ||
+                                chatCard.memberList[1].id.equals(user))
+            }
         return chat
     }
 
@@ -153,7 +170,8 @@ public class NavigationModel(private val client: DesktopClient) {
     public fun openUserProfile(userId: UserId) {
         val user = client.findUser(userId)
         profilePageState.userProfile.value = user ?: UserProfile.getDefaultInstance()
-        profilePageState.chatState.value = if (null == user) null else findPersonalChat(user.id)
+        profilePageState.chatState.value =
+            if (null == user) null else findPersonalChat(user.id)
         currentPage.value = Page.PROFILE
     }
 
@@ -163,12 +181,14 @@ public class NavigationModel(private val client: DesktopClient) {
      * @param chatId ID of the chat which info to open
      */
     public fun openChatInfo(chatId: ChatId) {
-        val chat = chatPreviewsState.value.find { chatData -> chatId.equals(chatData.id) } ?: return
-        if (chat.type == Chat.ChatType.CT_PERSONAL) {
-            val userId = chat.members.find { user -> !user.equals(authenticatedUser.id) }
-            val user = client.findUser(userId!!)
+        val chat = chatCards.value.find { chatCard -> chatId.equals(chatCard.chatId) } ?: return
+        if (chat.type == CT_PERSONAL) {
+            val secondMember = chat
+                .memberList
+                .find { member -> !member.id.equals(authenticatedUser.id) }
+            val user = client.findUser(secondMember!!.id)
             profilePageState.userProfile.value = user!!
-            profilePageState.chatState.value = chatData(chat.id)
+            profilePageState.chatState.value = chat
             currentPage.value = Page.PROFILE
         }
     }
@@ -180,7 +200,7 @@ public class NavigationModel(private val client: DesktopClient) {
 public class ProfilePageState {
     public val userProfile: MutableState<UserProfile> =
         mutableStateOf(UserProfile.getDefaultInstance())
-    public val chatState: MutableState<ChatData?> = mutableStateOf(null)
+    public val chatState: MutableState<ChatCard?> = mutableStateOf(null)
 
     /**
      * Clears the state.
@@ -207,101 +227,33 @@ public enum class Page {
 }
 
 /**
- * Data that describes the chat.
- *
- * @property id ID of the chat
- * @property name name of the chat, or name of the chat partner in the personal chat
- * @property lastMessage last message in the chat
- * @property members list of members in the chat
- * @property type type of the chat
- */
-public data class ChatData(
-    val id: ChatId,
-    val name: String,
-    val lastMessage: MessageData?,
-    val members: List<UserId>,
-    val type: Chat.ChatType
-)
-
-/**
  * List of `ChatData`.
  */
-public typealias ChatList = List<ChatData>
+public typealias ChatList = List<ChatCard>
 
 /**
- * Creates the `ChatData` list from the `ChatPreview` list.
+ * Finds chat in the list by ID.
  *
- * @param client desktop client to find user profiles
+ * @param id ID of the chat to find
+ * @return found chat or `null` if chat is not found
  */
-private fun List<ChatPreview>.toChatDataList(client: DesktopClient): ChatList {
-    return this.stream().map { chatPreview ->
-        ChatData(
-            chatPreview.id,
-            chatPreview.name(client),
-            chatPreview.lastMessageData(client),
-            chatPreview.members(client),
-            chatPreview.type()
-        )
-    }.collect(Collectors.toList())
+private fun ChatList.find(id: ChatId): ChatCard? {
+    val chats = this.filter { chat -> chat.chatId.equals(id) }
+    if (chats.isEmpty()) {
+        return null
+    }
+    return chats[0]
 }
 
 /**
- * Retrieves the display name of the chat.
+ * Returns the new list with the replaced chat with the same chat ID.
  *
- * @param client desktop client to find user profiles
+ * @param newChat chat to replace
  */
-private fun ChatPreview.name(client: DesktopClient): String {
-    if (this.hasGroupChat()) {
-        return this.groupChat.name
-    }
-    val creator = this.personalChat.creator
-    val member = this.personalChat.member
-    if (client.authenticatedUser!!.id.equals(creator)) {
-        return client.findUser(member)!!.name
-    }
-    return client.findUser(creator)!!.name
-}
-
-/**
- * Retrieves the last message from the `ChatPreview` and creates the `MessageData` from it.
- */
-private fun ChatPreview.lastMessageData(client: DesktopClient): MessageData? {
-    val isMessageDefault = this.lastMessage.equals(MessagePreview.getDefaultInstance())
-    return if (isMessageDefault) {
-        null
-    } else {
-        this.lastMessage.toMessageData(client)
-    }
-}
-
-/**
- * Retrieves chat type.
- */
-private fun ChatPreview.type(): Chat.ChatType {
-    return if (this.hasGroupChat()) {
-        Chat.ChatType.CT_GROUP
-    } else {
-        Chat.ChatType.CT_PERSONAL
-    }
-}
-
-/**
- * Retrieves members of the chat.
- */
-private fun ChatPreview.members(client: DesktopClient): List<UserId> {
-    return client.readChatMembers(this.id)
-}
-
-/**
- * Creates the `MessageData` from the `MessagePreview`.
- *
- * @param client desktop client to find user profiles
- */
-private fun MessagePreview.toMessageData(client: DesktopClient): MessageData {
-    return MessageData(
-        this.id,
-        client.findUser(this.user)!!,
-        this.content,
-        this.whenPosted
-    )
+private fun ChatList.replaceChat(newChat: ChatCard): ChatList {
+    val oldChat = this.find(newChat.chatId)
+    val chatIndex = this.indexOf(oldChat)
+    val leftPart = this.subList(0, chatIndex)
+    val rightPart = this.subList(chatIndex + 1, this.size)
+    return leftPart + newChat + rightPart
 }

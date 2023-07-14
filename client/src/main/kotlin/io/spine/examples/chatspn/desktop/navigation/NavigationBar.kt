@@ -167,11 +167,11 @@ private fun ChatList(model: NavigationModel) {
     ) {
         chats.forEachIndexed { index, chat ->
             item(key = index) {
-                ChatPreviewPanel(
+                ChatPanel(
                     chat,
-                    chat.id.equals(selectedChat.value)
+                    chat.chatId.equals(selectedChat.value)
                 ) {
-                    model.selectChat(chat.id)
+                    model.selectChat(chat.chatId)
                 }
             }
         }

@@ -23,29 +23,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.account;
+package io.spine.examples.chatspn.server.chat.given;
 
-import "spine/options.proto";
+import io.spine.examples.chatspn.chat.ChatMember;
+import io.spine.testing.core.given.GivenUserId;
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.account";
-option java_outer_classname = "UserChatsProto";
-option java_multiple_files = true;
+/**
+ * Factory methods for creating test values of {@link ChatMember}.
+ */
+public final class GivenChatMember {
 
-import "google/protobuf/timestamp.proto";
-import "spine/core/user_id.proto";
-import "spine_examples/chatspn/identifiers.proto";
-import "spine_examples/chatspn/chat/chat_preview.proto";
+    /**
+     * Prevents class instantiation.
+     */
+    private GivenChatMember() {
+    }
 
-// Chats in which the user is a member.
-message UserChats {
-    option (entity) = { kind: PROJECTION };
-
-    // The ID of the user.
-    spine.core.UserId id = 1;
-
-    // Previews of chats in which the user is a member.
-    repeated spine_examples.chatspn.chat.ChatPreview chat = 2 [(distinct) = true];
+    public static ChatMember chatMember(String name) {
+        return ChatMember
+                .newBuilder()
+                .setId(GivenUserId.generated())
+                .setName(name)
+                .vBuild();
+    }
 }

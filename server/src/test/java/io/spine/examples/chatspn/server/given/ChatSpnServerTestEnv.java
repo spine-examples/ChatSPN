@@ -33,7 +33,6 @@ import io.spine.examples.chatspn.account.event.AccountCreated;
 import io.spine.testing.core.given.GivenUserId;
 
 import static io.spine.examples.chatspn.server.given.GivenEmailAddress.randomEmailAddress;
-import static io.spine.testing.TestValues.randomString;
 
 public final class ChatSpnServerTestEnv {
 
@@ -49,7 +48,7 @@ public final class ChatSpnServerTestEnv {
                 .setId(AccountCreationId.generate())
                 .setUser(GivenUserId.generated())
                 .setEmail(randomEmailAddress())
-                .setName(randomString())
+                .setName("John Doe")
                 .vBuild();
         return command;
     }

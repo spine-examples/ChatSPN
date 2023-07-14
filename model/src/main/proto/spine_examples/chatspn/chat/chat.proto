@@ -49,7 +49,7 @@ message Chat {
     // It may be empty when the last member left the chat.
     // In this case, the chat will be deleted.
     //
-    repeated spine.core.UserId member = 2 [(distinct) = true];
+    repeated ChatMember member = 2 [(distinct) = true];
 
     // The type of the chat.
     //
@@ -77,6 +77,16 @@ message Chat {
 
     // The owner of the chat.
     spine.core.UserId owner = 5;
+}
+
+// Single member in the chat.
+message ChatMember {
+
+    // The ID of the chat member.
+    spine.core.UserId id = 1 [(required) = true];
+
+    // The name of the chat member.
+    string name = 2 [(required) = true];
 }
 
 // The process of chat deletion.

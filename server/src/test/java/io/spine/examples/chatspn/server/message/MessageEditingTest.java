@@ -39,8 +39,7 @@ import org.junit.jupiter.api.Test;
 
 import static io.spine.examples.chatspn.server.chat.given.ChatDeletionTestEnv.deleteChatCommand;
 import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.createGroupChatIn;
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.userChats;
-import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.chatPreview;
+import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.chatCardWithEditedMessage;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.editMessageCommand;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.editMessageCommandWith;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageCannotBeEditedFrom;
@@ -50,7 +49,7 @@ import static io.spine.examples.chatspn.server.message.given.MessageEditingTestE
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageEditingFailedFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageFrom;
 import static io.spine.examples.chatspn.server.message.given.MessageEditingTestEnv.messageViewFrom;
-import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.chatPreviewWithMessage;
+import static io.spine.examples.chatspn.server.message.given.MessageRemovalTestEnv.chatCardWithMessage;
 import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.createRandomChatIn;
 import static io.spine.examples.chatspn.server.message.given.MessageTestEnv.sendRandomMessageTo;
 
@@ -137,22 +136,24 @@ final class MessageEditingTest extends ContextAwareTest {
     }
 
     @Test
-    @DisplayName("update the last message in `ChatPreview` and `UserChats` projections " +
+    @DisplayName("update the last message in `ChatCard` projections " +
             "if the edited message was the last one")
     void updateLastMessage() {
         var chat = createRandomChatIn(context());
         var message = sendRandomMessageTo(chat, context());
         var command = editMessageCommand(message);
         context().receivesCommand(command);
-        var chatPreview = chatPreview(chat, command);
-        var userChats = userChats(chatPreview, chat.getMember(0));
+        var ownerChatCard = chatCardWithEditedMessage(chat, command, chat.getOwner());
+        var memberChatCard =
+                chatCardWithEditedMessage(chat, command, chat.getMember(1)
+                                                             .getId());
 
-        context().assertState(chatPreview.getId(), chatPreview);
-        context().assertState(userChats.getId(), userChats);
+        context().assertState(ownerChatCard.getCardId(), ownerChatCard);
+        context().assertState(memberChatCard.getCardId(), memberChatCard);
     }
 
     @Test
-    @DisplayName("not update the last message in the `ChatPreview` projection " +
+    @DisplayName("not update the last message in the `ChatCard` projections " +
             "if the edited message wasn't the last one")
     void notUpdateLastMessage() {
         var chat = createRandomChatIn(context());
@@ -160,9 +161,12 @@ final class MessageEditingTest extends ContextAwareTest {
         var lastMessage = sendRandomMessageTo(chat, context());
         var command = editMessageCommand(message);
         context().receivesCommand(command);
-        var chatPreview = chatPreviewWithMessage(chat, lastMessage);
+        var ownerChatCard = chatCardWithMessage(chat, lastMessage, chat.getMember(0));
+        var memberChatCard =
+                chatCardWithMessage(chat, lastMessage, chat.getMember(1));
 
-        context().assertState(chatPreview.getId(), chatPreview);
+        context().assertState(ownerChatCard.getCardId(), ownerChatCard);
+        context().assertState(memberChatCard.getCardId(), memberChatCard);
     }
 
     @Nested
@@ -203,7 +207,8 @@ final class MessageEditingTest extends ContextAwareTest {
             var message = sendRandomMessageTo(chat, context());
             var command = editMessageCommandWith(message, MessageId.generate());
             context().receivesCommand(command);
-            var expected = messageContentCannotBeUpdatedFrom(command);
+            var expected =
+                    messageContentCannotBeUpdatedFrom(command);
 
             context().assertEvent(expected);
         }
@@ -214,9 +219,11 @@ final class MessageEditingTest extends ContextAwareTest {
         void rejectBecauseEditorNonOwner() {
             var chat = createRandomChatIn(context());
             var message = sendRandomMessageTo(chat, context());
-            var command = editMessageCommandWith(message, chat.getMember(1));
+            var command = editMessageCommandWith(message, chat.getMember(1)
+                                                              .getId());
             context().receivesCommand(command);
-            var expected = messageContentCannotBeUpdatedFrom(command);
+            var expected =
+                    messageContentCannotBeUpdatedFrom(command);
 
             context().assertEvent(expected);
         }

@@ -37,9 +37,8 @@ import io.spine.client.QueryFilter;
 import io.spine.core.UserId;
 import io.spine.examples.chatspn.ChatId;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.account.UserChats;
 import io.spine.examples.chatspn.account.UserProfile;
-import io.spine.examples.chatspn.chat.ChatPreview;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted;
 import io.spine.net.EmailAddress;
@@ -53,7 +52,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.client.OrderBy.Direction.ASCENDING;
 import static io.spine.client.QueryFilter.eq;
 import static io.spine.examples.chatspn.server.ExpectedOnlyAssertions.assertExpectedFields;
-import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.chatPreview;
+import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.chatMember;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.createAccount;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.createPersonalChat;
 import static io.spine.examples.chatspn.server.e2e.given.TestUserEnv.deleteChatCommand;
@@ -69,7 +68,7 @@ final class TestUser {
 
     private final Client client;
     private final UserProfile user;
-    private final List<ChatPreview> chats;
+    private final List<ChatCard> chats;
 
     private TestUser(UserProfile user, Client client) {
         this.user = user;
@@ -99,27 +98,39 @@ final class TestUser {
     /**
      * Returns user chats from the server-side.
      */
-    private List<ChatPreview> readChats() {
+    private List<ChatCard> readChats() {
+        var byCardOwnerFilter = QueryFilter.eq(
+                ChatCard.Column.viewer(),
+                userId()
+        );
         var userChatsList = client
                 .onBehalfOf(userId())
-                .select(UserChats.class)
+                .select(ChatCard.class)
+                .where(byCardOwnerFilter)
                 .byId(userId())
                 .run();
-        List<ChatPreview> chats = new ArrayList<>(userChatsList.get(0)
-                                                               .getChatList());
-        return chats;
+        return new ArrayList<>(userChatsList);
     }
 
     /**
      * Subscribes to server-side changes in the user chats to update the read-side.
      */
     private void observeChats() {
+        var byCardOwnerFilter = EntityStateFilter.eq(
+                ChatCard.Field.viewer(),
+                userId()
+        );
         client.onBehalfOf(userId())
-              .subscribeTo(UserChats.class)
-              .byId(userId())
-              .observe(userChats -> {
-                  chats.clear();
-                  chats.addAll(userChats.getChatList());
+              .subscribeTo(ChatCard.class)
+              .where(byCardOwnerFilter)
+              .observe(updatedChatCard -> {
+                  var optionalChatCard = chats
+                          .stream()
+                          .filter(card -> card.getCardId()
+                                              .equals(updatedChatCard.getCardId()))
+                          .findFirst();
+                  optionalChatCard.ifPresent(chats::remove);
+                  chats.add(updatedChatCard);
               })
               .post();
     }
@@ -141,18 +152,19 @@ final class TestUser {
     /**
      * Returns the chats in which user is a member.
      */
-    List<ChatPreview> chats() {
+    List<ChatCard> chats() {
         return ImmutableList.copyOf(chats);
     }
 
     /**
      * Creates personal chat with provided user.
      */
-    Conversation createPersonalChatWith(UserId user) {
-        var command = createPersonalChat(userId(), user);
+    Conversation createPersonalChatWith(UserProfile memberProfile) {
+        var creator = chatMember(userId(), user.getName());
+        var member = chatMember(memberProfile.getId(), memberProfile.getName());
+        var command = createPersonalChat(creator, member);
         postCommand(command);
-        var chatPreview = chatPreview(command);
-        var conversation = new Conversation(chatPreview.getId());
+        var conversation = new Conversation(command.getId());
         return conversation;
     }
 
