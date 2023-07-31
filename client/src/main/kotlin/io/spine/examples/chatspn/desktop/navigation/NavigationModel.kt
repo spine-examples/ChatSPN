@@ -165,7 +165,7 @@ public class NavigationModel(private val client: DesktopClient) {
     /**
      * Opens a page with a user profile.
      *
-     * @param userId id of the user to open profile
+     * @param userId ID of the user to open profile
      */
     public fun openUserProfile(userId: UserId) {
         val user = client.findUser(userId)
@@ -176,7 +176,9 @@ public class NavigationModel(private val client: DesktopClient) {
     }
 
     /**
-     * Opens a page with chat info. If the chat is personal, a user profile will be opened.
+     * Opens a page with chat info.
+     *
+     * If the chat is personal, a user profile will be opened.
      *
      * @param chatId ID of the chat which info to open
      */
@@ -235,7 +237,7 @@ public typealias ChatList = List<ChatCard>
  * Finds chat in the list by ID.
  *
  * @param id ID of the chat to find
- * @return found chat or `null` if chat is not found
+ * @return chat with the given ID, or `null` if chat is not found
  */
 private fun ChatList.find(id: ChatId): ChatCard? {
     val chats = this.filter { chat -> chat.chatId.equals(id) }
