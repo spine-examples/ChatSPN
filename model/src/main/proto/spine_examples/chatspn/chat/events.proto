@@ -36,6 +36,7 @@ option java_multiple_files = true;
 
 import "spine/core/user_id.proto";
 import "spine_examples/chatspn/identifiers.proto";
+import "spine_examples/chatspn/chat/chat.proto";
 
 // A new personal chat has been created.
 message PersonalChatCreated {
@@ -44,10 +45,10 @@ message PersonalChatCreated {
     ChatId id = 1;
 
     // The user who created the chat.
-    spine.core.UserId creator = 2 [(required) = true];
+    spine_examples.chatspn.chat.ChatMember creator = 2 [(required) = true];
 
     // The second member into the created personal chat.
-    spine.core.UserId member = 3 [(required) = true];
+    spine_examples.chatspn.chat.ChatMember member = 3 [(required) = true];
 }
 
 // A new group chat has been created.
@@ -57,13 +58,13 @@ message GroupChatCreated {
     ChatId id = 1;
 
     // The user who created the chat.
-    spine.core.UserId creator = 2 [(required) = true];
+    spine_examples.chatspn.chat.ChatMember creator = 2 [(required) = true];
 
     // Users who are included in the chat as members.
     //
     // This list does not include a `creator`.
     //
-    repeated spine.core.UserId member = 3 [(required) = true, (distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember member = 3 [(required) = true, (distinct) = true];
 
     // The name of the created chat.
     string name = 4 [(required) = true];
@@ -84,7 +85,10 @@ message MembersAdded {
     spine.core.UserId who_added = 3 [(required) = true];
 
     // Users who were added to the chat as members.
-    repeated spine.core.UserId member = 4 [(required) = true, (distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember new_member = 4 [(required) = true, (distinct) = true];
+
+    // Members in the chat before addition.
+    repeated spine_examples.chatspn.chat.ChatMember old_member = 5 [(required) = true, (distinct) = true];
 }
 
 // Members have been removed from the chat.
@@ -100,10 +104,10 @@ message MembersRemoved {
     spine.core.UserId who_removed = 2 [(required) = true];
 
     // Members remaining in the chat.
-    repeated spine.core.UserId remaining_member = 3 [(required) = true, (distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember remaining_member = 3 [(required) = true, (distinct) = true];
 
     // Members removed from the chat.
-    repeated spine.core.UserId removed_member = 4 [(required) = true, (distinct) = true];
+    repeated spine_examples.chatspn.chat.ChatMember removed_member = 4 [(required) = true, (distinct) = true];
 }
 
 // User left the chat.
@@ -113,7 +117,7 @@ message UserLeftChat {
     ChatId chat = 1;
 
     // The user who left the chat.
-    spine.core.UserId user = 2 [(required) = true];
+    spine_examples.chatspn.chat.ChatMember user = 2 [(required) = true];
 }
 
 // The last member left the chat.
@@ -124,5 +128,5 @@ message LastMemberLeftChat {
     ChatId id = 1;
 
     // The last member who left the chat.
-    spine.core.UserId last_member = 2 [(required) = true];
+    spine_examples.chatspn.chat.ChatMember last_member = 2 [(required) = true];
 }

@@ -26,22 +26,21 @@
 
 package io.spine.examples.chatspn.server;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import io.spine.core.ActorContext;
 import io.spine.core.CommandContext;
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.ChatId;
-import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.ChatCard;
 
 /**
- * Provides an API to read the {@link ChatMembers} projection.
+ * Provides an API to read the {@link ChatCard} projection.
  */
-public final class ChatMembersReader {
+public final class ChatCardReader {
 
-    private final ProjectionReader<ChatId, ChatMembers> reader;
+    private final ProjectionReader<ChatCardId, ChatCard> reader;
 
-    public ChatMembersReader(ProjectionReader<ChatId, ChatMembers> reader) {
+    public ChatCardReader(ProjectionReader<ChatCardId, ChatCard> reader) {
         this.reader = reader;
     }
 
@@ -53,28 +52,12 @@ public final class ChatMembersReader {
      * @return {@code true} in case user is a member of the chat, {@code false} otherwise
      */
     public boolean isMember(ChatId id, UserId userId, CommandContext ctx) {
-        var projections = reader.read(ImmutableSet.of(id), ctx.getActorContext());
-        if (projections.isEmpty()) {
-            return false;
-        }
-        var isMember = projections
-                .get(0)
-                .getMemberList()
-                .contains(userId);
-        return isMember;
-    }
-
-    /**
-     * Returns a list of chat members.
-     *
-     * <p>If the chat with the provided ID does not exist, returns an empty list.
-     */
-    public ImmutableList<UserId> members(ChatId chat, ActorContext ctx) {
-        var projections = reader.read(ImmutableSet.of(chat), ctx);
-        if (projections.isEmpty()) {
-            return ImmutableList.of();
-        }
-        return ImmutableList.copyOf(projections.get(0)
-                                               .getMemberList());
+        var chatCardId = ChatCardId
+                .newBuilder()
+                .setChat(id)
+                .setUser(userId)
+                .vBuild();
+        var projections = reader.read(ImmutableSet.of(chatCardId), ctx.getActorContext());
+        return !projections.isEmpty();
     }
 }

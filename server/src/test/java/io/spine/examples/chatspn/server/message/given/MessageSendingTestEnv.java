@@ -27,10 +27,10 @@
 package io.spine.examples.chatspn.server.message.given;
 
 import io.spine.core.UserId;
+import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.MessageId;
 import io.spine.examples.chatspn.chat.Chat;
-import io.spine.examples.chatspn.chat.ChatPreview;
-import io.spine.examples.chatspn.chat.MessagePreview;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.message.Message;
 import io.spine.examples.chatspn.message.MessageView;
 import io.spine.examples.chatspn.message.command.SendMessage;
@@ -38,8 +38,7 @@ import io.spine.examples.chatspn.message.event.MessagePosted;
 import io.spine.examples.chatspn.message.event.MessageSent;
 import io.spine.examples.chatspn.message.rejection.SendingRejections.MessageCannotBeSent;
 
-import static io.spine.examples.chatspn.server.chat.given.ChatTestEnv.groupChatView;
-import static io.spine.testing.TestValues.randomString;
+import static io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP;
 
 public final class MessageSendingTestEnv {
 
@@ -53,9 +52,10 @@ public final class MessageSendingTestEnv {
         var command = SendMessage
                 .newBuilder()
                 .setId(MessageId.generate())
-                .setUser(chat.getMember(0))
+                .setUser(chat.getMember(0)
+                             .getId())
                 .setChat(chat.getId())
-                .setContent(randomString())
+                .setContent("Hello, this is my message text")
                 .vBuild();
         return command;
     }
@@ -66,7 +66,7 @@ public final class MessageSendingTestEnv {
                 .setId(MessageId.generate())
                 .setUser(userId)
                 .setChat(chat.getId())
-                .setContent(randomString())
+                .setContent("Hello, this is my message text")
                 .vBuild();
         return command;
     }
@@ -126,18 +126,27 @@ public final class MessageSendingTestEnv {
         return rejection;
     }
 
-    public static ChatPreview chatPreview(Chat chat, SendMessage command) {
-        var messagePreview = MessagePreview
+    public static ChatCard chatCard(Chat chat, SendMessage command, UserId user) {
+        var messageView = MessageView
                 .newBuilder()
                 .setId(command.getId())
+                .setChat(command.getChat())
                 .setUser(command.getUser())
                 .setContent(command.getContent())
                 .buildPartial();
-        var state = ChatPreview
+        var chatCardId = ChatCardId
                 .newBuilder()
-                .setId(chat.getId())
-                .setGroupChat(groupChatView(chat.getName()))
-                .setLastMessage(messagePreview)
+                .setUser(user)
+                .setChat(chat.getId())
+                .vBuild();
+        var state = ChatCard
+                .newBuilder()
+                .setCardId(chatCardId)
+                .setChatId(chat.getId())
+                .setViewer(user)
+                .setGroupChatName(chat.getName())
+                .setType(CT_GROUP)
+                .setLastMessage(messageView)
                 .vBuild();
         return state;
     }

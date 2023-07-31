@@ -96,7 +96,7 @@ public final class ChatDeletionProcess
         return MarkChatAsDeleted
                 .newBuilder()
                 .setId(e.getId())
-                .setWhoDeletes(e.getLastMember())
+                .setWhoDeletes(e.getLastMember().getId())
                 .vBuild();
     }
 

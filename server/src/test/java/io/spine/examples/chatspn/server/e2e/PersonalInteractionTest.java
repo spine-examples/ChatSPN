@@ -55,7 +55,7 @@ final class PersonalInteractionTest extends ServerRunningTest {
 
         // Vlad finds Artem and creates a personal chat.
         var artemProfile = vlad.findUserBy(artem.email());
-        var vladConversation = vlad.createPersonalChatWith(artemProfile.getId());
+        var vladConversation = vlad.createPersonalChatWith(artemProfile);
 
         // Vlad sends messages.
         vladConversation.sendMessage("Hello");
@@ -65,7 +65,7 @@ final class PersonalInteractionTest extends ServerRunningTest {
         // Artem opens the chat and sends messages.
         var artemChats = artem.chats();
         var artemConversation = artem.openChat(artemChats.get(0)
-                                                         .getId());
+                                                         .getChatId());
         artemConversation.sendMessage("Hi!");
         artemConversation.sendMessage("I'm fine");
         artemConversation.sendMessage("And you");

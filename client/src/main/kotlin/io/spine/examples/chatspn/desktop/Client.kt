@@ -43,16 +43,21 @@ import io.spine.client.QueryFilter
 import io.spine.client.Subscription
 import io.spine.core.UserId
 import io.spine.examples.chatspn.AccountCreationId
+import io.spine.examples.chatspn.ChatCardId
+import io.spine.examples.chatspn.ChatDeletionId
 import io.spine.examples.chatspn.ChatId
 import io.spine.examples.chatspn.MessageId
 import io.spine.examples.chatspn.MessageRemovalId
-import io.spine.examples.chatspn.account.UserChats
 import io.spine.examples.chatspn.account.UserProfile
 import io.spine.examples.chatspn.account.command.CreateAccount
 import io.spine.examples.chatspn.account.event.AccountCreated
 import io.spine.examples.chatspn.account.event.AccountNotCreated
-import io.spine.examples.chatspn.chat.ChatPreview
+import io.spine.examples.chatspn.chat.Chat.ChatType
+import io.spine.examples.chatspn.chat.ChatCard
+import io.spine.examples.chatspn.chat.ChatMember
 import io.spine.examples.chatspn.chat.command.CreatePersonalChat
+import io.spine.examples.chatspn.chat.command.DeleteChat
+import io.spine.examples.chatspn.chat.event.PersonalChatCreated
 import io.spine.examples.chatspn.message.MessageView
 import io.spine.examples.chatspn.message.command.EditMessage
 import io.spine.examples.chatspn.message.command.RemoveMessage
@@ -102,25 +107,16 @@ public class DesktopClient(
         val command = CreateAccount
             .newBuilder()
             .buildWith(email, name)
-        var successSubscription: Subscription? = null
-        var failSubscription: Subscription? = null
-        successSubscription = observeEvent(
+        observeCommandOutcome(
             command.id,
-            AccountCreated::class.java
-        ) { event ->
-            stopObservation(successSubscription!!)
-            stopObservation(failSubscription!!)
-            authenticatedUser = findUser(event.user)
-            onSuccess()
-        }
-        failSubscription = observeEvent(
-            command.id,
-            AccountNotCreated::class.java
-        ) {
-            stopObservation(successSubscription)
-            stopObservation(failSubscription!!)
-            onFail()
-        }
+            AccountCreated::class.java,
+            { event ->
+                authenticatedUser = findUser(event.user)
+                onSuccess()
+            },
+            AccountNotCreated::class.java,
+            { onFail() }
+        )
         clientRequest()
             .command(command)
             .postAndForget()
@@ -145,6 +141,15 @@ public class DesktopClient(
             authenticatedUser = user
             onSuccess()
         }
+    }
+
+    /**
+     * Forgets the credentials of the authenticated user and cancels subscriptions.
+     */
+    public fun logOut() {
+        authenticatedUser = null
+        stopChatsObservation()
+        stopObservingMessages()
     }
 
     /**
@@ -189,13 +194,30 @@ public class DesktopClient(
      * Creates a new personal chat between authenticated and provided user.
      *
      * @param user user to create a personal chat with authenticated user
+     * @param onSuccess will be called when the chat successfully created
      * @throws IllegalStateException if the user has not been authenticated
      */
-    public fun createPersonalChat(user: UserId) {
+    public fun createPersonalChat(
+        user: UserId,
+        onSuccess: (event: PersonalChatCreated) -> Unit = {}
+    ) {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
+        val userProfile = findUser(user)
         val command = CreatePersonalChat
             .newBuilder()
-            .buildWith(authenticatedUser!!.id, user)
+            .buildWith(
+                authenticatedUser!!,
+                userProfile!!
+            )
+        var subscription: Subscription? = null
+        subscription = observeEvent(
+            command.id,
+            PersonalChatCreated::class.java
+        )
+        { event ->
+            stopObservation(subscription!!)
+            onSuccess(event)
+        }
         clientRequest()
             .command(command)
             .postAndForget()
@@ -236,6 +258,22 @@ public class DesktopClient(
     }
 
     /**
+     * Deletes the chat.
+     *
+     * @param chat ID of the сhat to delete
+     * @throws IllegalStateException if the user has not been authenticated
+     */
+    public fun deleteChat(chat: ChatId) {
+        checkNotNull(authenticatedUser) { "The user has not been authenticated" }
+        val command = DeleteChat
+            .newBuilder()
+            .buildWith(chat, authenticatedUser!!.id)
+        clientRequest()
+            .command(command)
+            .postAndForget()
+    }
+
+    /**
      * Edits message in the chat.
      *
      * @param chat chat to edit the message in
@@ -258,29 +296,44 @@ public class DesktopClient(
      *
      * @throws IllegalStateException if the user has not been authenticated
      */
-    public fun readChats(): List<ChatPreview> {
+    public fun readChats(): List<ChatCard> {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
+        val byViewerFilter = QueryFilter.eq(
+            ChatCard.Column.viewer(),
+            authenticatedUser!!.id
+        )
         val chats = clientRequest()
-            .select(UserChats::class.java)
-            .byId(authenticatedUser!!.id)
-            .run()[0]
-        return chats.chatList
+            .select(ChatCard::class.java)
+            .where(byViewerFilter)
+            .run()
+        return chats
     }
 
     /**
      * Observes chats of the authenticated user.
      *
-     * @param onUpdate will be called when the user's chats updated
+     * @param onUpdate will be called when chat in which authenticated user is a member is updated
+     *                 or when an authenticated user joins a new chat
+     * @param onLeave will be called when the authenticated user leaves the chat
+     *                or when the chat is deleted
      * @throws IllegalStateException if the user has not been authenticated
      */
-    public fun observeChats(onUpdate: (state: UserChats) -> Unit) {
+    public fun observeChats(
+        onUpdate: (chat: ChatCard) -> Unit,
+        onLeave: (chat: ChatCardId) -> Unit
+    ) {
         checkNotNull(authenticatedUser) { "The user has not been authenticated" }
-        val subscription = clientRequest()
-            .subscribeTo(UserChats::class.java)
-            .byId(authenticatedUser!!.id)
+        val byViewerFilter = EntityStateFilter.eq(
+            ChatCard.Field.viewer(),
+            authenticatedUser!!.id
+        )
+        val updateSubscription = clientRequest()
+            .subscribeTo(ChatCard::class.java)
+            .where(byViewerFilter)
+            .whenNoLongerMatching(ChatCardId::class.java, onLeave)
             .observe(onUpdate)
             .post()
-        userChatsSubscriptions.add(subscription)
+        userChatsSubscriptions.add(updateSubscription)
     }
 
     /**
@@ -386,6 +439,44 @@ public class DesktopClient(
     }
 
     /**
+     * Observes the outcome of the command.
+     *
+     * When a success or failure event is emitted, subscriptions are cancelled.
+     *
+     * @param id ID of the event states to observe
+     * @param successEvent type of the success event to observe
+     * @param onSuccess will be called when the specified success event emitted
+     * @param failEvent type of the fail event to observe
+     * @param onFail will be called when the specified fail event emitted
+     */
+    private fun <S : EventMessage, F : EventMessage> observeCommandOutcome(
+        id: Message,
+        successEvent: Class<S>,
+        onSuccess: (event: S) -> Unit,
+        failEvent: Class<F>,
+        onFail: (event: F) -> Unit
+    ) {
+        var successSubscription: Subscription? = null
+        var failSubscription: Subscription? = null
+        successSubscription = observeEvent(
+            id,
+            successEvent
+        ) { event ->
+            stopObservation(successSubscription!!)
+            stopObservation(failSubscription!!)
+            onSuccess(event)
+        }
+        failSubscription = observeEvent(
+            id,
+            failEvent
+        ) { event ->
+            stopObservation(successSubscription)
+            stopObservation(failSubscription!!)
+            onFail(event)
+        }
+    }
+
+    /**
      * Stops observation by provided subscription.
      *
      * @param subscription subscription to cancel observation
@@ -415,18 +506,29 @@ private fun CreateAccount.Builder.buildWith(email: String, name: String): Create
 /**
  * Builds command to create a personal chat between provided users.
  *
- * @param creator ID of the user who creates a personal chat
- * @param member ID of the user to create a personal chat with
+ * @param creator profile of the user who creates a personal chat
+ * @param member profile of the user to create a personal chat with
  * @return command to create a personal chat
  */
 private fun CreatePersonalChat.Builder.buildWith(
-    creator: UserId,
-    member: UserId
+    creator: UserProfile,
+    member: UserProfile,
 ): CreatePersonalChat {
     return this
         .setId(ChatId.generate())
-        .setCreator(creator)
-        .setMember(member)
+        .setCreator(creator.asChatMember())
+        .setMember(member.asChatMember())
+        .vBuild()
+}
+
+/**
+ * Creates `ChatMember` from the `UserProfile`.
+ */
+private fun UserProfile.asChatMember(): ChatMember {
+    return ChatMember
+        .newBuilder()
+        .setId(this.id)
+        .setName(this.name)
         .vBuild()
 }
 
@@ -472,6 +574,27 @@ private fun RemoveMessage.Builder.buildWith(
         .setUser(user)
         .setChat(chat)
         .setId(removalId)
+        .vBuild()
+}
+
+/**
+ * Builds command to delete the chat.
+ *
+ * @param chat ID of the chat to delete
+ * @param user ID of the user who wants to delete a chat
+ * @return command to delete the chat
+ */
+private fun DeleteChat.Builder.buildWith(
+    chat: ChatId,
+    user: UserId
+): DeleteChat {
+    val deletionId = ChatDeletionId
+        .newBuilder()
+        .setId(chat)
+        .vBuild()
+    return this
+        .setId(deletionId)
+        .setWhoDeletes(user)
         .vBuild()
 }
 
