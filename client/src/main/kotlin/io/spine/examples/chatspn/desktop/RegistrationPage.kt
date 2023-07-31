@@ -26,16 +26,24 @@
 
 package io.spine.examples.chatspn.desktop
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Represents the 'Registration' page in the application.
+ * Displays the 'Registration' page in the application.
  *
  * @param client desktop client
  * @param toLogin navigation to the 'Login' page
@@ -48,7 +56,6 @@ public fun RegistrationPage(
     toChats: () -> Unit,
 ) {
     val model = remember { RegistrationPageModel(client, toLogin, toChats) }
-    val viewScope = rememberCoroutineScope { Dispatchers.Default }
     val emailState = remember { model.emailState }
     val emailErrorState = remember { model.emailErrorState }
     val emailErrorText = remember { model.emailErrorText }
@@ -56,37 +63,55 @@ public fun RegistrationPage(
     val nameErrorState = remember { model.nameErrorState }
     val nameErrorText = remember { model.nameErrorText }
     FormBox {
-        FormHeader("Sign Up")
-        FormField(
-            "Email:",
-            "john.doe@mail.com",
-            emailState,
-            emailErrorState,
-            emailErrorText
-        )
-        FormField(
-            "Name:",
-            "John Doe",
-            nameState,
-            nameErrorState,
-            nameErrorText
-        )
-        PrimaryButton("Sign Up") {
-            if (emailState.value.isEmpty()) {
-                emailErrorState.value = true
-                emailErrorText.value = "Email field must not be empty"
-            }
-            if (nameState.value.isEmpty()) {
-                nameErrorState.value = true
-                nameErrorText.value = "Name field must not be empty"
-            }
-            if (!emailErrorState.value && !nameErrorState.value) {
-                viewScope.launch() {
-                    model.register()
-                }
+        Column(
+            Modifier.padding(24.dp),
+            Arrangement.spacedBy(12.dp),
+            Alignment.CenterHorizontally
+        ) {
+            FormHeader("Sign Up")
+            FormField(
+                "Email:",
+                "john.doe@mail.com",
+                emailState,
+                emailErrorState,
+                emailErrorText
+            )
+            FormField(
+                "Name:",
+                "John Doe",
+                nameState,
+                nameErrorState,
+                nameErrorText
+            )
+            Spacer(Modifier.height(4.dp))
+            SignUpButton(model)
+            SecondaryButton("Already have an account?", model.toLogin)
+        }
+    }
+}
+
+/**
+ * Displays the 'Sign Up' button.
+ */
+@Composable
+private fun SignUpButton(model: RegistrationPageModel) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    val emailState = remember { model.emailState }
+    val nameState = remember { model.nameState }
+    PrimaryButton("Sign Up") {
+        if (emailState.value.isEmpty()) {
+            model.emailErrorState.value = true
+            model.emailErrorText.value = "Email field must not be empty"
+        }
+        if (nameState.value.isEmpty()) {
+            model.nameErrorState.value = true
+            model.nameErrorText.value = "Name field must not be empty"
+        }
+        if (!model.emailErrorState.value && !model.nameErrorState.value) {
+            viewScope.launch {
+                model.register()
             }
         }
-        SecondaryButton("Already have an account?", model.toLogin)
     }
 }
 

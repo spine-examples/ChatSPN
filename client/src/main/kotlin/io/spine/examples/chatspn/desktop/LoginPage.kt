@@ -26,16 +26,24 @@
 
 package io.spine.examples.chatspn.desktop
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Represents the 'Login' page in the application.
+ * Displays the 'Login' page in the application.
  *
  * @param client desktop client
  * @param toRegistration navigation to the 'Registration' page
@@ -48,31 +56,47 @@ public fun LoginPage(
     toChats: () -> Unit
 ) {
     val model = remember { LoginPageModel(client, toRegistration, toChats) }
-    val viewScope = rememberCoroutineScope { Dispatchers.Default }
     val emailState = remember { model.emailState }
     val emailErrorState = remember { model.emailErrorState }
     val emailErrorText = remember { model.emailErrorText }
     FormBox {
-        FormHeader("Sign In")
-        FormField(
-            "Email:",
-            "john.doe@mail.com",
-            emailState,
-            emailErrorState,
-            emailErrorText
-        )
-        PrimaryButton("Sign In") {
-            if (emailState.value.isEmpty()) {
-                emailErrorState.value = true
-                emailErrorText.value = "Email field must not be empty"
-            }
-            if (!emailErrorState.value) {
-                viewScope.launch {
-                    model.logIn()
-                }
+        Column(
+            Modifier.padding(24.dp),
+            Arrangement.spacedBy(12.dp),
+            Alignment.CenterHorizontally
+        ) {
+            FormHeader("Sign In")
+            FormField(
+                "Email:",
+                "john.doe@mail.com",
+                emailState,
+                emailErrorState,
+                emailErrorText
+            )
+            Spacer(Modifier.height(4.dp))
+            SignInButton(model)
+            SecondaryButton("Don't have an account?", model.toRegistration)
+        }
+    }
+}
+
+/**
+ * Displays the 'Sign In' button.
+ */
+@Composable
+private fun SignInButton(model: LoginPageModel) {
+    val viewScope = rememberCoroutineScope { Dispatchers.Default }
+    val emailState = remember { model.emailState }
+    PrimaryButton("Sign In") {
+        if (emailState.value.isEmpty()) {
+            model.emailErrorState.value = true
+            model.emailErrorText.value = "Email field must not be empty"
+        }
+        if (!model.emailErrorState.value) {
+            viewScope.launch {
+                model.logIn()
             }
         }
-        SecondaryButton("Don't have an account?", model.toRegistration)
     }
 }
 
