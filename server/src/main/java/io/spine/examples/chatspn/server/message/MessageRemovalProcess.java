@@ -27,9 +27,9 @@
 package io.spine.examples.chatspn.server.message;
 
 import io.spine.core.CommandContext;
-import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.MessageRemovalId;
-import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.message.MessageRemoval;
 import io.spine.examples.chatspn.message.command.MarkMessageAsDeleted;
 import io.spine.examples.chatspn.message.command.RemoveMessage;
@@ -38,7 +38,7 @@ import io.spine.examples.chatspn.message.event.MessageRemovalFailed;
 import io.spine.examples.chatspn.message.event.MessageRemoved;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeRemoved;
 import io.spine.examples.chatspn.message.rejection.RemovalRejections.MessageCannotBeMarkedAsDeleted;
-import io.spine.examples.chatspn.server.ChatMembersReader;
+import io.spine.examples.chatspn.server.ChatCardReader;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
@@ -52,10 +52,10 @@ public final class MessageRemovalProcess
         extends ProcessManager<MessageRemovalId, MessageRemoval, MessageRemoval.Builder> {
 
     /**
-     * Reads the {@link ChatMembers} projection.
+     * Reads the {@link ChatCard} projection.
      */
     @MonotonicNonNull
-    private ChatMembersReader chatMembers;
+    private ChatCardReader chatCard;
 
     /**
      * Issues a command to mark message as deleted.
@@ -66,7 +66,7 @@ public final class MessageRemovalProcess
     @Command
     MarkMessageAsDeleted on(RemoveMessage c, CommandContext ctx) throws MessageCannotBeRemoved {
         builder().setId(c.getId());
-        if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
+        if (chatCard.isMember(c.getChat(), c.getUser(), ctx)) {
             return MarkMessageAsDeleted
                     .newBuilder()
                     .setId(c.message())
@@ -111,7 +111,7 @@ public final class MessageRemovalProcess
                 .vBuild();
     }
 
-    void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        chatMembers = new ChatMembersReader(reader);
+    void inject(ProjectionReader<ChatCardId, ChatCard> reader) {
+        chatCard = new ChatCardReader(reader);
     }
 }

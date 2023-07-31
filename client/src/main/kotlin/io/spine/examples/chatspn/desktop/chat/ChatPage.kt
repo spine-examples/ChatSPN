@@ -70,31 +70,24 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.google.protobuf.Timestamp
 import io.spine.core.UserId
 import io.spine.examples.chatspn.ChatId
-import io.spine.examples.chatspn.MessageId
-import io.spine.examples.chatspn.account.UserProfile
+import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.profile.ChatDeletionDialog
 import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.desktop.component.Avatar
 import io.spine.examples.chatspn.desktop.component.DefaultDropdownMenu
 import io.spine.examples.chatspn.desktop.component.DefaultDropdownMenuItem
 import io.spine.examples.chatspn.desktop.component.TopBar
-import io.spine.examples.chatspn.desktop.navigation.ChatData
-import io.spine.examples.chatspn.message.MessageView
-import io.spine.examples.chatspn.message.event.MessageMarkedAsDeleted
+import io.spine.examples.chatspn.desktop.name
 import java.awt.Cursor
 import java.awt.Cursor.getPredefinedCursor
-import java.util.stream.Collectors
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Displays the 'Chat' page in the application.
  *
  * @param client desktop client
- * @param chatData data of the chat to display
+ * @param chatCard card of the chat to display
  * @param openChatInfo function to open the chat info
  * @param openUserProfile function to open the user profile
  */
@@ -102,19 +95,19 @@ import kotlinx.coroutines.flow.StateFlow
 @Preview
 public fun ChatPage(
     client: DesktopClient,
-    chatData: ChatData,
+    chatCard: ChatCard,
     openChatInfo: (chat: ChatId) -> Unit,
     openUserProfile: (user: UserId) -> Unit
 ) {
     val model = remember {
         ChatPageModel(
             client,
-            chatData,
+            chatCard,
             openChatInfo,
             openUserProfile
         )
     }
-    model.chatData = chatData
+    model.chatCard = chatCard
     val isChatDeletionDialogVisible = remember { model.chatDeletionModalState }
     model.observeMessages()
     Column(
@@ -128,8 +121,8 @@ public fun ChatPage(
     }
     ChatDeletionDialog(
         isChatDeletionDialogVisible,
-        { model.deleteChat(chatData.id) },
-        chatData
+        { model.deleteChat(chatCard.chatId) },
+        chatCard
     )
 }
 
@@ -138,7 +131,7 @@ public fun ChatPage(
  */
 @Composable
 private fun ChatTopBar(model: ChatPageModel) {
-    val chatData = model.chatData
+    val chatCard = model.chatCard
     val interactionSource = remember { MutableInteractionSource() }
     TopBar {
         Row(
@@ -153,13 +146,13 @@ private fun ChatTopBar(model: ChatPageModel) {
                         interactionSource = interactionSource,
                         indication = null
                     ) {
-                        model.openChatInfo(chatData.id)
+                        model.openChatInfo(chatCard.chatId)
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Avatar(42f, chatData.name)
+                Avatar(42f, chatCard.name)
                 Text(
-                    chatData.name,
+                    chatCard.name,
                     modifier = Modifier.padding(start = 8.dp),
                     style = MaterialTheme.typography.headlineMedium,
                 )
@@ -231,7 +224,7 @@ private fun ChatMessages(model: ChatPageModel) {
             item(message.id) {
                 ChatMessage(
                     message,
-                    model.chatData.id,
+                    model.chatCard.chatId,
                     messages.isFirstMemberMessage(index),
                     messages.isLastMemberMessage(index),
                     { model.startMessageEditing(message) },

@@ -24,36 +24,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.chatspn.server.message;
+package io.spine.examples.chatspn.desktop
 
-import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
-import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.chat.ChatCard;
-import io.spine.examples.chatspn.message.MessageSending;
-import io.spine.examples.chatspn.message.event.MessagePosted;
-import io.spine.examples.chatspn.server.ProjectionReader;
-import io.spine.server.procman.ProcessManagerRepository;
-import io.spine.server.route.EventRouting;
-
-import static io.spine.server.route.EventRoute.withId;
+import io.spine.examples.chatspn.chat.Chat.ChatType.CT_GROUP
+import io.spine.examples.chatspn.chat.ChatCard
 
 /**
- * Manages instances of {@link MessageSendingProcess}.
+ * Name of the chat.
+ *
+ * A group chat has its own name, but in a personal chat it is the name of the second member.
  */
-public final class MessageSendingRepository
-        extends ProcessManagerRepository<MessageId, MessageSendingProcess, MessageSending> {
-
-    @OverridingMethodsMustInvokeSuper
-    @Override
-    protected void setupEventRouting(EventRouting<MessageId> routing) {
-        super.setupEventRouting(routing);
-        routing.route(MessagePosted.class, (event, context) -> withId(event.getId()));
+public val ChatCard.name: String
+    get() {
+        if (type == CT_GROUP) {
+            return groupChatName
+        } else {
+            if (viewer.equals(memberList[0].id)) {
+                return memberList[1].name
+            }
+            return memberList[0].name
+        }
     }
-
-    @OverridingMethodsMustInvokeSuper
-    @Override
-    protected void configure(MessageSendingProcess p) {
-        super.configure(p);
-        p.inject(new ProjectionReader<>(context().stand(), ChatCard.class));
-    }
-}

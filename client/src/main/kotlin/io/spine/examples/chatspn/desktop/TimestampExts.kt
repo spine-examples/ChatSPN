@@ -23,31 +23,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-syntax = "proto3";
 
-package spine_examples.chatspn.chat;
+package io.spine.examples.chatspn.desktop
 
-import "spine/options.proto";
+import com.google.protobuf.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
 
-option (type_url_prefix) = "type.chatspn.spine.io";
-option java_package = "io.spine.examples.chatspn.chat";
-option java_outer_classname = "ChatMembersProto";
-option java_multiple_files = true;
+private val HOURS_AND_MINUTES_FORMAT = SimpleDateFormat("hh:mm", Locale.getDefault())
 
-import "spine/core/user_id.proto";
-import "spine_examples/chatspn/identifiers.proto";
-
-// Members in the chat.
-message ChatMembers {
-    option (entity) = { kind: PROJECTION };
-
-    // The ID of the chat.
-    ChatId id = 1;
-
-    // List of the chat members.
-    //
-    // It may be empty when the last member left the chat.
-    // In this case, the chat and this projection will be deleted.
-    //
-    repeated spine.core.UserId member = 2 [(distinct) = true];
+/**
+ * Converts `Timestamp` to the `hh:mm` string.
+ */
+public fun Timestamp.toHoursAndMinutes(): String {
+    val date = Date(this.seconds * 1000)
+    return HOURS_AND_MINUTES_FORMAT.format(date)
 }

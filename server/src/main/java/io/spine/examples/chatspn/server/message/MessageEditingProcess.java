@@ -27,9 +27,9 @@
 package io.spine.examples.chatspn.server.message;
 
 import io.spine.core.CommandContext;
-import io.spine.examples.chatspn.ChatId;
+import io.spine.examples.chatspn.ChatCardId;
 import io.spine.examples.chatspn.MessageId;
-import io.spine.examples.chatspn.chat.ChatMembers;
+import io.spine.examples.chatspn.chat.ChatCard;
 import io.spine.examples.chatspn.message.MessageEditing;
 import io.spine.examples.chatspn.message.command.EditMessage;
 import io.spine.examples.chatspn.message.command.UpdateMessageContent;
@@ -38,7 +38,7 @@ import io.spine.examples.chatspn.message.event.MessageEdited;
 import io.spine.examples.chatspn.message.event.MessageEditingFailed;
 import io.spine.examples.chatspn.message.rejection.EditingRejections.MessageContentCannotBeUpdated;
 import io.spine.examples.chatspn.message.rejection.MessageCannotBeEdited;
-import io.spine.examples.chatspn.server.ChatMembersReader;
+import io.spine.examples.chatspn.server.ChatCardReader;
 import io.spine.examples.chatspn.server.ProjectionReader;
 import io.spine.server.command.Command;
 import io.spine.server.event.React;
@@ -52,10 +52,10 @@ public final class MessageEditingProcess
         extends ProcessManager<MessageId, MessageEditing, MessageEditing.Builder> {
 
     /**
-     * Reads the {@link ChatMembers} projection.
+     * Reads the {@link ChatCard} projection.
      */
     @MonotonicNonNull
-    private ChatMembersReader chatMembers;
+    private ChatCardReader chatCard;
 
     /**
      * Issues a command to edit message content.
@@ -66,7 +66,7 @@ public final class MessageEditingProcess
     @Command
     UpdateMessageContent on(EditMessage c, CommandContext ctx) throws MessageCannotBeEdited {
         builder().setId(c.getId());
-        if (chatMembers.isMember(c.getChat(), c.getUser(), ctx)) {
+        if (chatCard.isMember(c.getChat(), c.getUser(), ctx)) {
             return UpdateMessageContent
                     .newBuilder()
                     .setId(c.getId())
@@ -114,7 +114,7 @@ public final class MessageEditingProcess
                 .vBuild();
     }
 
-    void inject(ProjectionReader<ChatId, ChatMembers> reader) {
-        chatMembers = new ChatMembersReader(reader);
+    void inject(ProjectionReader<ChatCardId, ChatCard> reader) {
+        chatCard = new ChatCardReader(reader);
     }
 }

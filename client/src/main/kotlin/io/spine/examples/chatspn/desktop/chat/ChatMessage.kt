@@ -65,7 +65,7 @@ import io.spine.examples.chatspn.desktop.DesktopClient
 import io.spine.examples.chatspn.desktop.component.Avatar
 import io.spine.examples.chatspn.desktop.component.DefaultDropdownMenu
 import io.spine.examples.chatspn.desktop.component.DefaultDropdownMenuItem
-import io.spine.examples.chatspn.desktop.navigation.toHoursAndMinutes
+import io.spine.examples.chatspn.desktop.toHoursAndMinutes
 import java.awt.Cursor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -74,7 +74,7 @@ import kotlinx.coroutines.launch
  * Displays a single message view in the chat.
  *
  * @param data message data to display
- * @param chatId id of the chat the message is from
+ * @param chatId ID of the chat the message is from
  * @param isFirst whether it is the first message in the sequence
  * @param isLast whether it is the last message in the sequence
  * @param startMessageEditing function to start editing this message
@@ -128,7 +128,7 @@ public fun ChatMessage(
  *
  * @param user user whose avatar to display
  * @param model message model
- * @param isVisible if `true` displays the avatar else displays the empty space
+ * @param isVisible if `true` displays the avatar, otherwise displays the empty space
  */
 @Composable
 private fun MessageSenderAvatar(user: UserProfile, model: MessageModel, isVisible: Boolean) {

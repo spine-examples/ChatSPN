@@ -87,17 +87,17 @@ public fun CurrentPage(client: DesktopClient) {
 private fun ConfiguredChatPage(client: DesktopClient, model: NavigationModel) {
     val chats by model.chats().collectAsState()
     val selectedChat = remember { model.selectedChat }
-    val chatData = model.chatData(selectedChat.value)
+    val chatCard = model.chatCard(selectedChat.value)
     val isChatSelected = chats
         .stream()
-        .map { chat -> chat.id }
+        .map { chat -> chat.chatId }
         .anyMatch { id -> id.equals(selectedChat.value) }
     if (!isChatSelected) {
         ChatNotChosenBox()
     } else {
         ChatPage(
             client,
-            chatData!!,
+            chatCard!!,
             { model.openChatInfo(it) },
             { model.openUserProfile(it) }
         )

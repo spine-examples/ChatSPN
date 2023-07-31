@@ -43,23 +43,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.google.protobuf.Timestamp
+import io.spine.examples.chatspn.chat.ChatCard
 import io.spine.examples.chatspn.desktop.component.Avatar
-import java.text.SimpleDateFormat
-import java.util.*
-
-private val HOURS_AND_MINUTES_FORMAT = SimpleDateFormat("hh:mm", Locale.getDefault())
+import io.spine.examples.chatspn.desktop.name
+import io.spine.examples.chatspn.desktop.toHoursAndMinutes
+import io.spine.examples.chatspn.message.MessageView
 
 /**
- * Displays the chat preview panel.
+ * Displays the chat panel.
  *
- * @param chat data of the chat to display
+ * @param chat card of the chat to display
  * @param isHighlighted whether the panel is highlighted
  * @param onClick callback that will be triggered when the panel clicked
  */
 @Composable
-public fun ChatPreviewPanel(
-    chat: ChatData,
+public fun ChatPanel(
+    chat: ChatCard,
     isHighlighted: Boolean,
     onClick: () -> Unit
 ) {
@@ -75,15 +74,15 @@ public fun ChatPreviewPanel(
             ),
         Alignment.CenterStart,
     ) {
-        ChatPreviewContent(chat)
+        ChatPanelContent(chat)
     }
 }
 
 /**
- * Displays the chat preview content in the chat preview panel.
+ * Displays the chat panel content.
  */
 @Composable
-private fun ChatPreviewContent(chat: ChatData) {
+private fun ChatPanelContent(chat: ChatCard) {
     Row(
         Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -101,16 +100,14 @@ private fun ChatPreviewContent(chat: ChatData) {
                     style = MaterialTheme.typography.headlineMedium,
                 )
                 Text(
-                    text = if (chat.lastMessage == null) ""
-                    else chat.lastMessage.whenPosted.toHoursAndMinutes(),
+                    text = chat.whenLastMessagePosted(),
                     color = MaterialTheme.colorScheme.onSecondary,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
             Spacer(Modifier.size(9.dp))
             Text(
-                text = if (chat.lastMessage == null) ""
-                else chat.lastMessage.content.replace("\\s".toRegex(), " "),
+                text = chat.lastMessage.content.replace("\\s".toRegex(), " "),
                 color = MaterialTheme.colorScheme.onSecondary,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
@@ -121,9 +118,10 @@ private fun ChatPreviewContent(chat: ChatData) {
 }
 
 /**
- * Converts `Timestamp` to the `hh:mm` string.
+ * Returns a string `hh:mm` of the time when the last message was posted in the chat,
+ * or an empty string if there is no last message in the chat.
  */
-public fun Timestamp.toHoursAndMinutes(): String {
-    val date = Date(this.seconds * 1000)
-    return HOURS_AND_MINUTES_FORMAT.format(date)
+private fun ChatCard.whenLastMessagePosted(): String {
+    return if (this.lastMessage.equals(MessageView.getDefaultInstance())) ""
+    else this.lastMessage.whenPosted.toHoursAndMinutes()
 }

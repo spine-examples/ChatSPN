@@ -40,7 +40,6 @@ import io.spine.net.EmailAddress;
 import io.spine.testing.core.given.GivenUserId;
 
 import static io.spine.examples.chatspn.server.given.GivenEmailAddress.randomEmailAddress;
-import static io.spine.testing.TestValues.randomString;
 
 public final class AccountCreationTestEnv {
 
@@ -56,7 +55,7 @@ public final class AccountCreationTestEnv {
                 .setId(AccountCreationId.generate())
                 .setUser(GivenUserId.generated())
                 .setEmail(randomEmailAddress())
-                .setName(randomString())
+                .setName("John Doe")
                 .vBuild();
         return command;
     }
@@ -67,7 +66,7 @@ public final class AccountCreationTestEnv {
                 .setId(AccountCreationId.generate())
                 .setUser(GivenUserId.generated())
                 .setEmail(email)
-                .setName(randomString())
+                .setName("John Doe")
                 .vBuild();
         return command;
     }
